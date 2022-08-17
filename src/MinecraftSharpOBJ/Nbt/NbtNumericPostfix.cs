@@ -1,10 +1,10 @@
 ﻿namespace binstarjs03.MinecraftSharpOBJ.Nbt;
 
 public static class NbtNumericPostfix {
-    public static readonly char ValueByte = 'b';
-    public static readonly char ValueShort = 's';
-    public static readonly char ValueInt = ' ';
-    public static readonly char ValueLong = 'l';
-    public static readonly char ValueFloat = 'f';
-    public static readonly char ValueDouble = 'd';
+    public static readonly char NbtByte = 'b';
+    public static readonly char NbtShort = 's';
+    public static readonly char NbtInt = ' ';
+    public static readonly char NbtLong = 'l';
+    public static readonly char NbtFloat = 'f';
+    public static readonly char NbtDouble = 'd';
 }
