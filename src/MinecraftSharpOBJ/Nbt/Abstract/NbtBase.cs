@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
+namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 
 public abstract class NbtBase {
     protected string _name = "";
@@ -20,6 +20,10 @@ public abstract class NbtBase {
 
     public abstract NbtType NbtType {
         get;
+    }
+
+    public virtual NbtTypeBase NbtTypeBase {
+        get { return NbtTypeBase.NbtBase; }
     }
 
     public abstract string NbtTypeName {

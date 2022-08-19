@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 
 public abstract class NbtSingleValueType : NbtBase {
@@ -28,6 +28,9 @@ public abstract class NbtSingleValueType<T> : NbtSingleValueType where T : struc
         _value = value;
     }
 
+    public override NbtTypeBase NbtTypeBase {
+        get { return NbtTypeBase.NbtSingleValueType; }
+    }
 
     public override string ToString() {
         string ret = $"{base.ToString()} - value: {_value}";
