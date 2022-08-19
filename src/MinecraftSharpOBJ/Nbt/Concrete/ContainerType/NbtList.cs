@@ -34,7 +34,7 @@ public class NbtList : NbtContainerType {
         get { return Nbt.NbtTypeName.NbtList; }
     }
 
-    public NbtBase[] Tags {
+    public override NbtBase[] Tags {
         get { return _tags.ToArray(); }
     }
 
@@ -49,9 +49,8 @@ public class NbtList : NbtContainerType {
         return new NbtList(_name, tags.ToArray());
     }
 
-    public override string ToString() {
-        string ret = $"{base.ToString()} - tags: {_tags.Count} tags";
-        return ret;
+    public override int ValueCount {
+        get { return _tags.Count; }
     }
 
     private void ValidateTagType(NbtBase tag) {

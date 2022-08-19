@@ -37,7 +37,7 @@ public class NbtCompound : NbtContainerType {
         get { return Nbt.NbtTypeName.NbtCompound; }
     }
 
-    public NbtBase[] Tags {
+    public override NbtBase[] Tags {
         get { return _tags.Values.ToArray(); }
     }
 
@@ -49,9 +49,8 @@ public class NbtCompound : NbtContainerType {
         return new NbtCompound(_name, tags.ToArray());
     }
 
-    public override string ToString() {
-        string ret = $"{base.ToString()} - tags: {_tags.Count} tags";
-        return ret;
+    public override int ValueCount {
+        get { return _tags.Count; }
     }
 
     public int Length() {
