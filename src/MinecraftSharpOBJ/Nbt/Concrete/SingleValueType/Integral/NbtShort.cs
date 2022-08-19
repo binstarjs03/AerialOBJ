@@ -1,7 +1,7 @@
 ﻿using binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.Concrete;
 
-public class NbtShort : NbtNumericType<short> {
+public class NbtShort : NbtSingleValueType<short> {
     public NbtShort() : base() {
         return;
     }
@@ -27,7 +27,7 @@ public class NbtShort : NbtNumericType<short> {
     }
 
     protected override char ValuePostfix {
-        get { return NbtNumericPostfix.NbtShort; }
+        get { return NbtSingleValueTypePostfix.NbtShort; }
     }
 
     public override NbtShort Clone() {

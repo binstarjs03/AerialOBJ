@@ -1,21 +1,22 @@
-﻿namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
+﻿using System;
+namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 
-public abstract class NbtNumericType<T> : NbtBase where T : struct {
-    protected T _value = default;
+public abstract class NbtSingleValueType<T> : NbtBase where T : struct {
+    protected T _value;
 
-    public NbtNumericType() : base() {
+    public NbtSingleValueType() : base() {
         _value = default;
     }
 
-    public NbtNumericType(string name) : base(name) {
+    public NbtSingleValueType(string name) : base(name) {
         _value = default;
     }
 
-    public NbtNumericType(T value) : base() {
+    public NbtSingleValueType(T value) : base() {
         _value = value;
     }
 
-    public NbtNumericType(string name, T value) : base(name) {
+    public NbtSingleValueType(string name, T value) : base(name) {
         _value = value;
     }
 

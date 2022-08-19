@@ -1,6 +1,7 @@
 ﻿namespace binstarjs03.MinecraftSharpOBJ.Nbt;
 
-public static class NbtNumericPostfix {
+// TODO: redundant, maybe we should delete this? if there is no use case?
+public static class NbtSingleValueTypePostfix {
     public static readonly char NbtByte = 'b';
     public static readonly char NbtShort = 's';
     public static readonly char NbtInt = ' ';
