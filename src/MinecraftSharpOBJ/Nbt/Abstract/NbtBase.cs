@@ -1,4 +1,4 @@
-namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
+﻿namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 
 public abstract class NbtBase {
     protected string _name = "";
@@ -36,5 +36,10 @@ public abstract class NbtBase {
         string classname = GetType().Name;
         string ret = $"<{classname}> {_name}";
         return ret;
+    }
+
+    public string GetTree() {
+        NbtTree nbtTree = new(this);
+        return nbtTree.Compile();
     }
 }
