@@ -1,4 +1,5 @@
-﻿namespace binstarjs03.MinecraftSharpOBJ.Nbt;
+﻿using System;
+namespace binstarjs03.MinecraftSharpOBJ.Nbt;
 
 public static class NbtTypeName {
     public static readonly string NbtEnd = nameof(Concrete.NbtEnd);
@@ -14,4 +15,23 @@ public static class NbtTypeName {
     public static readonly string NbtCompound = nameof(Concrete.NbtCompound);
     public static readonly string NbtArrayInt = nameof(Concrete.NbtArrayInt);
     public static readonly string NbtArrayLong = nameof(Concrete.NbtArrayLong);
+
+    public static string FromEnum(NbtType type) {
+        return type switch {
+            NbtType.NbtEnd => NbtEnd,
+            NbtType.NbtByte => NbtByte,
+            NbtType.NbtShort => NbtShort,
+            NbtType.NbtInt => NbtInt,
+            NbtType.NbtLong => NbtLong,
+            NbtType.NbtFloat => NbtFloat,
+            NbtType.NbtDouble => NbtDouble,
+            NbtType.NbtArrayByte => NbtArrayByte,
+            NbtType.NbtString => NbtString,
+            NbtType.NbtList => NbtList,
+            NbtType.NbtCompound => NbtCompound,
+            NbtType.NbtArrayInt => NbtArrayInt,
+            NbtType.NbtArrayLong => NbtArrayLong,
+            _ => throw new Exception("Undefined Nbt Type"),
+        };
+    }
 }
