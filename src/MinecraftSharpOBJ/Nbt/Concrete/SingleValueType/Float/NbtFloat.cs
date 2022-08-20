@@ -33,4 +33,8 @@ public class NbtFloat : NbtSingleValueType<float> {
     public override NbtFloat Clone() {
         return new(_name, _value);
     }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        _value = reader.ReadFloat();
+    }
 }

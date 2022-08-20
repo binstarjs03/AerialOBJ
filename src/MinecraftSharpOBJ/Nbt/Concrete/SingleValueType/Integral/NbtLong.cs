@@ -33,4 +33,8 @@ public class NbtLong : NbtSingleValueType<long> {
     public override NbtLong Clone() {
         return new(_name, _value);
     }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        _value = reader.ReadLong();
+    }
 }

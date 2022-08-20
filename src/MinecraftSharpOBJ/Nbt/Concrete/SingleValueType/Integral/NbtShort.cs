@@ -33,4 +33,8 @@ public class NbtShort : NbtSingleValueType<short> {
     public override NbtShort Clone() {
         return new(_name, _value);
     }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        _value = reader.ReadShort();
+    }
 }

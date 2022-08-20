@@ -33,4 +33,8 @@ public class NbtDouble : NbtSingleValueType<double> {
     public override NbtDouble Clone() {
         return new(_name, _value);
     }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        _value = reader.ReadDouble();
+    }
 }

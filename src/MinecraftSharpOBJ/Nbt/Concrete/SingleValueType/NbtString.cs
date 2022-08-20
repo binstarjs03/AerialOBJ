@@ -6,9 +6,7 @@ public class NbtString : NbtSingleValueType<NonNullString> {
         _value = NonNullString.Empty;
     }
 
-    public NbtString(string value) {
-        _value = new NonNullString(value);
-    }
+    public NbtString(string name) : base(name) { }
 
     public NbtString(string name, string value) : base(name) {
         _value = new NonNullString(value);
@@ -33,5 +31,9 @@ public class NbtString : NbtSingleValueType<NonNullString> {
 
     public override NbtString Clone() {
         return new(_name, _value.Value);
+    }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        _value.Value = reader.ReadString(sizeof(short));
     }
 }

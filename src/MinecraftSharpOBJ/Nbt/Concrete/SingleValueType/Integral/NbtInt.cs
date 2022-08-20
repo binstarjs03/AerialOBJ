@@ -33,4 +33,8 @@ public class NbtInt : NbtSingleValueType<int> {
     public override NbtInt Clone() {
         return new(_name, _value);
     }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        _value = reader.ReadInt();
+    }
 }

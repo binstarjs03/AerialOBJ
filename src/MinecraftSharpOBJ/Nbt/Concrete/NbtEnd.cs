@@ -1,4 +1,6 @@
 ﻿using binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
+using binstarjs03.MinecraftSharpOBJ.Nbt.IO;
+
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.Concrete;
 
 public class NbtEnd : NbtBase {
@@ -13,4 +15,6 @@ public class NbtEnd : NbtBase {
     public override NbtEnd Clone() {
         return new();
     }
+
+    protected override void Deserialize(NbtBinaryReader reader) { }
 }

@@ -29,4 +29,11 @@ public class NbtArrayInt : NbtArrayType<int> {
     public override NbtArrayInt Clone() {
         return new(_name, _values.ToArray());
     }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        int elementLength = reader.ReadInt();
+        for (int i = 0; i < elementLength; i++) {
+            _values.Add(reader.ReadInt());
+        }
+    }
 }

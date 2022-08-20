@@ -33,4 +33,8 @@ public class NbtByte : NbtSingleValueType<sbyte> {
     public override NbtByte Clone() {
         return new(_name, _value);
     }
+
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        _value = reader.ReadSByte();
+    }
 }

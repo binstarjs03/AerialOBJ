@@ -49,6 +49,16 @@ public class NbtCompound : NbtContainerType {
         return new NbtCompound(_name, tags.ToArray());
     }
 
+    protected override void Deserialize(IO.NbtBinaryReader reader) {
+        while (true) {
+            NbtBase nbt = NewFromStream(reader);
+            if (nbt.NbtType == NbtType.NbtEnd) {
+                return;
+            }
+            Add(nbt);
+        }
+    }
+
     public override int ValueCount {
         get { return _tags.Count; }
     }
