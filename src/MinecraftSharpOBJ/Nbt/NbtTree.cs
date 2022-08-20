@@ -7,6 +7,9 @@ using binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 using binstarjs03.MinecraftSharpOBJ.Nbt.Concrete;
 namespace binstarjs03.MinecraftSharpOBJ.Nbt;
 
+// TODO: use stack based connectors that will be shared between all Compile call.
+// Current implementation is to return new List<string of Connector> each successive Compile call
+// Issue: this will cause excessive GC pressure and deallocation a lot, excessive heap allocation
 public class NbtTree {
     private readonly StringBuilder _sb;
     private readonly NbtBase _nbt;
@@ -52,29 +55,28 @@ public class NbtTree {
 
         switch (nbt.NbtTypeBase) {
             case NbtTypeBase.NbtContainerType:
-                CompileContainerType(_sb, (NbtContainerType)nbt, otherConnectors, isParentLast, isRoot);
+                compileContainerType(this, (NbtContainerType)nbt, otherConnectors, isParentLast, isRoot);
                 break;
             case NbtTypeBase.NbtArrayType:
-                CompileArrayType(_sb, (NbtArrayType)nbt, otherConnectors, isParentLast, isRoot);
+                compileArrayType(this, (NbtArrayType)nbt, otherConnectors, isParentLast, isRoot);
                 break;
             case NbtTypeBase.NbtSingleValueType:
-                CompileSingleValueType(_sb, (NbtSingleValueType)nbt);
+                compileSingleValueType(this, (NbtSingleValueType)nbt);
                 break;
             default:
                 break;
         }
 
-        void CompileContainerType(StringBuilder sb, NbtContainerType nbt, List<string> otherConnectors, bool isParentLast, bool isRoot) {
+        static void compileContainerType(NbtTree tree, NbtContainerType nbt, List<string> otherConnectors, bool isParentLast, bool isRoot) {
             if (nbt is NbtCompound)
-                sb.AppendLine($"{nbt.ValueCount} tag(s)");
+                tree._sb.AppendLine($"{nbt.ValueCount} tag(s)");
             if (nbt is NbtList nbtList) {
                 NbtType? listType = nbtList.ListType;
                 if (listType is null)
-                    sb.AppendLine($"{nbtList.ValueCount} tag(s)");
+                    tree._sb.AppendLine($"{nbtList.ValueCount} tag (empty list tag)");
                 else
-                    sb.AppendLine($"{nbtList.ValueCount} tag(s) of {NbtTypeName.FromEnum((NbtType)listType)}");
+                    tree._sb.AppendLine($"{nbtList.ValueCount} tag(s) of {NbtTypeName.FromEnum((NbtType)listType)}");
             }
-
 
             List<string> childOtherConnectors = new(otherConnectors);
             NbtBase[] childs = nbt.Tags;
@@ -96,31 +98,31 @@ public class NbtTree {
                     childConnector = Connector.Branch;
                     childIsParentLast = false;
                 }
-                Compile(childs[i], childOtherConnectors, childConnector, childIsParentLast, childIsInsideList);
+                tree.Compile(childs[i], childOtherConnectors, childConnector, childIsParentLast, childIsInsideList);
             }
         }
 
-        void CompileArrayType(StringBuilder sb, NbtArrayType nbt, List<string> otherConnectors, bool isParentLast, bool isRoot) {
+        static void compileArrayType(NbtTree tree, NbtArrayType nbt, List<string> otherConnectors, bool isParentLast, bool isRoot) {
             string[] values = nbt.ValuesStringized;
-            sb.AppendLine($"{values.Length} value(s)");
+            tree._sb.AppendLine($"{values.Length} value(s)");
 
             string childConnector = "";
             if (!isRoot)
                 childConnector = isParentLast ? Connector.Space : Connector.Connect;
             for (int i = 0; i < values.Length; i++) {
                 foreach (string otherConnector in otherConnectors)
-                    sb.Append(otherConnector);
+                    tree._sb.Append(otherConnector);
                 string connector = i == values.Length - 1 ? Connector.Last : Connector.Branch;
-                sb.AppendLine($"{childConnector}{connector}{values[i]}");
+                tree._sb.AppendLine($"{childConnector}{connector}{values[i]}");
             }
         }
 
-        void CompileSingleValueType(StringBuilder sb, NbtSingleValueType nbt) {
-            sb.AppendLine(nbt.ValueStringized);
+        static void compileSingleValueType(NbtTree tree, NbtSingleValueType nbt) {
+            tree._sb.AppendLine(nbt.ValueStringized);
         }
     }
 
-    private string DotOrDash(NbtBase nbt, bool isRoot) {
+    private static string DotOrDash(NbtBase nbt, bool isRoot) {
         if (nbt is NbtMultipleValueType nbtMultipleValueType && nbtMultipleValueType.ValueCount > 0)
             return "●"; // dot
         else {
