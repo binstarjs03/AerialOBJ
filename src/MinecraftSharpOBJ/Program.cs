@@ -6,8 +6,15 @@ namespace binstarjs03.MinecraftSharpOBJ;
 internal class Program {
     static void Main(string[] args) {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        Run();
+        Run2();
         Console.ReadKey();
+    }
+
+    static void Run2() {
+        string path = @"C:\Users\Bin\repos\Bin Resource\ExampleTags\level.dat";
+        //string path = @"C:\Users\Bin\repos\Bin Resource\ExampleTags\bigtest.nbt";
+        NbtBase nbt = NbtBase.ReadDisk(path, Utils.IO.ByteOrder.BigEndian);
+        Console.WriteLine(nbt.GetTree());
     }
 
     static void Run() {
