@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 using binstarjs03.MinecraftSharpOBJ.Utils.IO;
 using binstarjs03.MinecraftSharpOBJ.Nbt.IO;
 using binstarjs03.MinecraftSharpOBJ.Nbt.Concrete;
+using binstarjs03.MinecraftSharpOBJ.Nbt.Utils;
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 
+// TODO: current implementation of loading binary nbt is unstable
 public abstract class NbtBase {
     protected string _name = "";
     protected NbtContainerType? _parent; // currently unused

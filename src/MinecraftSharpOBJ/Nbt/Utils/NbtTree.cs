@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 using binstarjs03.MinecraftSharpOBJ.Nbt.Concrete;
-namespace binstarjs03.MinecraftSharpOBJ.Nbt;
+namespace binstarjs03.MinecraftSharpOBJ.Nbt.Utils;
 
 // TODO: use stack based connectors that will be shared between all Compile call.
 // Current implementation is to return new List<string of Connector> each successive Compile call
@@ -45,7 +45,7 @@ public class NbtTree {
         return _sb.ToString();
     }
 
-    private void Compile(NbtBase nbt, List<string> otherConnectors, string connector, bool isParentLast, bool isInsideList, bool isRoot=false) {
+    private void Compile(NbtBase nbt, List<string> otherConnectors, string connector, bool isParentLast, bool isInsideList, bool isRoot = false) {
         foreach (string otherConnector in otherConnectors)
             _sb.Append(otherConnector);
         _sb.Append($"{connector}{DotOrDash(nbt, isRoot)}");
