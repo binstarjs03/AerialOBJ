@@ -9,12 +9,15 @@ using BinaryReader = binstarjs03.MinecraftSharpOBJ.Utils.IO.BinaryReader;
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.IO;
 
 public class NbtBinaryReader : BinaryReader {
-    public readonly Stack<NbtBase> NbtStackReadingState = new();
+    public readonly Stack<NbtBase> NbtTagStack = new();
 
     public NbtBinaryReader(Stream input, ByteOrder byteOrder) : base(input, byteOrder) {
         return;
     }
 
+    /// <exception cref="EndOfStreamException"></exception>
+    /// <exception cref="ObjectDisposedException"></exception>
+    /// <exception cref="IOException"></exception>
     /// <exception cref="NbtUnknownTagTypeException"></exception>
     public NbtType ReadTagType() {
         int type = ReadByte();
@@ -22,14 +25,14 @@ public class NbtBinaryReader : BinaryReader {
             return (NbtType)type;
         else
             throw new NbtUnknownTagTypeException(
-            $"Unknown tag type at stream position {BaseStream.Position}"
+            $"Unknown tag type '{type}' at stream position {BaseStream.Position}"
         );
     }
 
     public string GetReadingErrorStack() {
         StringBuilder sb = new();
-        NbtBase errorNbt = NbtStackReadingState.Pop();
-        IEnumerable<NbtBase> reversedNbtStack = NbtStackReadingState.Reverse();
+        NbtBase errorNbt = NbtTagStack.Pop();
+        IEnumerable<NbtBase> reversedNbtStack = NbtTagStack.Reverse();
 
         sb.AppendLine("Nbt tag stack: ");
         foreach (NbtBase nbt in reversedNbtStack) {
@@ -39,7 +42,7 @@ public class NbtBinaryReader : BinaryReader {
             sb.AppendLine(nbt.Name);
         }
         sb.Append($"An error occured while parsing nbt data of {errorNbt.NbtType} - {errorNbt.Name}");
-        NbtStackReadingState.Push(errorNbt);
+        NbtTagStack.Push(errorNbt);
         return sb.ToString();
     }
 }
