@@ -16,9 +16,7 @@ public struct NonNullString {
         _value = value;
     }
 
-    public static NonNullString Empty {
-        get { return new NonNullString(); }
-    }
+    public static NonNullString Empty => new();
 
     public string Value {
         get { return _value is null? string.Empty : _value; }

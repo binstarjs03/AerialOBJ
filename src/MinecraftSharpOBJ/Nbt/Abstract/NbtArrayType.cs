@@ -2,19 +2,15 @@
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 
 public abstract class NbtArrayType : NbtMultipleValueType {
-    public NbtArrayType(string name) : base(name) {
-        return;
-    }
+    public NbtArrayType(string name) : base(name) { }
 
-    public NbtArrayType() : base() {
-        return;
-    }
+    public NbtArrayType() : base() { }
 
     public abstract string[] ValuesStringized { get; }
 }
 
 public abstract class NbtArrayType<T> : NbtArrayType where T : struct {
-    protected List<T> _values = new();
+    protected List<T> _values;
 
     public NbtArrayType() : base() {
         _values = new List<T>();
@@ -32,13 +28,10 @@ public abstract class NbtArrayType<T> : NbtArrayType where T : struct {
         _values = new List<T>(values);
     }
 
-    public override NbtTypeBase NbtTypeBase {
-        get { return NbtTypeBase.NbtArrayType; }
-    }
+    public override NbtTypeBase NbtTypeBase => NbtTypeBase.NbtArrayType;       
 
     public override string ToString() {
-        string ret = $"{base.ToString()} - values: {_values.Count} items";
-        return ret;
+        return $"{base.ToString()} - values: {_values.Count} items";
     }
 
     public List<T> Values {
@@ -57,7 +50,5 @@ public abstract class NbtArrayType<T> : NbtArrayType where T : struct {
         }
     }
 
-    public override int ValueCount {
-        get { return _values.Count; }
-    }
+    public override int ValueCount => _values.Count;
 }

@@ -29,17 +29,11 @@ public class NbtCompound : NbtContainerType {
         }
     }
 
-    public override NbtType NbtType {
-        get { return NbtType.NbtCompound; }
-    }
+    public override NbtType NbtType => NbtType.NbtCompound;
 
-    public override string NbtTypeName {
-        get { return Nbt.NbtTypeName.NbtCompound; }
-    }
+    public override string NbtTypeName => Nbt.NbtTypeName.NbtCompound;
 
-    public override NbtBase[] Tags {
-        get { return _tags.Values.ToArray(); }
-    }
+    public override NbtBase[] Tags => _tags.Values.ToArray();
 
     public override NbtCompound Clone() {
         List<NbtBase> tags = new();
@@ -59,13 +53,9 @@ public class NbtCompound : NbtContainerType {
         }
     }
 
-    public override int ValueCount {
-        get { return _tags.Count; }
-    }
+    public override int ValueCount => _tags.Count;
 
-    public int Length() {
-        return _tags.Count;
-    }
+    public int Length => _tags.Count;
 
     public NbtBase Get(string name) {
         if (!HasTag(name)) {
@@ -80,9 +70,8 @@ public class NbtCompound : NbtContainerType {
     }
 
     public bool TryGet(string name, out NbtBase? tag) {
-        if (_tags.TryGetValue(name, out tag)) {
+        if (_tags.TryGetValue(name, out tag))
             return true;
-        }
         return false;
     }
 

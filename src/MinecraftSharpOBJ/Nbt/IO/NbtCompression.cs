@@ -38,27 +38,27 @@ public static class NbtCompression {
 
     /// <exception cref="NbtUnknownCompressionMethodException"></exception>
     public static MemoryStream DecompressStream(Stream stream, Method compressionMethod) {
-        MemoryStream memoryDecompressed = new();
+        MemoryStream decompressedStream = new();
 
         if (compressionMethod == Method.AutoDetect)
             compressionMethod = DetectCompression(new BinaryReader(stream));
         switch (compressionMethod) {
             case Method.Gzip:
                 using (GZipStream decompressorGzip = new(stream, CompressionMode.Decompress))
-                    decompressorGzip.CopyTo(memoryDecompressed);
+                    decompressorGzip.CopyTo(decompressedStream);
                 break;
             case Method.Zlib:
                 using (ZLibStream decompressorZlib = new(stream, CompressionMode.Decompress))
-                    decompressorZlib.CopyTo(memoryDecompressed);
+                    decompressorZlib.CopyTo(decompressedStream);
                 break;
             case Method.Uncompressed:
                 using (stream)
-                    stream.CopyTo(memoryDecompressed);
+                    stream.CopyTo(decompressedStream);
                 break;
             default:
                 throw new NbtUnknownCompressionMethodException($"Undefined compression method of {compressionMethod}");
         }
-        memoryDecompressed.Seek(0, SeekOrigin.Begin);
-        return memoryDecompressed;
+        decompressedStream.Seek(0, SeekOrigin.Begin);
+        return decompressedStream;
     }
 }

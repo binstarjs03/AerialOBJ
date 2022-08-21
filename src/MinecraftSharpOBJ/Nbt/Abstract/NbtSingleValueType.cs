@@ -28,13 +28,10 @@ public abstract class NbtSingleValueType<T> : NbtSingleValueType where T : struc
         _value = value;
     }
 
-    public override NbtTypeBase NbtTypeBase {
-        get { return NbtTypeBase.NbtSingleValueType; }
-    }
+    public override NbtTypeBase NbtTypeBase => NbtTypeBase.NbtSingleValueType;
 
     public override string ToString() {
-        string ret = $"{base.ToString()} - value: {_value}";
-        return ret;
+        return $"{base.ToString()} - value: {_value}";
     }
 
     public T Value {
@@ -49,7 +46,5 @@ public abstract class NbtSingleValueType<T> : NbtSingleValueType where T : struc
         }
     }
 
-    protected abstract char ValuePostfix {
-        get;
-    }
+    protected abstract char ValuePostfix { get; }
 }

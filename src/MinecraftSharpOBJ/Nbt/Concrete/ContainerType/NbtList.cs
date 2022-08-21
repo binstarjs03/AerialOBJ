@@ -26,26 +26,18 @@ public class NbtList : NbtContainerType {
         _tags = new List<NbtBase>(tags);
     }
 
-    public override NbtType NbtType {
-        get { return NbtType.NbtList; }
-    }
+    public override NbtType NbtType => NbtType.NbtList;
 
-    public override string NbtTypeName {
-        get { return Nbt.NbtTypeName.NbtList; }
-    }
+    public override string NbtTypeName => Nbt.NbtTypeName.NbtList;
 
-    public override NbtBase[] Tags {
-        get { return _tags.ToArray(); }
-    }
+    public override NbtBase[] Tags => _tags.ToArray();
 
-    public NbtType? ListType {
-        get { return _listType; }
-    }
+    public NbtType? ListType => _listType;
 
     public override NbtList Clone() {
         List<NbtBase> tags = new();
         foreach (NbtBase tag in _tags)
-            tags.Add((NbtBase)tag.Clone());
+            tags.Add(tag.Clone());
         return new NbtList(_name, tags.ToArray());
     }
 
@@ -58,9 +50,7 @@ public class NbtList : NbtContainerType {
         }
     }
 
-    public override int ValueCount {
-        get { return _tags.Count; }
-    }
+    public override int ValueCount => _tags.Count;
 
     private void ValidateTagType(NbtBase tag) {
         if (_listType is null) {
@@ -86,9 +76,7 @@ public class NbtList : NbtContainerType {
         _listType = type;
     }
 
-    public int Length() {
-        return _tags.Count;
-    }
+    public int Length => _tags.Count;
 
     public NbtBase Get(int index) {
         return _tags[index];

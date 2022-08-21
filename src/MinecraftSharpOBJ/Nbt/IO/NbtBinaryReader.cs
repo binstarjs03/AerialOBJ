@@ -11,9 +11,7 @@ namespace binstarjs03.MinecraftSharpOBJ.Nbt.IO;
 public class NbtBinaryReader : BinaryReader {
     public readonly Stack<NbtBase> NbtTagStack = new();
 
-    public NbtBinaryReader(Stream input, ByteOrder byteOrder) : base(input, byteOrder) {
-        return;
-    }
+    public NbtBinaryReader(Stream input, ByteOrder byteOrder) : base(input, byteOrder) { }
 
     /// <exception cref="EndOfStreamException"></exception>
     /// <exception cref="ObjectDisposedException"></exception>

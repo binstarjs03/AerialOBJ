@@ -25,24 +25,16 @@ public abstract class NbtBase {
         set { _name = value; }
     }
 
-    public abstract NbtType NbtType {
-        get;
-    }
+    public abstract NbtType NbtType { get; }
 
-    public virtual NbtTypeBase NbtTypeBase {
-        get { return NbtTypeBase.NbtBase; }
-    }
+    public virtual NbtTypeBase NbtTypeBase => NbtTypeBase.NbtBase;
 
-    public abstract string NbtTypeName {
-        get;
-    }
+    public abstract string NbtTypeName { get; }
 
     public abstract NbtBase Clone();
 
     public override string ToString() {
-        string classname = GetType().Name;
-        string ret = $"<{classname}> {_name}";
-        return ret;
+        return $"<{GetType().Name}> {_name}";
     }
 
     public string GetTree() {
@@ -56,15 +48,24 @@ public abstract class NbtBase {
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
     public static NbtBase ReadDisk(string path, ByteOrder byteOrder) {
-        using (MemoryStream ms = new(File.ReadAllBytes(path))) {
-            NbtBase nbt = ReadStream(ms, byteOrder, NbtCompression.Method.AutoDetect);
-            return nbt;
+        return ReadDisk(new FileInfo(path), byteOrder);
+    }
+
+    // TODO: Wraps File.ReadAllBytes exceptions into single exception
+    /// <exception cref="NbtDeserializationError"></exception>
+    /// <exception cref="InvalidDataException"></exception>
+    public static NbtBase ReadDisk(FileInfo fileInfo, ByteOrder byteOrder) { 
+        if (fileInfo.Length == 0)
+            throw new ArgumentOutOfRangeException( nameof(fileInfo), "File size is equal to zero. No nbt data exist");
+        using (MemoryStream ms = new(File.ReadAllBytes(fileInfo.FullName))) {
+            return ReadStream(ms, byteOrder, NbtCompression.Method.AutoDetect);
         }
     }
 
+    // TODO: bypass decompression if compression method is uncompressed
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
-    public static NbtBase ReadStream(Stream stream, ByteOrder byteOrder, NbtCompression.Method compressionMethod) {
+    public static NbtBase ReadStream(Stream stream, ByteOrder byteOrder, NbtCompression.Method compressionMethod) {    
         using (MemoryStream decompressed = NbtCompression.DecompressStream(stream, compressionMethod))
         using (NbtBinaryReader reader = new(decompressed, byteOrder)) {
             NbtBase nbt;
@@ -115,7 +116,7 @@ public abstract class NbtBase {
     protected static NbtBase NewFromStream(NbtBinaryReader reader, bool isInsideList = false, NbtType? type = null) {
         string name = "";
         if (isInsideList && type is null) {
-            string msg = $"Nbt type cannot null if tag is inside list (Programmer error)";
+            string msg = $"Nbt type cannot null if tag is inside list";
             throw new NullReferenceException(msg);
         }
         else if (!isInsideList) {
@@ -138,8 +139,7 @@ public abstract class NbtBase {
             NbtType.NbtArrayLong => new NbtArrayLong(name),
             NbtType.NbtCompound => new NbtCompound(name),
             NbtType.NbtList => new NbtList(name),
-            _ => throw new NotImplementedException(
-                $"Nbt type {type} deserialization has not been implemented yet"),
+            _ => throw new NotImplementedException($"Nbt type {type} deserialization has not been implemented yet"),
         };
         reader.NbtTagStack.Push(nbt);
         try {

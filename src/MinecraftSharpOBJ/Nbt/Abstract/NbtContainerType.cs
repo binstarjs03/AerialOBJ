@@ -1,24 +1,15 @@
 ﻿namespace binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 
 public abstract class NbtContainerType : NbtMultipleValueType {
-    public NbtContainerType() : base() {
-        return;
-    }
+    public NbtContainerType() : base() { }
 
-    public NbtContainerType(string name) : base(name) {
-        return;
-    }
+    public NbtContainerType(string name) : base(name) { }
 
-    public override NbtTypeBase NbtTypeBase { 
-        get { return NbtTypeBase.NbtContainerType; }
-    }
+    public override NbtTypeBase NbtTypeBase => NbtTypeBase.NbtContainerType;
 
     public override string ToString() {
-        string ret = $"{base.ToString()} - tags: {Tags.Length} tags";
-        return ret;
+        return $"{base.ToString()} - tags: {Tags.Length} tags";
     }
 
-    public abstract NbtBase[] Tags {
-        get;
-    }
+    public abstract NbtBase[] Tags { get; }
 }

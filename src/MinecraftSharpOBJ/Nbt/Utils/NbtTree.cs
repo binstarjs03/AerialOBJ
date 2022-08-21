@@ -75,7 +75,7 @@ public class NbtTree {
                 if (listType is null)
                     tree._sb.AppendLine($"{nbtList.ValueCount} tag (empty list tag)");
                 else
-                    tree._sb.AppendLine($"{nbtList.ValueCount} tag(s) of {NbtTypeName.FromEnum((NbtType)listType)}");
+                    tree._sb.AppendLine($"{nbtList.ValueCount} tag(s) of {listType}");
             }
 
             List<string> childOtherConnectors = new(otherConnectors);

@@ -12,22 +12,16 @@ public class NbtString : NbtSingleValueType<NonNullString> {
         _value = new NonNullString(value);
     }
 
-    public override NbtType NbtType {
-        get { return NbtType.NbtString; }
-    }
+    public override NbtType NbtType => NbtType.NbtString;
 
-    public override string NbtTypeName {
-        get { return Nbt.NbtTypeName.NbtString; }
-    }
+    public override string NbtTypeName => Nbt.NbtTypeName.NbtString;
 
     public new string Value {
         get { return _value.Value; }
         set { _value.Value = value; }
     }
 
-    protected override char ValuePostfix {
-        get { return '\0'; }
-    }
+    protected override char ValuePostfix => '\0';
 
     public override NbtString Clone() {
         return new(_name, _value.Value);

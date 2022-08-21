@@ -2,33 +2,19 @@
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.Concrete;
 
 public class NbtFloat : NbtSingleValueType<float> {
-    public NbtFloat() : base() {
-        return;
-    }
+    public NbtFloat() : base() {  }
 
-    public NbtFloat(string name) : base(name) {
-        return;
-    }
+    public NbtFloat(string name) : base(name) {  }
 
-    public NbtFloat(float value) : base(value) {
-        return;
-    }
+    public NbtFloat(float value) : base(value) {  }
 
-    public NbtFloat(string name, float value) : base(name, value) {
-        return;
-    }
+    public NbtFloat(string name, float value) : base(name, value) {  }
 
-    public override NbtType NbtType {
-        get { return NbtType.NbtFloat; }
-    }
+    public override NbtType NbtType => NbtType.NbtFloat;
 
-    public override string NbtTypeName {
-        get { return Nbt.NbtTypeName.NbtFloat; }
-    }
+    public override string NbtTypeName => Nbt.NbtTypeName.NbtFloat;
 
-    protected override char ValuePostfix {
-        get { return NbtSingleValueTypePostfix.NbtFloat; }
-    }
+    protected override char ValuePostfix => NbtSingleValueTypePostfix.NbtFloat;
 
     public override NbtFloat Clone() {
         return new(_name, _value);

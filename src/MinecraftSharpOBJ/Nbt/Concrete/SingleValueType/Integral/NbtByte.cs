@@ -2,33 +2,19 @@
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.Concrete;
 
 public class NbtByte : NbtSingleValueType<sbyte> {
-    public NbtByte() : base() {
-        return;
-    }
+    public NbtByte() : base() { return; }
 
-    public NbtByte(string name) : base(name) {
-        return;
-    }
+    public NbtByte(string name) : base(name) { return; }
 
-    public NbtByte(sbyte value) : base(value) {
-        return;
-    }
+    public NbtByte(sbyte value) : base(value) { return; }
 
-    public NbtByte(string name, sbyte value) : base(name, value) {
-        return;
-    }
+    public NbtByte(string name, sbyte value) : base(name, value) { return; }
 
-    public override NbtType NbtType {
-        get { return NbtType.NbtByte; }
-    }
+    public override NbtType NbtType => NbtType.NbtByte;
 
-    public override string NbtTypeName {
-        get { return Nbt.NbtTypeName.NbtByte; }
-    }
+    public override string NbtTypeName => Nbt.NbtTypeName.NbtByte;
 
-    protected override char ValuePostfix {
-        get { return NbtSingleValueTypePostfix.NbtByte; }
-    }
+    protected override char ValuePostfix => NbtSingleValueTypePostfix.NbtByte;
 
     public override NbtByte Clone() {
         return new(_name, _value);
