@@ -39,6 +39,7 @@ public class NbtBinaryReader : BinaryReader {
             sb.AppendLine(nbt.Name);
         }
         sb.Append($"An error occured while parsing nbt data of {errorNbt.NbtType} - {errorNbt.Name}");
+        NbtStackReadingState.Push(errorNbt);
         return sb.ToString();
     }
 }

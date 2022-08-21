@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using binstarjs03.MinecraftSharpOBJ.Utils.IO;
@@ -81,10 +81,12 @@ public abstract class NbtBase {
                 }
             }
             catch (Exception e) {
-                Console.Error.WriteLine(reader.GetReadingErrorStack());
-                Console.Error.WriteLine($"Error type: {e.GetType()}");
-                Console.Error.WriteLine($"Error message: {e.Message}");
-                throw new NbtDeserializationError("An error occured while trying to deserialize nbt data from raw binary data", e);
+                StringBuilder sb = new();
+                sb.AppendLine("An error occured while trying to deserialize nbt data from raw binary data");
+                sb.AppendLine(reader.GetReadingErrorStack());
+                sb.AppendLine($"Error type: {e.GetType()}");
+                sb.AppendLine($"Error message: {e.Message}");
+                throw new NbtDeserializationError(sb.ToString(), e);
             }
             if (nbt is NbtEnd) {
                 string msg = "Bare end tag got returned. "
