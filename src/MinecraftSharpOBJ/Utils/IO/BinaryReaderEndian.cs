@@ -6,22 +6,22 @@ using System.Text;
 namespace binstarjs03.MinecraftSharpOBJ.Utils.IO;
 
 /// <summary>
-/// Wrapper around <see cref="System.IO.BinaryReader"/> that is endian-aware.
+/// Wrapper around <see cref="BinaryReader"/> that is endian-aware.
 /// </summary>
-public class BinaryReader : IDisposable {
+public class BinaryReaderEndian : IDisposable {
     private static readonly string _disposedExceptionMsg = "Cannot read data, reader is already disposed";
     
     protected readonly Stream _baseStream;
-    protected readonly System.IO.BinaryReader _reader;
+    protected readonly BinaryReader _reader;
     protected readonly ByteOrder _byteOrder;
     private bool _hasDisposed;
 
     /// <exception cref="IOException"></exception>
-    public BinaryReader(Stream input, ByteOrder ByteOrder) {
+    public BinaryReaderEndian(Stream input, ByteOrder ByteOrder) {
         if (!input.CanRead)
             throw new IOException("Input stream is unreadable (may be closed/disposed or write-only)");
         _baseStream = input;
-        _reader = new System.IO.BinaryReader(input);
+        _reader = new BinaryReader(input);
         _byteOrder = ByteOrder;
         _hasDisposed = false;
     }
@@ -30,7 +30,7 @@ public class BinaryReader : IDisposable {
         get { return _baseStream; }
     }
 
-    public System.IO.BinaryReader Reader {
+    public BinaryReader Reader {
         get { return _reader; }
     }
 

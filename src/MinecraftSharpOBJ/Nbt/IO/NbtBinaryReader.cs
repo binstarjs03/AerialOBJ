@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using binstarjs03.MinecraftSharpOBJ.Nbt.Abstract;
 using binstarjs03.MinecraftSharpOBJ.Utils.IO;
-using BinaryReader = binstarjs03.MinecraftSharpOBJ.Utils.IO.BinaryReader;
+using BinaryReaderEndian = binstarjs03.MinecraftSharpOBJ.Utils.IO.BinaryReaderEndian;
 namespace binstarjs03.MinecraftSharpOBJ.Nbt.IO;
 
-public class NbtBinaryReader : BinaryReader {
+public class NbtBinaryReader : BinaryReaderEndian {
     public readonly Stack<NbtBase> NbtTagStack = new();
 
     public NbtBinaryReader(Stream input, ByteOrder byteOrder) : base(input, byteOrder) { }
