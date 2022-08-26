@@ -29,8 +29,6 @@ public abstract class NbtBase {
 
     public virtual NbtTypeBase NbtTypeBase => NbtTypeBase.NbtBase;
 
-    public abstract string NbtTypeName { get; }
-
     public abstract NbtBase Clone();
 
     public override string ToString() {

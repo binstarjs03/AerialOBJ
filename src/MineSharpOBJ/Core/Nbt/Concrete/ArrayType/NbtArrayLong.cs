@@ -12,8 +12,6 @@ public class NbtArrayLong : NbtArrayType<long> {
 
     public override NbtType NbtType => NbtType.NbtArrayLong;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtArrayLong;
-
     public override NbtArrayLong Clone() {
         return new(_name, _values.ToArray());
     }

@@ -35,7 +35,7 @@ public class NbtBinaryReader : BinaryReaderEndian {
         sb.AppendLine("Nbt tag stack: ");
         foreach (NbtBase nbt in reversedNbtStack) {
             sb.Append("    ");
-            sb.Append(nbt.NbtTypeName);
+            sb.Append(nbt.NbtType);
             sb.Append(" - ");
             sb.AppendLine(nbt.Name);
         }

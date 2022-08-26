@@ -12,10 +12,6 @@ public class NbtShort : NbtSingleValueType<short> {
 
     public override NbtType NbtType => NbtType.NbtShort;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtShort;
-
-    protected override char ValuePostfix => NbtSingleValueTypePostfix.NbtShort;
-
     public override NbtShort Clone() {
         return new(_name, _value);
     }

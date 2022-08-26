@@ -50,7 +50,7 @@ public class NbtTree {
             _sb.Append(otherConnector);
         _sb.Append($"{connector}{DotOrDash(nbt, isRoot)}");
         if (!isInsideList) {
-            _sb.Append($"<{nbt.NbtTypeName}> {nbt.Name} = ");
+            _sb.Append($"<{nbt.NbtType}> {nbt.Name} = ");
         }
 
         switch (nbt.NbtTypeBase) {

@@ -12,8 +12,6 @@ public class NbtArrayByte : NbtArrayType<sbyte> {
 
     public override NbtType NbtType => NbtType.NbtArrayByte;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtArrayByte;
-
     public override NbtArrayByte Clone() {
         return new(_name, _values.ToArray());
     }

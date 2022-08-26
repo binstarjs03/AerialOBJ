@@ -31,8 +31,6 @@ public class NbtCompound : NbtContainerType {
 
     public override NbtType NbtType => NbtType.NbtCompound;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtCompound;
-
     public override NbtBase[] Tags => _tags.Values.ToArray();
 
     public override NbtCompound Clone() {

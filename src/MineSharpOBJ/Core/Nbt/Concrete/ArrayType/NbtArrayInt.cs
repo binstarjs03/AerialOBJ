@@ -12,8 +12,6 @@ public class NbtArrayInt : NbtArrayType<int> {
 
     public override NbtType NbtType => NbtType.NbtArrayInt;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtArrayInt;
-
     public override NbtArrayInt Clone() {
         return new(_name, _values.ToArray());
     }

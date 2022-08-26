@@ -28,8 +28,6 @@ public class NbtList : NbtContainerType {
 
     public override NbtType NbtType => NbtType.NbtList;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtList;
-
     public override NbtBase[] Tags => _tags.ToArray();
 
     public NbtType? ListType => _listType;

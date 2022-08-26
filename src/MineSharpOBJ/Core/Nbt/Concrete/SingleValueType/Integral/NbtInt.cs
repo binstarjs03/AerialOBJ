@@ -12,10 +12,6 @@ public class NbtInt : NbtSingleValueType<int> {
 
     public override NbtType NbtType => NbtType.NbtInt;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtInt;
-
-    protected override char ValuePostfix => NbtSingleValueTypePostfix.NbtInt;
-
     public override NbtInt Clone() {
         return new(_name, _value);
     }

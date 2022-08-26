@@ -45,6 +45,4 @@ public abstract class NbtSingleValueType<T> : NbtSingleValueType where T : struc
             return ret is null ? string.Empty : ret;
         }
     }
-
-    protected abstract char ValuePostfix { get; }
 }

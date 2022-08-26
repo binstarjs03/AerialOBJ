@@ -12,10 +12,6 @@ public class NbtDouble : NbtSingleValueType<double> {
 
     public override NbtType NbtType => NbtType.NbtFloat;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtFloat;
-
-    protected override char ValuePostfix => NbtSingleValueTypePostfix.NbtFloat;
-
     public override NbtDouble Clone() {
         return new(_name, _value);
     }

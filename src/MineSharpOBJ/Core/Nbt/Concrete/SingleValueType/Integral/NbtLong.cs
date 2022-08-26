@@ -12,10 +12,6 @@ public class NbtLong : NbtSingleValueType<long> {
 
     public override NbtType NbtType => NbtType.NbtLong;
 
-    public override string NbtTypeName => Nbt.NbtTypeName.NbtLong;
-
-    protected override char ValuePostfix => NbtSingleValueTypePostfix.NbtLong;
-
     public override NbtLong Clone() {
         return new(_name, _value);
     }
