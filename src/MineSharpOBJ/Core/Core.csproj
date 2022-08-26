@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+		<StartupObject>binstarjs03.MineSharpOBJ.Core.Program</StartupObject>
+		<WarningsAsErrors>CS8601; CS8600; CS8625; CS8604; CS8629; CS8618; </WarningsAsErrors>
+		<RootNamespace>binstarjs03.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+		<RepositoryUrl>https://github.com/binstarjs03/MinecraftSharpOBJ</RepositoryUrl>
+	</PropertyGroup>
+
+</Project>
