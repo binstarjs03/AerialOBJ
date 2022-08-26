@@ -1,7 +1,7 @@
 ﻿using binstarjs03.MineSharpOBJ.Core.Utils;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Abstract;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
-namespace binstarjs03.MineSharpOBJ.Core.Region;
+namespace binstarjs03.MineSharpOBJ.Core.RegionMc;
 
 public class Block {
     private readonly string _name;

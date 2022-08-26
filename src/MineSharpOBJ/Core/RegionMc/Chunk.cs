@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using binstarjs03.MineSharpOBJ.Core.Utils;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
-namespace binstarjs03.MineSharpOBJ.Core.Region;
+namespace binstarjs03.MineSharpOBJ.Core.RegionMc;
 
 public class Chunk {
     public static readonly int TotalSectionCount = SectionRange.max - SectionRange.min;
