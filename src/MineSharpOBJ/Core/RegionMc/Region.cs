@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
@@ -158,5 +158,9 @@ public class Region : IDisposable {
                 coords = ConvertChunkAbsToRel(coords);
             return new Chunk(nbtChunk, coords);
         }
+
+    public override string ToString() {
+        string ioStatus = _stream.CanRead ? "Open" : "Closed";
+        return $"Region {Coords} at \"{_path}\", stream status: {ioStatus}";
     }
 }

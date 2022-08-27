@@ -94,4 +94,8 @@ public class Chunk {
         int relBz = MathUtils.Mod(coords.z, Section.BlockCount);
         return new Coords3(relBx, relBy, relBz);
     }
+
+    public override string ToString() {
+        return $"Chunk {_coordsAbs}";
+    }
 }

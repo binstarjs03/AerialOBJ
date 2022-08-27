@@ -41,6 +41,6 @@ public class Block {
     public NbtCompound Properties => _properties;
 
     public override string ToString() {
-        return $"{_name} at {_coordsAbs}";
+        return $"{_name} block {_coordsAbs}";
     }
 }

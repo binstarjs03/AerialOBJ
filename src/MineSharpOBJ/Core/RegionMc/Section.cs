@@ -184,4 +184,7 @@ public class Section {
         return paletteIndexTable.ToArray();
     }
 
+    public override string ToString() {
+        return $"Section {_yPos} of {_coordsAbs}";
+    }
 }
