@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
@@ -6,6 +6,8 @@ using binstarjs03.MineSharpOBJ.Core.Utils;
 using binstarjs03.MineSharpOBJ.Core.Nbt.IO;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Abstract;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
+using System.Collections.Generic;
+
 namespace binstarjs03.MineSharpOBJ.Core.RegionMc;
 
 public class ChunkNotGeneratedException : InvalidOperationException {
@@ -26,12 +28,14 @@ public class Region : IDisposable {
     public static readonly int ChunkHeaderTableSize = SectorDataSize * 1;
     public static readonly int ChunkSHeaderSize = 4;
 
+    private readonly string _path;
     private readonly Stream _stream;
     private readonly Coords2 _coords;
     private readonly Coords2Range _chunkRangeAbs;
     private bool _hasDisposed;
 
     public Region(string path, Coords2 coords) {
+        _path = path;
         FileInfo fi = new(path);
         checkRegionData(fi);
         _stream = File.Open(
@@ -128,7 +132,53 @@ public class Region : IDisposable {
         return (chunkPos, chunkLength);
     }
 
+    public Coords2[] GetGeneratedChunksAsCoords() {
+        List<Coords2> generatedChunks = new();
+        for (int x = 0; x < ChunkCount; x++) {
+            for (int z = 0; z < ChunkCount; z++) {
+                Coords2 coordsChunk = new(x, z);
+                if (HasChunkGenerated(coordsChunk, relative:true))
+                    generatedChunks.Add(coordsChunk);
+            }
+        }
+        return generatedChunks.ToArray();
+    }
+
     public Chunk GetChunk(Coords2 coords, bool relative) {
+        using (MemoryStream chunkSectorStream = GetChunkRawStream(coords, relative))
+        using (Utils.IO.BinaryReaderEndian reader = new(chunkSectorStream, Utils.IO.ByteOrder.BigEndian)) {
+            int nbtChunkLength = reader.ReadInt();
+            NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
+            byte[] compressedNbtData = reader.ReadBytes(nbtChunkLength, endianMatter: false);
+
+            NbtCompound nbtChunk = (NbtCompound)NbtBase.ReadStream(
+                new MemoryStream(compressedNbtData),
+                Utils.IO.ByteOrder.BigEndian,
+                compressionMethod);
+            if (!relative)
+                coords = ConvertChunkAbsToRel(coords);
+            return new Chunk(nbtChunk, coords);
+        }
+    }
+
+    public static Chunk GetChunk(MemoryStream chunkStream, Coords2 coords, bool relative) {
+        using (chunkStream)
+        using (Utils.IO.BinaryReaderEndian reader = new(chunkStream, Utils.IO.ByteOrder.BigEndian)) {
+            int nbtChunkLength = reader.ReadInt();
+            NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
+            byte[] compressedNbtData = reader.ReadBytes(nbtChunkLength, endianMatter: false);
+
+            NbtCompound nbtChunk = (NbtCompound)NbtBase.ReadStream(
+                new MemoryStream(compressedNbtData),
+                Utils.IO.ByteOrder.BigEndian,
+                compressionMethod);
+            if (!relative)
+                coords = ConvertChunkAbsToRel(coords);
+            return new Chunk(nbtChunk, coords);
+        }
+    }
+
+    public MemoryStream GetChunkRawStream(Coords2 coords, bool relative) {
         if (_hasDisposed)
             throw new ObjectDisposedException(nameof(_stream), "Region is already disposed");
         var (sectorPos, sectorLength) = GetChunkHeaderData(coords, relative);
@@ -144,20 +194,8 @@ public class Region : IDisposable {
         if (_stream.Read(chunkSectorData) < dataLength)
             throw new EndOfStreamException();
 
-        using (MemoryStream chunkSectorStream = new(chunkSectorData))
-        using (Utils.IO.BinaryReaderEndian reader = new(chunkSectorStream, Utils.IO.ByteOrder.BigEndian)) {
-            int nbtChunkLength = reader.ReadInt();
-            NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
-            byte[] compressedNbtData = reader.ReadBytes(nbtChunkLength, endianMatter: false);
-
-            NbtCompound nbtChunk = (NbtCompound)NbtBase.ReadStream(
-                new MemoryStream(compressedNbtData),
-                Utils.IO.ByteOrder.BigEndian,
-                compressionMethod);
-            if (!relative)
-                coords = ConvertChunkAbsToRel(coords);
-            return new Chunk(nbtChunk, coords);
-        }
+        return new MemoryStream(chunkSectorData);
+    }
 
     public override string ToString() {
         string ioStatus = _stream.CanRead ? "Open" : "Closed";
