@@ -25,13 +25,14 @@ public class Chunk {
     private readonly Coords3Range _blockRangeAbs;
     private readonly NbtCompound _nbtChunk;
     private readonly Dictionary<int, NbtCompound> _nbtSections;
+    private readonly int[] _sectionsYPos;
 
     public Chunk(NbtCompound nbtChunk, Coords2 coordsRel) {
         _coordsRel = coordsRel;
         _coordsAbs = evaluateCoordsAbs(nbtChunk);
         _blockRangeAbs = evaluateBlockRangeAbs(_coordsAbs);
         _nbtChunk = nbtChunk;
-        _nbtSections = initNbtSections(nbtChunk);
+        (_sectionsYPos, _nbtSections) = initSections(nbtChunk);
 
         static Coords2 evaluateCoordsAbs(NbtCompound nbtChunk) {
             int x = nbtChunk.Get<NbtInt>("xPos").Value;
@@ -51,13 +52,25 @@ public class Chunk {
 
             return new Coords3Range(minAbsB, maxAbsB);
         }
-        static Dictionary<int, NbtCompound> initNbtSections(NbtCompound nbtChunk) {
-            Dictionary<int, NbtCompound> ret = new();
+        static (int[], Dictionary<int, NbtCompound>) initSections(NbtCompound nbtChunk) {
             NbtList nbtSections = nbtChunk.Get<NbtList>("sections");
-            foreach (NbtCompound nbtSection in nbtSections.Tags.Cast<NbtCompound>()) {
-                ret.Add(nbtSection.Get<NbtByte>("Y").Value, nbtSection);
+            int sectionLength = nbtSections.Length;
+
+            int[] retInts = new int[nbtSections.Length];
+            Dictionary<int, NbtCompound> retDict = new();
+
+            for (int i = 0; i < sectionLength; i++) {
+                NbtCompound nbtSection = nbtSections.Get<NbtCompound>(i);
+                int sectionYPos = nbtSection.Get<NbtByte>("Y").Value;
+
+                if (!nbtSection.HasTag("block_states"))
+                    // TODO: send warning signal that this chunk contains skipped section
+                    continue;
+
+                retInts[i] = sectionYPos;
+                retDict.Add(sectionYPos, nbtSection);
             }
-            return ret;
+            return (retInts, retDict);
         }
     }
 
@@ -69,6 +82,8 @@ public class Chunk {
 
     public NbtCompound NbtChunk => _nbtChunk;
 
+    public int[] SectionsYPos => _sectionsYPos;
+
     public Section GetSection(int yPos) {
         if (!_nbtSections.ContainsKey(yPos))
             throw new KeyNotFoundException($"Section {yPos} does not exist in chunk");
@@ -79,11 +94,6 @@ public class Chunk {
         int sectionYPos = (int)MathF.Floor(coords.y / Section.BlockCount);
         if (relative)
             coords.y = MathUtils.Mod(coords.y, Section.BlockCount);
-        //    BlockRangeRel.IsOutside(coords);
-        //else {
-        //    BlockRangeAbs.IsOutside(coords);
-        //    coords = ConvertBlockAbsToRel(coords);
-        //}
         Section section = GetSection(sectionYPos);
         return section.GetBlock(coords, relative);
     }
