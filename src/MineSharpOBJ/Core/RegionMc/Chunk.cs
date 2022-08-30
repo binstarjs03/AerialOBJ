@@ -90,12 +90,46 @@ public class Chunk {
         return new Section(this, _nbtSections[yPos]);
     }
 
+    public Section[] GetSections() {
+        List<Section> sections = new();
+        foreach (int sectionYPos in SectionsYPos) {
+            Section section = GetSection(sectionYPos);
+            sections.Add(section);
+        }
+        return sections.ToArray();
+    }
+
     public Block GetBlock(Coords3 coords, bool relative) {
         int sectionYPos = (int)MathF.Floor(coords.y / Section.BlockCount);
         if (relative)
             coords.y = MathUtils.Mod(coords.y, Section.BlockCount);
         Section section = GetSection(sectionYPos);
         return section.GetBlock(coords, relative);
+    }
+
+    public Block[] GetBlockTopmost(string[] exclusions) {
+        int sectionBlockCountXZ = (int)MathF.Pow(Section.BlockCount, 2);
+        Block[] topBlocks = new Block[sectionBlockCountXZ];
+        foreach (Section section in GetSections()) {
+            for (int z = 0; z < Section.BlockCount; z++) {
+                for (int x = 0; x < Section.BlockCount; x++) {
+                    Block? topBlockAtThisXZ = null;
+                    for (int y = 0; y < Section.BlockCount; y++) {
+                        Coords3 coordsBlockRel = new(x, y, z);
+                        Block block = section.GetBlock(coordsBlockRel, relative: true);
+                        //if (topmost[index].Name == block.Name)
+                        //    continue;
+                        if (exclusions.Contains(block.Name))
+                            continue;
+                        topBlockAtThisXZ = block;
+                    }
+                    int index = x + z * Section.BlockCount;
+                    if (topBlockAtThisXZ is not null)
+                        topBlocks[index] = topBlockAtThisXZ;
+                }
+            }
+        }
+        return topBlocks;
     }
 
     public static Coords3 ConvertBlockAbsToRel(Coords3 coords) {

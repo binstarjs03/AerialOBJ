@@ -118,7 +118,7 @@ public class Region : IDisposable {
             coords = ConvertChunkAbsToRel(coords);
         }
         else {
-            ChunkRangeAbs.CheckOutside(coords);
+            ChunkRangeRel.CheckOutside(coords);
         }
 
         long seekPos = (coords.x + coords.z * ChunkCount) * ChunkSHeaderSize;
