@@ -1,4 +1,10 @@
-﻿using System;
+﻿// for why implementing IEquatable<T>, see below link:
+// https://stackoverflow.com/questions/2734914/whats-the-difference-between-iequatable-and-just-overriding-object-equals
+
+// for why GetHashCode overridden, see below link:
+// https://stackoverflow.com/questions/371328/why-is-it-important-to-override-gethashcode-when-equals-method-is-overridden
+
+using System;
 namespace binstarjs03.MineSharpOBJ.Core.Utils;
 
 public class CoordsOutOfRangeException : ArgumentOutOfRangeException {
@@ -7,7 +13,7 @@ public class CoordsOutOfRangeException : ArgumentOutOfRangeException {
     public CoordsOutOfRangeException(string message, Exception innerException) : base(message, innerException) { }
 }
 
-public struct Coords2 {
+public struct Coords2 : IEquatable<Coords2> {
     public int x;
     public int z;
 
@@ -21,6 +27,27 @@ public struct Coords2 {
     public override string ToString() {
         return $"({x}, {z})";
     }
+
+    public bool Equals(Coords2 other) {
+        return (x == other.x) && (z == other.z);
+    }
+
+    public override bool Equals(object? other) {
+        return (
+            other is Coords2 otherCoords 
+            && otherCoords == this
+        );
+    }
+
+    public static bool operator ==(Coords2 left, Coords2 right){
+        return (left.x == right.x) && (left.z == right.z);
+    }
+
+    public static bool operator !=(Coords2 left, Coords2 right) {
+        return !(left == right);
+    }
+
+    public override int GetHashCode() => (x, z).GetHashCode();
 }
 
 public struct Coords3 {
@@ -39,9 +66,30 @@ public struct Coords3 {
     public override string ToString() {
         return $"({x}, {y}, {z})";
     }
+
+    public bool Equals(Coords3 other) {
+        return (x == other.x) && (y == other.y) && (z == other.z);
+    }
+
+    public override bool Equals(object? other) {
+        return (
+            other is Coords3 otherCoords 
+            && otherCoords == this
+        );
+    }
+    
+    public static bool operator ==(Coords3 left, Coords3 right){
+        return (left.x == right.x) && (left.y == right.y) && (left.z == right.z);
+    }
+
+    public static bool operator !=(Coords3 left, Coords3 right) {
+        return !(left == right);
+    }
+
+    public override int GetHashCode() => (x, y, z).GetHashCode();
 }
 
-public struct Coords2Range {
+public struct Coords2Range : IEquatable<Coords2Range> {
     public Coords2 min;
     public Coords2 max;
 
@@ -56,8 +104,8 @@ public struct Coords2Range {
     }
 
     public bool IsOutside(Coords2 other) {
-        bool outX = (other.x < min.x || other.x > max.x);
-        bool outZ = (other.z < min.z || other.z > max.z);
+        bool outX = other.x < min.x || other.x > max.x;
+        bool outZ = other.z < min.z || other.z > max.z;
         return outX || outZ;
     }
 
@@ -83,9 +131,30 @@ public struct Coords2Range {
     public override string ToString() {
         return $"(({min.x}, {max.x}), ({min.z}, {max.z}))";
     }
+
+    public bool Equals(Coords2Range other) {
+        return min.Equals(other.min) && max.Equals(other.max);
+    }
+
+    public override bool Equals(object? other) {
+        return (
+            other is Coords2Range otherCoordsRange 
+            && otherCoordsRange == this
+        );
+    }
+
+    public static bool operator ==(Coords2Range left, Coords2Range right) {
+        return (left.min == right.min) && (left.max == right.max);
+    }
+    
+    public static bool operator !=(Coords2Range left, Coords2Range right) {
+        return !(left == right);
+    }
+
+    public override int GetHashCode() => (min, max).GetHashCode();
 }
 
-public struct Coords3Range {
+public struct Coords3Range : IEquatable<Coords3Range> {
     public Coords3 min;
     public Coords3 max;
 
@@ -100,16 +169,16 @@ public struct Coords3Range {
     }
 
     public bool IsOutside(Coords3 other) {
-        bool outX = (other.x < min.x || other.x > max.x);
-        bool outY = (other.y < min.y || other.y > max.y);
-        bool outZ = (other.z < min.z || other.z > max.z);
+        bool outX = other.x < min.x || other.x > max.x;
+        bool outY = other.y < min.y || other.y > max.y;
+        bool outZ = other.z < min.z || other.z > max.z;
         return outX || outY || outZ;
     }
 
     public bool IsOutside(Coords3 other, out string message) {
-        bool outX = (other.x < min.x || other.x > max.x);
-        bool outY = (other.y < min.y || other.y > max.y);
-        bool outZ = (other.z < min.z || other.z > max.z);
+        bool outX = other.x < min.x || other.x > max.x;
+        bool outY = other.y < min.y || other.y > max.y;
+        bool outZ = other.z < min.z || other.z > max.z;
         string outMsgX = $"X:{other.x} is outside range ({min.x}, {max.x})";
         string outMsgY = $"Y:{other.y} is outside range ({min.y}, {max.y})";
         string outMsgZ = $"Z:{other.z} is outside range ({min.z}, {max.z})";
@@ -132,4 +201,25 @@ public struct Coords3Range {
     public override string ToString() {
         return $"(({min.x}, {max.x}), ({min.y}, {max.y}), ({min.z}, {max.z}))";
     }
+
+    public bool Equals(Coords3Range other) {
+        return min.Equals(other.min) && max.Equals(other.max);
+    }
+
+    public override bool Equals(object? other) {
+        return (
+            other is Coords3Range otherCoordsRange
+            && otherCoordsRange == this
+        );
+    }
+    
+    public static bool operator ==(Coords3Range left, Coords3Range right) {
+        return (left.min == right.min) && (left.max == right.max);
+    }
+    
+    public static bool operator !=(Coords3Range left, Coords3Range right) {
+        return !(left == right);
+    }
+
+    public override int GetHashCode() => (min, max).GetHashCode();
 }
