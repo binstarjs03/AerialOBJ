@@ -19,7 +19,6 @@ public class BinaryReaderEndian : IDisposable {
     public BinaryReaderEndian(Stream input, ByteOrder ByteOrder) {
         if (!input.CanRead)
             throw new ArgumentException("Input stream is unreadable (may be closed/disposed or write-only)");
-            //throw new IOException("Input stream is unreadable (may be closed/disposed or write-only)");
         _baseStream = input;
         _reader = new BinaryReader(input);
         _byteOrder = ByteOrder;

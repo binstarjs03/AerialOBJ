@@ -26,9 +26,9 @@ public class Block {
     }
 
     private static Coords3 EvaluateCoordsAbs(Section section, Coords3 coordsRel) {
-        int x = coordsRel.x + (section.CoordsAbs.x * Section.BlockCount);
-        int y = coordsRel.y + (section.CoordsAbs.y * Section.BlockCount);
-        int z = coordsRel.z + (section.CoordsAbs.z * Section.BlockCount);
+        int x = coordsRel.X + (section.CoordsAbs.X * Section.BlockCount);
+        int y = coordsRel.Y + (section.CoordsAbs.Y * Section.BlockCount);
+        int z = coordsRel.Z + (section.CoordsAbs.Z * Section.BlockCount);
         return new Coords3(x, y, z);
     }
 

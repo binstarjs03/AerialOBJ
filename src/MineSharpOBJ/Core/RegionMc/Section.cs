@@ -6,7 +6,6 @@ using binstarjs03.MineSharpOBJ.Core.Utils;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
 namespace binstarjs03.MineSharpOBJ.Core.RegionMc;
 
-
 public class Section {
     public static readonly int BlockCount = 16;
     public static readonly int TotalBlockCount = (int)Math.Pow(BlockCount, 3);
@@ -37,21 +36,21 @@ public class Section {
         _nbtData = initNbtData(_nbtBlockStates);
 
         static Coords3 evaluateCoordsRel(Chunk chunk, int yPos) {
-            int x = chunk.CoordsRel.x;
+            int x = chunk.CoordsRel.X;
             int y = yPos;
-            int z = chunk.CoordsRel.z;
+            int z = chunk.CoordsRel.Z;
             return new Coords3(x, y, z);
         }
         static Coords3 evaluateCoordsAbs(Chunk chunk, int yPos) {
-            int x = chunk.CoordsAbs.x;
+            int x = chunk.CoordsAbs.X;
             int y = yPos;
-            int z = chunk.CoordsAbs.z;
+            int z = chunk.CoordsAbs.Z;
             return new Coords3(x, y, z);
         }
         static Coords3Range evaluateBlockRangeAbs(Coords3 coordsAbs) {
-            int minAbsBx = coordsAbs.x * BlockCount;
-            int minAbsBy = coordsAbs.y * BlockCount;
-            int minAbsBz = coordsAbs.z * BlockCount;
+            int minAbsBx = coordsAbs.X * BlockCount;
+            int minAbsBy = coordsAbs.Y * BlockCount;
+            int minAbsBz = coordsAbs.Z * BlockCount;
             Coords3 minAbsB = new(minAbsBx, minAbsBy, minAbsBz);
 
             int maxAbsBx = minAbsBx + BlockRange;
@@ -82,9 +81,9 @@ public class Section {
     public NbtCompound NbtSection => _nbtSection;
 
     public static Coords3 ConvertBlockAbsToRel(Coords3 coords) {
-        int relBx = MathUtils.Mod(coords.x, BlockCount);
-        int relBy = MathUtils.Mod(coords.y, BlockCount);
-        int relBz = MathUtils.Mod(coords.z, BlockCount);
+        int relBx = MathUtils.Mod(coords.X, BlockCount);
+        int relBy = MathUtils.Mod(coords.Y, BlockCount);
+        int relBz = MathUtils.Mod(coords.Z, BlockCount);
         return new Coords3(relBx, relBy, relBz);
     }
 
@@ -119,9 +118,9 @@ public class Section {
     }
 
     private int GetPaletteIndex(Coords3 relcoords) {
-        int linearIndex = relcoords.x // map 3D array idx to linear array idx
-                        + relcoords.z * (int)Math.Pow(BlockCount, 1)
-                        + relcoords.y * (int)Math.Pow(BlockCount, 2);
+        int linearIndex = relcoords.X // map 3D array idx to linear array idx
+                        + relcoords.Z * (int)Math.Pow(BlockCount, 1)
+                        + relcoords.Y * (int)Math.Pow(BlockCount, 2);
 
         _paletteIndexTable ??= ReadNbtLongData(); // if null, invoke
         int paletteIndex = _paletteIndexTable[linearIndex];
@@ -154,7 +153,6 @@ public class Section {
          * then it can hold at most 16 blocks: 4 bits * 16 blocks = 64 bits,
          * which in this case no single bit are left discarded, no wastage.
          */
-        //int paddedLongBitLength = blockCount * blockBitLength;
 
         List<int> paletteIndexTable = new(TotalBlockCount);
         foreach (long binInLongForm in _nbtData.Values) {
