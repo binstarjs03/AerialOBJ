@@ -99,7 +99,7 @@ public class Region : IDisposable {
         return HasChunkGenerated(sectorPos, sectorLength);
     }
 
-    private bool HasChunkGenerated(int sectorPos, int sectorLength) {
+    private static bool HasChunkGenerated(int sectorPos, int sectorLength) {
         if (sectorPos == 0 && sectorLength == 0)
             return false;
         return true;
