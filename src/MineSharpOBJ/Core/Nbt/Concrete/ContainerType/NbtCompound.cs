@@ -33,6 +33,10 @@ public class NbtCompound : NbtContainerType {
 
     public override NbtBase[] Tags => _tags.Values.ToArray();
 
+    public override int ValueCount => _tags.Count;
+
+    public int Length => _tags.Count;
+
     public override NbtCompound Clone() {
         List<NbtBase> tags = new();
         foreach (NbtBase tag in _tags.Values) {
@@ -50,10 +54,6 @@ public class NbtCompound : NbtContainerType {
             Add(nbt);
         }
     }
-
-    public override int ValueCount => _tags.Count;
-
-    public int Length => _tags.Count;
 
     public NbtBase Get(string name) {
         if (!HasTag(name)) {

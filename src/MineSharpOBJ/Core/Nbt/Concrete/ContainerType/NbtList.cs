@@ -30,6 +30,8 @@ public class NbtList : NbtContainerType {
 
     public override NbtBase[] Tags => _tags.ToArray();
 
+    public override int ValueCount => _tags.Count;
+
     public NbtType? ListType => _listType;
 
     public override NbtList Clone() {
@@ -47,8 +49,6 @@ public class NbtList : NbtContainerType {
             Add(tag);
         }
     }
-
-    public override int ValueCount => _tags.Count;
 
     private void ValidateTagType(NbtBase tag) {
         if (_listType is null) {
@@ -102,10 +102,13 @@ public class NbtList : NbtContainerType {
 
     public void Remove(int index) {
         _tags.RemoveAt(index);
+        if (_tags.Count == 0)
+            _listType = null;
     }
 
     public void Clear() {
         _tags.Clear();
+        _listType = null;
     }
 
     public void Overwrite(NbtBase[] tags) {

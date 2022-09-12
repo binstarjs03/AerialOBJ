@@ -25,13 +25,9 @@ public class BinaryReaderEndian : IDisposable {
         _hasDisposed = false;
     }
 
-    public Stream BaseStream {
-        get { return _baseStream; }
-    }
+    public Stream BaseStream => _baseStream;
 
-    public BinaryReader Reader {
-        get { return _reader; }
-    }
+    public BinaryReader Reader => _reader;
 
     #region Dispose Pattern
 

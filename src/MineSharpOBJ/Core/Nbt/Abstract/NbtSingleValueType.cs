@@ -31,7 +31,7 @@ public abstract class NbtSingleValueType<T> : NbtSingleValueType where T : struc
     public override NbtTypeBase NbtTypeBase => NbtTypeBase.NbtSingleValueType;
 
     public override string ToString() {
-        return $"{base.ToString()} - value: {_value}";
+        return $"{base.ToString()} - value: {Value}";
     }
 
     public T Value {
