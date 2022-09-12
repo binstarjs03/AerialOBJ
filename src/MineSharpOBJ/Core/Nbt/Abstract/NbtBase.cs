@@ -7,10 +7,11 @@ using binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Utils;
 namespace binstarjs03.MineSharpOBJ.Core.Nbt.Abstract;
 
-// TODO: current implementation of loading binary nbt is unstable
+// TODO: current implementation of loading binary nbt
+// stability haven't proved yet, need unit testing
 public abstract class NbtBase {
     protected string _name = "";
-    protected NbtContainerType? _parent; // currently unused
+    //protected NbtContainerType? _parent;
 
     public NbtBase() {
         _name = "";
@@ -42,27 +43,36 @@ public abstract class NbtBase {
 
     protected abstract void Deserialize(NbtBinaryReader reader);
 
-    // TODO: Wraps File.ReadAllBytes exceptions into single exception
+    // TODO do we even need something like this? long-list of indirect exceptions (from nested called methods)
+    // does it helps us maintaining the code or does it makes it less readable and such?
+
+    /// <exception cref="NbtUnknownCompressionMethodException"></exception>
+    /// <exception cref="NbtNoDataException"></exception>
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="EndOfStreamException"></exception>
     public static NbtBase ReadDisk(string path, ByteOrder byteOrder) {
         return ReadDisk(new FileInfo(path), byteOrder);
     }
 
-    // TODO: Wraps File.ReadAllBytes exceptions into single exception
+    /// <exception cref="NbtUnknownCompressionMethodException"></exception>
+    /// <exception cref="NbtNoDataException"></exception>
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="EndOfStreamException"></exception>
     public static NbtBase ReadDisk(FileInfo fileInfo, ByteOrder byteOrder) { 
         if (fileInfo.Length == 0)
-            throw new ArgumentOutOfRangeException( nameof(fileInfo), "File size is equal to zero. No nbt data exist");
+            throw new NbtNoDataException("Data length is zero. No nbt data exist");
         using (MemoryStream ms = new(File.ReadAllBytes(fileInfo.FullName))) {
             return ReadStream(ms, byteOrder, NbtCompression.Method.AutoDetect);
         }
     }
 
     // TODO: bypass decompression if compression method is uncompressed
+    /// <exception cref="NbtUnknownCompressionMethodException"></exception>
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="EndOfStreamException"></exception>
     public static NbtBase ReadStream(Stream stream, ByteOrder byteOrder, NbtCompression.Method compressionMethod) {    
         using (MemoryStream decompressed = NbtCompression.DecompressStream(stream, compressionMethod))
         using (NbtBinaryReader reader = new(decompressed, byteOrder)) {
@@ -77,16 +87,17 @@ public abstract class NbtBase {
                     throw new EndOfStreamException(msg, e);
                 }
             }
-            catch (Exception e) { // throw exception representing whole subroutine error
+            catch (Exception e) {
                 StringBuilder sb = new();
                 sb.AppendLine("An error occured while trying to deserialize nbt stream from raw binary data");
                 try { 
-                    sb.AppendLine(reader.GetReadingErrorStack());
+                    sb.AppendLine(reader.GetReadingErrorStackAsString());
                 }
                 catch { }
                 sb.AppendLine($"Error type: {e.GetType()}");
                 sb.AppendLine($"Error message: {e.Message}");
                 throw new NbtDeserializationError(sb.ToString(), e);
+                // throw exception representing whole subroutine error of this method
             }
             checkReturnedNbt(nbt, decompressed);
             return nbt;
@@ -110,14 +121,15 @@ public abstract class NbtBase {
 
     /// <exception cref="NullReferenceException"></exception>
     /// <exception cref="NotImplementedException"></exception>
-    /// <exception cref="NbtDeserializationError"></exception>
     protected static NbtBase NewFromStream(NbtBinaryReader reader, bool isInsideList = false, NbtType? type = null) {
         string name = "";
         if (isInsideList && type is null) {
             string msg = $"Nbt type cannot null if tag is inside list";
             throw new NullReferenceException(msg);
+            // Theoretically, above exception should never thrown 
+            // because we always pass the nbt type if its inside list
         }
-        else if (!isInsideList) {
+        if (!isInsideList) {
             type = reader.ReadTagType();
             if (type != NbtType.NbtEnd)
                 name = reader.ReadString(sizeof(short));
@@ -140,13 +152,7 @@ public abstract class NbtBase {
             _ => throw new NotImplementedException($"Nbt type {type} deserialization has not been implemented yet"),
         };
         reader.NbtTagStack.Push(nbt);
-        try {
-            nbt.Deserialize(reader);
-        }
-        catch (Exception e) { // throw exception representing current nbt
-            string msg = $"Failed to deserialize Nbt data {name} of {type}";
-            throw new NbtDeserializationError(msg, e);
-        }
+        nbt.Deserialize(reader);
         reader.NbtTagStack.Pop();
         return nbt;
     }

@@ -66,13 +66,14 @@ public class Region : IDisposable {
         }
     }
 
-    # region Dispose Pattern
+    #region Dispose Pattern
 
     protected virtual void Dispose(bool disposing) {
         if (!_hasDisposed) {
             //if (disposing) {
             //    dispose managed objects
             //}
+            // set large fields to null
             _stream.Dispose();
             _hasDisposed = true;
         }
@@ -87,7 +88,7 @@ public class Region : IDisposable {
         GC.SuppressFinalize(this);
     }
 
-    # endregion
+    #endregion
 
     public Coords2 Coords => _coords;
 

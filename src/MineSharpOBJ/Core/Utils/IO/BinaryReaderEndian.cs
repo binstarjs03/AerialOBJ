@@ -9,17 +9,17 @@ namespace binstarjs03.MineSharpOBJ.Core.Utils.IO;
 /// Wrapper around <see cref="BinaryReader"/> that is endian-aware.
 /// </summary>
 public class BinaryReaderEndian : IDisposable {
-    private static readonly string _disposedExceptionMsg = "Cannot read data, reader is already disposed";
-    
+    private static readonly string s_disposedExceptionMsg = "Cannot read data, reader is already disposed";
     protected readonly Stream _baseStream;
     protected readonly BinaryReader _reader;
     protected readonly ByteOrder _byteOrder;
     private bool _hasDisposed;
 
-    /// <exception cref="IOException"></exception>
+    /// <exception cref="ArgumentException"></exception>
     public BinaryReaderEndian(Stream input, ByteOrder ByteOrder) {
         if (!input.CanRead)
-            throw new IOException("Input stream is unreadable (may be closed/disposed or write-only)");
+            throw new ArgumentException("Input stream is unreadable (may be closed/disposed or write-only)");
+            //throw new IOException("Input stream is unreadable (may be closed/disposed or write-only)");
         _baseStream = input;
         _reader = new BinaryReader(input);
         _byteOrder = ByteOrder;
@@ -34,20 +34,29 @@ public class BinaryReaderEndian : IDisposable {
         get { return _reader; }
     }
 
+    #region Dispose Pattern
+
     protected virtual void Dispose(bool disposing) {
         if (!_hasDisposed) {
             if (disposing) {
                 _reader.Dispose();
                 _baseStream.Dispose();
             }
+            // dispose unmanaged object
+            // set large fields to null
             _hasDisposed = true;
         }
     }
+
+    // Destructor not implemented
+    // cause there is no unmanaged object to dispose
 
     public void Dispose() {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    #endregion
 
     /// <exception cref="EndOfStreamException"></exception>
     /// <exception cref="ObjectDisposedException"></exception>
@@ -55,7 +64,7 @@ public class BinaryReaderEndian : IDisposable {
     public byte[] ReadBytes(int length, bool endianMatter = true) {
         byte[] buff = new byte[length];
         if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(_reader), _disposedExceptionMsg);
+            throw new ObjectDisposedException(nameof(_reader), s_disposedExceptionMsg);
         if (_reader.Read(buff) != length)
             throw new EndOfStreamException();
         if (_byteOrder == ByteOrder.BigEndian && endianMatter)
@@ -68,7 +77,7 @@ public class BinaryReaderEndian : IDisposable {
     /// <exception cref="IOException"></exception>
     public byte ReadByte() {
         if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(_reader), _disposedExceptionMsg);
+            throw new ObjectDisposedException(nameof(_reader), s_disposedExceptionMsg);
         return _reader.ReadByte();
     }
 
@@ -77,7 +86,7 @@ public class BinaryReaderEndian : IDisposable {
     /// <exception cref="IOException"></exception>
     public sbyte ReadSByte() {
         if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(_reader), _disposedExceptionMsg);
+            throw new ObjectDisposedException(nameof(_reader), s_disposedExceptionMsg);
         return _reader.ReadSByte();
     }
 

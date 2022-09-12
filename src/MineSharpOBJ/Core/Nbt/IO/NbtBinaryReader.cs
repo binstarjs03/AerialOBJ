@@ -23,11 +23,11 @@ public class NbtBinaryReader : BinaryReaderEndian {
             return (NbtType)type;
         else
             throw new NbtUnknownTagTypeException(
-            $"Unknown tag type '{type}' at stream position {BaseStream.Position}"
-        );
+                $"Unknown tag type '{type}' at stream position {BaseStream.Position}"
+            );
     }
 
-    public string GetReadingErrorStack() {
+    public string GetReadingErrorStackAsString() {
         StringBuilder sb = new();
         NbtBase errorNbt = NbtTagStack.Pop();
         IEnumerable<NbtBase> reversedNbtStack = NbtTagStack.Reverse();
