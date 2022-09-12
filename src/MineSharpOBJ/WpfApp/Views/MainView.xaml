@@ -1,0 +1,57 @@
+﻿<Window x:Class="binstarjs03.MineSharpOBJ.WpfApp.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.Views"
+        xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
+        Title="MainView" 
+        Height="400" Width="600">
+    <DockPanel>
+        <Menu Name="MenuBar" 
+              DockPanel.Dock="Top">
+            <MenuItem Name="MenuFile" 
+                      Header="File">
+                <!--
+                TODO refactoring, Open registeredsavepath control is
+                added dynamically in code but it does not exist in here.
+                We should keep UI definitions in here and do not put UI
+                definitions inside code
+                -->
+                <MenuItem Name="MenuFileOpen" 
+                          Header="Open..."/>
+                <MenuItem Name="MenuFileExit" 
+                          Header="Exit" 
+                          Command="{Binding ViewClose}"
+                          CommandParameter="{Binding RelativeSource={
+                                             RelativeSource Mode=FindAncestor, 
+                                             AncestorType={x:Type Window}}}"/>
+            </MenuItem>
+            <MenuItem Name="MenuView" 
+                      Header="View">
+                <MenuItem Name="MenuViewDebugLog" 
+                          Header="Debug Log"
+                          IsCheckable="True"
+                          IsChecked="{Binding IsDebugLogViewVisible, 
+                                      Mode=TwoWay, 
+                                      UpdateSourceTrigger=PropertyChanged}"/>
+            </MenuItem>
+            <MenuItem Name="MenuHelp" 
+                      Header="Help">
+                <MenuItem Name="MenuHelpAboutButton"
+                          Header="About..."
+                          Command="{Binding OpenAboutView}"/>
+            </MenuItem>
+        </Menu>
+        <StatusBar Name="StatusBar" 
+                   Height="Auto" 
+                   DockPanel.Dock="Bottom">
+            <StatusBarItem Name="Status" 
+                           Content="Ready"/>
+        </StatusBar>
+        <Canvas Name="Viewport" 
+                Background="{StaticResource DarkBackground}"/>
+    </DockPanel>
+</Window>
