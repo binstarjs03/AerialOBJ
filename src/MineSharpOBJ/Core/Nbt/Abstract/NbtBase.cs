@@ -28,7 +28,7 @@ public abstract class NbtBase {
 
     public abstract NbtType NbtType { get; }
 
-    public virtual NbtTypeBase NbtTypeBase => NbtTypeBase.NbtBase;
+    public abstract NbtTypeBase NbtTypeBase { get; }
 
     public abstract NbtBase Clone();
 

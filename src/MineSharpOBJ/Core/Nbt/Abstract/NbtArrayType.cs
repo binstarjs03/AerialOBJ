@@ -28,7 +28,7 @@ public abstract class NbtArrayType<T> : NbtArrayType where T : struct {
         _values = new List<T>(values);
     }
 
-    public override NbtTypeBase NbtTypeBase => NbtTypeBase.NbtArrayType;       
+    public override NbtTypeBase NbtTypeBase => NbtTypeBase.NbtArrayType;
 
     public override int ValueCount => Values.Count;
 

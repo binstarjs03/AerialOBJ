@@ -1,5 +1,4 @@
-﻿using System;
-namespace binstarjs03.MineSharpOBJ.Core.Nbt.Abstract;
+﻿namespace binstarjs03.MineSharpOBJ.Core.Nbt.Abstract;
 
 public abstract class NbtSingleValueType : NbtBase {
     public NbtSingleValueType() : base() { }
