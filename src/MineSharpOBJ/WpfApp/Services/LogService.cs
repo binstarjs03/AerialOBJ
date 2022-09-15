@@ -15,35 +15,34 @@ public class LogService {
         set { s_notificationHandler = value; }
     }
 
-    public static void Log() {
+    public static void LogNewline() {
         s_logHandler?.Invoke("");
     }
 
-    public static void LogSeparator(string content) {
-        Log(content);
-        Log();
-    }
-
-    public static void Log(string content) {
+    public static void Log(string content, bool useSeparator = false) {
         s_logHandler?.Invoke(content);
+        if (useSeparator)
+            LogNewline();
     }
 
-    public static void LogWarning(string content, bool pushNotification = false) {
-        s_logHandler?.Invoke($"--WARNING--: {content}");
-        if (pushNotification)
-            PushNotification(content);
+    public static void LogWarning(string content, bool pushNotification = false, bool useSeparator = false) {
+        LogEmphasis(content, "WARNING", pushNotification, useSeparator);
     }
 
-    public static void LogError(string content, bool pushNotification = false) {
-        s_logHandler?.Invoke($"--ERROR--: {content}");
-        if (pushNotification)
-            PushNotification(content);
+    public static void LogError(string content, bool pushNotification = false, bool useSeparator = false) {
+        LogEmphasis(content, "ERROR", pushNotification, useSeparator);
     }
 
-    public static void LogNotification(string content, bool pushNotification = true) {
-        s_logHandler?.Invoke($"--NOTIFICATION--: {content}");
+    public static void LogNotification(string content, bool pushNotification = true, bool useSeparator = false) {
+        LogEmphasis(content, "NOTIFICATION", pushNotification, useSeparator);
+    }
+
+    private static void LogEmphasis(string content, string emphasisWord, bool pushNotification = true, bool useSeparator = false) {
+        s_logHandler?.Invoke($"--{emphasisWord}--: {content}");
         if (pushNotification)
             PushNotification(content);
+        if (useSeparator)
+            LogNewline();
     }
 
     public static void PushNotification(string message) {
