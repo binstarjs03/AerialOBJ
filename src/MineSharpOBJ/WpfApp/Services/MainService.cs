@@ -11,11 +11,8 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 public static class MainService {
     public static void Initialize() {
-        LogService.Log($"Launch time: {DateTime.Now}");
-        LogService.Log("MineSharpOBJ v0.0");
-        LogService.Log("Commit Hash: 36fa86b5d8eda9bf9a4ea798bfffc3fc07c965e0", useSeparator: true);
-
+        LogService.LogRuntimeInfo();
         LogService.Log("Starting Initialization...");
         LogService.Log("Initialization complete", useSeparator: true);
-    }
+    }  
 }

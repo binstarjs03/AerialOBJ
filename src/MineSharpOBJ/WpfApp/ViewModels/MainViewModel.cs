@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using System.Windows.Input;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
 using binstarjs03.MineSharpOBJ.WpfApp.Views;
@@ -55,10 +56,7 @@ public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
     // Command Implementations ------------------------------------------------
 
     private void OnLoadSavegameFolder(object? arg) {
-        // TODO use IOService, write dialog methods, use it throughout the code
-        // and remove repetitiveness everytime needs to open dialog
-
-        FolderBrowserDialog dialog = new();
+        using FolderBrowserDialog dialog = new();
         DialogResult dialogResult = dialog.ShowDialog();
         if (dialogResult != DialogResult.OK)
             return;

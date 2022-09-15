@@ -1,4 +1,5 @@
-﻿namespace binstarjs03.MineSharpOBJ.WpfApp.Services;
+﻿using System;
+namespace binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 public class LogService {
     public delegate void LogDelegate(string content);
@@ -47,5 +48,15 @@ public class LogService {
 
     public static void PushNotification(string message) {
         s_notificationHandler?.Invoke($"{message}");
+    }
+
+    public static void LogRuntimeInfo() {
+        Log($"Launch time: {App.LauchTime}");
+        Log("MineSharpOBJ Version: v0.0");
+        Log("Commit Hash: 36fa86b5d8eda9bf9a4ea798bfffc3fc07c965e0", useSeparator: true);
+
+        Log($"Host OS: {Environment.OSVersion}");
+        Log($"CPU cores count: {Environment.ProcessorCount}");
+        Log($".NET Runtime Version: {Environment.Version}", useSeparator: true);
     }
 }

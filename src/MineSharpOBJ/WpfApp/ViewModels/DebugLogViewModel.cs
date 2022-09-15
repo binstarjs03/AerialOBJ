@@ -2,7 +2,10 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using Microsoft.Win32;
+
+using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
+using DialogResult = System.Windows.Forms.DialogResult;
+
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
 using binstarjs03.MineSharpOBJ.WpfApp.Views;
 namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
@@ -63,25 +66,26 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel, DebugLogView> 
     // Command Implementations ------------------------------------------------
 
     private void OnSaveLog(object? arg) {
-        SaveFileDialog dialog = new() {
+        using SaveFileDialog dialog = new() {
             FileName = $"MineSharpOBJ Log",
             DefaultExt = ".txt",
             Filter = "Text Document (.txt)|*.txt"
         };
-        bool result = dialog.ShowDialog() == true;
-        if (result == true) {
-            string path = dialog.FileName;
-            try {
-                IOService.WriteText(path, _view.LogTextBox.Text);
-            }
-            catch (IOException ex) {
-                MessageBox.Show(ex.Message);
-            }
+        DialogResult result = dialog.ShowDialog();
+        if (result != DialogResult.OK)
+            return;
+        string path = dialog.FileName;
+        try {
+            IOService.WriteText(path, _view.LogTextBox.Text);
+        }
+        catch (IOException ex) {
+            MessageBox.Show(ex.Message);
         }
     }
 
     private void OnClearLog(object? arg) {
         LogContent = "";
+        LogService.LogRuntimeInfo();
     }
 
     private void OnWriteSingle(object? arg) {
