@@ -6,7 +6,8 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodels:DebugLogViewModel}"
-        Title="DebugLogView" Height="400" Width="600"
+        Title="Debug Log" 
+        Height="400" Width="600"
         Visibility="{Binding IsVisible, 
                      Mode=TwoWay, 
                      Converter={StaticResource BoolToVisibility}}">

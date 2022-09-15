@@ -7,7 +7,7 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodels:AboutViewModel}"
-        Title="AboutView" 
+        Title="About" 
         Height="400" Width="400"
         ResizeMode="NoResize">
     <Window.Resources>

@@ -7,7 +7,7 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
-        Title="MainView" 
+        Title="{Binding Title}" 
         Height="400" Width="600">
     <DockPanel>
         <Menu Name="MenuBar" 
@@ -21,7 +21,8 @@
                 definitions inside code
                 -->
                 <MenuItem Name="MenuFileOpen" 
-                          Header="Open..."/>
+                          Header="Open..."
+                          Command="{Binding LoadSavegameFolder}"/>
                 <MenuItem Name="MenuFileExit" 
                           Header="Exit" 
                           Command="{Binding ViewClose}"/>

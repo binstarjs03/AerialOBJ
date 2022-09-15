@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using binstarjs03.MineSharpOBJ.WpfApp.Services;
 using binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
 namespace binstarjs03.MineSharpOBJ.WpfApp.Views;
 
@@ -14,6 +15,8 @@ public partial class MainView : Window {
         DebugLogView debugLogView = new();
         Show();
         debugLogView.Owner = this;
+
+        MainService.Initialize();
     }
 
     public void DebugLogView_SynchronizePosition() {

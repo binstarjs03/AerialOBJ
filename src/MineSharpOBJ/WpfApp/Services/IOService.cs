@@ -26,4 +26,13 @@ public class IOService {
         using StreamWriter writer = new(stream);
         writer.Write(content);
     }
+
+    public static bool LoadSavegame(string path) {
+        DirectoryInfo di = new(path);
+        LogService.Log($"Selected path: \"{di.FullName}\"");
+        LogService.Log($"Loading \"{di.Name}\" as Minecraft savegame folder...");
+
+
+        return true;
+    }
 }
