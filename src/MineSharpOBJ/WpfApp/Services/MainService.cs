@@ -13,9 +13,9 @@ public static class MainService {
     public static void Initialize() {
         LogService.Log($"Launch time: {DateTime.Now}");
         LogService.Log("MineSharpOBJ v0.0");
-        LogService.LogSeparator("Commit Hash: -");
+        LogService.Log("Commit Hash: 36fa86b5d8eda9bf9a4ea798bfffc3fc07c965e0", useSeparator: true);
 
         LogService.Log("Starting Initialization...");
-        LogService.LogSeparator("Initialization complete");
+        LogService.Log("Initialization complete", useSeparator: true);
     }
 }

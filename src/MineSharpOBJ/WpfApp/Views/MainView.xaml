@@ -23,6 +23,9 @@
                 <MenuItem Name="MenuFileOpen" 
                           Header="Open..."
                           Command="{Binding LoadSavegameFolder}"/>
+                <MenuItem Name="MenuFileClose" 
+                          Header="Close"
+                          Command="{Binding CloseSession}"/>
                 <MenuItem Name="MenuFileExit" 
                           Header="Exit" 
                           Command="{Binding ViewClose}"/>

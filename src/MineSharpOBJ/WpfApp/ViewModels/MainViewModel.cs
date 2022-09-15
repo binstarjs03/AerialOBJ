@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using System.Windows.Input;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
 using binstarjs03.MineSharpOBJ.WpfApp.Views;
@@ -8,6 +7,7 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
 public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
     private bool _isDebugLogWindowVisible;
     private string _title;
+    private SessionInfo? _session;
 
     public MainViewModel(MainView view) : base(view) {
         // initialize states
@@ -16,6 +16,7 @@ public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
 
         // assign command implementation to commands
         LoadSavegameFolder = new RelayCommand(OnLoadSavegameFolder);
+        CloseSession = new RelayCommand(OnCloseSession, CanCloseSession);
         OpenAboutView = new RelayCommand(OnOpenAboutView);
     }
 
@@ -46,6 +47,8 @@ public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
     // Commands ---------------------------------------------------------------
 
     public ICommand LoadSavegameFolder { get; }
+
+    public ICommand CloseSession { get; }
     
     public ICommand OpenAboutView { get; }
 
@@ -59,17 +62,38 @@ public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
         DialogResult dialogResult = dialog.ShowDialog();
         if (dialogResult != DialogResult.OK)
             return;
-        IOService.LoadSavegame(dialog.SelectedPath);
+        SessionInfo? session = IOService.LoadSavegame(dialog.SelectedPath);
+        if (session is null) {
+            LogService.Log("Failed changing session. Aborting...", useSeparator: true);
+            return;
+        }
+        ChangeTitle(session.Value.WorldName);
+        _session = session;
+        LogService.Log("Successfully changed session.", useSeparator: true);
+    }
 
-        //bool loadResult = IOService.LoadSavegame(savegamePath);
-        //if (!loadResult) {
-        //    //LogService.LogNotification($"Failed loading savegame folder");
-        //    return;
-        //}
-        //LogService.LogNotification($"Loaded savegame folder");
+    private void OnCloseSession(object? arg) {
+        ChangeTitle();
+        _session = null;
+        LogService.Log("Successfully closed session.", useSeparator: true);
     }
 
     private void OnOpenAboutView(object? arg) {
         new AboutView().ShowDialog();
+    }
+
+    // Command Availability ---------------------------------------------------
+
+    private bool CanCloseSession(object? arg) {
+        return _session is not null;
+    }
+
+    // Private Methods --------------------------------------------------------
+
+    private void ChangeTitle(string? title = null) {
+        if (title is null)
+            Title = $"MineSharpOBJ";
+        else
+            Title = $"MineSharpOBJ - {title}";
     }
 }

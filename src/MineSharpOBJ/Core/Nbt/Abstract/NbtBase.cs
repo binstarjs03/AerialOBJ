@@ -95,7 +95,7 @@ public abstract class NbtBase {
                 }
                 catch { }
                 sb.AppendLine($"Error type: {e.GetType()}");
-                sb.AppendLine($"Error message: {e.Message}");
+                sb.Append($"Error message: {e.Message}");
                 throw new NbtDeserializationError(sb.ToString(), e);
                 // throw exception representing whole subroutine error of this method
             }
