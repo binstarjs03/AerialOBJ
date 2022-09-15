@@ -40,9 +40,9 @@ public class Chunk {
             return new Coords2(x, z);
         }
         static Coords3Range evaluateBlockRangeAbs(Coords2 coordsAbs) {
-            int minAbsBx = coordsAbs.x * Section.BlockCount;
+            int minAbsBx = coordsAbs.X * Section.BlockCount;
             int minAbsBy = SectionRange.min * Section.BlockCount;
-            int minAbsBz = coordsAbs.z * Section.BlockCount;
+            int minAbsBz = coordsAbs.Z * Section.BlockCount;
             Coords3 minAbsB = new(minAbsBx, minAbsBy, minAbsBz);
 
             int maxAbsBx = minAbsBx + Section.BlockRange;
@@ -100,9 +100,9 @@ public class Chunk {
     }
 
     public Block GetBlock(Coords3 coords, bool relative) {
-        int sectionYPos = (int)MathF.Floor(coords.y / Section.BlockCount);
+        int sectionYPos = (int)MathF.Floor(coords.Y / Section.BlockCount);
         if (relative)
-            coords.y = MathUtils.Mod(coords.y, Section.BlockCount);
+            coords.Y = MathUtils.Mod(coords.Y, Section.BlockCount);
         Section section = GetSection(sectionYPos);
         return section.GetBlock(coords, relative);
     }
@@ -133,9 +133,9 @@ public class Chunk {
     }
 
     public static Coords3 ConvertBlockAbsToRel(Coords3 coords) {
-        int relBx = MathUtils.Mod(coords.x, Section.BlockCount);
-        int relBy = coords.y;
-        int relBz = MathUtils.Mod(coords.z, Section.BlockCount);
+        int relBx = MathUtils.Mod(coords.X, Section.BlockCount);
+        int relBy = coords.Y;
+        int relBz = MathUtils.Mod(coords.Z, Section.BlockCount);
         return new Coords3(relBx, relBy, relBz);
     }
 

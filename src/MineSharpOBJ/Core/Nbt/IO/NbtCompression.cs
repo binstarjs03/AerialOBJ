@@ -18,6 +18,7 @@ public static class NbtCompression {
     }
 
     /// <exception cref="EndOfStreamException"></exception>
+    /// <exception cref="NbtUnknownCompressionMethodException"></exception>
     public static Method DetectCompression(BinaryReader reader) {
         int byteHeader = reader.ReadByte();
         if (byteHeader == -1)
@@ -36,6 +37,7 @@ public static class NbtCompression {
         };
     }
 
+    /// <exception cref="EndOfStreamException"></exception>
     /// <exception cref="NbtUnknownCompressionMethodException"></exception>
     public static MemoryStream DecompressStream(Stream stream, Method compressionMethod) {
         MemoryStream decompressedStream = new();

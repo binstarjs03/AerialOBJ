@@ -7,13 +7,7 @@ using binstarjs03.MineSharpOBJ.Core.Nbt.IO;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Abstract;
 using binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
 using System.Collections.Generic;
-
 namespace binstarjs03.MineSharpOBJ.Core.RegionMc;
-
-public class ChunkNotGeneratedException : InvalidOperationException {
-    public ChunkNotGeneratedException() : base("Chunk is not generated yet") { }
-    public ChunkNotGeneratedException(string message) : base(message) { }
-}
 
 public class Region : IDisposable {
     public static readonly int ChunkCount = 32;
@@ -54,8 +48,8 @@ public class Region : IDisposable {
         }
 
         static Coords2Range evaluateChunkRangeAbs(Coords2 coords) {
-            int minAbsCx = coords.x * ChunkCount;
-            int minAbsCz = coords.z * ChunkCount;
+            int minAbsCx = coords.X * ChunkCount;
+            int minAbsCz = coords.Z * ChunkCount;
             Coords2 minAbsC = new(minAbsCx, minAbsCz);
 
             int maxAbsCx = minAbsCx + ChunkRange;
@@ -66,13 +60,14 @@ public class Region : IDisposable {
         }
     }
 
-    # region Dispose Pattern
+    #region Dispose Pattern
 
     protected virtual void Dispose(bool disposing) {
         if (!_hasDisposed) {
             //if (disposing) {
             //    dispose managed objects
             //}
+            // set large fields to null
             _stream.Dispose();
             _hasDisposed = true;
         }
@@ -87,15 +82,15 @@ public class Region : IDisposable {
         GC.SuppressFinalize(this);
     }
 
-    # endregion
+    #endregion
 
     public Coords2 Coords => _coords;
 
     public Coords2Range ChunkRangeAbs => _chunkRangeAbs;
 
     public static Coords2 ConvertChunkAbsToRel(Coords2 coords) {
-        int relCx = MathUtils.Mod(coords.x, ChunkCount);
-        int relCz = MathUtils.Mod(coords.z, ChunkCount);
+        int relCx = MathUtils.Mod(coords.X, ChunkCount);
+        int relCz = MathUtils.Mod(coords.Z, ChunkCount);
         return new Coords2(relCx, relCz);
     }
 
@@ -104,7 +99,7 @@ public class Region : IDisposable {
         return HasChunkGenerated(sectorPos, sectorLength);
     }
 
-    private bool HasChunkGenerated(int sectorPos, int sectorLength) {
+    private static bool HasChunkGenerated(int sectorPos, int sectorLength) {
         if (sectorPos == 0 && sectorLength == 0)
             return false;
         return true;
@@ -121,7 +116,7 @@ public class Region : IDisposable {
             ChunkRangeRel.CheckOutside(coords);
         }
 
-        long seekPos = (coords.x + coords.z * ChunkCount) * ChunkSHeaderSize;
+        long seekPos = (coords.X + coords.Z * ChunkCount) * ChunkSHeaderSize;
         _stream.Seek(seekPos, SeekOrigin.Begin);
         byte[] chunkHeader = new byte[ChunkSHeaderSize];
         if (_stream.Read(chunkHeader) < ChunkSHeaderSize)

@@ -2,13 +2,13 @@
 namespace binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
 
 public class NbtArrayInt : NbtArrayType<int> {
-    public NbtArrayInt() : base() { return; }
+    public NbtArrayInt() : base() { }
 
-    public NbtArrayInt(string name) : base(name) { return; }
+    public NbtArrayInt(string name) : base(name) { }
 
-    public NbtArrayInt(int[] values) : base(values) { return; }
+    public NbtArrayInt(int[] values) : base(values) { }
 
-    public NbtArrayInt(string name, int[] values) : base(name, values) { return; }
+    public NbtArrayInt(string name, int[] values) : base(name, values) { }
 
     public override NbtType NbtType => NbtType.NbtArrayInt;
 
@@ -19,7 +19,7 @@ public class NbtArrayInt : NbtArrayType<int> {
     protected override void Deserialize(IO.NbtBinaryReader reader) {
         int elementLength = reader.ReadInt();
         for (int i = 0; i < elementLength; i++) {
-            _values.Add(reader.ReadInt());
+            Values.Add(reader.ReadInt());
         }
     }
 }

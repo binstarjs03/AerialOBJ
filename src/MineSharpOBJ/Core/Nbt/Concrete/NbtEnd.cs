@@ -6,6 +6,8 @@ namespace binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
 public class NbtEnd : NbtBase {
     public override NbtType NbtType => NbtType.NbtEnd;
 
+    public override NbtTypeBase NbtTypeBase => NbtTypeBase.NbtBase;
+
     public override NbtEnd Clone() {
         return new();
     }

@@ -19,6 +19,7 @@ public static class BinaryUtils {
         return Convert.ToString(num, toBase: 2);
     }
 
+    /// <exception cref="OverflowException"></exception>
     public static byte[] ToBinaryArray(this long num, int bitLength) {
         string binNum = Convert.ToString(num, toBase: 2);
         if (binNum.Length > bitLength)
