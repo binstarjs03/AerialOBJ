@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-
 namespace binstarjs03.MineSharpOBJ.WpfApp;
+
 public class RelayCommand : ICommand {
     private readonly Action<object?> _execute;
     private readonly Predicate<object?>? _canExecute;

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 namespace binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 public class IOService {
@@ -13,7 +9,7 @@ public class IOService {
         if (!Directory.Exists(minecraftSaveRootPath)) {
             throw new DirectoryNotFoundException("Minecraft savefolders not found");
         }
-        DirectoryInfo di = new DirectoryInfo(minecraftSaveRootPath);
+        DirectoryInfo di = new(minecraftSaveRootPath);
         DirectoryInfo[] savePaths = di.GetDirectories();
         return savePaths;
     }

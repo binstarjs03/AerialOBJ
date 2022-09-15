@@ -24,10 +24,7 @@
                           Header="Open..."/>
                 <MenuItem Name="MenuFileExit" 
                           Header="Exit" 
-                          Command="{Binding ViewClose}"
-                          CommandParameter="{Binding RelativeSource={
-                                             RelativeSource Mode=FindAncestor, 
-                                             AncestorType={x:Type Window}}}"/>
+                          Command="{Binding ViewClose}"/>
             </MenuItem>
             <MenuItem Name="MenuView" 
                       Header="View">

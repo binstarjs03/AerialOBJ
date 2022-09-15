@@ -1,33 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
 namespace binstarjs03.MineSharpOBJ.WpfApp.Views;
 
 public partial class MainView : Window {
-    private readonly DebugLogView _debugLogView;
     public MainView() {
         InitializeComponent();
-        DataContext = MainViewModel.GetInstance;
-        _debugLogView = new DebugLogView();
+        MainViewModel vm = new(this);
+        MainViewModel.Context = vm;
+        DataContext = vm;
+
+        DebugLogView debugLogView = new();
         Show();
-        _debugLogView.Owner = this;
+        debugLogView.Owner = this;
     }
 
     public void DebugLogView_SynchronizePosition() {
-        _debugLogView.Top = Top;
-        _debugLogView.Left = Left + ActualWidth;
+        DebugLogViewModel.Context.View.Top = Top;
+        DebugLogViewModel.Context.View.Left = Left + ActualWidth;
     }
     protected override void OnLocationChanged(EventArgs e) {
         DebugLogView_SynchronizePosition();
@@ -38,10 +29,13 @@ public partial class MainView : Window {
     }
 
     protected override void OnClosing(CancelEventArgs e) {
+        MainViewModel vm = (MainViewModel)DataContext;
+        vm.IsClosing = true;
         // TODO do some cleanups here
     }
 
     protected override void OnClosed(EventArgs e) {
         // TODO do some cleanups here
+        Application.Current.Shutdown(Environment.ExitCode);
     }
 }

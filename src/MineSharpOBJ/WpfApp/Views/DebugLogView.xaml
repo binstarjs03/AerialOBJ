@@ -17,27 +17,25 @@
             <MenuItem Name="MenuLog" 
                       Header="Log">
                 <MenuItem Name="SaveButton" 
-                          Header="Save"/>
+                          Header="Save"
+                          Command="{Binding SaveLog}"/>
                 <MenuItem Name="ClearButton" 
                           Header="Clear"
                           Command="{Binding ClearLog}"/>
                 <MenuItem Name="CloseButton" 
                           Header="Close"
-                          Command="{Binding ViewClose}"
-                          CommandParameter="{Binding RelativeSource={
-                                             RelativeSource Mode=FindAncestor, 
-                                             AncestorType={x:Type Window}}}"/>
+                          Command="{Binding ViewClose}"/>
             </MenuItem>
             <MenuItem Name="MenuWrite" Header="Write">
                 <MenuItem Name="WriteSingle" 
-                              Header="Single Line" 
-                              Command="{Binding WriteSingle}"/>
+                          Header="Single Line" 
+                          Command="{Binding WriteSingle}"/>
                 <MenuItem Name="WriteHorizontal" 
-                              Header="Multi Horizontal" 
-                              Command="{Binding WriteHorizontal}"/>
+                          Header="Multi Horizontal" 
+                          Command="{Binding WriteHorizontal}"/>
                 <MenuItem Name="WriteVertical" 
-                              Header="Multi Vertical" 
-                              Command="{Binding WriteVertical}"/>
+                          Header="Multi Vertical" 
+                          Command="{Binding WriteVertical}"/>
             </MenuItem>
         </Menu>
         <StatusBar Name="NotificationBar" 

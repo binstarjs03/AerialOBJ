@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Win32;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
 using binstarjs03.MineSharpOBJ.WpfApp.Views;
-using Microsoft.Win32;
-
 namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
 
-public class DebugLogViewModel : ViewModelBase<DebugLogViewModel> {
+public class DebugLogViewModel : ViewModelBase<DebugLogViewModel, DebugLogView> {
     private bool _isVisible;
     private string _logContent;
 
-    public DebugLogViewModel() {
+    public DebugLogViewModel(DebugLogView view) : base(view) {
         // listen to service events
         LogService.LogHandlers += LogHandler;
 
         // initialize states
-        _isVisible = MainViewModel.GetInstance.IsDebugLogViewVisible;
+        _isVisible = MainViewModel.Context.IsDebugLogViewVisible;
         _logContent = string.Empty;
 
         // assign command implementation to commands
@@ -32,11 +27,7 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel> {
         WriteVertical = new RelayCommand(OnWriteVertical);
     }
 
-    // reference to its corresponding view should be assigned
-    // as soon as possible to avoid NullReferenceException
-    public DebugLogView? DebugLogView { get; set; }
-
-    // States -------------------------------------------------------------
+    // States -----------------------------------------------------------------
 
     public bool IsVisible {
         get { return _isVisible; }
@@ -44,7 +35,7 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel> {
             if (value == _isVisible)
                 return;
             _isVisible = value;
-            MainViewModel.GetInstance.IsDebugLogViewVisible = value;
+            MainViewModel.Context.IsDebugLogViewVisible = value;
             OnPropertyChanged(nameof(IsVisible));
         }
     }
@@ -57,7 +48,7 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel> {
         }
     }
 
-    // Commands -----------------------------------------------------------
+    // Commands ---------------------------------------------------------------
 
     public ICommand SaveLog { get; }
 
@@ -69,11 +60,9 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel> {
 
     public ICommand WriteVertical { get; }
 
-    // Command Implementations --------------------------------------------
+    // Command Implementations ------------------------------------------------
 
     private void OnSaveLog(object? arg) {
-        if (DebugLogView is null)
-            throw new NullReferenceException(nameof(DebugLogView));
         SaveFileDialog dialog = new() {
             FileName = $"MineSharpOBJ Log",
             DefaultExt = ".txt",
@@ -83,7 +72,7 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel> {
         if (result == true) {
             string path = dialog.FileName;
             try {
-                IOService.WriteText(path, DebugLogView.LogTextBox.Text);
+                IOService.WriteText(path, _view.LogTextBox.Text);
             }
             catch (IOException ex) {
                 MessageBox.Show(ex.Message);
@@ -125,6 +114,6 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel> {
     private void LogHandler(string content) {
         _logContent += $"{content}{Environment.NewLine}";
         OnPropertyChanged(nameof(LogContent));
-        DebugLogView?.LogTextBox.ScrollToEnd();
+        _view.LogTextBox.ScrollToEnd();
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-namespace binstarjs03.MineSharpOBJ.WpfApp.Services;
+﻿namespace binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 public class LogService {
     public delegate void LogDelegate(string content);
