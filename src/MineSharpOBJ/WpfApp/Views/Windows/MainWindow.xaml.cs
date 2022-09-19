@@ -16,7 +16,8 @@ public partial class MainWindow : Window {
         DebugLogWindow debugLogView = new();
         Show();
         debugLogView.Owner = this;
-
+        DebugLogWindowViewModel.Context!.StartEventListening();
+        vm.StartEventListening();
         MainService.Initialize();
     }
 

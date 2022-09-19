@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
@@ -17,6 +18,10 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
         OpenAboutView = new RelayCommand(OnOpenAboutView);
     }
 
+    public override void StartEventListening() {
+        DebugLogWindowViewModel.Context!.PropertyChanged += OnOtherViewModelPropertyChanged;
+    }
+
     // States -----------------------------------------------------------------
 
     public bool IsDebugLogViewVisible {
@@ -25,7 +30,6 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
             if (value == _isDebugLogWindowVisible)
                 return;
             _isDebugLogWindowVisible = value;
-            DebugLogWindowViewModel.Context!.IsVisible = value;
             OnPropertyChanged(nameof(IsDebugLogViewVisible));
         }
     }
@@ -80,6 +84,15 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
 
     private bool CanCloseSession(object? arg) {
         return _session is not null;
+    }
+
+    // Event Handlers ---------------------------------------------------------
+
+    protected override void OnOtherViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) {
+        if (sender is DebugLogWindowViewModel vm) {
+            if (e.PropertyName == nameof(DebugLogWindowViewModel.IsVisible))
+                IsDebugLogViewVisible = vm.IsVisible;
+        }
     }
 
     // Private Methods --------------------------------------------------------

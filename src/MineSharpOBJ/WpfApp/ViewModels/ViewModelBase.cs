@@ -12,10 +12,18 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         _control = control;
     }
 
-    // context is used for static instance reference
-    // that is mutable, can change viewmodel instance context at anytime.
-    // we added context so we can access instance context is pointing to
-    // through the class
+    /* late-binding of other VM (property change) event listening.
+     * By doing this, we start listening to other VM event
+     * when they are instantiated and ready, so we have more control over
+     * when we want to listen to events
+    */
+    public virtual void StartEventListening() { }
+
+    /* context is used for static instance reference
+     * that is mutable, can change viewmodel instance context at anytime.
+     * we added context so we can access instance context is pointing to
+     * through the class
+    */
     public static T? Context {
         get {
             return s_context;
@@ -45,4 +53,8 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
             OnPropertyChanged(nameof(IsVisible));
         }
     }
+
+    // Event Handlers ---------------------------------------------------------
+
+    protected virtual void OnOtherViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) { }
 }

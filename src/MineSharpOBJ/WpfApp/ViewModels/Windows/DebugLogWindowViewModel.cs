@@ -8,6 +8,8 @@ using DialogResult = System.Windows.Forms.DialogResult;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
 using binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
+using System.ComponentModel;
+
 namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
 
 public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, DebugLogWindow> {
@@ -28,6 +30,10 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
         WriteVertical = new RelayCommand(OnWriteVertical);
     }
 
+    public override void StartEventListening() {
+        MainWindowViewModel.Context!.PropertyChanged += OnOtherViewModelPropertyChanged;
+    }
+
     // States -----------------------------------------------------------------
 
     public new bool IsVisible {
@@ -36,8 +42,6 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
             if (value == _isVisible)
                 return;
             _isVisible = value;
-            if (MainWindowViewModel.Context is not null)
-                MainWindowViewModel.Context.IsDebugLogViewVisible = value;
             OnPropertyChanged(nameof(IsVisible));
         }
     }
@@ -113,6 +117,13 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
     }
 
     // Event Handlers ---------------------------------------------------------
+
+    protected override void OnOtherViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) {
+        if (sender is MainWindowViewModel vm) { 
+            if (e.PropertyName == nameof(MainWindowViewModel.IsDebugLogViewVisible))
+                IsVisible = vm.IsDebugLogViewVisible;
+        }
+    }
 
     private void LogHandler(string content) {
         _logContent += $"{content}{Environment.NewLine}";
