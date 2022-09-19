@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows"
+        xmlns:usercontrols="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.Views.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         Title="{Binding Title}" 
@@ -51,7 +52,6 @@
             <StatusBarItem Name="Status" 
                            Content="Ready"/>
         </StatusBar>
-        <Canvas Name="Viewport" 
-                Background="{StaticResource DarkBackground}"/>
+        <usercontrols:ViewportControl Background="{StaticResource DarkBackground}"/>
     </DockPanel>
 </Window>
