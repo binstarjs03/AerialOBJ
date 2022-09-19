@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
+using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
 using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
 namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
 
@@ -16,8 +17,11 @@ public partial class MainWindow : Window {
         DebugLogWindow debugLogView = new();
         Show();
         debugLogView.Owner = this;
-        DebugLogWindowViewModel.Context!.StartEventListening();
+
         vm.StartEventListening();
+        DebugLogWindowViewModel.Context!.StartEventListening();
+        ViewportControlViewModel.Context!.StartEventListening();
+
         MainService.Initialize();
     }
 

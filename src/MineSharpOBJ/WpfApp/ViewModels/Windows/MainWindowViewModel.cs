@@ -8,6 +8,7 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
 
 public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWindow> {
     private bool _isDebugLogWindowVisible = false;
+    private bool _isViewportDebugControlVisible = false;
     private string _title = "MineSharpOBJ";
     private SessionInfo? _session;
 
@@ -31,6 +32,16 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
                 return;
             _isDebugLogWindowVisible = value;
             OnPropertyChanged(nameof(IsDebugLogViewVisible));
+        }
+    }
+
+    public bool IsViewportDebugControlVisible {
+        get { return _isViewportDebugControlVisible; }
+        set {
+            if (value == _isViewportDebugControlVisible)
+                return;
+            _isViewportDebugControlVisible = value;
+            OnPropertyChanged(nameof(IsViewportDebugControlVisible));
         }
     }
 

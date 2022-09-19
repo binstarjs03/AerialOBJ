@@ -38,6 +38,12 @@
                           IsChecked="{Binding IsDebugLogViewVisible, 
                                       Mode=TwoWay, 
                                       UpdateSourceTrigger=PropertyChanged}"/>
+                <MenuItem Name="MenuViewViewportDebugger" 
+                          Header="Viewport Debugger" 
+                          IsCheckable="True"
+                          IsChecked="{Binding IsViewportDebugControlVisible,
+                                      Mode=OneWayToSource,
+                                      UpdateSourceTrigger=PropertyChanged}"/>
             </MenuItem>
             <MenuItem Name="MenuHelp" 
                       Header="Help">

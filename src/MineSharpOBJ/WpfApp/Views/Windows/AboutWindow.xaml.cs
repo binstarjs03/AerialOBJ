@@ -5,6 +5,8 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
 public partial class AboutWindow : Window {
     public AboutWindow() {
         InitializeComponent();
-        DataContext = new AboutWindowViewModel(this);
+        AboutWindowViewModel vm = new(this);
+        AboutWindowViewModel.Context = vm;
+        DataContext = vm;
     }
 }

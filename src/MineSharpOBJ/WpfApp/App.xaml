@@ -8,6 +8,11 @@
     <Application.Resources>
         <SolidColorBrush x:Key="DarkBackground" Color="#2d2a2e"/>
         <SolidColorBrush x:Key="LightForeground" Color="#b8b8b8"/>
+        <Style x:Key="PanelText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource LightForeground}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
         <converters:BoolToVisibilityHide x:Key="BoolToVisibilityHide"/>
+        <converters:BoolToVisibilityCollapse x:Key="BoolToVisibilityCollapse"/>
     </Application.Resources>
 </Application>
