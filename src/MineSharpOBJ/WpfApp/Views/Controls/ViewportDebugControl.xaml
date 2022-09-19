@@ -42,6 +42,9 @@
             <TextBlock Text="{Binding MouseIsClickHolding}"
                            d:Text="Is Click Holding:" 
                            Style="{StaticResource PanelText}"/>
+            <TextBlock Text="{Binding MouseIsOutside}"
+                       d:Text="Is Outside:"
+                       Style="{StaticResource PanelText}"/>
         </StackPanel>
         <StackPanel Margin="5">
             <TextBlock Text="Chunk Manager Info" 

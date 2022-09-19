@@ -14,6 +14,7 @@ public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlV
     private string _mousePos = "";
     private string _mousePosDelta = "";
     private string _mouseIsClickHolding = "";
+    private string _mouseIsOutside = "";
 
     public ViewportDebugControlViewModel(ViewportDebugControl control) : base(control) {
         // initialize states
@@ -87,6 +88,14 @@ public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlV
         }
     }
 
+    public string MouseIsOutside {
+        get { return _mouseIsOutside; }
+        set {
+            _mouseIsOutside = value;
+            OnPropertyChanged(nameof(MouseIsOutside));
+        }
+    }
+
     // Private Methods --------------------------------------------------------
 
     private void ReinitializeText() {
@@ -99,6 +108,7 @@ public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlV
         _mousePos = "Mouse Pos:";
         _mousePosDelta = "Mouse Pos Delta:";
         _mouseIsClickHolding = "Is Click Holding:";
+        _mouseIsOutside = "Is Outside:";
     }
 }
 

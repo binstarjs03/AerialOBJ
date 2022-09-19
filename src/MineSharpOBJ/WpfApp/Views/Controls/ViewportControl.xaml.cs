@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Models;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
@@ -30,6 +20,9 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Controls;
 // TODO UX BUG inconvenience: when ClickDrag goes outside window, it loses track of where the mouse is,
 // but when it goes inside back, it continue tracking the mouse, even when mouse click is release!!!
 
+// TODO UX improvement: wrap mouse around viewport like in blender 3D did
+// when mouse goes outside the viewport
+
 public partial class ViewportControl : UserControl {
     private static readonly int[] s_zoomBlockPixelCount = new int[] {
         1, 2, 3, 5, 8, 13, 21, 34
@@ -41,6 +34,7 @@ public partial class ViewportControl : UserControl {
     private PointF _mousePosDelta = PointF.Origin;
     private bool _mouseIsClickHolding = false;
     private bool _mouseInitClickDrag = true;
+    private bool _mouseIsOutside = false;
 
     private bool _isUpdatingDebug;
 
@@ -170,17 +164,28 @@ public partial class ViewportControl : UserControl {
         UpdateDebugPanel();
     }
 
+    private void OnMouseLeave(object sender, MouseEventArgs e) {
+        _mouseIsOutside = true;
+        UpdateDebugPanel();
+    }
+
+    private void OnMouseEnter(object sender, MouseEventArgs e) {
+        _mouseIsOutside = false;
+        UpdateDebugPanel();
+    }
+
     private void UpdateDebugPanel() {
         if (ViewportDebugControlViewModel.Context is ViewportDebugControlViewModel vm) {
-            vm.CameraPos = $"ViewPos: ({round(ViewportCameraPos.X)}, {round(ViewportCameraPos.Y)})";
-            vm.CameraPosZoomed = $"ViewPos (zoomed): ({round(ViewportCameraPosZoomed.X)}, {round(ViewportCameraPosZoomed.Y)})";
+            vm.CameraPos = $"Camera Pos: ({round(ViewportCameraPos.X)}, {round(ViewportCameraPos.Y)})";
+            vm.CameraPosZoomed = $"Camera Pos (zoomed): ({round(ViewportCameraPosZoomed.X)}, {round(ViewportCameraPosZoomed.Y)})";
             vm.ZoomLevel = $"Zoom Level: {ViewportZoomLevel}";
             vm.PixelPerBlock = $"Pixel-Per-Chunk: {ViewportPixelPerBlock}";
             vm.PixelPerChunk = $"Pixel-Per-Chunk: {ViewportPixelPerChunk}";
 
-            vm.MousePos = $"MousePos: ({toint(MousePos.X)}, {toint(MousePos.Y)})";
-            vm.MousePosDelta = $"MousePosDelta: ({toint(MousePosDelta.X)}, {toint(MousePosDelta.Y)})";
-            vm.MouseIsClickHolding = $"MouseIsClickHolding: {_mouseIsClickHolding}";
+            vm.MousePos = $"Mouse Pos: ({toint(MousePos.X)}, {toint(MousePos.Y)})";
+            vm.MousePosDelta = $"Mouse Pos Delta: ({toint(MousePosDelta.X)}, {toint(MousePosDelta.Y)})";
+            vm.MouseIsClickHolding = $"Is Click Holding: {_mouseIsClickHolding}";
+            vm.MouseIsOutside = $"Is Outside: {_mouseIsOutside}";
         }
         static double round(double f) => Math.Round(f, 2);
         static int toint(double f) => (int)f;

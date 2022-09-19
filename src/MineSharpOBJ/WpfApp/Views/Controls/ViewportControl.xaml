@@ -22,7 +22,9 @@
                 MouseWheel="OnMouseWheel"
                 MouseMove="OnMouseMove"
                 MouseUp="OnMouseUp"
-                MouseDown="OnMouseDown">
+                MouseDown="OnMouseDown" 
+                MouseLeave="OnMouseLeave" 
+                MouseEnter="OnMouseEnter">
             <Canvas Name="ChunkCanvas"
                     ClipToBounds="True"
                     SizeChanged="OnSizeChanged"
