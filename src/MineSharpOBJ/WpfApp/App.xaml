@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp"
              xmlns:converters="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.BindingConverters"
-             StartupUri="Views/MainView.xaml"
+             StartupUri="Views/Windows/MainWindow.xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <SolidColorBrush x:Key="DarkBackground" Color="#2d2a2e"/>
         <SolidColorBrush x:Key="LightForeground" Color="#b8b8b8"/>
-        <converters:BoolToVisibility x:Key="BoolToVisibility"/>
+        <converters:BoolToVisibilityHide x:Key="BoolToVisibilityHide"/>
     </Application.Resources>
 </Application>

@@ -7,20 +7,18 @@ using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using DialogResult = System.Windows.Forms.DialogResult;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.Views;
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
+using binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
+namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
 
-public class DebugLogViewModel : ViewModelBase<DebugLogViewModel, DebugLogView> {
-    private bool _isVisible;
-    private string _logContent;
+public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, DebugLogWindow> {
+    private string _logContent = string.Empty;
 
-    public DebugLogViewModel(DebugLogView view) : base(view) {
+    public DebugLogWindowViewModel(DebugLogWindow view) : base(view) {
         // listen to service events
         LogService.LogHandlers += LogHandler;
 
         // initialize states
-        _isVisible = MainViewModel.Context.IsDebugLogViewVisible;
-        _logContent = string.Empty;
+        _isVisible = MainWindowViewModel.Context!.IsDebugLogViewVisible;
 
         // assign command implementation to commands
         SaveLog = new RelayCommand(OnSaveLog);
@@ -32,13 +30,14 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel, DebugLogView> 
 
     // States -----------------------------------------------------------------
 
-    public bool IsVisible {
+    public new bool IsVisible {
         get { return _isVisible; }
         set {
             if (value == _isVisible)
                 return;
             _isVisible = value;
-            MainViewModel.Context.IsDebugLogViewVisible = value;
+            if (MainWindowViewModel.Context is not null)
+                MainWindowViewModel.Context.IsDebugLogViewVisible = value;
             OnPropertyChanged(nameof(IsVisible));
         }
     }
@@ -76,7 +75,7 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel, DebugLogView> 
             return;
         string path = dialog.FileName;
         try {
-            IOService.WriteText(path, _view.LogTextBox.Text);
+            IOService.WriteText(path, _window.LogTextBox.Text);
         }
         catch (IOException ex) {
             MessageBox.Show(ex.Message);
@@ -118,6 +117,6 @@ public class DebugLogViewModel : ViewModelBase<DebugLogViewModel, DebugLogView> 
     private void LogHandler(string content) {
         _logContent += $"{content}{Environment.NewLine}";
         OnPropertyChanged(nameof(LogContent));
-        _view.LogTextBox.ScrollToEnd();
+        _window.LogTextBox.ScrollToEnd();
     }
 }

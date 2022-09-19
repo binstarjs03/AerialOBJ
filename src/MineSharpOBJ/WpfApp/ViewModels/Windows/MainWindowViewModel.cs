@@ -2,19 +2,15 @@
 using System.Windows.Forms;
 using System.Windows.Input;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.Views;
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
+using binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
+namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
 
-public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
-    private bool _isDebugLogWindowVisible;
-    private string _title;
+public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWindow> {
+    private bool _isDebugLogWindowVisible = false;
+    private string _title = "MineSharpOBJ";
     private SessionInfo? _session;
 
-    public MainViewModel(MainView view) : base(view) {
-        // initialize states
-        _isDebugLogWindowVisible = false;
-        _title = "MineSharpOBJ";
-
+    public MainWindowViewModel(MainWindow view) : base(view) {
         // assign command implementation to commands
         LoadSavegameFolder = new RelayCommand(OnLoadSavegameFolder);
         CloseSession = new RelayCommand(OnCloseSession, CanCloseSession);
@@ -29,7 +25,7 @@ public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
             if (value == _isDebugLogWindowVisible)
                 return;
             _isDebugLogWindowVisible = value;
-            DebugLogViewModel.Context.IsVisible = value;
+            DebugLogWindowViewModel.Context!.IsVisible = value;
             OnPropertyChanged(nameof(IsDebugLogViewVisible));
         }
     }
@@ -77,7 +73,7 @@ public class MainViewModel : ViewModelBase<MainViewModel, MainView> {
     }
 
     private void OnOpenAboutView(object? arg) {
-        new AboutView().ShowDialog();
+        new AboutWindow().ShowDialog();
     }
 
     // Command Availability ---------------------------------------------------

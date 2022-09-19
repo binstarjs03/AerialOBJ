@@ -1,18 +1,19 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
-using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
-namespace binstarjs03.MineSharpOBJ.WpfApp.Views;
 
-public partial class MainView : Window {
-    public MainView() {
+using binstarjs03.MineSharpOBJ.WpfApp.Services;
+using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
+namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
+
+public partial class MainWindow : Window {
+    public MainWindow() {
         InitializeComponent();
-        MainViewModel vm = new(this);
-        MainViewModel.Context = vm;
+        MainWindowViewModel vm = new(this);
+        MainWindowViewModel.Context = vm;
         DataContext = vm;
 
-        DebugLogView debugLogView = new();
+        DebugLogWindow debugLogView = new();
         Show();
         debugLogView.Owner = this;
 
@@ -20,8 +21,8 @@ public partial class MainView : Window {
     }
 
     public void DebugLogView_SynchronizePosition() {
-        DebugLogViewModel.Context.View.Top = Top;
-        DebugLogViewModel.Context.View.Left = Left + ActualWidth;
+        DebugLogWindowViewModel.Context!.Window.Top = Top;
+        DebugLogWindowViewModel.Context!.Window.Left = Left + ActualWidth;
     }
     protected override void OnLocationChanged(EventArgs e) {
         DebugLogView_SynchronizePosition();
@@ -32,7 +33,7 @@ public partial class MainView : Window {
     }
 
     protected override void OnClosing(CancelEventArgs e) {
-        MainViewModel vm = (MainViewModel)DataContext;
+        MainWindowViewModel vm = (MainWindowViewModel)DataContext;
         vm.IsClosing = true;
         // TODO do some cleanups here
     }
