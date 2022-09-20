@@ -6,9 +6,11 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodels:AboutWindowViewModel}"
+        
         Title="About" 
-        Height="400" Width="400"
+        SizeToContent="WidthAndHeight"
         ResizeMode="NoResize">
+
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource LightForeground}"/>
@@ -19,9 +21,12 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
-    <Grid Background="{StaticResource DarkBackground}">
-        <StackPanel HorizontalAlignment="Center">
-            <StackPanel Margin="0,0,0,10">
+
+    <Grid Width="Auto" Height="Auto" 
+          Background="{StaticResource DarkBackground}">
+
+        <StackPanel Margin="20,10" HorizontalAlignment="Center">
+            <StackPanel>
                 <TextBlock Text="MineSharpOBJ" 
                            HorizontalAlignment="Center" 
                            FontSize="20"
@@ -32,35 +37,40 @@
                            FontSize="12"
                            FontWeight="Light"
                            Foreground="#A2CCDD">
-                    Free and Open Source Minecraft savegame world 
-                    to Wavefront OBJ 3D Model converter
+                Free and Open Source Minecraft savegame world 
+                to Wavefront OBJ 3D Model converter
                 </TextBlock>
             </StackPanel>
 
-            <StackPanel Margin="0,0,0,10">
+            <Separator Height="10" Background="Transparent"/>
+
+            <StackPanel>
                 <TextBlock Text="Version: (release number).(patch number)"/>
                 <TextBlock Text="Commit: (commit hash goes here)"/>
-                <TextBlock Text="Build date: (build date goes here)"/>
+                <TextBlock Text="Build Date: (build date goes here)"/>
             </StackPanel>
 
-            <StackPanel Margin="0,0,0,30">
-                <TextBlock Text="Authors" 
-                           TextDecorations="Underline"/>
-                <TextBlock Text="Bintang Jakasurya (Bin Starjs) - Lead Project and Programming"/>
-                <TextBlock Text="Foo (KulNickname) - Programming"/>
-                <TextBlock Text="Bar (WowNickz) - Design and Layout"/>
-                <TextBlock Text="Baz (HahaName) - Translation"/>
+            <Separator Height="10" Background="Transparent"/>
+
+            <StackPanel>
+                <TextBlock Text="Authors" TextDecorations="Underline"/>
+                <TextBlock>
+                    Bintang Jakasurya (Bin Starjs) 
+                    - Lead Project and Programming
+                </TextBlock>
             </StackPanel>
 
-            <StackPanel Margin="0,0,0,20">
+            <Separator Height="20" Background="Transparent"/>
+
+            <StackPanel>
                 <TextBlock Style="{StaticResource CenteredText}"
                            TextAlignment="Center"
                            FontSize="11"
                            FontWeight="Bold">
-                    Copyright (c) 2022 Bintang Jakasurya and contributors
+                    Copyright (c) 2022 Bintang Jakasurya
                 </TextBlock>
                 <TextBlock Style="{StaticResource CenteredText}" 
-                           Text="Repository Link:"/>
+                            Text="Repository Link:"/>
                 <!--TODO hyperlink is unclickable yet, must fix-->
                 <TextBlock Style="{StaticResource CenteredText}" 
                            Text="https://github.com/binstarjs03/MineSharpOBJ"
@@ -70,10 +80,13 @@
                 </TextBlock>
             </StackPanel>
 
-            <Button Content="Click 😁"
+            <Separator Height="20" Background="Transparent"/>
+            <Button Content="Close"
                     Width="120"
                     FontSize="16"
                     Command="{Binding WindowClose}"/>
+            <Separator Height="10" Background="Transparent"/>
         </StackPanel>
+            
     </Grid>
 </Window>

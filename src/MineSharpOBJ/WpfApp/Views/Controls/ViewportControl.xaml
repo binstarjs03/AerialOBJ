@@ -9,57 +9,60 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:ViewportControlViewModel}"
              d:DesignHeight="400" d:DesignWidth="600">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="2"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Canvas Name="ViewportCanvas"
-                Grid.Column="0"
-                RenderOptions.EdgeMode="Aliased"
-                RenderOptions.BitmapScalingMode="NearestNeighbor"
-                Background="Transparent"
-                MouseWheel="OnMouseWheel"
-                MouseMove="OnMouseMove"
-                MouseUp="OnMouseUp"
-                MouseDown="OnMouseDown" 
-                MouseLeave="OnMouseLeave" 
-                MouseEnter="OnMouseEnter">
-            <Canvas Name="ChunkCanvas"
-                    ClipToBounds="True"
-                    SizeChanged="OnSizeChanged"
-                    Width="{Binding ElementName=ViewportCanvas, Path=ActualWidth}"
-                    Height="{Binding ElementName=ViewportCanvas, Path=ActualHeight}"/>
-            <Grid Name="DebugCenterGrid" 
-                  Visibility="Hidden"
-                  Width="{Binding ElementName=ViewportCanvas, Path=ActualWidth}" 
-                  Height="{Binding ElementName=ViewportCanvas, Path=ActualHeight}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Rectangle Grid.Column="1" Grid.RowSpan="3" Fill="White"/>
-                <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Fill="White"/>
-            </Grid>
-        </Canvas>
-        <Rectangle Grid.Column="1" 
-                   Fill="{StaticResource LightForeground}"/>
-        <ScrollViewer Grid.Column="2" 
-                      VerticalScrollBarVisibility="Auto">
+        
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="2"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+        
+            <Canvas Name="ViewportCanvas"
+                    Grid.Column="0"
+                    RenderOptions.EdgeMode="Aliased"
+                    RenderOptions.BitmapScalingMode="NearestNeighbor"
+                    Background="Transparent"
+                    
+                    MouseWheel="OnMouseWheel"
+                    MouseMove="OnMouseMove"
+                    MouseUp="OnMouseUp"
+                    MouseDown="OnMouseDown" 
+                    MouseLeave="OnMouseLeave" 
+                    MouseEnter="OnMouseEnter">
+                
+                <Canvas Name="ChunkCanvas"
+                        ClipToBounds="True"
+                        SizeChanged="OnSizeChanged"
+                        Width="{Binding ElementName=ViewportCanvas, Path=ActualWidth}"
+                        Height="{Binding ElementName=ViewportCanvas, Path=ActualHeight}"/>
+                <Grid Name="DebugCenterGrid" 
+                      Visibility="Hidden"
+                      Width="{Binding ElementName=ViewportCanvas, Path=ActualWidth}" 
+                      Height="{Binding ElementName=ViewportCanvas, Path=ActualHeight}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <Rectangle Grid.Column="1" Grid.RowSpan="3" Fill="White"/>
+                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Fill="White"/>
+                </Grid>
+            </Canvas>
+            <Rectangle Grid.Column="1" 
+                       Fill="{StaticResource LightForeground}"/>
             <local:ViewportDebugControl x:Name="DebugControl" 
-                                        Padding="5,0,0,0"
-                                        Width="190"
+                                        Grid.Column="2" 
                                         HorizontalAlignment="Left"
                                         d:DataContext="{d:DesignInstance Type=viewmodels:ViewportDebugControlViewModel}"
                                         Visibility="{Binding IsVisible, 
                                                      Mode=OneWay,
                                                      Converter={StaticResource BoolToVisibilityCollapse}}"/>
-        </ScrollViewer>
+        </Grid>
+        
     </Grid>
 </UserControl>

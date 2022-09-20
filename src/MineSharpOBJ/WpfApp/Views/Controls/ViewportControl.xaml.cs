@@ -17,11 +17,12 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Controls;
 
 // TODO draw in separate thread instead in UI thread (Main thread)
 
-// TODO UX BUG inconvenience: when ClickDrag goes outside window, it loses track of where the mouse is,
-// but when it goes inside back, it continue tracking the mouse, even when mouse click is release!!!
-
 // TODO UX improvement: wrap mouse around viewport like in blender 3D did
 // when mouse goes outside the viewport
+
+// TODO camera position is in wrong sign, it is the inverse of the actual camera position.
+// We have to subtract camera position to mouse delta movement so it is correcty
+// representing physical camera position rather than confusingly in the inverse of the position.
 
 public partial class ViewportControl : UserControl {
     private static readonly int[] s_zoomBlockPixelCount = new int[] {
@@ -66,6 +67,7 @@ public partial class ViewportControl : UserControl {
     public void SetCameraPosition(PointF cameraPos) {
         _viewportCameraPos = cameraPos;
         UpdateChunkTransformation(updateChunkSize: false);
+        UpdateDebugPanel();
     }
 
     private void UpdateChunkTransformation(bool updateChunkSize) {
@@ -166,6 +168,7 @@ public partial class ViewportControl : UserControl {
 
     private void OnMouseLeave(object sender, MouseEventArgs e) {
         _mouseIsOutside = true;
+        _mouseIsClickHolding = false;
         UpdateDebugPanel();
     }
 

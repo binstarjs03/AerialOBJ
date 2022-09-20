@@ -7,57 +7,63 @@
         xmlns:usercontrols="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.Views.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
-        Title="{Binding Title}" 
-        Height="400" Width="600">
-    <DockPanel>
-        <Menu Name="MenuBar" 
-              DockPanel.Dock="Top">
-            <MenuItem Name="MenuFile" 
-                      Header="File">
-                <!--
-                TODO refactoring, Open registeredsavepath control is
-                added dynamically in code but it does not exist in here.
-                We should keep UI definitions in here and do not put UI
-                definitions inside code
-                -->
-                <MenuItem Name="MenuFileOpen" 
+        
+        Title="{Binding Title}"
+        d:Title="MineSharpOBJ"
+        Width="600" Height="400">
+    <Grid>
+        
+        <DockPanel>
+            <Menu Name="MenuBar" 
+                  DockPanel.Dock="Top">
+                <MenuItem Name="MenuFile" 
+                          Header="File">
+                    <MenuItem Name="MenuFileOpen" 
                           Header="Open..."
                           Command="{Binding LoadSavegameFolder}"/>
-                <MenuItem Name="MenuFileClose" 
+                    <MenuItem Name="MenuFileClose" 
                           Header="Close"
                           Command="{Binding CloseSession}"/>
-                <MenuItem Name="MenuFileExit" 
+                    <MenuItem Name="MenuFileExit" 
                           Header="Exit" 
                           Command="{Binding WindowClose}"/>
-            </MenuItem>
-            <MenuItem Name="MenuView" 
-                      Header="View">
-                <MenuItem Name="MenuViewDebugLog" 
-                          Header="Debug Log"
-                          IsCheckable="True"
-                          IsChecked="{Binding IsDebugLogViewVisible, 
+                </MenuItem>
+                <MenuItem Name="MenuView" 
+                          Header="View">
+                    <MenuItem Name="MenuViewDebugLog" 
+                              Header="Debug Log"
+                              IsCheckable="True"
+                              IsChecked="{Binding IsDebugLogViewVisible, 
                                       Mode=TwoWay, 
                                       UpdateSourceTrigger=PropertyChanged}"/>
-                <MenuItem Name="MenuViewViewportDebugger" 
-                          Header="Viewport Debugger" 
-                          IsCheckable="True"
-                          IsChecked="{Binding IsViewportDebugControlVisible,
-                                      Mode=OneWayToSource,
-                                      UpdateSourceTrigger=PropertyChanged}"/>
-            </MenuItem>
-            <MenuItem Name="MenuHelp" 
-                      Header="Help">
-                <MenuItem Name="MenuHelpAboutButton"
-                          Header="About..."
-                          Command="{Binding OpenAboutView}"/>
-            </MenuItem>
-        </Menu>
-        <StatusBar Name="StatusBar" 
-                   Height="Auto" 
-                   DockPanel.Dock="Bottom">
-            <StatusBarItem Name="Status" 
-                           Content="Ready"/>
-        </StatusBar>
-        <usercontrols:ViewportControl Background="{StaticResource DarkBackground}"/>
-    </DockPanel>
+                    <MenuItem Name="MenuViewViewportDebugger" 
+                              Header="Viewport Debugger" 
+                              IsCheckable="True"
+                              IsChecked="{Binding IsViewportDebugControlVisible,
+                                          Mode=OneWayToSource,
+                                          UpdateSourceTrigger=PropertyChanged}"/>
+                    <Separator/>
+                    <MenuItem Name="MenuViewNavigationGoto"
+                              Header="Goto..."
+                              Command="{Binding ViewportGoto}"/>
+                </MenuItem>
+                <MenuItem Name="MenuHelp" 
+                          Header="Help">
+                    <MenuItem Name="MenuHelpAboutButton"
+                              Header="About..."
+                              Command="{Binding OpenAboutView}"/>
+                </MenuItem>
+            </Menu>
+            
+            <StatusBar Name="StatusBar" 
+                       Height="Auto" 
+                       DockPanel.Dock="Bottom">
+                <StatusBarItem Name="Status" 
+                               Content="Ready"/>
+            </StatusBar>
+            
+            <usercontrols:ViewportControl Background="{StaticResource DarkBackground}"/>
+        </DockPanel>
+        
+    </Grid>
 </Window>

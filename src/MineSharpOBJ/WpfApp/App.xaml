@@ -4,9 +4,9 @@
              xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp"
              xmlns:converters="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.BindingConverters"
              StartupUri="Views/Windows/MainWindow.xaml"
-             ShutdownMode="OnExplicitShutdown">
+             ShutdownMode="OnMainWindowClose">
     <Application.Resources>
-        <SolidColorBrush x:Key="DarkBackground" Color="#2d2a2e"/>
+        <SolidColorBrush x:Key="DarkBackground" Color="#2d2d2d"/>
         <SolidColorBrush x:Key="LightForeground" Color="#b8b8b8"/>
         <Style x:Key="PanelText" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource LightForeground}"/>

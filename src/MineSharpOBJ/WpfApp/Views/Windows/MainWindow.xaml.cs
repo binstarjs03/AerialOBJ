@@ -37,10 +37,8 @@ public partial class MainWindow : Window {
         DebugLogView_SynchronizePosition();
     }
 
-    protected override void OnClosing(CancelEventArgs e) {
-        MainWindowViewModel vm = (MainWindowViewModel)DataContext;
-        vm.IsClosing = true;
-        // TODO do some cleanups here
+    protected override void OnClosing(CancelEventArgs e) { 
+        // TODO do something here (but dont cleanup yet)
     }
 
     protected override void OnClosed(EventArgs e) {

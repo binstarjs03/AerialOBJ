@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -15,7 +15,7 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     public MainWindowViewModel(MainWindow view) : base(view) {
         // assign command implementation to commands
         LoadSavegameFolder = new RelayCommand(OnLoadSavegameFolder);
-        CloseSession = new RelayCommand(OnCloseSession, CanCloseSession);
+        CloseSession = new RelayCommand(OnCloseSession, HasSession);
         OpenAboutView = new RelayCommand(OnOpenAboutView);
     }
 
@@ -52,9 +52,6 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
             OnPropertyChanged(nameof(Title)); 
         }
     }
-
-    // TODO redundant, pending removing
-    public bool IsClosing { get; set; }
 
     // Commands ---------------------------------------------------------------
 
@@ -93,8 +90,8 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
 
     // Command Availability ---------------------------------------------------
 
-    private bool CanCloseSession(object? arg) {
-        return _session is not null;
+    private bool HasSession(object? arg) { 
+        return _session is not null; 
     }
 
     // Event Handlers ---------------------------------------------------------

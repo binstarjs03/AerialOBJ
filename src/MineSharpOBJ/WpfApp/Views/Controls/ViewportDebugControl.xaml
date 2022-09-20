@@ -6,58 +6,65 @@
              xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls" 
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewmodels:ViewportDebugControlViewModel}"
-             d:DesignHeight="300" d:DesignWidth="200">
-    <StackPanel Grid.Column="1" 
-                Background="{StaticResource DarkBackground}">
-        <StackPanel Margin="5">
-            <TextBlock Text="Viewport Info" 
-                           FontWeight="Bold"
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding CameraPos}" 
-                           d:Text="Camera Pos:" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding CameraPosZoomed}" 
-                           d:Text="Camera Pos (zoomed):" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding ZoomLevel}" 
-                           d:Text="Zoom Level:" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding PixelPerBlock}" 
-                           d:Text="Pixel-Per-Block:" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding PixelPerChunk}" 
-                           d:Text="Pixel-Per-Chunk:" 
-                           Style="{StaticResource PanelText}"/>
-        </StackPanel>
-        <StackPanel Margin="5">
-            <TextBlock Text="Mouse Info" 
-                           FontWeight="Bold"
-                           Style="{StaticResource PanelText}" />
-            <TextBlock Text="{Binding MousePos}"
-                           d:Text="Mouse Pos:" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding MousePosDelta}"
-                           d:Text="Mouse Pos Delta:" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding MouseIsClickHolding}"
-                           d:Text="Is Click Holding:" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="{Binding MouseIsOutside}"
-                       d:Text="Is Outside:"
-                       Style="{StaticResource PanelText}"/>
-        </StackPanel>
-        <StackPanel Margin="5">
-            <TextBlock Text="Chunk Manager Info" 
-                           FontWeight="Bold"
-                           Style="{StaticResource PanelText}" />
-            <TextBlock Text="Visible Chunk Count:"
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="Visible Chunk Range:"
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="Loaded Chunk Count:" 
-                           Style="{StaticResource PanelText}"/>
-            <TextBlock Text="Pending Chunk Count:" 
-                           Style="{StaticResource PanelText}"/>
-        </StackPanel>
-    </StackPanel>
+             d:DesignWidth="200">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource LightForeground}"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="Width" Value="Auto"/>
+        </Style>
+        <Style BasedOn="{StaticResource {x:Type TextBlock}}" 
+               TargetType="TextBlock"
+               x:Key="Header">
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource DarkBackground}">
+        <ScrollViewer Width="200"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Width="Auto"
+                        Margin="10">
+                <StackPanel>
+                    <TextBlock Text="Viewport Info" Style="{StaticResource Header}"/>
+                    <TextBlock Text="{Binding CameraPos}" 
+                               d:Text="Camera Pos:"/>
+                    <TextBlock Text="{Binding CameraPosZoomed}" 
+                               d:Text="Camera Pos (zoomed):"/>
+                    <TextBlock Text="{Binding ZoomLevel}" 
+                               d:Text="Zoom Level:"/>
+                    <TextBlock Text="{Binding PixelPerBlock}" 
+                               d:Text="Pixel-Per-Block:"/>
+                    <TextBlock Text="{Binding PixelPerChunk}" 
+                               d:Text="Pixel-Per-Chunk:"/>
+                </StackPanel>
+
+                <Separator Height="5" Background="Transparent"/>
+
+                <StackPanel>
+                    <TextBlock Text="Mouse Info" Style="{StaticResource Header}"/>
+                    <TextBlock Text="{Binding MousePos}"
+                               d:Text="Mouse Pos:"/>
+                    <TextBlock Text="{Binding MousePosDelta}"
+                               d:Text="Mouse Pos Delta:"/>
+                    <TextBlock Text="{Binding MouseIsClickHolding}"
+                               d:Text="Is Click Holding:"/>
+                    <TextBlock Text="{Binding MouseIsOutside}"
+                               d:Text="Is Outside:"/>
+                </StackPanel>
+
+                <Separator Height="5" Background="Transparent"/>
+
+                <StackPanel>
+                    <TextBlock Text="Chunk Manager Info" Style="{StaticResource Header}"/>
+                    <TextBlock Text="Visible Chunk Count:"/>
+                    <TextBlock Text="Visible Chunk Range:"/>
+                    <TextBlock Text="Loaded Chunk Count:"/>
+                    <TextBlock Text="Pending Chunk Count:"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>
