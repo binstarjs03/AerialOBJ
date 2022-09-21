@@ -8,27 +8,35 @@ using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
 namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
 
 public partial class MainWindow : Window {
+    private readonly MainWindowViewModel _vm;
+    
     public MainWindow() {
+        _vm = new(this);
+        MainWindowViewModel.Context = _vm;
+        DataContext = _vm;
         InitializeComponent();
-        MainWindowViewModel vm = new(this);
-        MainWindowViewModel.Context = vm;
-        DataContext = vm;
-
-        DebugLogWindow debugLogView = new();
-        Show();
-        debugLogView.Owner = this;
-
-        vm.StartEventListening();
-        DebugLogWindowViewModel.Context!.StartEventListening();
-        ViewportControlViewModel.Context!.StartEventListening();
-
+        InstantiateStandbySecondWindows();
+        SetupViewModelEventListeners();
         MainService.Initialize();
     }
 
-    public void DebugLogView_SynchronizePosition() {
+    private void InstantiateStandbySecondWindows(){
+        DebugLogWindow debugLogView = new();
+        Show();
+        debugLogView.Owner = this;
+    }
+    
+    private void SetupViewModelEventListeners(){
+        _vm.StartEventListening();
+        DebugLogWindowViewModel.Context!.StartEventListening();
+        ViewportControlViewModel.Context!.StartEventListening();
+    }
+
+    private void DebugLogView_SynchronizePosition() {
         DebugLogWindowViewModel.Context!.Window.Top = Top;
         DebugLogWindowViewModel.Context!.Window.Left = Left + ActualWidth;
     }
+    
     protected override void OnLocationChanged(EventArgs e) {
         DebugLogView_SynchronizePosition();
     }
