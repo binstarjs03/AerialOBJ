@@ -32,8 +32,6 @@ public partial class ViewportControl : UserControl {
     private bool _mouseInitClickDrag = true;
     private bool _mouseIsOutside = false;
 
-    private bool _isUpdatingDebug;
-
     public ViewportControl() {
         InitializeComponent();
         ViewportControlViewModel vm = new(this);
@@ -124,7 +122,7 @@ public partial class ViewportControl : UserControl {
         UpdateChunkTransformation(updateChunkSize: false);
     }
 
-    private async void OnMouseMove(object sender, MouseEventArgs e) {
+    private void OnMouseMove(object sender, MouseEventArgs e) {
         // set delta to 0 if this call is initial click and dragging.
         // this is to avoid jumps when clicking menu bar
         // then clicking and dragging on the viewer again
@@ -140,14 +138,7 @@ public partial class ViewportControl : UserControl {
             _mouseInitClickDrag = false;
             UpdateChunkTransformation(updateChunkSize: false);
         }
-        if (!_isUpdatingDebug) {
-            _isUpdatingDebug = true;
-            await Task.Run(() => {
-                Thread.Sleep(50);
-                UpdateDebugPanel();
-            });
-            _isUpdatingDebug = false;
-        }
+        UpdateDebugPanel();
     }
 
     private void OnMouseUp(object sender, MouseButtonEventArgs e) {

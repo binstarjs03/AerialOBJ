@@ -64,6 +64,9 @@ public class IOService {
             return null;
         }
 
+        // TODO BUG MessageBox is shown as modal but when DebugLogWindow is visible,
+        // the window still can be focused. Any other window should
+        // not be able to receive focus or input when MessageBox is shown.
         static void ShowLoadSavegameErrorModal(string path, string errorMsg) {
             string msg = $"Cannot open \"{path}\" as Minecraft savegame folder: \n"
                          + errorMsg;
