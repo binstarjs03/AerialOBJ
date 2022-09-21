@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -17,6 +17,7 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
         LoadSavegameFolder = new RelayCommand(OnLoadSavegameFolder);
         CloseSession = new RelayCommand(OnCloseSession, HasSession);
         OpenAboutView = new RelayCommand(OnOpenAboutView);
+        ViewportGoto = new RelayCommand(OnViewportGoto, HasSession);
     }
 
     public override void StartEventListening() {
@@ -61,6 +62,8 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     
     public ICommand OpenAboutView { get; }
 
+    public ICommand ViewportGoto { get; }
+
     // Command Implementations ------------------------------------------------
 
     private void OnLoadSavegameFolder(object? arg) {
@@ -86,6 +89,10 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
 
     private void OnOpenAboutView(object? arg) {
         new AboutWindow().ShowDialog();
+    }
+
+    private void OnViewportGoto(object? arg) {
+        new GotoWindow().ShowDialog();
     }
 
     // Command Availability ---------------------------------------------------

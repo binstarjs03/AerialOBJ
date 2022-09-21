@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.Views.Windows"
+        xmlns:viewmodels="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodels:GotoWindowViewModel}"
         
         Title="Goto"
         SizeToContent="WidthAndHeight"
@@ -42,7 +44,10 @@
                          Grid.Column="1"
                          Margin="0,5"
                          Background="{StaticResource DarkBackground}"
-                         Foreground="{StaticResource LightForeground}"/>
+                         Foreground="{StaticResource LightForeground}"
+                         Text="{Binding XField, 
+                                Mode=TwoWay, 
+                                UpdateSourceTrigger=LostFocus}"/>
                 <TextBlock Grid.Row="1"
                            Grid.Column="0" 
                            Margin="10,0"
@@ -54,7 +59,10 @@
                          Grid.Column="1"
                          Margin="0,5"
                          Background="{StaticResource DarkBackground}"
-                         Foreground="{StaticResource LightForeground}"/>
+                         Foreground="{StaticResource LightForeground}"
+                         Text="{Binding ZField,
+                                Mode=TwoWay,
+                                UpdateSourceTrigger=LostFocus}"/>
             </Grid>
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -62,17 +70,25 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
+                <!--
+                    TODO add button that go to player, world spawn, player spawn etc...
+                    or maybe just create that in separate MainWindow Menu item 
+                    like in Mineways
+                -->
                 <Button Grid.Column="0" 
                         Content="OK" 
                         Width="60" 
-                        HorizontalAlignment="Left"/>
+                        HorizontalAlignment="Left"
+                        Command="{Binding OK}"/>
                 <Button Grid.Column="1" 
                         Content="Current" 
-                        Width="60"/>
+                        Width="60"
+                        Command="{Binding Current}"/>
                 <Button Grid.Column="2" 
                         Content="Cancel" 
                         Width="60" 
-                        HorizontalAlignment="Right"/>
+                        HorizontalAlignment="Right"
+                        Command="{Binding Cancel}"/>
             </Grid>
         </Grid>
 
