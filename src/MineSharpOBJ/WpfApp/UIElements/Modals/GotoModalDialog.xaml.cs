@@ -19,7 +19,7 @@ public partial class GotoModalDialog : Window {
     public PointF CameraPos { 
         get {
             if (DialogResult != true)
-                throw new InvalidOperationException("Dialog result was cancelled");
+                throw new InvalidOperationException($"Dialog result was cancelled, cannot retrieve {nameof(CameraPos)}");
             return _cameraPos; 
         }
         private set {

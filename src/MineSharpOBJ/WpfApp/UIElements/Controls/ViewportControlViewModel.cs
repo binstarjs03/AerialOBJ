@@ -8,8 +8,6 @@ public class ViewportControlViewModel : ViewModelBase<ViewportControlViewModel, 
     private bool _isCameraPositionGuideVisible = false;
 
     public ViewportControlViewModel(ViewportControl control) : base(control) {
-        // Bin: I decided to comment out this because the designer sees it as NullReference 
-        // to main window vm context
         //IsCameraPositionGuideVisible = MainWindowViewModel.Context!.IsViewportCameraPositionGuideVisible;
     }
 

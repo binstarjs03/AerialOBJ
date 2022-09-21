@@ -5,7 +5,7 @@ using NbtString = binstarjs03.MineSharpOBJ.Core.Nbt.Concrete.NbtString;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp;
 
-public struct SessionInfo {
+public class SessionInfo {
     public SessionInfo(DirectoryInfo savegameDirectory, NbtCompound nbtLevel) {
         WorldName = nbtLevel.Get<NbtCompound>("Data")
                             .Get<NbtString>("LevelName")

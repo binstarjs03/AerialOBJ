@@ -7,34 +7,37 @@ using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
-public partial class MainWindow : Window {
-    private readonly MainWindowViewModel _vm;
-
+public partial class MainWindow : Window, IViewModel<MainWindowViewModel, MainWindow> {
     public MainWindow() {
-        _vm = new(this);
-        MainWindowViewModel.Context = _vm;
-        DataContext = _vm;
         InitializeComponent();
-        InstantiateStandbySecondWindows();
+        ViewModel = new MainWindowViewModel(this);
+        MainWindowViewModel.Context = ViewModel;
+        DataContext = ViewModel;
+
+        DebugLogWindow = new DebugLogWindow(this);
+        ViewportControl = new ViewportControl(this);
+
+        Show();
+        DebugLogWindow.Owner = this;
+        _viewportContainer.Content = ViewportControl;
+
         SetupViewModelEventListeners();
         MainService.Initialize();
     }
 
-    private void InstantiateStandbySecondWindows() {
-        DebugLogWindow debugLogView = new();
-        Show();
-        debugLogView.Owner = this;
-    }
+    public MainWindowViewModel ViewModel { get; private set; }
+    public DebugLogWindow DebugLogWindow { get; private set; }
+    public ViewportControl ViewportControl { get; private set; }
 
     private void SetupViewModelEventListeners() {
-        _vm.StartEventListening();
-        DebugLogWindowViewModel.Context!.StartEventListening();
+        ViewModel.StartEventListening();
+        DebugLogWindow.ViewModel.StartEventListening();
         ViewportControlViewModel.Context!.StartEventListening();
     }
 
     private void DebugLogView_SynchronizePosition() {
-        DebugLogWindowViewModel.Context!.Window.Top = Top;
-        DebugLogWindowViewModel.Context!.Window.Left = Left + ActualWidth;
+        DebugLogWindow.Top = Top;
+        DebugLogWindow.Left = Left + ActualWidth;
     }
 
     protected override void OnLocationChanged(EventArgs e) {

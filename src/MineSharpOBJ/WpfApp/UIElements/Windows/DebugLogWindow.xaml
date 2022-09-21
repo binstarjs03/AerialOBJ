@@ -7,8 +7,8 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:DebugLogWindowViewModel}"
         
-        Width="600" Height="400"
         Title="Debug Log" 
+        Width="600" Height="400"
         Visibility="{Binding IsVisible, 
                      Mode=TwoWay, 
                      Converter={StaticResource BoolToVisibilityHide}}">

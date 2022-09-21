@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Models;
+using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
 using Point = binstarjs03.MineSharpOBJ.Core.Utils.Point;
 using PointF = binstarjs03.MineSharpOBJ.Core.Utils.PointF;
@@ -14,24 +15,31 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 // TODO UX improvement: wrap mouse around viewport like in blender 3D did
 // when mouse goes outside the viewport
 
-public partial class ViewportControl : UserControl {
+public partial class ViewportControl : UserControl, IViewModel<ViewportControlViewModel, ViewportControl> {
     private static readonly int[] s_zoomBlockPixelCount = new int[] {
         1, 2, 3, 5, 8, 13, 21, 34
     };
-    private PointF _viewportCameraPos = PointF.Origin;
-    private int _viewportZoomLevel = 2;
 
-    private PointF _mousePos = PointF.Origin;
-    private PointF _mousePosDelta = PointF.Origin;
-    private bool _mouseIsClickHolding = false;
-    private bool _mouseInitClickDrag = true;
-    private bool _mouseIsOutside = false;
+    // Constructor for Design-Time
+    // CS8625: Cannot convert null literal to non-nullable reference type.
+#   pragma warning disable CS8625
+    public ViewportControl() : this(null) { }
+#pragma warning restore CS8625
 
-    public ViewportControl() {
+    public ViewportControl(MainWindow mainWindow) {
+        MainWindow = mainWindow;
         InitializeComponent();
-        ViewportControlViewModel vm = new(this);
-        ViewportControlViewModel.Context = vm;
-        DataContext = vm;
+        ViewModel = new ViewportControlViewModel(this);
+        ViewportControlViewModel.Context = ViewModel;
+        DataContext = ViewModel;
+
+        ViewportCameraPos = PointF.Origin;
+        ViewportZoomLevel = 2;
+        MousePos = PointF.Origin;
+        MousePosDelta = PointF.Origin;
+        MouseIsClickHolding = false;
+        MouseInitClickDrag = true;
+        MouseIsOutside = true;
 
         for (int x = -8; x < 16; x++) {
             for (int y = -8; y < 16; y++) {
@@ -43,17 +51,23 @@ public partial class ViewportControl : UserControl {
         }
     }
 
-    public PointF ViewportCameraPos => _viewportCameraPos;
+    public MainWindow MainWindow { get; private set; }
+    public ViewportControlViewModel ViewModel { get; private set; }
+
+    public PointF ViewportCameraPos { get; private set; }
     public PointF ViewportChunkPosOffset => ViewportCameraPos * ViewportPixelPerBlock;
-    public int ViewportZoomLevel => _viewportZoomLevel;
-    public int ViewportPixelPerBlock => s_zoomBlockPixelCount[_viewportZoomLevel - 1];
+    public int ViewportZoomLevel { get; private set; }
+    public int ViewportPixelPerBlock => s_zoomBlockPixelCount[ViewportZoomLevel - 1];
     public int ViewportPixelPerChunk => ViewportPixelPerBlock * Section.BlockCount;
 
-    public PointF MousePos => _mousePos;
-    public PointF MousePosDelta => _mousePosDelta;
+    public PointF MousePos { get; private set; }
+    public PointF MousePosDelta { get; private set; }
+    public bool MouseIsClickHolding { get; set; }
+    public bool MouseInitClickDrag { get; set; }
+    public bool MouseIsOutside { get; set ; }
 
     public void SetCameraPosition(PointF cameraPos) {
-        _viewportCameraPos = cameraPos;
+        ViewportCameraPos = cameraPos;
         UpdateChunkTransformation(updateChunkSize: false);
         UpdateDebugPanel();
     }
@@ -76,8 +90,10 @@ public partial class ViewportControl : UserControl {
 
     private void UpdateChunkPosition(ChunkModel chunk, PointF centerPoint) {
         PointF chunkPosOffset = ViewportChunkPosOffset;
-        // Push origin is offset amount required to align the coordinate
-        // to zoomed coordinate measured from world origin
+        // scale from world origin is offset amount required to align the
+        // coordinate to zoomed coordinate measured from world origin.
+        // Here we are scaling the cartesian coordinate value by zoom amount
+        // (which is pixel-per-chunk)
         Point scaleFromWorldOrigin = new(
             ViewportPixelPerChunk * chunk.CanvasPos.X,
             ViewportPixelPerChunk * chunk.CanvasPos.Y
@@ -92,6 +108,9 @@ public partial class ViewportControl : UserControl {
         // to keep it stays aligned with moved world origin
         // when view is dragged around.
         // The offset itself is from camera position.
+        // It is inverted because obviously, if camera is 1 meter to the right
+        // of origin, then everything else the camera sees must be 1 meter
+        // shifted to the left of the camera
         PointF originOffset = new(
             -chunkPosOffset.X,
             -chunkPosOffset.Y
@@ -104,13 +123,14 @@ public partial class ViewportControl : UserControl {
 
     private void OnMouseWheel(object sender, MouseWheelEventArgs e) {
         if (e.Delta > 0)
-            _viewportZoomLevel++;
+            ViewportZoomLevel++;
         else
-            _viewportZoomLevel--;
-        _viewportZoomLevel = Math.Clamp(_viewportZoomLevel, 1, s_zoomBlockPixelCount.Length);
+            ViewportZoomLevel--;
+        ViewportZoomLevel = Math.Clamp(ViewportZoomLevel, 1, s_zoomBlockPixelCount.Length);
         UpdateChunkTransformation(updateChunkSize: true);
         UpdateDebugPanel();
     }
+
     private void OnSizeChanged(object sender, SizeChangedEventArgs e) {
         // we don't update chunk size because we are not zooming,
         // we are just handling what happen when window is resized
@@ -118,19 +138,23 @@ public partial class ViewportControl : UserControl {
     }
 
     private void OnMouseMove(object sender, MouseEventArgs e) {
-        // set delta to 0 if this call is initial click and dragging.
-        // this is to avoid jumps when clicking menu bar
-        // then clicking and dragging on the viewer again
-        PointF mousePos = new(e.GetPosition(this).X,
-                              e.GetPosition(this).Y);
-        _mousePosDelta.X = _mouseInitClickDrag ? 0 : mousePos.X - _mousePos.X;
-        _mousePosDelta.Y = _mouseInitClickDrag ? 0 : mousePos.Y - _mousePos.Y;
-        _mousePos = mousePos;
+        PointF oldMousePos = MousePos;
+        PointF newMousePos = new(e.GetPosition(this).X,
+                                 e.GetPosition(this).Y);
 
-        if (_mouseIsClickHolding) {
-            _viewportCameraPos -= _mousePosDelta / ViewportPixelPerBlock;
+        // Set delta to 0 if this call is initial click and dragging.
+        // This is to avoid jumps when clicking menu bar
+        // then clicking and dragging on the viewer again.
+        PointF newMousePosDelta = PointF.Origin;
+        newMousePosDelta.X = MouseInitClickDrag && MouseIsClickHolding ? 0 : newMousePos.X - oldMousePos.X;
+        newMousePosDelta.Y = MouseInitClickDrag && MouseIsClickHolding ? 0 : newMousePos.Y - oldMousePos.Y;
+        MousePosDelta = newMousePosDelta; 
+        MousePos = newMousePos;
+        
+        if (MouseIsClickHolding) {
+            ViewportCameraPos -= MousePosDelta / ViewportPixelPerBlock;
 
-            _mouseInitClickDrag = false;
+            MouseInitClickDrag = false;
             UpdateChunkTransformation(updateChunkSize: false);
         }
         UpdateDebugPanel();
@@ -138,27 +162,27 @@ public partial class ViewportControl : UserControl {
 
     private void OnMouseUp(object sender, MouseButtonEventArgs e) {
         if (e.LeftButton == MouseButtonState.Released) {
-            _mouseIsClickHolding = false;
-            _mouseInitClickDrag = true;
+            MouseIsClickHolding = false;
+            MouseInitClickDrag = true;
         }
         UpdateDebugPanel();
     }
 
     private void OnMouseDown(object sender, MouseButtonEventArgs e) {
         if (e.LeftButton == MouseButtonState.Pressed) {
-            _mouseIsClickHolding = true;
+            MouseIsClickHolding = true;
         }
         UpdateDebugPanel();
     }
 
     private void OnMouseLeave(object sender, MouseEventArgs e) {
-        _mouseIsOutside = true;
-        _mouseIsClickHolding = false;
+        MouseIsOutside = true;
+        MouseIsClickHolding = false;
         UpdateDebugPanel();
     }
 
     private void OnMouseEnter(object sender, MouseEventArgs e) {
-        _mouseIsOutside = false;
+        MouseIsOutside = false;
         UpdateDebugPanel();
     }
 
@@ -170,12 +194,11 @@ public partial class ViewportControl : UserControl {
             vm.PixelPerBlock = $"Pixel-Per-Chunk: {ViewportPixelPerBlock}";
             vm.PixelPerChunk = $"Pixel-Per-Chunk: {ViewportPixelPerChunk}";
 
-            vm.MousePos = $"Mouse Pos: ({toint(MousePos.X)}, {toint(MousePos.Y)})";
-            vm.MousePosDelta = $"Mouse Pos Delta: ({toint(MousePosDelta.X)}, {toint(MousePosDelta.Y)})";
-            vm.MouseIsClickHolding = $"Is Click Holding: {_mouseIsClickHolding}";
-            vm.MouseIsOutside = $"Is Outside: {_mouseIsOutside}";
+            vm.MousePos = $"Mouse Pos: ({floor(MousePos.X)}, {floor(MousePos.Y)})";
+            vm.MousePosDelta = $"Mouse Pos Delta: ({floor(MousePosDelta.X)}, {floor(MousePosDelta.Y)})";
+            vm.MouseIsClickHolding = $"Is Click Holding: {MouseIsClickHolding}";
+            vm.MouseIsOutside = $"Is Outside: {MouseIsOutside}";
         }
         static double floor(double f) => Math.Floor(f);
-        static int toint(double f) => (int)f;
     }
 }

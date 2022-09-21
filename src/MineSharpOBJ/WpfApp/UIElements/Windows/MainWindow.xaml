@@ -8,68 +8,56 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
         
-        Title="{Binding Title}"
+        Title="{Binding Title, Mode=OneWay}"
         d:Title="MineSharpOBJ"
         Width="600" Height="400">
-    <Grid>
+    <Grid Background="{StaticResource DarkBackground}">
         
         <DockPanel>
-            <Menu Name="MenuBar" 
-                  DockPanel.Dock="Top">
-                <MenuItem Name="MenuFile" 
-                          Header="File">
-                    <MenuItem Name="MenuFileOpen" 
-                          Header="Open..."
-                          Command="{Binding LoadSavegameFolder}"/>
-                    <MenuItem Name="MenuFileClose" 
-                          Header="Close"
-                          Command="{Binding CloseSession}"/>
-                    <MenuItem Name="MenuFileExit" 
-                          Header="Exit" 
-                          Command="{Binding WindowClose}"/>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open..."
+                              Command="{Binding LoadSavegameFolder}"/>
+                    <MenuItem Header="Close"
+                              Command="{Binding CloseSession}"/>
+                    <MenuItem Header="Exit" 
+                              Command="{Binding WindowClose}"/>
                 </MenuItem>
-                <MenuItem Name="MenuView" 
-                          Header="View">
-                    <MenuItem Name="MenuViewDebugLog" 
-                              Header="Debug Log"
+                <MenuItem Header="View">
+                    <MenuItem Header="Debug Log"
                               IsCheckable="True"
-                              IsChecked="{Binding IsDebugLogViewVisible, 
-                                      Mode=TwoWay, 
-                                      UpdateSourceTrigger=PropertyChanged}"/>
-                    <MenuItem Name="MenuViewViewportDebugger" 
-                              Header="Viewport Debugger" 
+                              IsChecked="{Binding IsDebugLogViewVisible, Mode=TwoWay}"/>
+                    <MenuItem Header="Viewport Debugger" 
                               IsCheckable="True"
-                              IsChecked="{Binding IsViewportDebugControlVisible,
-                                          Mode=OneWayToSource,
-                                          UpdateSourceTrigger=PropertyChanged}"/>
+                              IsEnabled="{Binding HasSession}"
+                              IsChecked="{Binding IsViewportDebugControlVisible, Mode=TwoWay}"/>
                     <MenuItem Header="Camera Position"
                               IsCheckable="True"
-                              IsChecked="{Binding IsViewportCameraPositionGuideVisible,
-                                          Mode=OneWayToSource,
-                                          UpdateSourceTrigger=PropertyChanged}"/>
+                              IsEnabled="{Binding HasSession}"
+                              IsChecked="{Binding IsViewportCameraPositionGuideVisible, Mode=TwoWay}"/>
                     <Separator/>
-                    <MenuItem Name="MenuViewNavigationGoto"
-                              Header="Goto..."
+                    <MenuItem Header="Goto..."
                               Command="{Binding ViewportGoto}"/>
                 </MenuItem>
-                <MenuItem Name="MenuHelp" 
-                          Header="Help">
-                    <MenuItem Name="MenuHelpAboutButton"
-                              Header="About..."
+                <MenuItem Header="Help">
+                    <MenuItem Header="About..."
                               Command="{Binding OpenAboutView}"/>
                 </MenuItem>
             </Menu>
             
-            <StatusBar Name="StatusBar" 
-                       Height="Auto" 
+            <StatusBar Height="Auto" 
                        DockPanel.Dock="Bottom">
                 <StatusBarItem Name="Status" 
                                Content="Ready"/>
             </StatusBar>
+            <ContentControl Name="_viewportContainer"
+                            x:FieldModifier="private">
+                <d:ContentControl.Content>
+                    <usercontrols:ViewportControl/>
+                </d:ContentControl.Content>
+            </ContentControl>
+
             
-            <usercontrols:ViewportControl x:Name="Viewport" 
-                                          x:FieldModifier="public" 
-                                          Background="{StaticResource DarkBackground}"/>
         </DockPanel>
         
     </Grid>

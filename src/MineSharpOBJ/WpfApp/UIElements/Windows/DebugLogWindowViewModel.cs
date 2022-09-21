@@ -14,12 +14,9 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, DebugLogWindow> {
     private string _logContent = string.Empty;
 
-    public DebugLogWindowViewModel(DebugLogWindow view) : base(view) {
+    public DebugLogWindowViewModel(DebugLogWindow window) : base(window) {
         // listen to service events
         LogService.LogHandlers += LogHandler;
-
-        // initialize states
-        _isVisible = MainWindowViewModel.Context!.IsDebugLogViewVisible;
 
         // assign command implementation to commands
         SaveLog = new RelayCommand(OnSaveLog);
@@ -30,24 +27,19 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
     }
 
     public override void StartEventListening() {
-        MainWindowViewModel.Context!.PropertyChanged += OnOtherViewModelPropertyChanged;
+        Window.MainWindow.ViewModel.PropertyChanged += OnOtherViewModelPropertyChanged;
     }
 
     // States -----------------------------------------------------------------
 
     public new bool IsVisible {
-        get { return _isVisible; }
-        set {
-            if (value == _isVisible)
-                return;
-            _isVisible = value;
-            OnPropertyChanged(nameof(IsVisible));
-        }
+        get { return Window.MainWindow.ViewModel.IsDebugLogViewVisible; }
+        set { Window.MainWindow.ViewModel.IsDebugLogViewVisible = value; }
     }
 
-    public string LogContent {
+    public string LogContent { 
         get { return _logContent; }
-        set {
+        set { 
             _logContent = value;
             OnPropertyChanged(nameof(LogContent));
         }
@@ -56,13 +48,9 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
     // Commands ---------------------------------------------------------------
 
     public ICommand SaveLog { get; }
-
     public ICommand ClearLog { get; }
-
     public ICommand WriteSingle { get; }
-
     public ICommand WriteHorizontal { get; }
-
     public ICommand WriteVertical { get; }
 
     // Command Implementations ------------------------------------------------
@@ -118,15 +106,13 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
     // Event Handlers ---------------------------------------------------------
 
     protected override void OnOtherViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-        if (sender is MainWindowViewModel vm) {
+        if (sender is MainWindowViewModel)
             if (e.PropertyName == nameof(MainWindowViewModel.IsDebugLogViewVisible))
-                IsVisible = vm.IsDebugLogViewVisible;
-        }
+                OnPropertyChanged(nameof(IsVisible));
     }
 
     private void LogHandler(string content) {
-        _logContent += $"{content}{Environment.NewLine}";
-        OnPropertyChanged(nameof(LogContent));
-        _window.LogTextBox.ScrollToEnd();
+        LogContent += $"{content}{Environment.NewLine}";
+        Window.LogTextBox.ScrollToEnd();
     }
 }

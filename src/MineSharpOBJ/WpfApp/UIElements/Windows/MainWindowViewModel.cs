@@ -8,18 +8,18 @@ using binstarjs03.MineSharpOBJ.WpfApp.Services;
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
 public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWindow> {
+    private SessionInfo? _session = null;
+    private string _title = "MineSharpOBJ";
     private bool _isDebugLogWindowVisible = false;
     private bool _isViewportDebugControlVisible = false;
     private bool _isViewportCameraPositionGuideVisible = false;
-    private string _title = "MineSharpOBJ";
-    private SessionInfo? _session;
 
     public MainWindowViewModel(MainWindow view) : base(view) {
         // assign command implementation to commands
         LoadSavegameFolder = new RelayCommand(OnLoadSavegameFolder);
-        CloseSession = new RelayCommand(OnCloseSession, HasSession);
+        CloseSession = new RelayCommand(OnCloseSession, HasSessionCommandAvailability);
         OpenAboutView = new RelayCommand(OnOpenAboutView);
-        ViewportGoto = new RelayCommand(OnViewportGoto, HasSession);
+        ViewportGoto = new RelayCommand(OnViewportGoto, HasSessionCommandAvailability);
     }
 
     public override void StartEventListening() {
@@ -27,6 +27,23 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     }
 
     // States -----------------------------------------------------------------
+
+    public SessionInfo? Session {
+        get { return _session; }
+        private set {
+            _session = value;
+            OnPropertyChanged(nameof(HasSession));
+        }
+    }
+
+    public bool HasSession => Session is not null;
+
+    public string Title {
+        get { return _title; }
+        private set { 
+            _title = value; 
+            OnPropertyChanged(nameof(Title)); }
+    }
 
     public bool IsDebugLogViewVisible {
         get { return _isDebugLogWindowVisible; }
@@ -58,27 +75,17 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
         }
     }
 
-    public string Title {
-        get { return _title; }
-        set {
-            _title = value;
-            OnPropertyChanged(nameof(Title));
-        }
-    }
-
     // Commands ---------------------------------------------------------------
 
     public ICommand LoadSavegameFolder { get; }
-
     public ICommand CloseSession { get; }
-
     public ICommand OpenAboutView { get; }
-
     public ICommand ViewportGoto { get; }
 
     // Command Implementations ------------------------------------------------
 
     private void OnLoadSavegameFolder(object? arg) {
+        LogService.Log("Attempting to loading savegame...");
         using FolderBrowserDialog dialog = new();
         DialogResult dialogResult = dialog.ShowDialog();
         if (dialogResult != DialogResult.OK)
@@ -88,14 +95,18 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
             LogService.Log("Failed changing session. Aborting...", useSeparator: true);
             return;
         }
-        ChangeTitle(session.Value.WorldName);
-        _session = session;
+
+        Title = $"MineSharpOBJ - {session.WorldName}";
+        Session = session;
         LogService.Log("Successfully changed session.", useSeparator: true);
     }
 
     private void OnCloseSession(object? arg) {
-        ChangeTitle();
-        _session = null;
+        LogService.Log("Attempting to closing savegame...");
+        Title = "MineSharpOBJ";
+        Session = null;
+        IsViewportDebugControlVisible = false;
+        IsViewportCameraPositionGuideVisible = false;
         LogService.Log("Successfully closed session.", useSeparator: true);
     }
 
@@ -104,37 +115,24 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     }
 
     private void OnViewportGoto(object? arg) {
-        // TODO instead of mutating the camera position of viewport
-        // inside Goto vm, viewport vm should call Goto and return
-        // the returned PointF, null means cancelling just return,
-        // else set camera position to return values of Goto PointF
-        PointF? cameraPos = ModalService.ShowGotoModal(Window.Viewport);
+        PointF? cameraPos = ModalService.ShowGotoModal(Window.ViewportControl);
         if (cameraPos is null)
             return;
-        Window.Viewport.SetCameraPosition((PointF)cameraPos);
+        Window.ViewportControl.SetCameraPosition((PointF)cameraPos);
     }
 
     // Command Availability ---------------------------------------------------
 
-    private bool HasSession(object? arg) {
-        return _session is not null;
+    private bool HasSessionCommandAvailability(object? arg) {
+        return HasSession;
     }
 
     // Event Handlers ---------------------------------------------------------
 
     protected override void OnOtherViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-        if (sender is DebugLogWindowViewModel vm) {
-            if (e.PropertyName == nameof(DebugLogWindowViewModel.IsVisible))
-                IsDebugLogViewVisible = vm.IsVisible;
-        }
+        
     }
 
     // Private Methods --------------------------------------------------------
 
-    private void ChangeTitle(string? title = null) {
-        if (title is null)
-            Title = $"MineSharpOBJ";
-        else
-            Title = $"MineSharpOBJ - {title}";
-    }
 }
