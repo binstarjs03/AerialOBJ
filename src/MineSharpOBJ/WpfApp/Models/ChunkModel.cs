@@ -1,15 +1,10 @@
 ﻿using System;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
-using FrameworkPropertyMetadata = System.Windows.FrameworkPropertyMetadata;
-using Image = System.Windows.Controls.Image;
 using Color = System.Drawing.Color;
-
-using BitmapScalingMode = System.Windows.Media.BitmapScalingMode;
-using PixelFormat = System.Windows.Media.PixelFormat;
-using PixelFormats = System.Windows.Media.PixelFormats;
-using RenderOptions = System.Windows.Media.RenderOptions;
-using Stretch = System.Windows.Media.Stretch;
-using WriteableBitmap = System.Windows.Media.Imaging.WriteableBitmap;
+using Image = System.Windows.Controls.Image;
 
 using Point = binstarjs03.MineSharpOBJ.Core.Utils.Point;
 using Section = binstarjs03.MineSharpOBJ.Core.RegionMc.Section;

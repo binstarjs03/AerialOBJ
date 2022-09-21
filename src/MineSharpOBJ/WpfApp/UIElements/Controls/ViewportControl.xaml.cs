@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -6,14 +7,12 @@ using System.Windows.Controls;
 using System.Windows.Input;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Models;
-using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
 
 using Point = binstarjs03.MineSharpOBJ.Core.Utils.Point;
 using PointF = binstarjs03.MineSharpOBJ.Core.Utils.PointF;
 using Section = binstarjs03.MineSharpOBJ.Core.RegionMc.Section;
 
-namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Controls;
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
 // TODO draw in separate thread instead in UI thread (Main thread)
 
@@ -83,7 +82,7 @@ public partial class ViewportControl : UserControl {
     }
 
     private void UpdateChunkPosition(ChunkModel chunk, PointF centerPoint) {
-        PointF ChunkPosOffset = ViewportChunkPosOffset;
+        PointF chunkPosOffset = ViewportChunkPosOffset;
         // Push origin is offset amount required to align the coordinate
         // to zoomed coordinate measured from world origin
         Point scaleFromWorldOrigin = new(
@@ -101,8 +100,8 @@ public partial class ViewportControl : UserControl {
         // when view is dragged around.
         // The offset itself is from camera position.
         PointF originOffset = new(
-            -ChunkPosOffset.X,
-            -ChunkPosOffset.Y
+            -chunkPosOffset.X,
+            -chunkPosOffset.Y
         );
 
         PointF finalPos = scaleFromWorldOrigin + originOffset + pushTowardCenter;
@@ -137,7 +136,7 @@ public partial class ViewportControl : UserControl {
 
         if (_mouseIsClickHolding) {
             _viewportCameraPos -= _mousePosDelta / ViewportPixelPerBlock;
-               
+
             _mouseInitClickDrag = false;
             UpdateChunkTransformation(updateChunkSize: false);
         }

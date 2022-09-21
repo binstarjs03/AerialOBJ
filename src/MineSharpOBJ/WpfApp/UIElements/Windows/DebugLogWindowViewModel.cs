@@ -1,16 +1,15 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
+using binstarjs03.MineSharpOBJ.WpfApp.Services;
+
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using DialogResult = System.Windows.Forms.DialogResult;
 
-using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
-using System.ComponentModel;
-
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
 public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, DebugLogWindow> {
     private string _logContent = string.Empty;
@@ -119,7 +118,7 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
     // Event Handlers ---------------------------------------------------------
 
     protected override void OnOtherViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-        if (sender is MainWindowViewModel vm) { 
+        if (sender is MainWindowViewModel vm) {
             if (e.PropertyName == nameof(MainWindowViewModel.IsDebugLogViewVisible))
                 IsVisible = vm.IsDebugLogViewVisible;
         }

@@ -1,10 +1,11 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
+
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
+using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Modals;
+
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
 public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWindow> {
     private bool _isDebugLogWindowVisible = false;
@@ -59,9 +60,9 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
 
     public string Title {
         get { return _title; }
-        set { 
-            _title = value; 
-            OnPropertyChanged(nameof(Title)); 
+        set {
+            _title = value;
+            OnPropertyChanged(nameof(Title));
         }
     }
 
@@ -70,7 +71,7 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     public ICommand LoadSavegameFolder { get; }
 
     public ICommand CloseSession { get; }
-    
+
     public ICommand OpenAboutView { get; }
 
     public ICommand ViewportGoto { get; }
@@ -99,7 +100,7 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     }
 
     private void OnOpenAboutView(object? arg) {
-        new AboutWindow().ShowDialog();
+        new AboutModal().ShowDialog();
     }
 
     private void OnViewportGoto(object? arg) {
@@ -107,13 +108,13 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
         // inside Goto vm, viewport vm should call Goto and return
         // the returned PointF, null means cancelling just return,
         // else set camera position to return values of Goto PointF
-        new GotoWindow().ShowDialog();
+        new GotoModalDialog().ShowDialog();
     }
 
     // Command Availability ---------------------------------------------------
 
-    private bool HasSession(object? arg) { 
-        return _session is not null; 
+    private bool HasSession(object? arg) {
+        return _session is not null;
     }
 
     // Event Handlers ---------------------------------------------------------

@@ -1,8 +1,4 @@
-﻿using System.ComponentModel;
-
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
-using binstarjs03.MineSharpOBJ.WpfApp.Views.Controls;
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
+﻿namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
 public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlViewModel, ViewportDebugControl> {
     private string _viewportCameraPos = "";
@@ -96,7 +92,7 @@ public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlV
         }
     }
 
-    // Private Methods --------------------------------------------------------
+    // Methods ----------------------------------------------------------------
 
     private void ReinitializeText() {
         _viewportCameraPos = "Camera Pos:";

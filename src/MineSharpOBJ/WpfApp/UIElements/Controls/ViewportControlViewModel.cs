@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
-using binstarjs03.MineSharpOBJ.WpfApp.Views.Controls;
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
+using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
+
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
 public class ViewportControlViewModel : ViewModelBase<ViewportControlViewModel, ViewportControl> {
     private bool _isCameraPositionGuideVisible = false;

@@ -1,11 +1,12 @@
 ﻿using System.IO;
-using binstarjs03.MineSharpOBJ.Core.Nbt.Concrete;
+
+using NbtCompound = binstarjs03.MineSharpOBJ.Core.Nbt.Concrete.NbtCompound;
+using NbtString = binstarjs03.MineSharpOBJ.Core.Nbt.Concrete.NbtString;
+
 namespace binstarjs03.MineSharpOBJ.WpfApp;
 
-public struct SessionInfo
-{
-    public SessionInfo(DirectoryInfo savegameDirectory, NbtCompound nbtLevel)
-    {
+public struct SessionInfo {
+    public SessionInfo(DirectoryInfo savegameDirectory, NbtCompound nbtLevel) {
         WorldName = nbtLevel.Get<NbtCompound>("Data")
                             .Get<NbtString>("LevelName")
                             .Value;

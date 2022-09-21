@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels;
+
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements;
 
 public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : class where U : Control {
     public event PropertyChangedEventHandler? PropertyChanged;

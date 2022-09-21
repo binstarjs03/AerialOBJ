@@ -3,13 +3,13 @@ using System.ComponentModel;
 using System.Windows;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
-namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
+using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
+
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
 public partial class MainWindow : Window {
     private readonly MainWindowViewModel _vm;
-    
+
     public MainWindow() {
         _vm = new(this);
         MainWindowViewModel.Context = _vm;
@@ -20,13 +20,13 @@ public partial class MainWindow : Window {
         MainService.Initialize();
     }
 
-    private void InstantiateStandbySecondWindows(){
+    private void InstantiateStandbySecondWindows() {
         DebugLogWindow debugLogView = new();
         Show();
         debugLogView.Owner = this;
     }
-    
-    private void SetupViewModelEventListeners(){
+
+    private void SetupViewModelEventListeners() {
         _vm.StartEventListening();
         DebugLogWindowViewModel.Context!.StartEventListening();
         ViewportControlViewModel.Context!.StartEventListening();
@@ -36,7 +36,7 @@ public partial class MainWindow : Window {
         DebugLogWindowViewModel.Context!.Window.Top = Top;
         DebugLogWindowViewModel.Context!.Window.Left = Left + ActualWidth;
     }
-    
+
     protected override void OnLocationChanged(EventArgs e) {
         DebugLogView_SynchronizePosition();
     }
@@ -45,7 +45,7 @@ public partial class MainWindow : Window {
         DebugLogView_SynchronizePosition();
     }
 
-    protected override void OnClosing(CancelEventArgs e) { 
+    protected override void OnClosing(CancelEventArgs e) {
         // TODO do something here (but dont cleanup yet)
     }
 

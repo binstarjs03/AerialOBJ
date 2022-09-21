@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
-namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
+
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
 public partial class DebugLogWindow : Window {
     public DebugLogWindow() {

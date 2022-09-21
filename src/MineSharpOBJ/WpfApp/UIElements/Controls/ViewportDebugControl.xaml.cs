@@ -1,7 +1,6 @@
 ﻿using System.Windows.Controls;
 
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
-namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Controls;
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
 public partial class ViewportDebugControl : UserControl {
     public ViewportDebugControl() {

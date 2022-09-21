@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
+
+using ByteOrder = binstarjs03.MineSharpOBJ.Core.Utils.IO.ByteOrder;
 using NbtBase = binstarjs03.MineSharpOBJ.Core.Nbt.Abstract.NbtBase;
 using NbtCompound = binstarjs03.MineSharpOBJ.Core.Nbt.Concrete.NbtCompound;
-using ByteOrder = binstarjs03.MineSharpOBJ.Core.Utils.IO.ByteOrder;
+
 namespace binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 public class IOService {

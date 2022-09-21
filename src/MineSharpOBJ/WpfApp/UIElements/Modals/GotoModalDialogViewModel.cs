@@ -2,16 +2,17 @@
 using System.Windows;
 using System.Windows.Input;
 
-using binstarjs03.MineSharpOBJ.Core.Utils;
-using binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
-using binstarjs03.MineSharpOBJ.WpfApp.Views.Windows;
+using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
-namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
-public class GotoWindowViewModel : ViewModelWindow<GotoWindowViewModel, GotoWindow> {
+using PointF = binstarjs03.MineSharpOBJ.Core.Utils.PointF;
+
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Modals;
+
+public class GotoModalDialogViewModel : ViewModelWindow<GotoModalDialogViewModel, GotoModalDialog> {
     private string _xfield = "";
     private string _zfield = "";
 
-    public GotoWindowViewModel(GotoWindow control) : base(control) { 
+    public GotoModalDialogViewModel(GotoModalDialog control) : base(control) {
         // initialize states
 
         // assign command implementation to commands
@@ -25,7 +26,7 @@ public class GotoWindowViewModel : ViewModelWindow<GotoWindowViewModel, GotoWind
     public string XField {
         get { return _xfield; }
         set {
-            if (value == _xfield) 
+            if (value == _xfield)
                 return;
             _xfield = value;
             OnPropertyChanged(nameof(XField));
@@ -61,8 +62,8 @@ public class GotoWindowViewModel : ViewModelWindow<GotoWindowViewModel, GotoWind
             return;
         }
         try {
-            PointF cameraPos = new(-Convert.ToDouble(XField),
-                                   -Convert.ToDouble(ZField));
+            PointF cameraPos = new(Convert.ToDouble(XField),
+                                   Convert.ToDouble(ZField));
             //cameraPos /= ViewportControlViewModel.Context!.Control.ViewportPixelPerBlock;
             ViewportControlViewModel.Context!.Control.SetCameraPosition(cameraPos);
             Window.Close();
@@ -78,7 +79,7 @@ public class GotoWindowViewModel : ViewModelWindow<GotoWindowViewModel, GotoWind
         }
     }
 
-    private void OnCancel(object? arg) { 
+    private void OnCancel(object? arg) {
         Window.Close();
     }
 
