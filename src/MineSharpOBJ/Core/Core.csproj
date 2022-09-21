@@ -9,7 +9,6 @@
 		<WarningsAsErrors>CS8601; CS8600; CS8625; CS8604; CS8629; CS8618; </WarningsAsErrors>
 		<RootNamespace>binstarjs03.MineSharpOBJ.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<RepositoryUrl>https://github.com/binstarjs03/MinecraftSharpOBJ</RepositoryUrl>
-		<AssemblyName>binstarjs03.MineSharpOBJ.$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
 	</PropertyGroup>
 
 </Project>
