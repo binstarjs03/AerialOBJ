@@ -1,7 +1,4 @@
 ﻿using System;
-
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,8 +10,6 @@ using PointF = binstarjs03.MineSharpOBJ.Core.Utils.PointF;
 using Section = binstarjs03.MineSharpOBJ.Core.RegionMc.Section;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
-
-// TODO draw in separate thread instead in UI thread (Main thread)
 
 // TODO UX improvement: wrap mouse around viewport like in blender 3D did
 // when mouse goes outside the viewport

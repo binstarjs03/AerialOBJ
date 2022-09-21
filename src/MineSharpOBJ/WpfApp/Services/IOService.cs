@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Windows;
+using System.Windows.Forms;
 
 using ByteOrder = binstarjs03.MineSharpOBJ.Core.Utils.IO.ByteOrder;
 using NbtBase = binstarjs03.MineSharpOBJ.Core.Nbt.Abstract.NbtBase;
@@ -64,18 +64,10 @@ public class IOService {
             return null;
         }
 
-        // TODO BUG MessageBox is shown as modal but when DebugLogWindow is visible,
-        // the window still can be focused. Any other window should
-        // not be able to receive focus or input when MessageBox is shown.
         static void ShowLoadSavegameErrorModal(string path, string errorMsg) {
             string msg = $"Cannot open \"{path}\" as Minecraft savegame folder: \n"
                          + errorMsg;
-            MessageBox.Show(
-                msg,
-                caption: "Error Opening Minecraft Savegame",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error
-            );
+            ModalService.ShowErrorOK("Error Opening Minecraft Savegame", msg);
         }
     }
 }

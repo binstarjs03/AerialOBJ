@@ -2,8 +2,8 @@
 using System.Windows.Forms;
 using System.Windows.Input;
 
+using binstarjs03.MineSharpOBJ.Core.Utils;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Modals;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
@@ -100,7 +100,7 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     }
 
     private void OnOpenAboutView(object? arg) {
-        new AboutModal().ShowDialog();
+        ModalService.ShowAboutModal();
     }
 
     private void OnViewportGoto(object? arg) {
@@ -108,7 +108,10 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
         // inside Goto vm, viewport vm should call Goto and return
         // the returned PointF, null means cancelling just return,
         // else set camera position to return values of Goto PointF
-        new GotoModalDialog().ShowDialog();
+        PointF? cameraPos = ModalService.ShowGotoModal(Window.Viewport);
+        if (cameraPos is null)
+            return;
+        Window.Viewport.SetCameraPosition((PointF)cameraPos);
     }
 
     // Command Availability ---------------------------------------------------

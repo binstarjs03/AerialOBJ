@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Modals"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=local:AboutModalViewModel}"
         
         Title="About" 
         SizeToContent="WidthAndHeight"
@@ -83,8 +82,7 @@
             <Separator Height="20" Background="Transparent"/>
             <Button Content="Close"
                     Width="120"
-                    FontSize="16"
-                    Command="{Binding WindowClose}"/>
+                    FontSize="16" Click="OnClose"/>
             <Separator Height="10" Background="Transparent"/>
         </StackPanel>
             

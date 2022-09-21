@@ -5,14 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Modals"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=local:GotoModalDialogViewModel}"
         
         Title="Goto"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize">
     <Grid Width="Auto" Height="Auto" 
           Background="{StaticResource DarkBackground}">
-        
+
         <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -42,11 +41,10 @@
                 <TextBox Grid.Row="0" 
                          Grid.Column="1"
                          Margin="0,5"
+                         Name="XField"
+                         x:FieldModifier="private"
                          Background="{StaticResource DarkBackground}"
-                         Foreground="{StaticResource LightForeground}"
-                         Text="{Binding XField, 
-                                Mode=TwoWay, 
-                                UpdateSourceTrigger=LostFocus}"/>
+                         Foreground="{StaticResource LightForeground}"/>
                 <TextBlock Grid.Row="1"
                            Grid.Column="0" 
                            Margin="10,0"
@@ -57,11 +55,10 @@
                 <TextBox Grid.Row="1" 
                          Grid.Column="1"
                          Margin="0,5"
+                         Name="ZField"
+                         x:FieldModifier="private"
                          Background="{StaticResource DarkBackground}"
-                         Foreground="{StaticResource LightForeground}"
-                         Text="{Binding ZField,
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=LostFocus}"/>
+                         Foreground="{StaticResource LightForeground}"/>
             </Grid>
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -78,16 +75,16 @@
                         Content="OK" 
                         Width="60" 
                         HorizontalAlignment="Left"
-                        Command="{Binding OK}"/>
+                        Click="OnOK"/>
                 <Button Grid.Column="1" 
                         Content="Current" 
                         Width="60"
-                        Command="{Binding Current}"/>
+                        Click="OnCurrent"/>
                 <Button Grid.Column="2" 
                         Content="Cancel" 
                         Width="60" 
                         HorizontalAlignment="Right"
-                        Command="{Binding Cancel}"/>
+                        Click="OnCancel"/>
             </Grid>
         </Grid>
 

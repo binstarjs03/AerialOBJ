@@ -81,7 +81,7 @@ public class DebugLogWindowViewModel : ViewModelWindow<DebugLogWindowViewModel, 
             IOService.WriteText(path, _window.LogTextBox.Text);
         }
         catch (IOException ex) {
-            MessageBox.Show(ex.Message);
+            ModalService.ShowErrorOK($"Unhandled Exception ({ex})", ex.Message);
         }
     }
 
