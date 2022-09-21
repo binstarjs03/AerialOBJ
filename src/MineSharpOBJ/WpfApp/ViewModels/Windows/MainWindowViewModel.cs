@@ -9,6 +9,7 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Windows;
 public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWindow> {
     private bool _isDebugLogWindowVisible = false;
     private bool _isViewportDebugControlVisible = false;
+    private bool _isViewportCameraPositionGuideVisible = false;
     private string _title = "MineSharpOBJ";
     private SessionInfo? _session;
 
@@ -43,6 +44,16 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
                 return;
             _isViewportDebugControlVisible = value;
             OnPropertyChanged(nameof(IsViewportDebugControlVisible));
+        }
+    }
+
+    public bool IsViewportCameraPositionGuideVisible {
+        get { return _isViewportCameraPositionGuideVisible; }
+        set {
+            if (value == _isViewportCameraPositionGuideVisible)
+                return;
+            _isViewportCameraPositionGuideVisible = value;
+            OnPropertyChanged(nameof(IsViewportCameraPositionGuideVisible));
         }
     }
 
@@ -92,6 +103,10 @@ public class MainWindowViewModel : ViewModelWindow<MainWindowViewModel, MainWind
     }
 
     private void OnViewportGoto(object? arg) {
+        // TODO instead of mutating the camera position of viewport
+        // inside Goto vm, viewport vm should call Goto and return
+        // the returned PointF, null means cancelling just return,
+        // else set camera position to return values of Goto PointF
         new GotoWindow().ShowDialog();
     }
 

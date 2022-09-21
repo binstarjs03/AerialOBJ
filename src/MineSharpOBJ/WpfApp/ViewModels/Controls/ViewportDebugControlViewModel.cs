@@ -6,7 +6,7 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.ViewModels.Controls;
 
 public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlViewModel, ViewportDebugControl> {
     private string _viewportCameraPos = "";
-    private string _viewportCameraPosZoomed = "";
+    private string _viewportChunkPosOffset = "";
     private string _viewportZoomLevel = "";
     private string _viewportPixelPerBlock = "";
     private string _viewportPixelPerChunk = "";
@@ -32,11 +32,11 @@ public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlV
         }
     }
 
-    public string CameraPosZoomed {
-        get { return _viewportCameraPosZoomed; }
+    public string ChunkPosOffset {
+        get { return _viewportChunkPosOffset; }
         set {
-            _viewportCameraPosZoomed = value;
-            OnPropertyChanged(nameof(CameraPosZoomed));
+            _viewportChunkPosOffset = value;
+            OnPropertyChanged(nameof(ChunkPosOffset));
         }
     }
 
@@ -100,7 +100,7 @@ public class ViewportDebugControlViewModel : ViewModelBase<ViewportDebugControlV
 
     private void ReinitializeText() {
         _viewportCameraPos = "Camera Pos:";
-        _viewportCameraPosZoomed = "Camera Pos (zoomed):";
+        _viewportChunkPosOffset = "Chunk Pos Offset:";
         _viewportZoomLevel = "Zoom Level:";
         _viewportPixelPerBlock = "Pixel-Per-Block:";
         _viewportPixelPerChunk = "Pixel-Per-Chunk:";

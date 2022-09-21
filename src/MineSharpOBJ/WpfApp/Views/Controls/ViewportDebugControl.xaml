@@ -31,8 +31,8 @@
                     <TextBlock Text="Viewport Info" Style="{StaticResource Header}"/>
                     <TextBlock Text="{Binding CameraPos}" 
                                d:Text="Camera Pos:"/>
-                    <TextBlock Text="{Binding CameraPosZoomed}" 
-                               d:Text="Camera Pos (zoomed):"/>
+                    <TextBlock Text="{Binding ChunkPosOffset}" 
+                               d:Text="Chunk Pos Offset:"/>
                     <TextBlock Text="{Binding ZoomLevel}" 
                                d:Text="Zoom Level:"/>
                     <TextBlock Text="{Binding PixelPerBlock}" 

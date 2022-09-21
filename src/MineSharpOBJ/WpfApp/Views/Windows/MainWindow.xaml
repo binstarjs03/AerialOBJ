@@ -42,6 +42,11 @@
                               IsChecked="{Binding IsViewportDebugControlVisible,
                                           Mode=OneWayToSource,
                                           UpdateSourceTrigger=PropertyChanged}"/>
+                    <MenuItem Header="Camera Position"
+                              IsCheckable="True"
+                              IsChecked="{Binding IsViewportCameraPositionGuideVisible,
+                                          Mode=OneWayToSource,
+                                          UpdateSourceTrigger=PropertyChanged}"/>
                     <Separator/>
                     <MenuItem Name="MenuViewNavigationGoto"
                               Header="Goto..."

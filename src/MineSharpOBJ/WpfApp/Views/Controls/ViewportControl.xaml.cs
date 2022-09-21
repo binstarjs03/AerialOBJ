@@ -20,10 +20,6 @@ namespace binstarjs03.MineSharpOBJ.WpfApp.Views.Controls;
 // TODO UX improvement: wrap mouse around viewport like in blender 3D did
 // when mouse goes outside the viewport
 
-// TODO camera position is in wrong sign, it is the inverse of the actual camera position.
-// We have to subtract camera position to mouse delta movement so it is correcty
-// representing physical camera position rather than confusingly in the inverse of the position.
-
 public partial class ViewportControl : UserControl {
     private static readonly int[] s_zoomBlockPixelCount = new int[] {
         1, 2, 3, 5, 8, 13, 21, 34
@@ -56,7 +52,7 @@ public partial class ViewportControl : UserControl {
     }
 
     public PointF ViewportCameraPos => _viewportCameraPos;
-    public PointF ViewportCameraPosZoomed => ViewportCameraPos * ViewportPixelPerBlock;
+    public PointF ViewportChunkPosOffset => ViewportCameraPos * ViewportPixelPerBlock;
     public int ViewportZoomLevel => _viewportZoomLevel;
     public int ViewportPixelPerBlock => s_zoomBlockPixelCount[_viewportZoomLevel - 1];
     public int ViewportPixelPerChunk => ViewportPixelPerBlock * Section.BlockCount;
@@ -87,7 +83,7 @@ public partial class ViewportControl : UserControl {
     }
 
     private void UpdateChunkPosition(ChunkModel chunk, PointF centerPoint) {
-        PointF cameraPosZoomed = ViewportCameraPosZoomed;
+        PointF ChunkPosOffset = ViewportChunkPosOffset;
         // Push origin is offset amount required to align the coordinate
         // to zoomed coordinate measured from world origin
         Point scaleFromWorldOrigin = new(
@@ -104,7 +100,10 @@ public partial class ViewportControl : UserControl {
         // to keep it stays aligned with moved world origin
         // when view is dragged around.
         // The offset itself is from camera position.
-        PointF originOffset = cameraPosZoomed;
+        PointF originOffset = new(
+            -ChunkPosOffset.X,
+            -ChunkPosOffset.Y
+        );
 
         PointF finalPos = scaleFromWorldOrigin + originOffset + pushTowardCenter;
         Canvas.SetLeft(chunk, finalPos.X);
@@ -137,7 +136,8 @@ public partial class ViewportControl : UserControl {
         _mousePos = mousePos;
 
         if (_mouseIsClickHolding) {
-            _viewportCameraPos += (_mousePosDelta / ViewportPixelPerBlock);
+            _viewportCameraPos -= _mousePosDelta / ViewportPixelPerBlock;
+               
             _mouseInitClickDrag = false;
             UpdateChunkTransformation(updateChunkSize: false);
         }
@@ -179,8 +179,8 @@ public partial class ViewportControl : UserControl {
 
     private void UpdateDebugPanel() {
         if (ViewportDebugControlViewModel.Context is ViewportDebugControlViewModel vm) {
-            vm.CameraPos = $"Camera Pos: ({round(ViewportCameraPos.X)}, {round(ViewportCameraPos.Y)})";
-            vm.CameraPosZoomed = $"Camera Pos (zoomed): ({round(ViewportCameraPosZoomed.X)}, {round(ViewportCameraPosZoomed.Y)})";
+            vm.CameraPos = $"Camera Pos: ({floor(ViewportCameraPos.X)}, {floor(ViewportCameraPos.Y)})";
+            vm.ChunkPosOffset = $"Chunk Pos Offset: ({floor(ViewportChunkPosOffset.X)}, {floor(ViewportChunkPosOffset.Y)})";
             vm.ZoomLevel = $"Zoom Level: {ViewportZoomLevel}";
             vm.PixelPerBlock = $"Pixel-Per-Chunk: {ViewportPixelPerBlock}";
             vm.PixelPerChunk = $"Pixel-Per-Chunk: {ViewportPixelPerChunk}";
@@ -190,7 +190,7 @@ public partial class ViewportControl : UserControl {
             vm.MouseIsClickHolding = $"Is Click Holding: {_mouseIsClickHolding}";
             vm.MouseIsOutside = $"Is Outside: {_mouseIsOutside}";
         }
-        static double round(double f) => Math.Round(f, 2);
+        static double floor(double f) => Math.Floor(f);
         static int toint(double f) => (int)f;
     }
 }
