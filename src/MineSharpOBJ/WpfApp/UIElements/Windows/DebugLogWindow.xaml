@@ -30,7 +30,9 @@
 
             <TextBox Name="LogTextBox"
                      Text="{Binding LogContent}"
+                     d:Text="Some initial text to preview"
                      BorderThickness="0"
+                     Margin="1,0"
                      Background="{StaticResource DarkBackground}"
                      Foreground="{StaticResource DarkForeground}"
                      IsReadOnly="True"

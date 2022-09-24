@@ -1,9 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
-using System.Windows.Input;
 
-using binstarjs03.MineSharpOBJ.WpfApp.BindingConverters;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
@@ -16,7 +13,7 @@ public partial class MainWindow : Window
         MainWindowVM vm = new(this);
         DataContext = vm;
 
-        DebugLogWindow = new DebugLogWindow(this);
+        DebugLogWindow = new DebugLogWindow();
         Show();
         DebugLogWindow.Owner = this;
 

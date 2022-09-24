@@ -75,7 +75,6 @@
                            Text="https://github.com/binstarjs03/MineSharpOBJ"
                            TextDecorations="Underline"
                            Foreground="#759eff">
-                    <Hyperlink NavigateUri="https://github.com/binstarjs03/MineSharpOBJ"/>
                 </TextBlock>
             </StackPanel>
 
