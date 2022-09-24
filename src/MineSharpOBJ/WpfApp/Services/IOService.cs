@@ -67,7 +67,7 @@ public class IOService {
         static void ShowLoadSavegameErrorModal(string path, string errorMsg) {
             string msg = $"Cannot open \"{path}\" as Minecraft savegame folder: \n"
                          + errorMsg;
-            ModalService.ShowErrorOK("Error Opening Minecraft Savegame", msg);
+            //ModalService.ShowErrorOK("Error Opening Minecraft Savegame", msg);
         }
     }
 }

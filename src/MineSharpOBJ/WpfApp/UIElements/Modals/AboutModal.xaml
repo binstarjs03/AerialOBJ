@@ -12,7 +12,7 @@
 
     <Window.Resources>
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource LightForeground}"/>
+            <Setter Property="Foreground" Value="{StaticResource DarkForeground}"/>
         </Style>
         <Style BasedOn="{StaticResource {x:Type TextBlock}}" 
                TargetType="TextBlock"
@@ -82,9 +82,9 @@
             <Separator Height="20" Background="Transparent"/>
             <Button Content="Close"
                     Width="120"
-                    FontSize="16" Click="OnClose"/>
+                    FontSize="16" Click="OnClickClose"/>
             <Separator Height="10" Background="Transparent"/>
         </StackPanel>
-            
+
     </Grid>
 </Window>

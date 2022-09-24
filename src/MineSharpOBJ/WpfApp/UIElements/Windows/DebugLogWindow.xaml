@@ -5,56 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=local:DebugLogWindowViewModel}"
+        d:DataContext="{d:DesignInstance Type=local:DebugLogWindowVM}"
+        Visibility="{Binding IsDebugLogWindowVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibility}}"
         
         Title="Debug Log" 
         Width="600" Height="400"
-        Visibility="{Binding IsVisible, 
-                     Mode=TwoWay, 
-                     Converter={StaticResource BoolToVisibilityHide}}">
-    <Grid>
-        
+        d:Width="400" d:Height="300">
+    <Grid Background="{StaticResource DarkBackground}">
+
         <DockPanel>
-            <Menu Name="MenuBar" 
-                  Height="Auto" 
-                  DockPanel.Dock="Top">
-                <MenuItem Name="MenuLog" 
-                          Header="Log">
-                    <MenuItem Name="SaveButton" 
-                              Header="Save"
-                              Command="{Binding SaveLog}"/>
-                    <MenuItem Name="ClearButton" 
-                              Header="Clear"
-                              Command="{Binding ClearLog}"/>
-                    <MenuItem Name="CloseButton" 
-                              Header="Close"
-                              Command="{Binding WindowClose}"/>
+            <Menu Height="Auto" DockPanel.Dock="Top">
+                <MenuItem Header="Log">
+                    <MenuItem Header="Save" Command="{Binding SaveLogCommand}"/>
+                    <MenuItem Header="Clear" Command="{Binding ClearLogCommand}"/>
+                    <MenuItem Header="Close" Command="{Binding WindowCloseCommand}"/>
                 </MenuItem>
-                <MenuItem Name="MenuWrite" Header="Write">
-                    <MenuItem Name="WriteSingle" 
-                              Header="Single Line" 
-                              Command="{Binding WriteSingle}"/>
-                    <MenuItem Name="WriteHorizontal" 
-                              Header="Multi Horizontal" 
-                              Command="{Binding WriteHorizontal}"/>
-                    <MenuItem Name="WriteVertical" 
-                              Header="Multi Vertical" 
-                              Command="{Binding WriteVertical}"/>
+                
+                <MenuItem Header="Write">
+                    <MenuItem Header="Single Line" Command="{Binding WriteSingleCommand}"/>
+                    <MenuItem Header="Multi Horizontal" Command="{Binding WriteHorizontalCommand}"/>
+                    <MenuItem Header="Multi Vertical" Command="{Binding WriteVerticalCommand}"/>
                 </MenuItem>
             </Menu>
-                
+
             <TextBox Name="LogTextBox"
+                     Text="{Binding LogContent}"
                      BorderThickness="0"
                      Background="{StaticResource DarkBackground}"
-                     Foreground="{StaticResource LightForeground}"
+                     Foreground="{StaticResource DarkForeground}"
                      IsReadOnly="True"
                      Focusable="False"
                      TextWrapping="Wrap"
                      VerticalScrollBarVisibility="Auto"
                      FontFamily="Lucida Console"
-                     FontSize="12"
-                     Text="{Binding LogContent, Mode=OneWay}"/>
+                     FontSize="12"/>
         </DockPanel>
-        
+
     </Grid>
 </Window>
