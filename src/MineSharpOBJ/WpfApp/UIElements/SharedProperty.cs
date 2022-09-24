@@ -17,16 +17,24 @@ public static class SharedProperty
 
     private readonly static Type s_this = typeof(SharedProperty);
 
-    private static void NotifyPropertyChanged<T>(T newValue, ref T oldValue, [CallerMemberName] string propertyName = "")
+    private static void NotifyPropertyChanged<T>(T newValue, ref T oldValue, bool canNull = false, [CallerMemberName] string propertyName = "")
     {
-        if (newValue is null || oldValue is null)
-            throw new ArgumentNullException
-            (
-                "newValue or oldValue",
-                "Argument passed to ValueChanged of ViewModelBase is null"
-            );
-        if (newValue.Equals(oldValue))
-            return;
+        if (canNull)
+        {
+            if (newValue is null && oldValue is null)
+                return;
+        }
+        else
+        {
+            if (newValue is null || oldValue is null)
+                throw new ArgumentNullException
+                (
+                    "newValue or oldValue",
+                    "Argument oldValue passed to ValueChanged of ViewModelBase is null"
+                );
+            if (newValue.Equals(oldValue))
+                return;
+        }
         oldValue = newValue;
         PropertyChanged?.Invoke(s_this, new PropertyChangedEventArgs(propertyName));
     }
@@ -44,5 +52,14 @@ public static class SharedProperty
         IsDebugLogWindowVisible = value;
     }
 
-
+    private static SessionInfo? s_sessionInfo = null;
+    public static SessionInfo? SessionInfo
+    {
+        get => s_sessionInfo;
+        set => NotifyPropertyChanged(value, ref s_sessionInfo, canNull: true);
+    }
+    public static void SessionInfoUpdater(SessionInfo? value)
+    {
+        SessionInfo = value;
+    }
 }
