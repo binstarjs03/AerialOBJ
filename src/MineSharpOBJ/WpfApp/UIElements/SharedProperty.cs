@@ -7,6 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements;
+
+// TODO for properties that needs to be synchronized between viewmodels
+// and to reduce coupling, make it local in each VM when make sense.
+// Use events and make the VM listen to that, so when that event is triggered,
+// update the property individually
+
+// For properties that needs to be synchronized between viewmodels,
+// put it here.
 public static class SharedProperty
 {
     // Subscribe to this event if your object is using shared property and want
@@ -51,6 +59,21 @@ public static class SharedProperty
     {
         IsDebugLogWindowVisible = value;
     }
+
+
+
+    private static bool s_isViewportCameraPositionGuideVisible = false;
+    public static bool IsViewportCameraPositionGuideVisible
+    {
+        get => s_isViewportCameraPositionGuideVisible;
+        set => NotifyPropertyChanged(value, ref s_isViewportCameraPositionGuideVisible);
+    }
+    public static void IsViewportCameraPositionGuideVisibleUpdater(bool value)
+    {
+        IsViewportCameraPositionGuideVisible = value;
+    }
+
+
 
     private static SessionInfo? s_sessionInfo = null;
     public static SessionInfo? SessionInfo

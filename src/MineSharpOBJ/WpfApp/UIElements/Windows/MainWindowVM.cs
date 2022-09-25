@@ -38,6 +38,16 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         );
     }
 
+    public bool IsViewportCameraPositionGuideVisible
+    {
+        get => SharedProperty.IsViewportCameraPositionGuideVisible;
+        set => SetSharedPropertyChanged
+        (
+            value, 
+            SharedProperty.IsViewportCameraPositionGuideVisibleUpdater
+        );
+    }
+
     // we can make this property as static, but XAML databinding
     // intellisense won't detect this property anymore
     public bool HasSession => SharedProperty.SessionInfo is not null;
@@ -83,16 +93,23 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
     // Event Handlers ---------------------------------------------------------
 
+    // TODO reduce coupling by making shared properties below to local when make sense,
+    // use events and listen to it to update and synchronize the properties between VM
     protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        string propertyName = e.PropertyName!;
-        if (propertyName == nameof(IsDebugLogWindowVisible))
+        string name = e.PropertyName!;
+        if (name == nameof(IsDebugLogWindowVisible))
             NotifyPropertyChanged(nameof(IsDebugLogWindowVisible));
-        else if (propertyName == nameof(SessionInfo))
+        else if (name == nameof(IsViewportCameraPositionGuideVisible))
+            NotifyPropertyChanged(nameof(IsViewportCameraPositionGuideVisible));
+        else if (name == nameof(SessionInfo))
         {
             NotifyPropertyChanged(nameof(HasSession));
             if (SharedProperty.SessionInfo is null)
+            {
                 Title = "MineSharpOBJ";
+                IsViewportCameraPositionGuideVisible = false;
+            }
             else
                 Title = $"MineSharpOBJ - {SharedProperty.SessionInfo.WorldName}";
         }

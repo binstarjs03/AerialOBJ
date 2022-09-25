@@ -13,7 +13,7 @@
             
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
-                <ColumnDefinition Width="2"/>
+                <ColumnDefinition Width="6"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
@@ -27,6 +27,7 @@
                         Height="{Binding ElementName=ViewportCanvas, Path=ActualHeight}"/>
                 
                 <Grid Name="CameraPositionGuide"
+                      Visibility="{Binding IsViewportCameraPositionGuideVisible, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
                       Width="{Binding ElementName=ViewportCanvas, Path=ActualWidth}" 
                       Height="{Binding ElementName=ViewportCanvas, Path=ActualHeight}">
                     <Grid.ColumnDefinitions>
@@ -46,9 +47,14 @@
                                Width="15"/>
                 </Grid>
             </Canvas>
-        
-            <Rectangle Grid.Column="1"
-                       Fill="{StaticResource DarkForeground}"/>
+
+            <Grid Grid.Column="1">
+                <Rectangle Width="2"
+                           HorizontalAlignment="Center"
+                           Fill="{StaticResource DarkForeground}"/>
+                <Rectangle Cursor="SizeWE"
+                           Fill="Transparent"/>
+            </Grid>
             
             <ScrollViewer Grid.Column="2"
                           Foreground="{StaticResource DarkForeground}"

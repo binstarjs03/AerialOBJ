@@ -32,6 +32,10 @@
                               Name="MenuItemDebugLog"
                               IsCheckable="True"
                               IsChecked="{Binding IsDebugLogWindowVisible, Mode=TwoWay}"/>
+                    <MenuItem Header="Viewport Camera Position Guide"
+                              IsEnabled="{Binding HasSession}"
+                              IsCheckable="True"
+                              IsChecked="{Binding IsViewportCameraPositionGuideVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 
                 <MenuItem Header="Help">
