@@ -54,18 +54,18 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         DialogResult dialogResult = dialog.ShowDialog();
         if (dialogResult != DialogResult.OK)
         {
-            LogService.Log("Dialog cancelled. Aborting...", useSeparator: true);
+            LogService.LogAborted("Dialog cancelled. Aborting...", useSeparator: true);
             return;
         }
         SessionInfo? session = IOService.LoadSavegame(dialog.SelectedPath);
         if (session is null)
         {
-            LogService.Log("Failed changing session. Aborting...", useSeparator: true);
+            LogService.LogAborted("Failed changing session. Aborting...", useSeparator: true);
             return;
         }
         SharedProperty.SessionInfo = session;
         Title = $"MineSharpOBJ - {session.WorldName}";
-        LogService.Log("Successfully changed session.", useSeparator: true);
+        LogService.LogSuccess("Successfully changed session.", useSeparator: true);
     }
 
     public ICommand CloseCommand { get; }
@@ -74,7 +74,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         LogService.Log("Attempting to closing savegame...");
         Title = "MineSharpOBJ";
         SharedProperty.SessionInfo = null;
-        LogService.Log("Successfully closed session.", useSeparator: true);
+        LogService.LogSuccess("Successfully closed session.", useSeparator: true);
     }
 
     // Event Handlers ---------------------------------------------------------

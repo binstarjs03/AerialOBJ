@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
@@ -7,6 +7,7 @@ using System.Windows.Input;
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
+
 public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow>
 {
     public DebugLogWindowVM(DebugLogWindow window) : base(window)
@@ -16,6 +17,7 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
 
         // listen to service events
         LogService.LogHandlers += OnLogServiceLogging;
+        LogService.GetLogContentHandlers += OnLogServiceGetLogContent;
 
         // assign command implementation to commands
         SaveLogCommand = new RelayCommand(OnSaveLog);
@@ -40,11 +42,8 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
     private string _logContent = string.Empty;
     public string LogContent
     {
-        get { return _logContent; }
-        set
-        {
-            SetAndNotifyPropertyChanged(value, ref _logContent);
-        }
+        get => _logContent;
+        set => SetAndNotifyPropertyChanged(value, ref _logContent);
     }
 
     // Commands ---------------------------------------------------------------
@@ -124,5 +123,10 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
     {
         LogContent += $"{content}{Environment.NewLine}";
         Window.LogTextBox.ScrollToEnd();
+    }
+
+    private string OnLogServiceGetLogContent()
+    {
+        return LogContent;
     }
 }
