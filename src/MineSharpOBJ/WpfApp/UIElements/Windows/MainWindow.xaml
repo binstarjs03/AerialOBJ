@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows"
+        xmlns:controls="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:MainWindowVM}"
         
         Title="{Binding Title}"
         Width="800" Height="600"
+        MinWidth="300" MinHeight="300"
         d:Title="MineSharpOBJ" 
         d:Width="400" d:Height="300">
     <Grid Background="{StaticResource DarkBackground}">
@@ -42,7 +44,7 @@
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
 
-            <Canvas/>
+            <controls:ViewportControl/>
 
         </DockPanel>
     </Grid>

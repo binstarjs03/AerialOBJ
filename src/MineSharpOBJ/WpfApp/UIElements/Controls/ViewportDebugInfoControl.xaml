@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls.ViewportDebugInfoControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=local:ViewportDebugInfoControlVM}"
+             
+             d:DesignWidth="200">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource DarkForeground}"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="Width" Value="Auto"/>
+        </Style>
+
+        <Style BasedOn="{StaticResource {x:Type TextBlock}}" 
+               TargetType="TextBlock"
+               x:Key="Header">
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style TargetType="Separator">
+            <Setter Property="Height" Value="5"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Background="{StaticResource DarkBackground}">
+        <StackPanel Margin="10">
+            
+            <StackPanel>
+                <TextBlock Text="Viewport Info" Style="{StaticResource Header}"/>
+                <TextBlock Text="{Binding ViewportCameraPos}" 
+                           d:Text="Camera Pos: (0.0, 0.0)"/>
+                <TextBlock Text="{Binding ViewportChunkPosOffset}" 
+                           d:Text="Chunk Pos Offset: (19000000000, 1300)"/>
+                <TextBlock Text="{Binding ViewportZoomLevel}" 
+                           d:Text="Zoom Level: 2"/>
+                <TextBlock Text="{Binding ViewportPixelPerBlock}" 
+                           d:Text="Pixel-Per-Block: 2"/>
+                <TextBlock Text="{Binding ViewportPixelPerChunk}" 
+                           d:Text="Pixel-Per-Chunk: 32"/>
+            </StackPanel>
+
+            <Separator/>
+
+            <StackPanel>
+                <TextBlock Text="Mouse Info" Style="{StaticResource Header}"/>
+                <TextBlock Text="{Binding MousePos}"
+                           d:Text="Mouse Pos:"/>
+                <TextBlock Text="{Binding MousePosDelta}"
+                           d:Text="Mouse Pos Delta:"/>
+                <TextBlock Text="{Binding MouseIsClickHolding}"
+                           d:Text="Is Click Holding:"/>
+                <TextBlock Text="{Binding MouseIsOutside}"
+                           d:Text="Is Outside:"/>
+            </StackPanel>
+
+            <Separator/>
+
+            <StackPanel>
+                <TextBlock Text="Chunk Manager Info" Style="{StaticResource Header}"/>
+                <TextBlock Text="Visible Chunk Count:"/>
+                <TextBlock Text="Visible Chunk Range:"/>
+                <TextBlock Text="Loaded Chunk Count:"/>
+                <TextBlock Text="Pending Chunk Count:"/>
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+
+</UserControl>
