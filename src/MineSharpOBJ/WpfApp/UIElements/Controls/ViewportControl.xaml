@@ -8,13 +8,26 @@
              d:DataContext="{d:DesignInstance Type=local:ViewportControlVM}"
              
              d:DesignWidth="400" d:DesignHeight="300">
+    <UserControl.Resources>
+        <Style x:Key="CollapsibleColumn" TargetType="{x:Type ColumnDefinition}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsViewportDebugInfoVisible}" Value="False">
+                    <DataTrigger.Setters>
+                        <Setter Property="Width" Value="0"/>
+                        <Setter Property="MaxWidth" Value="0"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
     <Grid>
         <Grid>
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="6"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" MinWidth="100"/>
+                <ColumnDefinition Width="6" Style="{StaticResource CollapsibleColumn}"/>
+                <ColumnDefinition Width="150" MinWidth="100"  Style="{StaticResource CollapsibleColumn}"/>
             </Grid.ColumnDefinitions>
 
             <Canvas Name="ViewportCanvas"
@@ -48,29 +61,30 @@
                 </Grid>
             </Canvas>
 
-            <Grid Grid.Column="1">
-                <Rectangle Width="2"
-                           Visibility="{Binding IsViewportDebugInfoVisible, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
-                           HorizontalAlignment="Center"
-                           Fill="{StaticResource DarkForeground}"/>
-                <Rectangle Cursor="SizeWE"
-                           Fill="Transparent"/>
+
+            <Grid Grid.Column=" 1">
+                    <Rectangle Width="6"
+                               Visibility="{Binding IsViewportDebugInfoVisible, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
+                               HorizontalAlignment="Center"
+                               Fill="{StaticResource DarkForeground}"/>
+                    <Rectangle Cursor="SizeWE"
+                               Fill="Transparent"/>
             </Grid>
-            
-            <ScrollViewer Grid.Column="2"
+            <GridSplitter Grid.Column="1"
+                          HorizontalAlignment="Stretch"
+                          Background="Transparent"
+                          ResizeBehavior="PreviousAndNext"
+                          ResizeDirection="Columns"/>
+                
+            <ScrollViewer Grid.Column="2" 
                           Foreground="{StaticResource DarkForeground}"
-                          Width="150"
                           Visibility="{Binding IsViewportDebugInfoVisible, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
                           VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left">
+                          HorizontalScrollBarVisibility="Auto" 
+                          HorizontalAlignment="Stretch">
                 <local:ViewportDebugInfoControl/>
             </ScrollViewer>
 
-            <!--GridSplitter Grid.Column="1"
-                          Background="Red"
-                          Width="5"
-                          HorizontalAlignment="Left"
-                          ResizeDirection="Columns"/-->
 
         </Grid>
     </Grid>
