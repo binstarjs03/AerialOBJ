@@ -50,6 +50,7 @@
 
             <Grid Grid.Column="1">
                 <Rectangle Width="2"
+                           Visibility="{Binding IsViewportDebugInfoVisible, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
                            HorizontalAlignment="Center"
                            Fill="{StaticResource DarkForeground}"/>
                 <Rectangle Cursor="SizeWE"
@@ -59,10 +60,17 @@
             <ScrollViewer Grid.Column="2"
                           Foreground="{StaticResource DarkForeground}"
                           Width="150"
+                          Visibility="{Binding IsViewportDebugInfoVisible, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left">
                 <local:ViewportDebugInfoControl/>
             </ScrollViewer>
+
+            <!--GridSplitter Grid.Column="1"
+                          Background="Red"
+                          Width="5"
+                          HorizontalAlignment="Left"
+                          ResizeDirection="Columns"/-->
 
         </Grid>
     </Grid>

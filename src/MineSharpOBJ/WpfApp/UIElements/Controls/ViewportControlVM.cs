@@ -22,12 +22,20 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         );
     }
 
+    public bool IsViewportDebugInfoVisible
+    {
+        get => SharedProperty.IsViewportDebugInfoVisible;
+        set => SetSharedPropertyChanged
+        (
+            value, 
+            SharedProperty.IsViewportDebugInfoVisibleUpdater
+        );
+    }
+
     // Event Handlers ---------------------------------------------------------
 
-    protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        string name = e.PropertyName!;
-        if (name == nameof(IsViewportCameraPositionGuideVisible))
-            NotifyPropertyChanged(nameof(IsViewportCameraPositionGuideVisible));
-    }
+    //protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    //{
+    //    NotifyPropertyChanged(e.PropertyName!);
+    //}
 }

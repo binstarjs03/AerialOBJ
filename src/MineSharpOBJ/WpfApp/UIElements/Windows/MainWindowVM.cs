@@ -38,6 +38,16 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         );
     }
 
+    public bool IsViewportDebugInfoVisible
+    {
+        get => SharedProperty.IsViewportDebugInfoVisible;
+        set => SetSharedPropertyChanged
+        (
+            value,
+            SharedProperty.IsViewportDebugInfoVisibleUpdater
+        );
+    }
+
     public bool IsViewportCameraPositionGuideVisible
     {
         get => SharedProperty.IsViewportCameraPositionGuideVisible;
@@ -97,19 +107,12 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     // use events and listen to it to update and synchronize the properties between VM
     protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        string name = e.PropertyName!;
-        if (name == nameof(IsDebugLogWindowVisible))
-            NotifyPropertyChanged(nameof(IsDebugLogWindowVisible));
-        else if (name == nameof(IsViewportCameraPositionGuideVisible))
-            NotifyPropertyChanged(nameof(IsViewportCameraPositionGuideVisible));
-        else if (name == nameof(SessionInfo))
+        base.OnSharedPropertyChanged(sender, e);
+        if (e.PropertyName! == nameof(SharedProperty.SessionInfo))
         {
             NotifyPropertyChanged(nameof(HasSession));
             if (SharedProperty.SessionInfo is null)
-            {
                 Title = "MineSharpOBJ";
-                IsViewportCameraPositionGuideVisible = false;
-            }
             else
                 Title = $"MineSharpOBJ - {SharedProperty.SessionInfo.WorldName}";
         }

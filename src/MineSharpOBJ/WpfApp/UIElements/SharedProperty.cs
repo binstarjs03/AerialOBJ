@@ -61,7 +61,7 @@ public static class SharedProperty
     }
 
 
-
+    // False if SessionInfo is null
     private static bool s_isViewportCameraPositionGuideVisible = false;
     public static bool IsViewportCameraPositionGuideVisible
     {
@@ -71,6 +71,19 @@ public static class SharedProperty
     public static void IsViewportCameraPositionGuideVisibleUpdater(bool value)
     {
         IsViewportCameraPositionGuideVisible = value;
+    }
+
+
+    // False if SessionInfo is null
+    private static bool s_isViewportDebugInfoVisible = false;
+    public static bool IsViewportDebugInfoVisible
+    {
+        get => s_isViewportDebugInfoVisible;
+        set => NotifyPropertyChanged(value, ref s_isViewportDebugInfoVisible);
+    }
+    public static void IsViewportDebugInfoVisibleUpdater(bool value)
+    {
+        IsViewportDebugInfoVisible = value;
     }
 
 
@@ -84,5 +97,10 @@ public static class SharedProperty
     public static void SessionInfoUpdater(SessionInfo? value)
     {
         SessionInfo = value;
+        if (value is null)
+        {
+            IsViewportCameraPositionGuideVisible = false;
+            IsViewportDebugInfoVisible = false;
+        }
     }
 }

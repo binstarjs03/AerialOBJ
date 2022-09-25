@@ -52,12 +52,15 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
     }
 
 
-    // setter for shared property
+    // setter for shared property. Note that we cannot ref property so
+    // we set the property value through delegate
     protected void SetSharedPropertyChanged<V>(V newValue, Action<V> setterMethod)
     {
         setterMethod(newValue);
     }
     // Event Handlers ---------------------------------------------------------
 
-    protected virtual void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e) { }
+    protected virtual void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e) {
+        NotifyPropertyChanged(e.PropertyName!);
+    }
 }

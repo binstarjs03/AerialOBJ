@@ -36,6 +36,10 @@
                               IsEnabled="{Binding HasSession}"
                               IsCheckable="True"
                               IsChecked="{Binding IsViewportCameraPositionGuideVisible, Mode=TwoWay}"/>
+                    <MenuItem Header="Viewport Debug Info"
+                              IsEnabled="{Binding HasSession}"
+                              IsCheckable="True"
+                              IsChecked="{Binding IsViewportDebugInfoVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 
                 <MenuItem Header="Help">
