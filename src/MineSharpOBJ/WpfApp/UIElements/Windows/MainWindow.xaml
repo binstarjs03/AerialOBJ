@@ -19,6 +19,7 @@
                     <MenuItem Header="Open"
                               Command="{Binding OpenCommand}"/>
                     <MenuItem Header="Close"
+                              IsEnabled="{Binding HasSession}"
                               Command="{Binding CloseCommand}"/>
                     <MenuItem Header="Exit"
                               Command="{Binding WindowCloseCommand}"/>

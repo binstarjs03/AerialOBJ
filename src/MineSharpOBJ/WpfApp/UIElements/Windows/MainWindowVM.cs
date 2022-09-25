@@ -15,7 +15,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
         // assign command implementation to commands
         OpenCommand = new RelayCommand(OnOpen);
-        CloseCommand = new RelayCommand(OnClose);
+        CloseCommand = new RelayCommand(OnClose, (arg) => HasSession );
         AboutCommand = new RelayCommand(OnAbout);
     }
 
@@ -37,6 +37,10 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             SharedProperty.IsDebugLogWindowVisibleUpdater
         );
     }
+
+    // we can make this property as static, but XAML databinding
+    // intellisense won't detect this property anymore
+    public bool HasSession => SharedProperty.SessionInfo is not null;
 
     // Commands ---------------------------------------------------------------
 
@@ -63,8 +67,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             LogService.LogAborted("Failed changing session. Aborting...", useSeparator: true);
             return;
         }
-        SharedProperty.SessionInfo = session;
-        Title = $"MineSharpOBJ - {session.WorldName}";
+        SharedProperty.SessionInfoUpdater(session);
         LogService.LogSuccess("Successfully changed session.", useSeparator: true);
     }
 
@@ -72,8 +75,9 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     private void OnClose(object? arg)
     {
         LogService.Log("Attempting to closing savegame...");
-        Title = "MineSharpOBJ";
-        SharedProperty.SessionInfo = null;
+        if (SharedProperty.SessionInfo is null)
+            LogService.LogWarning($"{nameof(SharedProperty.SessionInfo)} is already null!");
+        SharedProperty.SessionInfoUpdater(null);
         LogService.LogSuccess("Successfully closed session.", useSeparator: true);
     }
 
@@ -84,6 +88,14 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         string propertyName = e.PropertyName!;
         if (propertyName == nameof(IsDebugLogWindowVisible))
             NotifyPropertyChanged(nameof(IsDebugLogWindowVisible));
-    
+        else if (propertyName == nameof(SessionInfo))
+        {
+            NotifyPropertyChanged(nameof(HasSession));
+            if (SharedProperty.SessionInfo is null)
+                Title = "MineSharpOBJ";
+            else
+                Title = $"MineSharpOBJ - {SharedProperty.SessionInfo.WorldName}";
+        }
+
     }
 }
