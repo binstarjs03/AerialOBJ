@@ -7,6 +7,8 @@ public class ViewportDebugInfoControlVM : ViewModelBase<ViewportDebugInfoControl
         ReinitializeText();
     }
 
+    public static ViewportDebugInfoControlVM? Context { get; set; }
+
     // States -----------------------------------------------------------------
 
     private string _viewportCameraPos = "";

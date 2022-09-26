@@ -8,6 +8,7 @@ public partial class ViewportDebugInfoControl : UserControl
     {
         InitializeComponent();
         ViewportDebugInfoControlVM vm = new(this);
+        ViewportDebugInfoControlVM.Context = vm;
         DataContext = vm;
     }
 }

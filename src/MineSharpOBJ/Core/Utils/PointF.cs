@@ -20,6 +20,10 @@ public struct PointF : IEquatable<PointF> {
 
     public static PointF Origin => new(0);
 
+    public PointF Floor => new(Math.Floor(X), Math.Floor(Y));
+
+    public PointF Negative => new(-X, -Y);
+
     public static implicit operator PointF(Point point) {
         return new PointF(point.X, point.Y);
     }
