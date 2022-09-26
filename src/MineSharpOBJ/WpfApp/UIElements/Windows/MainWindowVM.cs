@@ -60,7 +60,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
     // we can make this property as static, but XAML databinding
     // intellisense won't detect this property anymore
-    public bool HasSession => SharedProperty.SessionInfo is not null;
+    public bool HasSession => SharedProperty.HasSession;
 
     // Commands ---------------------------------------------------------------
 

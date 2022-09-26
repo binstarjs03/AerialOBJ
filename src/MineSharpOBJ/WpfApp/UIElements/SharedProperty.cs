@@ -47,6 +47,11 @@ public static class SharedProperty
         PropertyChanged?.Invoke(s_this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private static void NotifyPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(s_this, new PropertyChangedEventArgs(propertyName));
+    }
+
     // Shared Property Data ---------------------------------------------------
 
     private static bool s_isDebugLogWindowVisible = false;
@@ -92,7 +97,11 @@ public static class SharedProperty
     public static SessionInfo? SessionInfo
     {
         get => s_sessionInfo;
-        set => NotifyPropertyChanged(value, ref s_sessionInfo, canNull: true);
+        set
+        {
+            NotifyPropertyChanged(value, ref s_sessionInfo, canNull: true);
+            NotifyPropertyChanged(nameof(HasSession));
+        }
     }
     public static void SessionInfoUpdater(SessionInfo? value)
     {
@@ -103,4 +112,6 @@ public static class SharedProperty
             IsViewportDebugInfoVisible = false;
         }
     }
+
+    public static bool HasSession => SessionInfo is not null;
 }

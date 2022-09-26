@@ -8,6 +8,7 @@
              d:DataContext="{d:DesignInstance Type=local:ViewportControlVM}"
              
              Background="{StaticResource DarkBackground}"
+             IsEnabled="{Binding HasSession}"
              d:DesignWidth="400" d:DesignHeight="300">
     <UserControl.Resources>
         <Style x:Key="CollapsibleColumn" TargetType="{x:Type ColumnDefinition}">

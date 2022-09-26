@@ -33,6 +33,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     // States -----------------------------------------------------------------
 
+    // we can make this property as static, but XAML databinding
+    // intellisense won't detect this property anymore
+    public bool HasSession => SharedProperty.HasSession;
+
     private static readonly int[] s_zoomBlockPixelCount = new int[] {
         1, 2, 3, 5, 8, 13, 21, 34
     };
