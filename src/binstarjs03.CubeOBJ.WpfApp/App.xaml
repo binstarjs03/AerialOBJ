@@ -1,0 +1,12 @@
+﻿<Application x:Class="binstarjs03.CubeOBJ.WpfApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:binstarjs03.CubeOBJ.WpfApp"
+             xmlns:converters="clr-namespace:binstarjs03.CubeOBJ.WpfApp.Converters"
+             StartupUri="UIComponents/MainWindow.xaml"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <converters:DoubleToString x:Key="DoubleToString"/>
+        <converters:IntToString x:Key="IntToString"/>
+    </Application.Resources>
+</Application>
