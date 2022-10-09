@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIComponents;
+namespace binstarjs03.CubeOBJ.WpfApp.UIElements;
 
 public abstract class ViewModelWindow<T, U> : ViewModelBase<T, U> where T : class where U : Window
 {

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:binstarjs03.CubeOBJ.WpfApp"
              xmlns:converters="clr-namespace:binstarjs03.CubeOBJ.WpfApp.Converters"
-             StartupUri="UIComponents/MainWindow.xaml"
+             StartupUri="UIElements/Windows/MainWindow.xaml"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <converters:DoubleToString x:Key="DoubleToString"/>

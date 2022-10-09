@@ -2,6 +2,4 @@
 
 namespace binstarjs03.CubeOBJ.WpfApp;
 
-public partial class App : Application
-{
-}
+public partial class App : Application { }
