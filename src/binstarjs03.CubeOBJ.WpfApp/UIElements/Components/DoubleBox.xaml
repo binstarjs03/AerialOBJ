@@ -1,0 +1,21 @@
+﻿<TextBox x:Class="binstarjs03.CubeOBJ.WpfApp.UIElements.Components.DoubleBox"
+         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+         xmlns:local="clr-namespace:binstarjs03.CubeOBJ.WpfApp.UIElements.Components"
+         xmlns:validationRules="clr-namespace:binstarjs03.CubeOBJ.WpfApp.ValidationRules"
+         mc:Ignorable="d"
+         Name="Root"
+         d:Width="50" d:Text="3,14"
+         
+         KeyUp="OnKeyUp" 
+         LostFocus="OnLostFocus">
+    <TextBox.Text>
+        <Binding ElementName="Root" Path="DoubleValue" Mode="TwoWay" UpdateSourceTrigger="Explicit" Converter="{StaticResource DoubleToString}">
+            <Binding.ValidationRules>
+                <validationRules:DoubleValidationRule/>
+            </Binding.ValidationRules>
+        </Binding>
+    </TextBox.Text>
+</TextBox>
