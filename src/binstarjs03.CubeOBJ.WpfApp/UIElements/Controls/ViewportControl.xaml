@@ -9,85 +9,101 @@
              d:DataContext="{d:DesignInstance Type=local:ViewportControlVM}"
              
              Background="White"
-             d:DesignWidth="400" d:DesignHeight="300">
+             d:DesignWidth="500" d:DesignHeight="300">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="3"/>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="220"/>
         </Grid.ColumnDefinitions>
 
-        <Rectangle Grid.Column="1" Fill="LightGray"/>
+        <Rectangle Grid.Column="1" Fill="#FFF0F0F0"/>
         <Canvas Grid.Column="0" Background="#FF333333"/>
-        <StackPanel Grid.Column="2" Margin="5">
-            <GroupBox Header="Viewport">
-                <Grid>
-                    <Grid.Resources>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                        </Style>
-                    </Grid.Resources>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <StackPanel Margin="5">
+                <GroupBox Header="Viewport">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Camera Pos X"/>
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Camera Pos Z"/>
-                    <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
-                        <TextBlock Text="Zoom Level: "/>
-                        <TextBlock Text="{Binding Path=ZoomLevel, Mode=OneWay}" d:Text="2"/>
-                    </StackPanel>
-                    <components:IntBox Grid.Row="0" Grid.Column="1" IntValue="{Binding Path=CameraPosX, Mode=TwoWay}"/>
-                    <components:IntBox Grid.Row="1" Grid.Column="1" IntValue="{Binding Path=CameraPosZ, Mode=TwoWay}"/>
-                    <Slider Grid.Row="2" Grid.Column="1" 
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Camera Pos X"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Camera Pos Z"/>
+                        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="Zoom Level: "/>
+                            <TextBlock Text="{Binding Path=ZoomLevel, Mode=OneWay}" d:Text="2"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="Height: "/>
+                            <TextBlock Text="{Binding Path=Height, Mode=OneWay}" d:Text="255"/>
+                        </StackPanel>
+                        <components:DoubleBox Grid.Row="0" Grid.Column="1" DoubleValue="{Binding Path=CameraPosX, Mode=TwoWay}"/>
+                        <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=CameraPosZ, Mode=TwoWay}"/>
+                        <Slider Grid.Row="2" Grid.Column="1" 
                             SmallChange="1" 
                             Value="{Binding Path=ZoomLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             d:Value="2"
                             IsSnapToTickEnabled="True" 
-                            TickPlacement="BottomRight"/>
-                </Grid>
-            </GroupBox>
+                            TickPlacement="BottomRight"
+                            Minimum="0"
+                            Maximum="10"/>
+                        <Slider Grid.Row="3" Grid.Column="1" 
+                            SmallChange="1" 
+                            Value="{Binding Path=Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            d:Value="255"
+                            IsSnapToTickEnabled="True" 
+                            Minimum="0"
+                            Maximum="255"/>
+                    </Grid>
+                </GroupBox>
 
-            <GroupBox Header="Export Selection Area">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <components:XYZIntBox Grid.Column="0" Header="Export Area 1" 
+                <GroupBox Header="Export Selection Area">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <components:XYZIntBox Grid.Column="0" Header="Export Area 1" 
                                           XValue="{Binding Path=ExportArea1X, Mode=TwoWay}"
                                           YValue="{Binding Path=ExportArea1Y, Mode=TwoWay}"
                                           ZValue="{Binding Path=ExportArea1Z, Mode=TwoWay}"/>
-                    <components:XYZIntBox Grid.Column="1" Header="Export Area 2" 
+                        <components:XYZIntBox Grid.Column="1" Header="Export Area 2" 
                                           XValue="{Binding Path=ExportArea2X, Mode=TwoWay}"
                                           YValue="{Binding Path=ExportArea2Y, Mode=TwoWay}"
                                           ZValue="{Binding Path=ExportArea2Z, Mode=TwoWay}"/>
-                </Grid>
-            </GroupBox>
-            
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Camera Pos X: "/>
-                <TextBlock Text="{Binding CameraPosX}"/>
+                    </Grid>
+                </GroupBox>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Camera Pos X: "/>
+                    <TextBlock Text="{Binding CameraPosX}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Camera Pos Z: "/>
+                    <TextBlock Text="{Binding CameraPosZ}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Zoom Level: "/>
+                    <TextBlock Text="{Binding ZoomLevel}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Export Area 1 X: "/>
+                    <TextBlock Text="{Binding ExportArea1X}"/>
+                </StackPanel>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Camera Pos Z: "/>
-                <TextBlock Text="{Binding CameraPosZ}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Zoom Level: "/>
-                <TextBlock Text="{Binding ZoomLevel}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Export Area 1 X: "/>
-                <TextBlock Text="{Binding ExportArea1X}"/>
-            </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
 
     </Grid>
 </UserControl>

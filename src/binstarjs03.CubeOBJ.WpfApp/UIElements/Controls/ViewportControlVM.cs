@@ -13,6 +13,38 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     
     #region Data Binders
 
+    private double _cameraPosX;
+    private double _cameraPosZ;
+    public double CameraPosX
+    {
+        get => _cameraPosX;
+        set => SetAndNotifyPropertyChanged(value, ref _cameraPosX);
+    }
+    public double CameraPosZ
+    {
+        get => _cameraPosZ;
+        set => SetAndNotifyPropertyChanged(value, ref _cameraPosZ);
+    }
+
+
+
+    private int _zoomLevel = 2;
+    public int ZoomLevel
+    {
+        get => _zoomLevel;
+        set => SetAndNotifyPropertyChanged(value, ref _zoomLevel);
+    }
+
+
+
+    private int _height = 255;
+    public int Height
+    {
+        get => _height;
+        set => SetAndNotifyPropertyChanged(value, ref _height);
+    }
+
+
     private int _exportArea1X;
     private int _exportArea1Y;
     private int _exportArea1Z;
@@ -51,30 +83,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         get => _exportArea2Z;
         set => SetAndNotifyPropertyChanged(value, ref _exportArea2Z);
-    }
-
-
-
-    private double _cameraPosX;
-    private double _cameraPosZ;
-    public double CameraPosX
-    {
-        get => _cameraPosX;
-        set => SetAndNotifyPropertyChanged(value, ref _cameraPosX);
-    }
-    public double CameraPosZ
-    {
-        get => _cameraPosZ;
-        set => SetAndNotifyPropertyChanged(value, ref _cameraPosZ);
-    }
-
-
-
-    private int _zoomLevel = 2;
-    public int ZoomLevel
-    {
-        get => _zoomLevel;
-        set => SetAndNotifyPropertyChanged(value, ref _zoomLevel);
     }
 
     #endregion
