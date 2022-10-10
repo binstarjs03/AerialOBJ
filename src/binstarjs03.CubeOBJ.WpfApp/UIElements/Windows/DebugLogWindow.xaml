@@ -8,10 +8,13 @@
         d:DataContext="{d:DesignInstance Type=local:DebugLogWindowVM}"
         
         Title="Debug Log" 
-        Visibility="{Binding Path=IsDebugLogWindowVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"
+        Visibility="{Binding Path=IsDebugLogWindowVisible, 
+                             Mode=TwoWay, 
+                             UpdateSourceTrigger=PropertyChanged, 
+                             Converter={StaticResource BoolToVisibility}}"
         Width="600" Height="400"
         d:Width="400" d:Height="300">
-    <Grid>
+    <Grid Background="{StaticResource DarkBackground}">
         <DockPanel>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="Log">
