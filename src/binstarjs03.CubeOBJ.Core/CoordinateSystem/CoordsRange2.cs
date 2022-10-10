@@ -8,6 +8,9 @@ namespace binstarjs03.CubeOBJ.Core.CoordinateSystem;
 /// </summary>
 public struct CoordsRange2
 {
+    public Range XRange;
+    public Range ZRange;
+
     public CoordsRange2()
     {
         XRange = new Range();
@@ -31,9 +34,6 @@ public struct CoordsRange2
         XRange = new Range(minX, maxX);
         ZRange = new Range(minZ, maxZ);
     }
-
-    public Range XRange { get; set; }
-    public Range ZRange { get; set; }
 
 
 
