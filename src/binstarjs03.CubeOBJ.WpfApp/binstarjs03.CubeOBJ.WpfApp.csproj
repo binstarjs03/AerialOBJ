@@ -8,6 +8,12 @@
 		<LangVersion>10.0</LangVersion>
 		<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<UseWPF>true</UseWPF>
+		<UseWindowsForms>True</UseWindowsForms>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\binstarjs03.CubeOBJ.Core\binstarjs03.CubeOBJ.Core.csproj" />
+	</ItemGroup>
 
 </Project>
