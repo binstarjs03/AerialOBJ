@@ -8,6 +8,9 @@ namespace binstarjs03.CubeOBJ.Core.CoordinateSystem;
 /// </summary>
 public struct Coords2
 {
+    public int X;
+    public int Z;
+
     public Coords2()
     {
         X = 0;
@@ -19,9 +22,6 @@ public struct Coords2
         X = x;
         Z = z;
     }
-
-    public int X { get; set; }
-    public int Z { get; set; }
 
     public static Coords2 Zero => new(0, 0);
 

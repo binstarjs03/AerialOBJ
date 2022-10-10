@@ -8,6 +8,9 @@ namespace binstarjs03.CubeOBJ.Core.CoordinateSystem;
 /// </summary>
 public struct PointF2
 {
+    public double X;
+    public double Y;
+
     public PointF2()
     {
         X = 0;
@@ -19,9 +22,6 @@ public struct PointF2
         X = x;
         Y = y;
     }
-
-    public double X { get; set; }
-    public double Y { get; set; }
 
     public static PointF2 Zero => new(0, 0);
     public PointF2 Floor => new(Math.Floor(X), Math.Floor(Y));
