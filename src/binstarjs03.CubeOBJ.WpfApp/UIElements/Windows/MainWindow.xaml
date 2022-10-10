@@ -12,6 +12,13 @@
         MinWidth="450" MinHeight="300"
         d:Width="450" d:Height="300">
     <Grid>
-        <controls:ViewportControl/>
+        <DockPanel>
+            <Menu IsMainMenu="True" DockPanel.Dock="Top">
+                <MenuItem Header="File"/>
+                <MenuItem Header="View"/>
+                <MenuItem Header="Help"/>
+            </Menu>
+            <controls:ViewportControl/>
+        </DockPanel>
     </Grid>
 </Window>
