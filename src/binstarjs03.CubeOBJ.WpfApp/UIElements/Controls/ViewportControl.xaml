@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:binstarjs03.CubeOBJ.WpfApp.UIElements.Controls"
              xmlns:components="clr-namespace:binstarjs03.CubeOBJ.WpfApp.UIElements.Components"
              mc:Ignorable="d" 
@@ -18,7 +19,21 @@
         </Grid.ColumnDefinitions>
 
         <Rectangle Grid.Column="1" Fill="#FFF0F0F0"/>
-        <Canvas Grid.Column="0" Background="#FF333333"/>
+        <Canvas Grid.Column="0" Name="ViewportCanvas" 
+                Background="#FF333333"
+                RenderOptions.EdgeMode="Aliased"
+                RenderOptions.BitmapScalingMode="NearestNeighbor">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseWheel">
+                    <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" 
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <Canvas Name="ChunkCanvas"
+                    ClipToBounds="True"
+                    Width="{Binding ElementName=ViewportCanvas, Path=ActualWidth, Mode=OneWay}"
+                    Height="{Binding ElementName=ViewportCanvas, Path=ActualHeight, Mode=OneWay}"/>
+        </Canvas>
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel Margin="5">
                 <GroupBox Header="Viewport">
@@ -58,7 +73,7 @@
                             IsSnapToTickEnabled="True" 
                             TickPlacement="BottomRight"
                             Minimum="0"
-                            Maximum="10"/>
+                            Maximum="{Binding Path=MaximumZoomLevel, Mode=OneTime}"/>
                         <Slider Grid.Row="3" Grid.Column="1" 
                             SmallChange="1" 
                             Value="{Binding Path=Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -86,22 +101,27 @@
                     </Grid>
                 </GroupBox>
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Camera Pos X: "/>
-                    <TextBlock Text="{Binding CameraPosX}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Camera Pos Z: "/>
-                    <TextBlock Text="{Binding CameraPosZ}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Zoom Level: "/>
-                    <TextBlock Text="{Binding ZoomLevel}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Export Area 1 X: "/>
-                    <TextBlock Text="{Binding ExportArea1X}"/>
-                </StackPanel>
+                <GroupBox Header="Viewport Debug Info">
+                    <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Camera Pos X: "/>
+                        <TextBlock Text="{Binding CameraPosX}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Camera Pos Z: "/>
+                        <TextBlock Text="{Binding CameraPosZ}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Zoom Level: "/>
+                        <TextBlock Text="{Binding ZoomLevel}"/>
+                    </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Export Area 1 X: "/>
+                            <TextBlock Text="{Binding ExportArea1X}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                
             </StackPanel>
         </ScrollViewer>
 

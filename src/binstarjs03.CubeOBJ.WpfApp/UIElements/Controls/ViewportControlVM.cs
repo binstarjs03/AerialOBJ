@@ -1,89 +1,145 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+
+using binstarjs03.CubeOBJ.Core.CoordinateSystem;
+using binstarjs03.CubeOBJ.Core.WorldRegion;
 
 namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Controls;
+
 public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportControl>
 {
-    public ViewportControlVM(ViewportControl control) : base(control) { }
+    public ViewportControlVM(ViewportControl control) : base(control) {
+        SizeChangedCommand = new RelayCommand(OnSizeChanged);
+        MouseWheelCommand = new RelayCommand(OnMouseWheel);
+        MouseMoveCommand = new RelayCommand(OnMouseMove);
+        MouseUpCommand = new RelayCommand(OnMouseUp);
+        MouseDownCommand = new RelayCommand(OnMouseDown);
+        MouseLeaveCommand = new RelayCommand(OnMouseLeave);
+        MouseEnterCommand = new RelayCommand(OnMouseEnter);
+    }
 
-    
-    
+    #region States
+
+    private static readonly int[] s_zoomBlockPixelCount = new int[] {
+        1, 2, 3, 5, 8, 13, 21, 34
+    };
+
+    private PointF2 _cameraPos = PointF2.Zero;
+    private int _zoomLevel = 2;
+    private int _height = 255;
+    private Coords3 _exportArea1 = Coords3.Zero;
+    private Coords3 _exportArea2 = Coords3.Zero;
+
+    private PointInt2 _mousePos = PointInt2.Zero;
+    private PointInt2 _mousePosDelta = PointInt2.Zero;
+    private bool _mouseClickHolding = false;
+    private bool _mouseInitClickDrag = true;
+    private bool _mouseIsOutside = true;
+
+    public Size ChunkCanvasSize => new(Control.ChunkCanvas.Width,
+                                       Control.ChunkCanvas.Height);
+
+    public PointF2 ChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
+                                            Control.ChunkCanvas.ActualHeight / 2);
+
+    public PointF2 ChunkPosOffset => _cameraPos * PixelPerBlock;
+
+    public int PixelPerBlock => s_zoomBlockPixelCount[_zoomLevel];
+
+    public int PixelPerChunk => PixelPerBlock * Section.BlockCount;
+
+    #endregion
+
     #region Data Binders
 
-    private double _cameraPosX;
-    private double _cameraPosZ;
+    public int MaximumZoomLevel => s_zoomBlockPixelCount.Length - 1;
+
     public double CameraPosX
     {
-        get => _cameraPosX;
-        set => SetAndNotifyPropertyChanged(value, ref _cameraPosX);
+        get => _cameraPos.X;
+        set => SetAndNotifyPropertyChanged(value, ref _cameraPos.X);
     }
     public double CameraPosZ
     {
-        get => _cameraPosZ;
-        set => SetAndNotifyPropertyChanged(value, ref _cameraPosZ);
+        get => _cameraPos.Y;
+        set => SetAndNotifyPropertyChanged(value, ref _cameraPos.Y);
     }
 
-
-
-    private int _zoomLevel = 2;
     public int ZoomLevel
     {
         get => _zoomLevel;
         set => SetAndNotifyPropertyChanged(value, ref _zoomLevel);
     }
 
-
-
-    private int _height = 255;
     public int Height
     {
         get => _height;
         set => SetAndNotifyPropertyChanged(value, ref _height);
     }
 
-
-    private int _exportArea1X;
-    private int _exportArea1Y;
-    private int _exportArea1Z;
     public int ExportArea1X
     {
-        get => _exportArea1X;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea1X);
+        get => _exportArea1.X;
+        set => SetAndNotifyPropertyChanged(value, ref _exportArea1.X);
     }
     public int ExportArea1Y
     {
-        get => _exportArea1Y;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea1Y);
+        get => _exportArea1.Y;
+        set => SetAndNotifyPropertyChanged(value, ref _exportArea1.Y);
     }
     public int ExportArea1Z
     {
-        get => _exportArea1Z;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea1Z);
+        get => _exportArea1.Z;
+        set => SetAndNotifyPropertyChanged(value, ref _exportArea1.Z);
     }
 
-
-
-    private int _exportArea2X;
-    private int _exportArea2Y;
-    private int _exportArea2Z;
     public int ExportArea2X
     {
-        get => _exportArea2X;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea2X);
+        get => _exportArea2.X;
+        set => SetAndNotifyPropertyChanged(value, ref _exportArea2.X);
     }
     public int ExportArea2Y
     {
-        get => _exportArea2Y;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea2Y);
+        get => _exportArea2.Y;
+        set => SetAndNotifyPropertyChanged(value, ref _exportArea2.Y);
     }
     public int ExportArea2Z
     {
-        get => _exportArea2Z;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea2Z);
+        get => _exportArea2.Z;
+        set => SetAndNotifyPropertyChanged(value, ref _exportArea2.Z);
     }
 
     #endregion
+
+    #region Commands
+
+    public ICommand SizeChangedCommand { get; }
+    public ICommand MouseWheelCommand { get; }
+    public ICommand MouseMoveCommand { get; }
+    public ICommand MouseUpCommand { get; }
+    public ICommand MouseDownCommand { get; }
+    public ICommand MouseLeaveCommand { get; }
+    public ICommand MouseEnterCommand { get; }
+
+    private void OnSizeChanged(object? arg) { }
+    private void OnMouseWheel(object? arg)
+    {
+        MouseWheelEventArgs e = (MouseWheelEventArgs)arg!;
+        if (e.Delta > 0)
+            ZoomLevel++;
+        else
+            ZoomLevel--;
+        ZoomLevel = Math.Clamp(ZoomLevel, 0, MaximumZoomLevel);
+
+    }
+    private void OnMouseMove(object? arg) { }
+    private void OnMouseUp(object? arg) { }
+    private void OnMouseDown(object? arg) { }
+    private void OnMouseLeave(object? arg) { }
+    private void OnMouseEnter(object? arg) { }
+
+    #endregion
+
+    private void ReinitializeStates() { }
 }
