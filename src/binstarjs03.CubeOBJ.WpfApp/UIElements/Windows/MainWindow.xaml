@@ -6,18 +6,44 @@
         xmlns:local="clr-namespace:binstarjs03.CubeOBJ.WpfApp.UIElements.Windows"
         xmlns:controls="clr-namespace:binstarjs03.CubeOBJ.WpfApp.UIElements.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" 
+        d:DataContext="{d:DesignInstance Type={x:Type local:MainWindowVM}}"
         
+        Title="{Binding Path=Title, Mode=OneWay}"
+        d:Title="MineSharpOBJ"
         Width="800" Height="600"
         MinWidth="450" MinHeight="300"
-        d:Width="450" d:Height="300">
+        d:Width="450" d:Height="300"
+        
+        LocationChanged="OnLocationChanged" 
+        SizeChanged="OnSizeChanged" 
+        Loaded="OnLoaded">
     <Grid>
         <DockPanel>
             <Menu IsMainMenu="True" DockPanel.Dock="Top">
-                <MenuItem Header="File"/>
-                <MenuItem Header="View"/>
-                <MenuItem Header="Help"/>
+                <MenuItem Header="File">
+                    <MenuItem Header="Open" 
+                              Command="{Binding OpenCommand}"/>
+                    <MenuItem Header="Close"
+                              IsEnabled="{Binding Path=HasSession, Mode=OneWay}"
+                              Command="{Binding CloseCommand}"/>
+                    <MenuItem Header="Exit" 
+                              Command="{Binding WindowCloseCommand}"/>
+                </MenuItem>
+                <MenuItem Header="View">
+                    <MenuItem Header="Debug Log" 
+                              IsCheckable="True"
+                              IsChecked="{Binding Path=IsDebugLogWindowVisible, 
+                                                  Mode=TwoWay, 
+                                                  UpdateSourceTrigger=PropertyChanged}"/>
+                </MenuItem>
+                <MenuItem Header="Help">
+                    <MenuItem Header="About..." 
+                              Command="{Binding AboutCommand}"/>
+                </MenuItem>
             </Menu>
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBarItem Content="Ready"/>
+            </StatusBar>
             <controls:ViewportControl/>
         </DockPanel>
     </Grid>

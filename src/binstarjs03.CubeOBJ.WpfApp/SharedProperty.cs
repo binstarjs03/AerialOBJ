@@ -10,7 +10,9 @@ public static class SharedProperty
     // to be notified when there is a change
     public static event PropertyChangedEventHandler? PropertyChanged;
 
-    // Internal Logic ---------------------------------------------------------
+
+
+    #region Internal logic
 
     private readonly static Type s_this = typeof(SharedProperty);
 
@@ -41,7 +43,11 @@ public static class SharedProperty
         PropertyChanged?.Invoke(s_this, new PropertyChangedEventArgs(propertyName));
     }
 
-    // Shared Property Data ---------------------------------------------------
+    #endregion
+
+
+
+    #region Shared Property Data
 
     private static bool s_isDebugLogWindowVisible = false;
     public static bool IsDebugLogWindowVisible
@@ -53,4 +59,25 @@ public static class SharedProperty
     {
         IsDebugLogWindowVisible = value;
     }
+
+
+    private static SessionInfo? s_sessionInfo = null;
+    public static SessionInfo? SessionInfo
+    {
+        get => s_sessionInfo;
+        set
+        {
+            NotifyPropertyChanged(value, ref s_sessionInfo, canNull: true);
+            NotifyPropertyChanged(nameof(HasSession));
+        }
+    }
+    public static void SessionInfoUpdater(SessionInfo? value)
+    {
+        SessionInfo = value;
+    }
+
+
+    public static bool HasSession => SessionInfo is not null;
+
+    #endregion
 }
