@@ -51,6 +51,14 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    protected void NotifyPropertyChanged(string[] propertyNames)
+    {
+        foreach (string propertyName in propertyNames)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
 
     // setter for shared property. Note that we cannot ref property so
     // we set the property value through delegate
