@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -10,6 +10,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     public MainWindowVM(MainWindow window) : base(window)
     {
         SharedProperty.PropertyChanged += OnSharedPropertyChanged;
+
         AboutCommand = new RelayCommand(OnAbout);
         OpenCommand = new RelayCommand(OnOpen);
         CloseCommand = new RelayCommand(OnClose, (arg) => HasSession);
@@ -31,6 +32,18 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     // intellisense won't detect this property anymore
     public bool HasSession => SharedProperty.HasSession;
 
+
+    public bool IsSidePanelVisible
+    {
+        get => SharedProperty.IsSidePanelVisible;
+        set => SetSharedPropertyChanged
+        (
+            value,
+            SharedProperty.IsSidePanelVisibleUpdater
+        );
+    }
+
+
     public bool IsDebugLogWindowVisible
     {
         get => SharedProperty.IsDebugLogWindowVisible;
@@ -39,7 +52,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             value,
             SharedProperty.IsDebugLogWindowVisibleUpdater
         );
-    } 
+    }
 
     #endregion
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -155,6 +155,15 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     }
 
 
+    public bool IsSidePanelVisible
+    {
+        get => SharedProperty.IsSidePanelVisible;
+        set => SetSharedPropertyChanged
+        (
+            value,
+            SharedProperty.IsSidePanelVisibleUpdater
+        );
+    }
 
     public PointInt2 MousePos
     {

@@ -74,10 +74,24 @@ public static class SharedProperty
     public static void SessionInfoUpdater(SessionInfo? value)
     {
         SessionInfo = value;
+        if (value is null)
+            IsSidePanelVisible = false;
     }
 
 
     public static bool HasSession => SessionInfo is not null;
+
+
+    private static bool s_isSidePanelVisible = false;
+    public static bool IsSidePanelVisible
+    {
+        get => s_isSidePanelVisible;
+        set => NotifyPropertyChanged(value, ref s_isSidePanelVisible);
+    }
+    public static void IsSidePanelVisibleUpdater(bool value)
+    {
+        IsSidePanelVisible = value;
+    }
 
     #endregion
 }
