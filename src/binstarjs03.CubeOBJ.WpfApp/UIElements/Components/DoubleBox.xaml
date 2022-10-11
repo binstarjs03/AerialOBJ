@@ -35,8 +35,7 @@
                                         <Binding ElementName="Root"
                                                  Path="DoubleValue"
                                                  Mode="OneWay"
-                                                 StringFormat="{}{0:f2}">
-                                        </Binding>
+                                                 StringFormat="{}{0:f2}"/>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
