@@ -5,17 +5,17 @@ using System.Windows.Input;
 
 namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Components;
 
-public partial class DoubleBox : TextBox
+public partial class DoubleBox : UserControl
 {
     public DoubleBox()
     {
         InitializeComponent();
-    } 
+    }
 
     public double DoubleValue
     {
-        get { return (double)GetValue(DoubleValueProperty); }
-        set { SetValue(DoubleValueProperty, value); }
+        get => (double)GetValue(DoubleValueProperty);
+        set => SetValue(DoubleValueProperty, value);
     }
 
     public static readonly DependencyProperty DoubleValueProperty =
@@ -34,7 +34,7 @@ public partial class DoubleBox : TextBox
 
     private void UpdateValueBinding()
     {
-        BindingExpression expr = Root.GetBindingExpression(TextProperty);
+        BindingExpression expr = UnderlyingTextBox.GetBindingExpression(TextBox.TextProperty);
         expr.UpdateSource();
     }
 }

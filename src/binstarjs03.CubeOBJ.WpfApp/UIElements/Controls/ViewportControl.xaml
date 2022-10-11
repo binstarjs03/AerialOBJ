@@ -29,9 +29,9 @@
             <ColumnDefinition Width="3" Style="{StaticResource CollapsibleColumn}"/>
             <ColumnDefinition Width="230" Style="{StaticResource CollapsibleColumn}" Name="SidePanelColumn"/>
         </Grid.ColumnDefinitions>
-
         <Rectangle Grid.Column="1" Fill="#FFF0F0F0"/>
         <Canvas Grid.Column="0" Name="ViewportCanvas" 
+                Focusable="True"
                 Background="#FF333333"
                 RenderOptions.EdgeMode="Aliased"
                 RenderOptions.BitmapScalingMode="NearestNeighbor">
@@ -77,10 +77,6 @@
                                            Converter={StaticResource BoolToVisibility}}"
                       VerticalScrollBarVisibility="Auto" 
                       HorizontalScrollBarVisibility="Auto">
-            <!--StackPanel>
-                <components:DoubleBox DoubleValue="{Binding Path=CameraPosX, Mode=TwoWay}"/>
-                <TextBox Text="{Binding Path=CameraPosX, Mode=TwoWay, StringFormat={}{0:n}}"/>
-            </StackPanel-->
             <StackPanel MaxWidth="{Binding ElementName=SidePanelColumn, Path=Width.Value}">
                 <GroupBox Header="Viewport">
                     <Grid>
@@ -99,7 +95,6 @@
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Camera Pos X"/>
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Camera Pos Z"/>
                         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
@@ -129,7 +124,6 @@
                             Maximum="255"/>
                     </Grid>
                 </GroupBox>
-
                 <GroupBox Header="Export Selection Area">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -146,7 +140,6 @@
                                           ZValue="{Binding Path=ExportArea2Z, Mode=TwoWay}"/>
                     </Grid>
                 </GroupBox>
-                <TextBox Text="{Binding Path=CameraPosX, Mode=TwoWay, StringFormat={}{0:n}}"/>
                 <GroupBox Header="Viewport Debug Info" 
                           Visibility="Visible">
                     <StackPanel>

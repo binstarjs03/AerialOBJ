@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Components;
 
-public partial class IntBox : TextBox
+public partial class IntBox : UserControl
 {
     public IntBox()
     {
@@ -14,8 +14,8 @@ public partial class IntBox : TextBox
 
     public int IntValue
     {
-        get { return (int)GetValue(IntValueProperty); }
-        set { SetValue(IntValueProperty, value); }
+        get => (int)GetValue(IntValueProperty);
+        set => SetValue(IntValueProperty, value);
     }
 
     public static readonly DependencyProperty IntValueProperty =
@@ -34,7 +34,7 @@ public partial class IntBox : TextBox
 
     private void UpdateValueBinding()
     {
-        BindingExpression expr = Root.GetBindingExpression(TextProperty);
+        BindingExpression expr = UnderlyingTextBox.GetBindingExpression(TextBox.TextProperty);
         expr.UpdateSource();
     }
 }
