@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -106,7 +106,8 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         base.OnSharedPropertyChanged(sender, e);
-        if (e.PropertyName! == nameof(SharedProperty.SessionInfo))
+        string name = e.PropertyName!;
+        if (name == nameof(SharedProperty.SessionInfo))
         {
             NotifyPropertyChanged(nameof(HasSession));
             if (SharedProperty.SessionInfo is null)
