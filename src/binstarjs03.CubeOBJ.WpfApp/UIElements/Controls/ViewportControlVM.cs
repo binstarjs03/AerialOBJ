@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -102,6 +102,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     public string ChunkManagerVisibleChunkRangeXBinding => _chunkManager.VisibleChunkRange.XRange.ToString();
     public string ChunkManagerVisibleChunkRangeZBinding => _chunkManager.VisibleChunkRange.ZRange.ToString();
+    public int ChunkManagerVisibleChunkCount => _chunkManager.VisibleChunkCount;
 
     public int ExportArea1XBinding
     {
@@ -179,7 +180,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             newZoomLevel--;
         newZoomLevel = Math.Clamp(newZoomLevel, 0, ViewportMaximumZoomLevel);
         UpdateZoomLevel(newZoomLevel);
-        _chunkManager.Update();
     }
 
     private void OnMouseMove(object? arg)
@@ -205,7 +205,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             newCameraPos -= ((PointF2)_mousePosDelta) / ViewportPixelPerBlock;
             UpdateViewportCameraPos(newCameraPos);
             UpdateMouseInitClickDrag(false);
-            _chunkManager.Update();
         }
     }
 
@@ -271,6 +270,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ViewportCameraPosZBinding),
             nameof(ChunkPosOffsetBinding),
         });
+        _chunkManager.Update();
     }
 
     private void UpdateViewportLimitHeight(int viewportLimitHeight)
@@ -299,6 +299,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ViewportPixelPerBlockBinding),
             nameof(ViewportPixelPerChunkBinding),
         });
+        _chunkManager.Update();
     }
 
     private void UpdateExportArea2(Coords3 exportArea2)
@@ -373,29 +374,32 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public class ChunkManager
     {
         private readonly ViewportControlVM _viewport;
+        private bool _needReallocate = false;
         private CoordsRange2 _visibleChunkRange;
-        private List<Coords2> _visibleChunksAsCoords = new();
-        private Dictionary<Coords2, ChunkControl> _buffer = new();
+        private readonly Dictionary<Coords2, ChunkControl> _buffer = new();
 
         public ChunkManager(ViewportControlVM viewport)
         {
             _viewport = viewport;
+            // below is a dummy chunk for development purpose.
+            // delete below lines once chunk reallocation is stable
             Add(new ChunkControl(new PointInt2(0, 0)), new Coords2(0, 0));
+            Add(new ChunkControl(new PointInt2(-1, 0)), new Coords2(-1, 0));
+            Add(new ChunkControl(new PointInt2(0, -1)), new Coords2(0, -1));
+            Add(new ChunkControl(new PointInt2(-1, -1)), new Coords2(-1, -1));
+            Update();
+
         }
 
-        public CoordsRange2 VisibleChunkRange
-        {
-            get => _visibleChunkRange;
-            private set => _visibleChunkRange = value;
-        }
+        public CoordsRange2 VisibleChunkRange  => _visibleChunkRange;
+        public int VisibleChunkCount => _buffer.Count;
 
         // Add(Chunk chunk)
         private void Add(ChunkControl chunk, Coords2 coords)
         {
             _buffer.Add(coords, chunk);
-            chunk.SetRandomImage(false);
+            chunk.SetRandomImage();
             _viewport.Control.ChunkCanvas.Children.Add(chunk);
-            UpdateChunkPosition(chunk);
         }
 
         public void Update()
@@ -406,8 +410,13 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
         private void UpdateBuffer()
         {
-            // deallocate old chunk that must be deleted
-            // allocate new chunk that is newly visible
+            if (_needReallocate)
+            {
+                DeallocateChunk();
+                AllocateChunk();
+                _needReallocate = false;
+                _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerVisibleChunkCount));
+            }
             foreach (ChunkControl chunk in _buffer.Values)
             {
                 UpdateChunkPosition(chunk);
@@ -484,7 +493,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
         //    _visibleChunkRange = new CoordsRange2(visibleChunkXRange, visibleChunkZRange);
         //}
-        public void UpdateVisibleChunkRange()
+        private void UpdateVisibleChunkRange()
         {
             ViewportControlVM v = _viewport;
 
@@ -508,9 +517,62 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             int maxZ = (int)Math.Floor(Math.Round(yCameraChunk + maxYCanvasCenterChunk, 3));
             Range visibleChunkZRange = new(minZ, maxZ);
 
-            _visibleChunkRange = new CoordsRange2(visibleChunkXRange, visibleChunkZRange);
+            CoordsRange2 oldVisibleChunkRange = _visibleChunkRange;
+            CoordsRange2 newVisibleChunkRange = new (visibleChunkXRange, visibleChunkZRange);
+            if (newVisibleChunkRange == oldVisibleChunkRange)
+                return;
+            _visibleChunkRange = newVisibleChunkRange;
+            _needReallocate = true;
             v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeXBinding));
             v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeZBinding));
+        }
+
+        // TODO CRITICAL deallocation still have memory leaks.
+        // We want to completely deallocate everything inside the ChunkControl
+        // and make it leave no trace of memory leftover
+        private void DeallocateChunk()
+        {
+            // collect non-visible chunks
+            List<Coords2> deallocatedChunks = new();
+            foreach (Coords2 chunkCoords in _buffer.Keys)
+            {
+                if (!_visibleChunkRange.IsInside(chunkCoords))
+                    deallocatedChunks.Add(chunkCoords);
+            }
+
+            // delete non-visible chunks from buffer and canvas, then dispose it
+            foreach (Coords2 deallocatedChunk in deallocatedChunks)
+            {
+                ChunkControl chunk = _buffer[deallocatedChunk];
+                _buffer.Remove(deallocatedChunk);
+                _viewport.Control.ChunkCanvas.Children.Remove(chunk);
+            }
+        }
+
+        private void AllocateChunk()
+        {
+            // collect newly visible chunks
+            List<Coords2> allocatedChunks = new();
+            for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
+            {
+                for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
+                {
+                    // if chunk does not exist in buffer, it means
+                    // it is newly visible and must be allocated
+                    Coords2 chunkCoords = new(x, z);
+                    if (!_buffer.ContainsKey(chunkCoords))
+                        allocatedChunks.Add(chunkCoords);
+                }
+            }
+
+            // allocate newly visible chunks
+            foreach (Coords2 allocatedChunk in allocatedChunks)
+            {
+                ChunkControl chunk = new((PointInt2)allocatedChunk);
+                chunk.SetRandomImage();
+                _buffer.Add(allocatedChunk, chunk);
+                _viewport.Control.ChunkCanvas.Children.Add(chunk);
+            }
         }
     }
 }

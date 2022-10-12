@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -17,7 +17,7 @@ public class ChunkControl : Image
     private static readonly int s_bytesPerPixel = s_format.BitsPerPixel / s_bitsPerByte;
 
     private readonly PointInt2 _canvasPos;
-    private readonly WriteableBitmap _buff;
+    private WriteableBitmap _buff;
 
     public ChunkControl(PointInt2 canvasPos)
     {
@@ -31,7 +31,7 @@ public class ChunkControl : Image
 
     public PointInt2 CanvasPos => _canvasPos;
 
-    public void SetRandomImage(bool red)
+    public void SetRandomImage()
     {
         try
         {
@@ -54,7 +54,7 @@ public class ChunkControl : Image
                         );
 
                     }
-                    else if (red)
+                    else if ((_canvasPos.X + _canvasPos.Y) % 2 == 0)
                         color = Color.FromArgb(
                             255,
                             random.Next(0, 100),

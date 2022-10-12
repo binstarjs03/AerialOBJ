@@ -178,7 +178,7 @@
                         <Separator/>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Visible Chunk Count: "/>
-                            <TextBlock Text=""/>
+                            <TextBlock Text="{Binding Path=ChunkManagerVisibleChunkCount, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Visible Chunk Range: "/>
