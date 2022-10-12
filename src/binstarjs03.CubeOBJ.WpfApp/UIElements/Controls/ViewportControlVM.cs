@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -17,6 +17,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public ViewportControlVM(ViewportControl control) : base(control)
     {
         SharedProperty.PropertyChanged += OnSharedPropertyChanged;
+
+        _chunkManager = new(this);
 
         // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);
@@ -38,6 +40,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private PointF2 _viewportCameraPos = PointF2.Zero;
     private int _viewportZoomLevel = 2;
     private int _viewportLimitHeight = 255;
+
+    private readonly ChunkManager _chunkManager;
+    private CoordsRange2 _chunkManagerVisibleChunkRange;
+
     private Coords3 _exportArea1 = Coords3.Zero;
     private Coords3 _exportArea2 = Coords3.Zero;
 
@@ -94,6 +100,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     public string ChunkPosOffsetBinding => ChunkPosOffset.ToStringAnotherFormat();
 
+    public string ChunkManagerVisibleChunkRangeXBinding => _chunkManager.VisibleChunkRange.XRange.ToString();
+    public string ChunkManagerVisibleChunkRangeZBinding => _chunkManager.VisibleChunkRange.ZRange.ToString();
 
     public int ExportArea1XBinding
     {
@@ -157,7 +165,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public ICommand MouseLeaveCommand { get; }
     public ICommand MouseEnterCommand { get; }
 
-    private void OnSizeChanged(object? arg) { }
+    private void OnSizeChanged(object? arg)
+    {
+        _chunkManager.Update();
+    }
     private void OnMouseWheel(object? arg)
     {
         MouseWheelEventArgs e = (MouseWheelEventArgs)arg!;
@@ -168,6 +179,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             newZoomLevel--;
         newZoomLevel = Math.Clamp(newZoomLevel, 0, ViewportMaximumZoomLevel);
         UpdateZoomLevel(newZoomLevel);
+        _chunkManager.Update();
     }
 
     private void OnMouseMove(object? arg)
@@ -193,6 +205,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             newCameraPos -= ((PointF2)_mousePosDelta) / ViewportPixelPerBlock;
             UpdateViewportCameraPos(newCameraPos);
             UpdateMouseInitClickDrag(false);
+            _chunkManager.Update();
         }
     }
 
@@ -356,9 +369,148 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     }
 
     #endregion
-        ExportArea1 = Coords3.Zero;
-        ExportArea2 = Coords3.Zero;
 
+    public class ChunkManager
+    {
+        private readonly ViewportControlVM _viewport;
+        private CoordsRange2 _visibleChunkRange;
+        private List<Coords2> _visibleChunksAsCoords = new();
+        private Dictionary<Coords2, ChunkControl> _buffer = new();
+
+        public ChunkManager(ViewportControlVM viewport)
+        {
+            _viewport = viewport;
+            Add(new ChunkControl(new PointInt2(0, 0)), new Coords2(0, 0));
+        }
+
+        public CoordsRange2 VisibleChunkRange
+        {
+            get => _visibleChunkRange;
+            private set => _visibleChunkRange = value;
+        }
+
+        // Add(Chunk chunk)
+        private void Add(ChunkControl chunk, Coords2 coords)
+        {
+            _buffer.Add(coords, chunk);
+            chunk.SetRandomImage(false);
+            _viewport.Control.ChunkCanvas.Children.Add(chunk);
+            UpdateChunkPosition(chunk);
+        }
+
+        public void Update()
+        {
+            UpdateVisibleChunkRange();
+            UpdateBuffer();
+        }
+
+        private void UpdateBuffer()
+        {
+            // deallocate old chunk that must be deleted
+            // allocate new chunk that is newly visible
+            foreach (ChunkControl chunk in _buffer.Values)
+            {
+                UpdateChunkPosition(chunk);
+                UpdateChunkSize(chunk);
+            }
+        }
+
+        private void UpdateChunkPosition(ChunkControl chunk)
+        {
+            // we floor all the floating-point number here
+            // so it snaps perfectly to the pixel and it removes
+            // "Jaggy-Moving" illusion.
+            // Try to not floor it and see yourself the illusion
+
+            PointF2 chunkPosOffset = _viewport.ChunkPosOffset.Floor;
+
+            // scaled unit is offset amount required to align the
+            // coordinate to zoomed coordinate measured from world origin.
+            // Here we are scaling the cartesian coordinate unit by zoom amount
+            // (which is pixel-per-chunk)
+
+            PointInt2 scaledUnit = chunk.CanvasPos * _viewport.ViewportPixelPerChunk;
+
+            // Push toward center is offset amount required to align the coordinate
+            // relative to the chunk canvas center,
+            // so it creates "zoom toward center" effect
+
+            PointF2 pushTowardCenter = _viewport.ViewportChunkCanvasCenter.Floor;
+
+            // Origin offset is offset amount requred to align the coordinate
+            // to keep it stays aligned with moved world origin
+            // when view is dragged around.
+            // The offset itself is from camera position.
+            // It is inverted because obviously, if camera is 1 meter to the right
+            // of origin, then everything else the camera sees must be 1 meter
+            // shifted to the left of the camera
+
+            PointF2 originOffset = -chunkPosOffset;
+
+            PointF2 finalPos
+                = (originOffset + scaledUnit + pushTowardCenter).Floor;
+            Canvas.SetLeft(chunk, finalPos.X);
+            Canvas.SetTop(chunk, finalPos.Y);
+        }
+
+        private void UpdateChunkSize(ChunkControl chunk)
+        {
+            chunk.Width = _viewport.ViewportPixelPerChunk;
+        }
+
+        //private void UpdateVisibleChunkRange()
+        //{
+        //    ViewportControlVM v = _viewport;
+
+        //    // camera chunk in here means which chunk the camera is pointing to
+        //    int xCameraChunk = (int)(v._viewportCameraPos.X / Section.BlockCount);
+        //    int yCameraChunk = (int)(v._viewportCameraPos.Y / Section.BlockCount);
+
+        //    // min/maxCanvasCenterChunk means which chunk that is visible at the edgemost of the control
+        //    // that is measured by the length/height of the control size (which is chunk canvas)
+        //    int minXCanvasCenterChunk = (int)(-v.ViewportChunkCanvasCenter.X / v.ViewportPixelPerChunk);
+        //    int maxXCanvasCenterChunk = (int)( v.ViewportChunkCanvasCenter.X / v.ViewportPixelPerChunk);
+
+        //    int minX = xCameraChunk + minXCanvasCenterChunk;
+        //    int maxX = xCameraChunk + maxXCanvasCenterChunk;
+        //    Range visibleChunkXRange = new(minX, maxX);
+
+        //    int minYCanvasCenterChunk = (int)(-v.ViewportChunkCanvasCenter.Y / v.ViewportPixelPerChunk);
+        //    int maxYCanvasCenterChunk = (int)( v.ViewportChunkCanvasCenter.Y / v.ViewportPixelPerChunk);
+
+        //    int minZ = yCameraChunk + minYCanvasCenterChunk;
+        //    int maxZ = yCameraChunk + maxYCanvasCenterChunk;
+        //    Range visibleChunkZRange = new(minZ, maxZ);
+
+        //    _visibleChunkRange = new CoordsRange2(visibleChunkXRange, visibleChunkZRange);
+        //}
+        public void UpdateVisibleChunkRange()
+        {
+            ViewportControlVM v = _viewport;
+
+            // camera chunk in here means which chunk the camera is pointing to
+            double xCameraChunk = v._viewportCameraPos.X / Section.BlockCount;
+            double yCameraChunk = v._viewportCameraPos.Y / Section.BlockCount;
+
+            // min/maxCanvasCenterChunk means which chunk that is visible at the edgemost of the control
+            // that is measured by the length/height of the control size (which is chunk canvas)
+            double minXCanvasCenterChunk = -(v.ViewportChunkCanvasCenter.X / v.ViewportPixelPerChunk);
+            double maxXCanvasCenterChunk = v.ViewportChunkCanvasCenter.X / v.ViewportPixelPerChunk;
+
+            int minX = (int)Math.Floor(Math.Round(xCameraChunk + minXCanvasCenterChunk, 3));
+            int maxX = (int)Math.Floor(Math.Round(xCameraChunk + maxXCanvasCenterChunk, 3));
+            Range visibleChunkXRange = new(minX, maxX);
+
+            double minYCanvasCenterChunk = -(v.ViewportChunkCanvasCenter.Y / v.ViewportPixelPerChunk);
+            double maxYCanvasCenterChunk = v.ViewportChunkCanvasCenter.Y / v.ViewportPixelPerChunk;
+
+            int minZ = (int)Math.Floor(Math.Round(yCameraChunk + minYCanvasCenterChunk, 3));
+            int maxZ = (int)Math.Floor(Math.Round(yCameraChunk + maxYCanvasCenterChunk, 3));
+            Range visibleChunkZRange = new(minZ, maxZ);
+
+            _visibleChunkRange = new CoordsRange2(visibleChunkXRange, visibleChunkZRange);
+            v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeXBinding));
+            v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeZBinding));
         }
     }
 }

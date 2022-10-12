@@ -1,4 +1,4 @@
-<UserControl x:Class="binstarjs03.CubeOBJ.WpfApp.UIElements.Controls.ViewportControl"
+﻿<UserControl x:Class="binstarjs03.CubeOBJ.WpfApp.UIElements.Controls.ViewportControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -111,24 +111,17 @@
                         <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosZBinding, Mode=TwoWay}"/>
                         <Slider Grid.Row="2" Grid.Column="1" 
                                 SmallChange="1" 
-                            SmallChange="1" 
-                                SmallChange="1" 
                                 Value="{Binding Path=ViewportZoomLevelBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="2"
-                                IsSnapToTickEnabled="True" 
-                            IsSnapToTickEnabled="True" 
                                 IsSnapToTickEnabled="True" 
                                 TickPlacement="BottomRight"
                                 Minimum="0"
                                 Maximum="{Binding Path=ViewportMaximumZoomLevelBinding, Mode=OneTime}"/>
                         <Slider Grid.Row="3" Grid.Column="1"
-                                SmallChange="1" 
-                            SmallChange="1" 
+                                Name="HeightSlider"
                                 SmallChange="1" 
                                 Value="{Binding Path=ViewportLimitHeightBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="255"
-                                IsSnapToTickEnabled="True" 
-                            IsSnapToTickEnabled="True" 
                                 IsSnapToTickEnabled="True" 
                                 Minimum="0"
                                 Maximum="255"/>
@@ -191,11 +184,11 @@
                             <TextBlock Text="Visible Chunk Range: "/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="- X Range: "/>
-                                <TextBlock Text=""/>
+                                <TextBlock Text="{Binding Path=ChunkManagerVisibleChunkRangeXBinding, Mode=OneWay}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="- Z Range: "/>
-                                <TextBlock Text=""/>
+                                <TextBlock Text="{Binding Path=ChunkManagerVisibleChunkRangeZBinding, Mode=OneWay}"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
