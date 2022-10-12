@@ -36,6 +36,14 @@ public struct PointF2
     }
 
     /// <summary>
+    /// Formatted string version without pf2 prefix, rounded to 2 digits
+    /// </summary>
+    public string ToStringAnotherFormat()
+    {
+        return $"({Math.Round(X, 2)}, {Math.Round(Y, 2)})";
+    }
+
+    /// <summary>
     /// Float equality is unreliable, beware
     /// </summary>
     public override bool Equals(object? obj)
