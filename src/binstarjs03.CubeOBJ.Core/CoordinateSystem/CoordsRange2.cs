@@ -83,7 +83,7 @@ public struct CoordsRange2
     {
         bool inX = XRange.IsInside(other.X);
         bool inZ = ZRange.IsInside(other.Z);
-        return inX || inZ;
+        return inX && inZ;
     }
 
     private bool IsInside(Coords2 other, out string message)
