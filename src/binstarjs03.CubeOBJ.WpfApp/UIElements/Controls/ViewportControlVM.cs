@@ -1,20 +1,24 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 using binstarjs03.CubeOBJ.Core.CoordinateSystem;
 using binstarjs03.CubeOBJ.Core.WorldRegion;
 
+using Range = binstarjs03.CubeOBJ.Core.Range;
+
 namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Controls;
 
-// TODO consider refactor restructure code
 public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportControl>
 {
     public ViewportControlVM(ViewportControl control) : base(control)
     {
         SharedProperty.PropertyChanged += OnSharedPropertyChanged;
 
+        // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);
         MouseWheelCommand = new RelayCommand(OnMouseWheel);
         MouseMoveCommand = new RelayCommand(OnMouseMove);
@@ -24,15 +28,16 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseEnterCommand = new RelayCommand(OnMouseEnter);
     }
 
-    #region States
+    // for updating value, dont modify field directly! use the updaters
+    #region States - Fields and Properties
 
-    private static readonly int[] s_zoomBlockPixelCount = new int[] {
+    private static readonly int[] s_blockPixelCount = new int[] {
         1, 2, 3, 5, 8, 13, 21, 34
     };
 
-    private PointF2 _cameraPos = PointF2.Zero;
-    private int _zoomLevel = 2;
-    private int _height = 255;
+    private PointF2 _viewportCameraPos = PointF2.Zero;
+    private int _viewportZoomLevel = 2;
+    private int _viewportLimitHeight = 255;
     private Coords3 _exportArea1 = Coords3.Zero;
     private Coords3 _exportArea2 = Coords3.Zero;
 
@@ -42,149 +47,103 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private bool _mouseInitClickDrag = true;
     private bool _mouseIsOutside = true;
 
-    private PointF2 CameraPos
-    {
-        get => _cameraPos;
-        set
-        {
-            _cameraPos = value;
-            NotifyPropertyChanged(nameof(CameraPosX));
-            NotifyPropertyChanged(nameof(CameraPosZ));
-        }
-    }
-
-    private Coords3 ExportArea1
-    {
-        get => _exportArea1;
-        set
-        {
-            _exportArea1 = value;
-            NotifyPropertyChanged(nameof(ExportArea1X));
-            NotifyPropertyChanged(nameof(ExportArea1Y));
-            NotifyPropertyChanged(nameof(ExportArea1Z));
-        }
-    }
-
-    private Coords3 ExportArea2
-    {
-        get => _exportArea2;
-        set
-        {
-            _exportArea2 = value;
-            NotifyPropertyChanged(nameof(ExportArea2X));
-            NotifyPropertyChanged(nameof(ExportArea2Y));
-            NotifyPropertyChanged(nameof(ExportArea2Z));
-        }
-    }
-
-    public Size ChunkCanvasSize => new(Control.ChunkCanvas.Width,
-                                       Control.ChunkCanvas.Height);
-
-    public PointF2 ChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
-                                            Control.ChunkCanvas.ActualHeight / 2);
-
-    public PointF2 ChunkPosOffset => _cameraPos * PixelPerBlock;
-
-    public int PixelPerBlock => s_zoomBlockPixelCount[_zoomLevel];
-
-    public int PixelPerChunk => PixelPerBlock * Section.BlockCount;
+    private Size ViewportChunkCanvasSize => new(Control.ChunkCanvas.Width,
+                                                Control.ChunkCanvas.Height);
+    private PointF2 ViewportChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
+                                                     Control.ChunkCanvas.ActualHeight / 2);
+    private PointF2 ChunkPosOffset => _viewportCameraPos * ViewportPixelPerBlock;
+    private int ViewportMaximumZoomLevel => s_blockPixelCount.Length - 1;
+    private int ViewportPixelPerBlock => s_blockPixelCount[_viewportZoomLevel];
+    private int ViewportPixelPerChunk => ViewportPixelPerBlock * Section.BlockCount;
 
     #endregion
 
+    // do not use data binders (even just dereferencing it),
+    // use the non-data binders version instead!
     #region Data Binders
 
-    public int MaximumZoomLevel => s_zoomBlockPixelCount.Length - 1;
-
-    public double CameraPosX
+    public double ViewportCameraPosXBinding
     {
-        get => _cameraPos.X;
-        set => SetAndNotifyPropertyChanged(value, ref _cameraPos.X);
-    }
-    public double CameraPosZ
-    {
-        get => _cameraPos.Y;
-        set => SetAndNotifyPropertyChanged(value, ref _cameraPos.Y);
+        get => _viewportCameraPos.X;
+        set => UpdateViewportCameraPos(new PointF2(value, _viewportCameraPos.Y));
     }
 
-
-    public int ZoomLevel
+    public double ViewportCameraPosZBinding
     {
-        get => _zoomLevel;
-        set => SetAndNotifyPropertyChanged(value, ref _zoomLevel);
+        get => _viewportCameraPos.Y;
+        set => UpdateViewportCameraPos(new PointF2(_viewportCameraPos.X, value));
     }
 
-
-    public int Height
+    public int ViewportZoomLevelBinding
     {
-        get => _height;
-        set => SetAndNotifyPropertyChanged(value, ref _height);
+        get => _viewportZoomLevel;
+        set => UpdateZoomLevel(value);
     }
 
+    public int ViewportMaximumZoomLevelBinding => ViewportMaximumZoomLevel;
 
-    public int ExportArea1X
+    public int ViewportPixelPerBlockBinding => ViewportPixelPerBlock;
+
+    public int ViewportPixelPerChunkBinding => ViewportPixelPerChunk;
+
+    public int ViewportLimitHeightBinding
+    {
+        get => _viewportLimitHeight;
+        set => UpdateViewportLimitHeight(value);
+    }
+
+    public string ChunkPosOffsetBinding => ChunkPosOffset.ToStringAnotherFormat();
+
+
+    public int ExportArea1XBinding
     {
         get => _exportArea1.X;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea1.X);
+        set => UpdateExportArea1(new Coords3(value, _exportArea1.Y, _exportArea1.Z));
     }
-    public int ExportArea1Y
+
+    public int ExportArea1YBinding
     {
         get => _exportArea1.Y;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea1.Y);
+        set => UpdateExportArea1(new Coords3(_exportArea1.X, value, _exportArea1.Z));
+
     }
-    public int ExportArea1Z
+
+    public int ExportArea1ZBinding
     {
         get => _exportArea1.Z;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea1.Z);
+        set => UpdateExportArea1(new Coords3(_exportArea1.X, _exportArea1.Y, value));
     }
 
-
-    public int ExportArea2X
+    public int ExportArea2XBinding
     {
         get => _exportArea2.X;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea2.X);
+        set => UpdateExportArea2(new Coords3(value, _exportArea2.Y, _exportArea2.Z));
     }
-    public int ExportArea2Y
+
+    public int ExportArea2YBinding
     {
         get => _exportArea2.Y;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea2.Y);
+        set => UpdateExportArea1(new Coords3(_exportArea2.X, value, _exportArea2.Z));
     }
-    public int ExportArea2Z
+
+    public int ExportArea2ZBinding
     {
         get => _exportArea2.Z;
-        set => SetAndNotifyPropertyChanged(value, ref _exportArea2.Z);
+        set => UpdateExportArea1(new Coords3(_exportArea2.X, _exportArea2.Y, value));
     }
 
 
-    public bool IsSidePanelVisible
+    public bool UISidePanelVisibleBinding
     {
         get => SharedProperty.IsSidePanelVisible;
-        set => SetSharedPropertyChanged
-        (
-            value,
-            SharedProperty.IsSidePanelVisibleUpdater
-        );
+        set => SharedProperty.IsSidePanelVisibleUpdater(value);
     }
 
-    public PointInt2 MousePos
-    {
-        get => _mousePos;
-        set => SetAndNotifyPropertyChanged(value, ref _mousePos);
-    }
-    public PointInt2 MousePosDelta
-    {
-        get => _mousePosDelta;
-        set => SetAndNotifyPropertyChanged(value, ref _mousePosDelta);
-    }
-    public bool MouseClickHolding
-    {
-        get => _mouseClickHolding;
-        set => SetAndNotifyPropertyChanged(value, ref _mouseClickHolding);
-    }
-    public bool MouseIsOutside
-    {
-        get => _mouseIsOutside;
-        set => SetAndNotifyPropertyChanged(value, ref _mouseIsOutside);
-    }
+
+    public string MousePosBinding => _mousePos.ToStringAnotherFormat();
+    public string MousePosDeltaBinding => _mousePosDelta.ToStringAnotherFormat();
+    public bool MouseClickHoldingBinding => _mouseClickHolding;
+    public bool MouseIsOutsideBinding => _mouseIsOutside;
 
     #endregion
 
@@ -202,12 +161,13 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private void OnMouseWheel(object? arg)
     {
         MouseWheelEventArgs e = (MouseWheelEventArgs)arg!;
+        int newZoomLevel = _viewportZoomLevel;
         if (e.Delta > 0)
-            ZoomLevel++;
+            newZoomLevel++;
         else
-            ZoomLevel--;
-        ZoomLevel = Math.Clamp(ZoomLevel, 0, MaximumZoomLevel);
-
+            newZoomLevel--;
+        newZoomLevel = Math.Clamp(newZoomLevel, 0, ViewportMaximumZoomLevel);
+        UpdateZoomLevel(newZoomLevel);
     }
 
     private void OnMouseMove(object? arg)
@@ -216,7 +176,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         PointInt2 oldMousePos = _mousePos;
         PointInt2 newMousePos = new((int)e.GetPosition(Control).X,
                                     (int)e.GetPosition(Control).Y);
-        MousePos = newMousePos;
+        UpdateMousePos(newMousePos);
 
         // Set delta to 0 if this call is initial click and dragging.
         // This is to avoid jumps when clicking menu bar
@@ -224,13 +184,15 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         PointInt2 newMousePosDelta = PointInt2.Zero;
         newMousePosDelta.X = _mouseInitClickDrag && _mouseClickHolding ? 0 : newMousePos.X - oldMousePos.X;
         newMousePosDelta.Y = _mouseInitClickDrag && _mouseClickHolding ? 0 : newMousePos.Y - oldMousePos.Y;
-        MousePosDelta = newMousePosDelta;
+        UpdateMousePosDelta(newMousePosDelta);
 
-        if (MouseClickHolding)
+        if (MouseClickHoldingBinding)
         {
-            // increase division precision from int to float (double)
-            CameraPos -= ((PointF2)_mousePosDelta) / PixelPerBlock;
-            _mouseInitClickDrag = false;
+            // increase division resolution or precision from int to double
+            PointF2 newCameraPos = _viewportCameraPos;
+            newCameraPos -= ((PointF2)_mousePosDelta) / ViewportPixelPerBlock;
+            UpdateViewportCameraPos(newCameraPos);
+            UpdateMouseInitClickDrag(false);
         }
     }
 
@@ -239,30 +201,30 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseButtonEventArgs e = (MouseButtonEventArgs)arg!;
         if (e.LeftButton == MouseButtonState.Released)
         {
-            MouseClickHolding = false;
-            _mouseInitClickDrag = true;
+            UpdateMouseClickHolding(false);
+            UpdateMouseInitClickDrag(true);
         }
     }
 
     private void OnMouseDown(object? arg)
     {
         MouseButtonEventArgs e = (MouseButtonEventArgs)arg!;
-
+        ClearFocus(); // on mouse down any mouse button, yes
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            MouseClickHolding = true;
+            UpdateMouseClickHolding(true);
         }
     }
 
     private void OnMouseLeave(object? arg)
     {
-        MouseIsOutside = true;
-        MouseClickHolding = false;
+        UpdateMouseIsOutside(true);
+        UpdateMouseClickHolding(false);
     }
 
     private void OnMouseEnter(object? arg)
     {
-        MouseIsOutside = false;
+        UpdateMouseIsOutside(false);
     }
 
     #endregion
@@ -272,28 +234,131 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         base.OnSharedPropertyChanged(sender, e);
-        if (e.PropertyName! == nameof(SharedProperty.SessionInfo))
+        string propName = e.PropertyName!;
+        if (propName == nameof(SharedProperty.SessionInfo))
         {
             ReinitializeStates();
+        }
+        else if (propName == nameof(SharedProperty.IsSidePanelVisible))
+        {
+            NotifyPropertyChanged(nameof(UISidePanelVisibleBinding));
         }
     }
 
     #endregion
 
+    #region Updaters
+
+    private void UpdateViewportCameraPos(PointF2 cameraPos)
+    {
+        _viewportCameraPos = cameraPos;
+        NotifyPropertyChanged(new string[]
+        {
+            nameof(ViewportCameraPosXBinding),
+            nameof(ViewportCameraPosZBinding),
+            nameof(ChunkPosOffsetBinding),
+        });
+    }
+
+    private void UpdateViewportLimitHeight(int viewportLimitHeight)
+    {
+        SetAndNotifyPropertyChanged(viewportLimitHeight, ref _viewportLimitHeight, nameof(ViewportLimitHeightBinding));
+    }
+
+    private void UpdateExportArea1(Coords3 exportArea1)
+    {
+        _exportArea1 = exportArea1;
+        NotifyPropertyChanged(new string[]
+        {
+            nameof(ViewportZoomLevelBinding),
+            nameof(ExportArea1XBinding),
+            nameof(ExportArea1YBinding),
+            nameof(ExportArea1ZBinding),
+        });
+    }
+
+    private void UpdateZoomLevel(int zoomLevel)
+    {
+        SetAndNotifyPropertyChanged(zoomLevel, ref _viewportZoomLevel, nameof(ViewportZoomLevelBinding));
+        NotifyPropertyChanged(new string[]
+        {
+            nameof(ChunkPosOffsetBinding),
+            nameof(ViewportPixelPerBlockBinding),
+            nameof(ViewportPixelPerChunkBinding),
+        });
+    }
+
+    private void UpdateExportArea2(Coords3 exportArea2)
+    {
+        _exportArea2 = exportArea2;
+        NotifyPropertyChanged(new string[]
+        {
+            nameof(ExportArea2XBinding),
+            nameof(ExportArea2YBinding),
+            nameof(ExportArea2ZBinding),
+        });
+    }
+
+    private void UpdateMousePos(PointInt2 mousePos)
+    {
+        SetAndNotifyPropertyChanged(mousePos, ref _mousePos, nameof(MousePosBinding));
+    }
+
+    private void UpdateMousePosDelta(PointInt2 mousePosDelta)
+    {
+        SetAndNotifyPropertyChanged(mousePosDelta, ref _mousePosDelta, nameof(MousePosDeltaBinding));
+    }
+
+    private void UpdateMouseClickHolding(bool mouseClickHolding)
+    {
+        SetAndNotifyPropertyChanged(mouseClickHolding, ref _mouseClickHolding, nameof(MouseClickHoldingBinding));
+    }
+
+    private void UpdateMouseIsOutside(bool mouseIsOutside)
+    {
+        SetAndNotifyPropertyChanged(mouseIsOutside, ref _mouseIsOutside, nameof(MouseIsOutsideBinding));
+    }
+
+    private void UpdateMouseInitClickDrag(bool mouseInitClickDrag)
+    {
+        _mouseInitClickDrag = mouseInitClickDrag;
+    }
+
+    #endregion
+
+    #region Methods
+
+    private void ClearFocus()
+    {
+        //Keyboard.ClearFocus();
+        // ^ even focus is cleared, DoubleBox is still displaying the
+        // non-formatted string, which only does that when IsFocused is false.
+        // To fix this, we set focus to any element other that DoubleBox,
+        // may be inappropriate but it works
+        Control.HeightSlider.Focus();
+    }
+
     private void ReinitializeStates()
     {
-        Control.ViewportCanvas.Focus();
-        CameraPos = PointF2.Zero;
-        ZoomLevel = 2;
-        Height = 255;
-        
+        ClearFocus();
+        UpdateViewportCameraPos(PointF2.Zero);
+        UpdateZoomLevel(2);
+        UpdateViewportLimitHeight(255);
+
+        UpdateExportArea1(Coords3.Zero);
+        UpdateExportArea2(Coords3.Zero);
+
+        UpdateMousePos(PointInt2.Zero);
+        UpdateMousePosDelta(PointInt2.Zero);
+        UpdateMouseClickHolding(false);
+        UpdateMouseInitClickDrag(true);
+        UpdateMouseIsOutside(true);
+    }
+
+    #endregion
         ExportArea1 = Coords3.Zero;
         ExportArea2 = Coords3.Zero;
 
-        MousePos = PointInt2.Zero;
-        MousePosDelta = PointInt2.Zero;
-        MouseClickHolding = false;
-        _mouseInitClickDrag = true;
-        MouseIsOutside = true;
+        }
     }
 }
