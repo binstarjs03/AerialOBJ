@@ -37,6 +37,7 @@
                     Grid.Column="0"
                     RenderOptions.EdgeMode="Aliased"
                     RenderOptions.BitmapScalingMode="NearestNeighbor" 
+                    Background="Transparent"
                     
                     MouseWheel="ViewportCanvas_MouseWheel" 
                     MouseMove="ViewportCanvas_MouseMove" 

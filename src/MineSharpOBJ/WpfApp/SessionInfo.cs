@@ -13,6 +13,11 @@ public class SessionInfo {
         SavegameDirectory = savegameDirectory;
     }
 
+    public SessionInfo()
+    {
+        WorldName = "Debug Session";
+    }
+
     public string WorldName { get; }
 
     public DirectoryInfo SavegameDirectory { get; }

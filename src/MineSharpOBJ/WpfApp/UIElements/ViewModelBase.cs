@@ -36,8 +36,8 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         if (newValue is null || oldValue is null)
             throw new ArgumentNullException
             (
-                "newValue or oldValue", 
-                "Argument passed to ValueChanged of ViewModelBase is null"
+                "newValue or oldValue",
+                "Argument passed to SetAndNotifyPropertyChanged of ViewModelBase is null"
             );
         if (newValue.Equals(oldValue))
             return;

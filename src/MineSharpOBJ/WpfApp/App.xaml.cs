@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Threading;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
+using binstarjs03.MineSharpOBJ.WpfApp.UIElements;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp;
 
@@ -16,7 +17,10 @@ public partial class App : Application {
 	private void OnStartup(object sender, StartupEventArgs e)
 	{
 		Current.DispatcherUnhandledException += OnUnhandledException;
-	}
+        SharedProperty.SessionInfo = new SessionInfo();
+        SharedProperty.IsViewportDebugInfoVisible = true;
+        SharedProperty.IsViewportCameraPositionGuideVisible = true;
+    }
 
 	private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
 	{

@@ -1,0 +1,141 @@
+using System;
+
+namespace binstarjs03.MineSharpOBJ.Core;
+
+/// <summary>
+/// Represent range of number. Handy for testing whether if value is 
+/// inside or outside certain range
+/// </summary>
+public struct Range
+{
+    private int _min = int.MinValue;
+    private int _max = int.MaxValue;
+
+    /// <summary>
+    /// Construct a new instance of <see cref="Range"/> with <see cref="Min"/> and 
+    /// <see cref="Max"/> value set to <see cref="int.MinValue"/> and <see cref="int.MaxValue"/> 
+    /// respectively
+    /// </summary>
+    public Range() { }
+
+    /// <summary>
+    /// Construct a new instance of <see cref="Range"/> with specified 
+    /// <see cref="Min"/> and <see cref="Max"/> value. Throw 
+    /// <see cref="ArgumentOutOfRangeException"/> if max is smaller than min, 
+    /// or vice versa
+    /// </summary>
+    /// 
+    /// <param name="min">Minimum range for this <see cref="Range"/> instance</param>
+    /// <param name="max">Maximum range for this <see cref="Range"/> instance</param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public Range(int min, int max)
+    {
+        if (max < min)
+            throw new ArgumentOutOfRangeException("max cannot be set lower than min");
+        Min = min;
+        Max = max;
+    }
+
+    /// <summary>
+    /// Update min range value. Throw <see cref="ArgumentOutOfRangeException"/>
+    /// if it is bigger than max
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    public int Min
+    {
+        get => _min;
+        set
+        {
+            if (value > Max)
+                throw new ArgumentOutOfRangeException("min cannot be set higher than max");
+            _min = value;
+        }
+    }
+
+    /// <summary>
+    /// Update max range value. Throw <see cref="ArgumentOutOfRangeException"/>
+    /// if it is smaller than min
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    public int Max
+    {
+        get => _max;
+        set
+        {
+            if (value < Min)
+                throw new ArgumentOutOfRangeException("max cannot be set lower than min");
+            _max = value;
+        }
+    }
+
+
+
+    #region Object Overrides
+
+    public override string ToString()
+    {
+        return $"{Min} ↔ {Max}";
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is Range pr)
+            return Min == pr.Min && Max == pr.Max;
+        else
+            return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Min, Max);
+    }
+
+    #endregion
+
+
+
+    #region Equality Operators
+
+    public static bool operator ==(Range left, Range right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Range left, Range right)
+    {
+        return !(left == right);
+    }
+
+    #endregion
+
+
+
+    #region Methods
+
+    /// <summary>
+    /// Check whether value passed to <paramref name="num"/> is between <see cref="Min"/> and 
+    /// <see cref="Max"/>
+    /// </summary>
+    /// 
+    /// <param name="num">The value to check whether it is inside range</param>
+    /// <returns><see cref="bool"/>, true if inside</returns>
+    public bool IsInside(int num)
+    {
+        return num >= Min && num <= Max;
+    }
+
+    /// <summary>
+    /// Throw <see cref="ArgumentOutOfRangeException"/> if value passed to <paramref name="num"/> 
+    /// is outside between <see cref="Min"/> and <see cref="Max"/>
+    /// </summary>
+    /// 
+    /// <param name="num">The value to test whether it is outside range</param>
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    public void ThrowIfOutside(int num)
+    {
+        if (!IsInside(num))
+            throw new ArgumentOutOfRangeException(nameof(num), "value passed is outside range");
+    }
+
+    #endregion
+}

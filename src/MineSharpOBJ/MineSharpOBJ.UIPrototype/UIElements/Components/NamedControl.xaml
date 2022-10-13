@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="binstarjs03.MineSharpOBJ.UIPrototype.UIElements.Components.NamedControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.UIPrototype.UIElements.Components"
+             mc:Ignorable="d" 
+             
+             x:Name="root"
+             Background="White"
+             Foreground="Black"
+             d:DesignHeight="50" d:DesignWidth="200">
+    <UserControl.Template>
+        <ControlTemplate TargetType="UserControl">
+            <ContentControl Background="{TemplateBinding Background}" 
+                            Name="cc"
+                            Foreground="{TemplateBinding Foreground}">
+                <Grid Width="Auto" Height="Auto" Background="{Binding ElementName=cc, Path=Background}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                           HorizontalAlignment="Right" 
+                           VerticalAlignment="Center" 
+                           Text="{Binding Title, ElementName=root}"/>
+                    <ContentPresenter Grid.Column="2" 
+                             HorizontalAlignment="Stretch" 
+				             VerticalAlignment="Stretch"/>
+                </Grid>
+            </ContentControl>
+        </ControlTemplate>
+    </UserControl.Template>
+</UserControl>

@@ -10,15 +10,17 @@ using binstarjs03.MineSharpOBJ.WpfApp.Services;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
-public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportControl>
+public class ViewportControlVM2 : ViewModelBase<ViewportControlVM2, ViewportControl>
 {
-    public ViewportControlVM(ViewportControl control) : base(control)
-    {
-        ChunkService = new ViewportChunkService(this);
+    private static readonly int[] s_zoomBlockPixelCount = new int[] {
+        1, 2, 3, 5, 8, 13, 21, 34
+    };
 
+    public ViewportControlVM2(ViewportControl control) : base(control)
+    {
         // listen to shared property change
         SharedProperty.PropertyChanged += OnSharedPropertyChanged;
-        
+
         // TODO delete below sample code when chunk loading is stable
         for (int x = -8; x < 16; x++)
         {
@@ -33,27 +35,32 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         ReinitializeStates();
     }
 
-    // Accessors --------------------------------------------------------------
-    
-    private ViewportChunkService ChunkService { get; }
+    // Chunk Canvas Group
 
-    public Size ViewportChunkCanvasSize => new(Control.ChunkCanvas.Width,
-                                               Control.ChunkCanvas.Height);
-    public PointF2 ViewportChunkCanvasCenter
-        => new(Control.ChunkCanvas.ActualWidth / 2,
-               Control.ChunkCanvas.ActualHeight / 2);
+    public Size ChunkCanvasSize => new(Control.ChunkCanvas.Width,
+                                       Control.ChunkCanvas.Height);
+    public PointF2 ChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
+                                           Control.ChunkCanvas.ActualHeight / 2);
 
-    // we can make this property as static, but XAML databinding
-    // intellisense won't detect this property anymore
-    public bool HasSession => SharedProperty.HasSession;
+    // Viewport Group
 
-    private static readonly int[] s_zoomBlockPixelCount = new int[] {
-        1, 2, 3, 5, 8, 13, 21, 34
-    };
+    public PointF2 ViewportCameraPos { get; set; }
+    public PointF2 ViewportChunkPosOffset => ViewportCameraPos * ViewportPixelPerBlock;
+    public int ViewportZoomLevel { get; set; }
+    public int ViewportPixelPerBlock => s_zoomBlockPixelCount[ViewportZoomLevel];
+    public int ViewportPixelPerChunk => ViewportPixelPerBlock * Section.BlockCount;
+
+    // Mouse Group
+
+    public PointF2 MousePos { get; set; }
+    public PointF2 MousePosDelta { get; set; }
+    public bool MouseIsClickHolding { get; set; }
+    public bool MouseInitClickDrag { get; set; }
+    public bool MouseIsOutside { get; set; }
 
     // Data Binders -----------------------------------------------------------
 
-    // Viewport Group
+    public bool HasSession => SharedProperty.HasSession;
 
     public bool IsViewportCameraPositionGuideVisible
     {
@@ -75,65 +82,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         );
     }
 
-    private PointF2 _viewportCameraPos = PointF2.Zero;
-    public PointF2 ViewportCameraPos
-    {
-        get => _viewportCameraPos;
-        set => SetAndNotifyPropertyChanged(value, ref _viewportCameraPos);
-    }
-
-    public PointF2 ViewportChunkPosOffset
-        => ViewportCameraPos * ViewportPixelPerBlock;
-
-    private int _viewportZoomLevel = 3;
-    public int ViewportZoomLevel
-    {
-        get => _viewportZoomLevel;
-        set => SetAndNotifyPropertyChanged(value, ref _viewportZoomLevel);
-    }
-
-    public int ViewportPixelPerBlock => s_zoomBlockPixelCount[ViewportZoomLevel];
-
-    public int ViewportPixelPerChunk => ViewportPixelPerBlock * Section.BlockCount;
-
-    
-    
-    // Mouse Group
-
-    private PointF2 _mousePos = PointF2.Zero;
-    public PointF2 MousePos
-    {
-        get => _mousePos;
-        set => SetAndNotifyPropertyChanged(value, ref _mousePos);
-    }
-
-    private PointF2 _mousePosDelta = PointF2.Zero;
-    public PointF2 MousePosDelta
-    {
-        get => _mousePosDelta;
-        set => SetAndNotifyPropertyChanged(value, ref _mousePosDelta);
-    }
-
-    private bool _mouseIsClickHolding = false;
-    public bool MouseIsClickHolding
-    {
-        get => _mouseIsClickHolding;
-        set => SetAndNotifyPropertyChanged(value, ref _mouseIsClickHolding);
-    }
-
-    private bool _mouseInitClickDrag = true;
-    public bool MouseInitClickDrag
-    {
-        get => _mouseInitClickDrag;
-        set => SetAndNotifyPropertyChanged(value, ref _mouseInitClickDrag);
-    }
-
-    private bool _mouseIsOutside = true;
-    public bool MouseIsOutside
-    {
-        get => _mouseIsOutside;
-        set => SetAndNotifyPropertyChanged(value, ref _mouseIsOutside);
-    }
 
     // Methods ----------------------------------------------------------------
 
@@ -158,7 +106,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     public void UpdateChunk(bool updateChunkSize)
     {
-        ChunkService.UpdateVisibleChunkRange();
         PointF2 chunkCanvasCenter = new(
             Control.ChunkCanvas.ActualWidth / 2,
             Control.ChunkCanvas.ActualHeight / 2
@@ -205,7 +152,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         // shifted to the left of the camera
         PointF2 originOffset = -chunkPosOffset;
 
-        PointF2 finalPos 
+        PointF2 finalPos
             = (originOffset + scaledUnit + pushTowardCenter).Floor;
         Canvas.SetLeft(chunk, finalPos.X);
         Canvas.SetTop(chunk, finalPos.Y);

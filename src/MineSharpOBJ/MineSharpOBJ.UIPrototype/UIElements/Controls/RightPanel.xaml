@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="binstarjs03.MineSharpOBJ.UIPrototype.UIElements.Controls.RightPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.UIPrototype.UIElements.Controls"
+             mc:Ignorable="d" 
+             
+             Background="{StaticResource DarkBackground}"
+              d:DesignWidth="210" d:DesignHeight="400">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource DarkForeground}"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="10,0"/>
+        </Style>
+
+        <Style TargetType="Separator" BasedOn="{StaticResource TransparentSeparator}"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <StackPanel Margin="10">
+
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Camera Pos X"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Z"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="16"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="32"/>
+                </Grid>
+            </StackPanel>
+            
+            <Separator/>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Zoom Level"/>
+                <TextBox Grid.Column="1" Text="2"/>
+            </Grid>
+
+            <Separator/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Selection X"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Z"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="0"/>
+                <TextBox Grid.Row="0" Grid.Column="2" Text="24"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="-7"/>
+                <TextBox Grid.Row="1" Grid.Column="2" Text="18"/>
+            </Grid>
+            
+        </StackPanel>
+    </Grid>
+</UserControl>

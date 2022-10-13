@@ -21,7 +21,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
     // States -----------------------------------------------------------------
 
-    private string _title = "MineSharpOBJ";
+    private string _title = SharedProperty.SessionInfo is null ? "MineSharpOBJ" : $"MineSharpOBJ - {SharedProperty.SessionInfo.WorldName}";
     public string Title
     {
         get => _title;
@@ -94,11 +94,22 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     public ICommand CloseCommand { get; }
     private void OnClose(object? arg)
     {
+        string logSuccessMsg;
         LogService.Log("Attempting to closing savegame...");
+
         if (SharedProperty.SessionInfo is null)
+        {
             LogService.LogWarning($"{nameof(SharedProperty.SessionInfo)} is already null!");
+            logSuccessMsg = "Successfully closed session.";
+        }
+        else
+        {
+            string worldName = SharedProperty.SessionInfo.WorldName;
+            logSuccessMsg = $"Successfully closed session \"{worldName}\".";
+        }
+
         SharedProperty.SessionInfoUpdater(null);
-        LogService.LogSuccess("Successfully closed session.", useSeparator: true);
+        LogService.LogSuccess(logSuccessMsg, useSeparator: true);
     }
 
     // Event Handlers ---------------------------------------------------------

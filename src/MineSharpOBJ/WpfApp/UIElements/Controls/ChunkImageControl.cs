@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 
-using Point = binstarjs03.MineSharpOBJ.Core.Utils.Point;
+using PointInt2 = binstarjs03.MineSharpOBJ.Core.CoordinateSystem.PointInt2;
 using Section = binstarjs03.MineSharpOBJ.Core.RegionMc.Section;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
@@ -16,7 +16,7 @@ public class ChunkImageControl : Image
     private static readonly int s_bitsPerByte = 8;
     private static readonly int s_bytesPerPixel = s_format.BitsPerPixel / s_bitsPerByte;
 
-    private readonly Point _canvasPos;
+    private readonly PointInt2 _canvasPos;
     private readonly WriteableBitmap _buff;
 
     static ChunkImageControl()
@@ -24,7 +24,7 @@ public class ChunkImageControl : Image
         DefaultStyleKeyProperty.OverrideMetadata(typeof(ChunkImageControl), new FrameworkPropertyMetadata(typeof(ChunkImageControl)));
     }
 
-    public ChunkImageControl(Point coordsAbs)
+    public ChunkImageControl(PointInt2 coordsAbs)
     {
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
         RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
@@ -34,7 +34,7 @@ public class ChunkImageControl : Image
         _canvasPos = coordsAbs;
     }
 
-    public Point CanvasPos => _canvasPos;
+    public PointInt2 CanvasPos => _canvasPos;
 
     public void SetRandomImage(bool red)
     {
@@ -46,9 +46,9 @@ public class ChunkImageControl : Image
             {
                 for (int z = 0; z < Section.BlockCount; z++)
                 {
-                    Point blockPixelPos = new(x, z);
+                    PointInt2 blockPixelPos = new(x, z);
                     Color color;
-                    if (_canvasPos == Point.Origin)
+                    if (CanvasPos == PointInt2.Zero)
                     {
                         int col = random.Next(150, 250);
                         color = Color.FromArgb(
@@ -83,7 +83,7 @@ public class ChunkImageControl : Image
         }
     }
 
-    private void SetBlockColor(Point blockPixelPos, Color color)
+    private void SetBlockColor(PointInt2 blockPixelPos, Color color)
     {
         //if (pixelPos.X > 15)
         int xOffset = blockPixelPos.X * s_bytesPerPixel;

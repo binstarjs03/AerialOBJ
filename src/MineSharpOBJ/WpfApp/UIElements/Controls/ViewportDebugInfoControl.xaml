@@ -16,16 +16,13 @@
             <Setter Property="Width" Value="Auto"/>
         </Style>
 
-        <Style BasedOn="{StaticResource {x:Type TextBlock}}" 
-               TargetType="TextBlock"
+        <Style TargetType="TextBlock"
+               BasedOn="{StaticResource {x:Type TextBlock}}"
                x:Key="Header">
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
 
-        <Style TargetType="Separator">
-            <Setter Property="Height" Value="5"/>
-            <Setter Property="Background" Value="Transparent"/>
-        </Style>
+        <Style TargetType="Separator" BasedOn="{StaticResource TransparentSeparator}"/>
     </UserControl.Resources>
     
     <Grid>
@@ -63,10 +60,17 @@
 
             <StackPanel>
                 <TextBlock Text="Chunk Manager Info" Style="{StaticResource Header}"/>
-                <TextBlock Text="Visible Chunk Count:"/>
+                <TextBlock Text="{Binding ChunkServiceVisibleChunkCount}"
+                           d:Text="Visible Chunk Count:"/>
                 <TextBlock Text="Visible Chunk Range:"/>
-                <TextBlock Text="Loaded Chunk Count:"/>
-                <TextBlock Text="Pending Chunk Count:"/>
+                <StackPanel Margin="15,0,0,0">
+                    <TextBlock Text="{Binding ChunkServiceVisibleChunkXRange}" d:Text="- X Range: 3 - 7"/>
+                    <TextBlock Text="{Binding ChunkServiceVisibleChunkZRange}" d:Text="- Z Range: 8 - 1"/>
+                </StackPanel>
+                <TextBlock Text="{Binding ChunkServiceLoadedChunkCount}"
+                           d:Text="Loaded Chunk Count:"/>
+                <TextBlock Text="{Binding ChunkServicePendingChunkCount}"
+                           d:Text="Pending Chunk Count:"/>
             </StackPanel>
 
         </StackPanel>
