@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Core", "src\binstarjs03.CubeOBJ.Core\binstarjs03.AerialOBJ.Core.csproj", "{CE8CDC28-E039-4827-8224-5CC4B77B1D11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Core", "src\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj", "{B1102399-2369-4AD3-81D8-BB569481C237}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Test", "src\binstarjs03.CubeOBJ.Test\binstarjs03.AerialOBJ.Test.csproj", "{6DB7D390-BCAE-4AA3-AA27-2BCA105741A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Test", "src\binstarjs03.AerialOBJ.Test\binstarjs03.AerialOBJ.Test.csproj", "{DAAE4CE7-319C-4D52-A18C-03B1E45D3912}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.WpfApp", "src\binstarjs03.CubeOBJ.WpfApp\binstarjs03.AerialOBJ.WpfApp.csproj", "{2022853F-8077-49BE-A68A-50FA5E5CD67F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.WpfApp", "src\binstarjs03.AerialOBJ.WpfApp\binstarjs03.AerialOBJ.WpfApp.csproj", "{DAD22D27-6522-4BE6-A824-4FA7CF34A0B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,18 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CE8CDC28-E039-4827-8224-5CC4B77B1D11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE8CDC28-E039-4827-8224-5CC4B77B1D11}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE8CDC28-E039-4827-8224-5CC4B77B1D11}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE8CDC28-E039-4827-8224-5CC4B77B1D11}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DB7D390-BCAE-4AA3-AA27-2BCA105741A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DB7D390-BCAE-4AA3-AA27-2BCA105741A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DB7D390-BCAE-4AA3-AA27-2BCA105741A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DB7D390-BCAE-4AA3-AA27-2BCA105741A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2022853F-8077-49BE-A68A-50FA5E5CD67F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2022853F-8077-49BE-A68A-50FA5E5CD67F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2022853F-8077-49BE-A68A-50FA5E5CD67F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2022853F-8077-49BE-A68A-50FA5E5CD67F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1102399-2369-4AD3-81D8-BB569481C237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1102399-2369-4AD3-81D8-BB569481C237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1102399-2369-4AD3-81D8-BB569481C237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1102399-2369-4AD3-81D8-BB569481C237}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAAE4CE7-319C-4D52-A18C-03B1E45D3912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAAE4CE7-319C-4D52-A18C-03B1E45D3912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAAE4CE7-319C-4D52-A18C-03B1E45D3912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAAE4CE7-319C-4D52-A18C-03B1E45D3912}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAD22D27-6522-4BE6-A824-4FA7CF34A0B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAD22D27-6522-4BE6-A824-4FA7CF34A0B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAD22D27-6522-4BE6-A824-4FA7CF34A0B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAD22D27-6522-4BE6-A824-4FA7CF34A0B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
