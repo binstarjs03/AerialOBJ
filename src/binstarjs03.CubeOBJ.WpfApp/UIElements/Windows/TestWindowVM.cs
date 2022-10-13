@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Windows;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public class TestWindowVM : ViewModelWindow<TestWindowVM, TestWindow>
 {

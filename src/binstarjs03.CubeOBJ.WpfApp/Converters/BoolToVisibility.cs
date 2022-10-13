@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows;
 
-namespace binstarjs03.CubeOBJ.WpfApp.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 
 public class BoolToVisibility : IValueConverter
 {

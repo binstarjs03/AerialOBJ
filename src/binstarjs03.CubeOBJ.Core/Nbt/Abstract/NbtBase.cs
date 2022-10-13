@@ -2,11 +2,11 @@
 using System.IO;
 using System.Text;
 
-using binstarjs03.CubeOBJ.Core.IO;
-using binstarjs03.CubeOBJ.Core.Nbt.IO;
-using binstarjs03.CubeOBJ.Core.Nbt.Utils;
+using binstarjs03.AerialOBJ.Core.IO;
+using binstarjs03.AerialOBJ.Core.Nbt.IO;
+using binstarjs03.AerialOBJ.Core.Nbt.Utils;
 
-namespace binstarjs03.CubeOBJ.Core.Nbt;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 // TODO: current implementation of loading binary nbt
 // stability haven't proved yet, need unit testing

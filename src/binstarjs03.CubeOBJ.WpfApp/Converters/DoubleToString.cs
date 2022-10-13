@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace binstarjs03.CubeOBJ.WpfApp.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 
 public class DoubleToString : IValueConverter
 {

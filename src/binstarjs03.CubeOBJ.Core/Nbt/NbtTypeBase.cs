@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.CubeOBJ.Core.Nbt;
+﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 /// <summary>
 /// Enumerations of different type of nbt bases. Instead of using reflection to

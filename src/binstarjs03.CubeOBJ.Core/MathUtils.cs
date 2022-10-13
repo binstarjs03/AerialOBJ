@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.CubeOBJ.Core;
+﻿namespace binstarjs03.AerialOBJ.Core;
 
 public static class MathUtils
 {

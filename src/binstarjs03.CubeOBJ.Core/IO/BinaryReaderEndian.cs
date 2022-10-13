@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace binstarjs03.CubeOBJ.Core.IO;
+namespace binstarjs03.AerialOBJ.Core.IO;
 
 /// <summary>
 /// Wrapper around <see cref="BinaryReader"/> that is endian-aware.

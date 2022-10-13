@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.CubeOBJ.Core.CoordinateSystem;
+namespace binstarjs03.AerialOBJ.Core.CoordinateSystem;
 
 /// <summary>
 /// Represent 2-Dimensional Cartesian Coordinate X and Z integer pair position 

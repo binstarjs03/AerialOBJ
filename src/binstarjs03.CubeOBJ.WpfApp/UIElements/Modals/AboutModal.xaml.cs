@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Modals;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Modals;
 
 public partial class AboutModal : Window
 {

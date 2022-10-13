@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.CubeOBJ.Core.WorldRegion;
+namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class ChunkNotGeneratedException : InvalidOperationException
 {

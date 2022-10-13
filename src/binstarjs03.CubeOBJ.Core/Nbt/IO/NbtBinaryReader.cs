@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using binstarjs03.CubeOBJ.Core.IO;
+using binstarjs03.AerialOBJ.Core.IO;
 
-namespace binstarjs03.CubeOBJ.Core.Nbt.IO;
+namespace binstarjs03.AerialOBJ.Core.Nbt.IO;
 
 public class NbtBinaryReader : BinaryReaderEndian
 {

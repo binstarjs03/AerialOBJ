@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Controls;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
 public partial class ViewportControl : UserControl
 {

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements;
 
 public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : class where U : Control
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.CubeOBJ.WpfApp.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
 public class LogService
 {

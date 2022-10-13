@@ -1,8 +1,8 @@
-﻿<Application x:Class="binstarjs03.CubeOBJ.WpfApp.App"
+﻿<Application x:Class="binstarjs03.AerialOBJ.WpfApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:binstarjs03.CubeOBJ.WpfApp"
-             xmlns:converters="clr-namespace:binstarjs03.CubeOBJ.WpfApp.Converters"
+             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp"
+             xmlns:converters="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Converters"
              StartupUri="UIElements/Windows/MainWindow.xaml"
              Startup="OnStartup"
              ShutdownMode="OnMainWindowClose">

@@ -5,12 +5,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-using binstarjs03.CubeOBJ.Core.CoordinateSystem;
-using binstarjs03.CubeOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.WorldRegion;
 
-using Range = binstarjs03.CubeOBJ.Core.Range;
+using Range = binstarjs03.AerialOBJ.Core.Range;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Controls;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
 public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportControl>
 {

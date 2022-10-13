@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Components;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
 public partial class XYZIntBox : UserControl
 {

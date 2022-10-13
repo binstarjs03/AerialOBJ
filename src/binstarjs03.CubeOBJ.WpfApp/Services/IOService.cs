@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 
-using binstarjs03.CubeOBJ.Core.IO;
-using binstarjs03.CubeOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.IO;
+using binstarjs03.AerialOBJ.Core.Nbt;
 
-namespace binstarjs03.CubeOBJ.WpfApp.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
 public static class IOService
 {

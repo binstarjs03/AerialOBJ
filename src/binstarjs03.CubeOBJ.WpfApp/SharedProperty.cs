@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace binstarjs03.CubeOBJ.WpfApp;
+namespace binstarjs03.AerialOBJ.WpfApp;
 
 public static class SharedProperty
 {

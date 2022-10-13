@@ -1,8 +1,8 @@
 ﻿using System.Windows.Forms;
 
-using binstarjs03.CubeOBJ.WpfApp.UIElements.Modals;
+using binstarjs03.AerialOBJ.WpfApp.UIElements.Modals;
 
-namespace binstarjs03.CubeOBJ.WpfApp.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
 public static class ModalService
 {

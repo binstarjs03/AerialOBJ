@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Components;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
 public partial class IntBox : UserControl
 {

@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 
-using binstarjs03.CubeOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Windows;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public partial class MainWindow : Window
 {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace binstarjs03.CubeOBJ.Core.Nbt.Utils;
+namespace binstarjs03.AerialOBJ.Core.Nbt.Utils;
 
 // TODO: use stack based connectors that will be shared between all Compile call.
 // Current implementation is to return new List<string of Connector> each successive Compile call

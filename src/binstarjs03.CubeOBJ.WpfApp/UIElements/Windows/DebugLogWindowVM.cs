@@ -4,9 +4,9 @@ using System.IO;
 using System.Windows.Forms;
 using System.Windows.Input;
 
-using binstarjs03.CubeOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Windows;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow>
 {

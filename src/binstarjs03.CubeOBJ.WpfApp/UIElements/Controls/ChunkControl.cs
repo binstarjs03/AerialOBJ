@@ -5,10 +5,10 @@ using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 
-using PointInt2 = binstarjs03.CubeOBJ.Core.CoordinateSystem.PointInt2;
-using Section = binstarjs03.CubeOBJ.Core.WorldRegion.Section;
+using PointInt2 = binstarjs03.AerialOBJ.Core.CoordinateSystem.PointInt2;
+using Section = binstarjs03.AerialOBJ.Core.WorldRegion.Section;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Controls;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
 public class ChunkControl : Image, IDisposable
 {

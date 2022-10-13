@@ -2,9 +2,9 @@
 using System.Windows;
 using System.Windows.Threading;
 
-using binstarjs03.CubeOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services;
 
-namespace binstarjs03.CubeOBJ.WpfApp;
+namespace binstarjs03.AerialOBJ.WpfApp;
 
 public partial class App : Application
 {

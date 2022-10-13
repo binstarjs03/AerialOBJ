@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace binstarjs03.CubeOBJ.WpfApp;
+namespace binstarjs03.AerialOBJ.WpfApp;
 
 public class RelayCommand : ICommand
 {

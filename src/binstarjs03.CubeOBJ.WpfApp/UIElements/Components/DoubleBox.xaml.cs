@@ -2,9 +2,9 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 
-using binstarjs03.CubeOBJ.WpfApp.Converters;
+using binstarjs03.AerialOBJ.WpfApp.Converters;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Components;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
 public partial class DoubleBox : UserControl
 {

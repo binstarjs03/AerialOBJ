@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-namespace binstarjs03.CubeOBJ.WpfApp.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 
 public class IntToString : IValueConverter
 {

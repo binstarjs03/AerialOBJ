@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.CubeOBJ.Core.Nbt;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 /// <summary>
 /// Root exception for nbt-related exceptions. instead catching <see cref="Exception"/> , 

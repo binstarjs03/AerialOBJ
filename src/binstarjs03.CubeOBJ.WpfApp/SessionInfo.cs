@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-using binstarjs03.CubeOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.Nbt;
 
-namespace binstarjs03.CubeOBJ.WpfApp;
+namespace binstarjs03.AerialOBJ.WpfApp;
 
 public class SessionInfo
 {

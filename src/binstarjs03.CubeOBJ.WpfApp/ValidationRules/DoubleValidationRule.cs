@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows.Controls;
 
-namespace binstarjs03.CubeOBJ.WpfApp.ValidationRules;
+namespace binstarjs03.AerialOBJ.WpfApp.ValidationRules;
 
 public class DoubleValidationRule : ValidationRule
 {

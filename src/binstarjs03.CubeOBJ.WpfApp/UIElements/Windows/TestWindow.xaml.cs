@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Windows;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public partial class TestWindow : Window
 {

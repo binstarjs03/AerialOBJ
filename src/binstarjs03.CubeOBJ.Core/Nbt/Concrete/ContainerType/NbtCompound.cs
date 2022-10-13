@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace binstarjs03.CubeOBJ.Core.Nbt;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 public class NbtCompound : NbtContainerType
 {
