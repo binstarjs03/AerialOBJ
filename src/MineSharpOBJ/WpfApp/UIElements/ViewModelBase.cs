@@ -1,61 +1,66 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements;
 
-public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : class where U : Control {
+public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : class where U : Control
+{
     public event PropertyChangedEventHandler? PropertyChanged;
-    protected bool _isVisible = true;
-    protected U _control;
-    private static T? s_context;
 
-    protected ViewModelBase(U control) {
-        _control = control;
+    protected ViewModelBase(U control)
+    {
+        Control = control;
     }
 
-    /* late-binding of other VM (property change) event listening.
-     * By doing this, we start listening to other VM event
-     * when they are instantiated and ready, so we have more control over
-     * when we want to listen to events
-    */
-    public virtual void StartEventListening() { }
+    // Accessors --------------------------------------------------------------
 
-    /* context is used for static instance reference
-     * that is mutable, can change viewmodel instance context at anytime.
-     * we added context so we can access instance context is pointing to
-     * through the class
-    */
-    public static T? Context {
-        get {
-            return s_context;
-        }
-        set {
-            s_context = value;
-        }
-    }
-
-    // always call this method whenever make change to state properties
-    protected void OnPropertyChanged(string propertyName) {
-        if (PropertyChanged != null)
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    // getter for the underlying control
-    public U Control => _control;
+    public U Control { get; }
 
     // States -----------------------------------------------------------------
 
-    public bool IsVisible {
-        get { return _isVisible; }
-        set {
-            if (value == _isVisible)
-                return;
-            _isVisible = value;
-            OnPropertyChanged(nameof(IsVisible));
-        }
+    protected Visibility _visibility;
+    public Visibility Visibility
+    {
+        get => _visibility;
+        set => SetAndNotifyPropertyChanged(value, ref _visibility);
     }
 
+    // Methods ----------------------------------------------------------------
+
+    // setter also notifier for private fields (non-shared property)
+    protected void SetAndNotifyPropertyChanged<V>(V newValue, ref V oldValue, [CallerMemberName] string propertyName = "")
+    {
+        if (newValue is null || oldValue is null)
+            throw new ArgumentNullException
+            (
+                "newValue or oldValue",
+                "Argument passed to SetAndNotifyPropertyChanged of ViewModelBase is null"
+            );
+        if (newValue.Equals(oldValue))
+            return;
+        oldValue = newValue;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    // notifier only
+    protected void NotifyPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+
+    // setter for shared property. Note that we cannot ref property so
+    // we set the property value through delegate
+    protected void SetSharedPropertyChanged<V>(V newValue, Action<V> setterMethod)
+    {
+        setterMethod(newValue);
+    }
     // Event Handlers ---------------------------------------------------------
 
-    protected virtual void OnOtherViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) { }
+    protected virtual void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e) {
+        NotifyPropertyChanged(e.PropertyName!);
+    }
 }

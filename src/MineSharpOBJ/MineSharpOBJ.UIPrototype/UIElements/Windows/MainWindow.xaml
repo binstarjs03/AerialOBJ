@@ -1,0 +1,72 @@
+﻿<Window x:Class="binstarjs03.MineSharpOBJ.UIPrototype.UIElements.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.UIPrototype.UIElements.Windows"
+        xmlns:controls="clr-namespace:binstarjs03.MineSharpOBJ.UIPrototype.UIElements.Controls"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:MainWindow}"
+        
+        Title="MineSharpOBJ"
+        Width="800" Height="600"
+        MinWidth="300" MinHeight="300"
+        d:Width="400" d:Height="300">
+    <Grid Background="{StaticResource DarkBackground}">
+        <DockPanel>
+
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open"/>
+                    <MenuItem Header="Close"/>
+                    <MenuItem Header="Export 3D Model..."/>
+                    <MenuItem Header="Export PNG..."/>
+                    <MenuItem Header="World Information..."/>
+                    <MenuItem Header="Exit" Click="Exit_Click"/>
+                </MenuItem>
+
+                <MenuItem Header="View">
+                    <MenuItem Header="Debug Log" IsCheckable="True" 
+                              Name="DebugLog" 
+                              Checked="DebugLog_Checked" 
+                              Unchecked="DebugLog_Unchecked"/>
+                    <MenuItem Header="Viewport Camera Position Guide" IsCheckable="True"/>
+                    <MenuItem Header="Viewport Debug Info" IsCheckable="True"/>
+
+                    <Separator/>
+
+                    <MenuItem Header="Chunk Grid" IsCheckable="True"/>
+                    <MenuItem Header="Lighting" IsCheckable="True"/>
+                    <MenuItem Header="Transparent Water" IsCheckable="True"/>
+                </MenuItem>
+
+                <MenuItem Header="Navigation">
+                    <MenuItem Header="Goto..."/>
+                    <MenuItem Header="Goto World Spawn"/>
+                    <MenuItem Header="Goto Player...">
+                        <MenuItem Header="bin03: 0020a-71a07-99ab1"/>
+                    </MenuItem>
+                    <MenuItem Header="Goto Dimension...">
+                        <MenuItem Header="Overworld" IsCheckable="True" IsChecked="True"/>
+                        <MenuItem Header="Nether" IsCheckable="True"/>
+                        <MenuItem Header="The End" IsCheckable="True"/>
+                        <Separator/>
+                        <MenuItem Header="My Custom Dimension 1" IsCheckable="True"/>
+                        <MenuItem Header="My Custom Dimension 2" IsCheckable="True"/>
+                    </MenuItem>
+                </MenuItem>
+
+                <MenuItem Header="Help">
+                    <MenuItem Header="About..." Click="About_Click"/>
+                </MenuItem>
+            </Menu>
+
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBarItem Content="Ready"/>
+            </StatusBar>
+
+            <controls:ViewportControl/>
+
+        </DockPanel>
+    </Grid>
+</Window>

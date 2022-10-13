@@ -1,59 +1,58 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
 
 using binstarjs03.MineSharpOBJ.WpfApp.Services;
-using binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
 
 namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows;
 
-public partial class MainWindow : Window, IViewModel<MainWindowViewModel, MainWindow> {
-    public MainWindow() {
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
         InitializeComponent();
-        ViewModel = new MainWindowViewModel(this);
-        MainWindowViewModel.Context = ViewModel;
-        DataContext = ViewModel;
+        MainWindowVM vm = new(this);
+        DataContext = vm;
 
-        DebugLogWindow = new DebugLogWindow(this);
-        ViewportControl = new ViewportControl(this);
-
+        DebugLogWindow = new DebugLogWindow();
         Show();
         DebugLogWindow.Owner = this;
-        _viewportContainer.Content = ViewportControl;
 
-        SetupViewModelEventListeners();
         MainService.Initialize();
     }
 
-    public MainWindowViewModel ViewModel { get; private set; }
-    public DebugLogWindow DebugLogWindow { get; private set; }
-    public ViewportControl ViewportControl { get; private set; }
+    // Accessors --------------------------------------------------------------
 
-    private void SetupViewModelEventListeners() {
-        ViewModel.StartEventListening();
-        DebugLogWindow.ViewModel.StartEventListening();
-        ViewportControlViewModel.Context!.StartEventListening();
-    }
+    public DebugLogWindow DebugLogWindow { get; }
 
-    private void DebugLogView_SynchronizePosition() {
+    // Events -----------------------------------------------------------------
+
+    private void DebugLogWindow_SynchronizePosition()
+    {
         DebugLogWindow.Top = Top;
         DebugLogWindow.Left = Left + ActualWidth;
     }
 
-    protected override void OnLocationChanged(EventArgs e) {
-        DebugLogView_SynchronizePosition();
+    protected override void OnLocationChanged(EventArgs e)
+    {
+        DebugLogWindow_SynchronizePosition();
     }
 
-    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-        DebugLogView_SynchronizePosition();
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        DebugLogWindow_SynchronizePosition();
     }
 
-    protected override void OnClosing(CancelEventArgs e) {
-        // TODO do something here (but dont cleanup yet)
-    }
-
-    protected override void OnClosed(EventArgs e) {
-        // TODO do some cleanups here
-        Application.Current.Shutdown(Environment.ExitCode);
-    }
+    //public static readonly RoutedEvent DebugLogWindowVisibilityChangedEvent
+    //    = EventManager.RegisterRoutedEvent
+    //(
+    //    nameof(DebugLogWindowVisibilityChanged),
+    //    RoutingStrategy.Bubble,
+    //    typeof(RoutedEventHandler),
+    //    typeof(MainWindow)
+    //);
+    //public event RoutedEventHandler DebugLogWindowVisibilityChanged
+    //{
+    //    add { AddHandler(DebugLogWindowVisibilityChangedEvent, value); }
+    //    remove { RemoveHandler(DebugLogWindowVisibilityChangedEvent, value); }
+    //}
 }

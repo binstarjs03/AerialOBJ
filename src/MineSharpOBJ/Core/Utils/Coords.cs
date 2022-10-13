@@ -137,10 +137,9 @@ public struct Coords2Range : IEquatable<Coords2Range> {
     }
 
     public override bool Equals(object? other) {
-        return (
-            other is Coords2Range otherCoordsRange 
-            && otherCoordsRange == this
-        );
+        return other is Coords2Range otherCoordsRange 
+               && otherCoordsRange == this
+        ;
     }
 
     public static bool operator ==(Coords2Range left, Coords2Range right) {

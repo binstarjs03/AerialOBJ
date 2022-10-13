@@ -4,61 +4,56 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Windows"
-        xmlns:usercontrols="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls"
+        xmlns:controls="clr-namespace:binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
+        d:DataContext="{d:DesignInstance Type=local:MainWindowVM}"
         
-        Title="{Binding Title, Mode=OneWay}"
-        d:Title="MineSharpOBJ"
-        Width="600" Height="400">
+        Title="{Binding Title}"
+        Width="800" Height="600"
+        MinWidth="300" MinHeight="300"
+        d:Title="MineSharpOBJ" 
+        d:Width="400" d:Height="300">
     <Grid Background="{StaticResource DarkBackground}">
-        
         <DockPanel>
+            
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="File">
-                    <MenuItem Header="Open..."
-                              Command="{Binding LoadSavegameFolder}"/>
+                    <MenuItem Header="Open"
+                              Command="{Binding OpenCommand}"/>
                     <MenuItem Header="Close"
-                              Command="{Binding CloseSession}"/>
-                    <MenuItem Header="Exit" 
-                              Command="{Binding WindowClose}"/>
+                              IsEnabled="{Binding HasSession}"
+                              Command="{Binding CloseCommand}"/>
+                    <MenuItem Header="Exit"
+                              Command="{Binding WindowCloseCommand}"/>
                 </MenuItem>
+
                 <MenuItem Header="View">
                     <MenuItem Header="Debug Log"
+                              Name="MenuItemDebugLog"
                               IsCheckable="True"
-                              IsChecked="{Binding IsDebugLogViewVisible, Mode=TwoWay}"/>
-                    <MenuItem Header="Viewport Debugger" 
-                              IsCheckable="True"
+                              IsChecked="{Binding IsDebugLogWindowVisible, Mode=TwoWay}"/>
+                    <MenuItem Header="Viewport Camera Position Guide"
                               IsEnabled="{Binding HasSession}"
-                              IsChecked="{Binding IsViewportDebugControlVisible, Mode=TwoWay}"/>
-                    <MenuItem Header="Camera Position"
                               IsCheckable="True"
-                              IsEnabled="{Binding HasSession}"
                               IsChecked="{Binding IsViewportCameraPositionGuideVisible, Mode=TwoWay}"/>
-                    <Separator/>
-                    <MenuItem Header="Goto..."
-                              Command="{Binding ViewportGoto}"/>
+                    <MenuItem Header="Viewport Debug Info"
+                              IsEnabled="{Binding HasSession}"
+                              IsCheckable="True"
+                              IsChecked="{Binding IsViewportDebugInfoVisible, Mode=TwoWay}"/>
                 </MenuItem>
+                
                 <MenuItem Header="Help">
-                    <MenuItem Header="About..."
-                              Command="{Binding OpenAboutView}"/>
+                    <MenuItem Header="About..." 
+                              Command="{Binding AboutCommand}"/>
                 </MenuItem>
             </Menu>
-            
-            <StatusBar Height="Auto" 
-                       DockPanel.Dock="Bottom">
-                <StatusBarItem Name="Status" 
-                               Content="Ready"/>
-            </StatusBar>
-            <ContentControl Name="_viewportContainer"
-                            x:FieldModifier="private">
-                <d:ContentControl.Content>
-                    <usercontrols:ViewportControl/>
-                </d:ContentControl.Content>
-            </ContentControl>
 
-            
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBarItem Content="Ready"/>
+            </StatusBar>
+
+            <controls:ViewportControl/>
+
         </DockPanel>
-        
     </Grid>
 </Window>

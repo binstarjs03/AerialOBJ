@@ -6,43 +6,50 @@ using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 
-using Point = binstarjs03.MineSharpOBJ.Core.Utils.Point;
+using PointInt2 = binstarjs03.MineSharpOBJ.Core.CoordinateSystem.PointInt2;
 using Section = binstarjs03.MineSharpOBJ.Core.RegionMc.Section;
 
-namespace binstarjs03.MineSharpOBJ.WpfApp.Models;
-
-public class ChunkModel : Image {
+namespace binstarjs03.MineSharpOBJ.WpfApp.UIElements.Controls;
+public class ChunkImageControl : Image
+{
     private static readonly PixelFormat s_format = PixelFormats.Bgra32;
     private static readonly int s_bitsPerByte = 8;
     private static readonly int s_bytesPerPixel = s_format.BitsPerPixel / s_bitsPerByte;
 
-    private readonly Point _canvasPos;
+    private readonly PointInt2 _canvasPos;
     private readonly WriteableBitmap _buff;
 
-    static ChunkModel() {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(ChunkModel), new FrameworkPropertyMetadata(typeof(ChunkModel)));
+    static ChunkImageControl()
+    {
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(ChunkImageControl), new FrameworkPropertyMetadata(typeof(ChunkImageControl)));
     }
 
-    public ChunkModel(Point coordsAbs) {
+    public ChunkImageControl(PointInt2 coordsAbs)
+    {
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
-        RenderOptions.SetEdgeMode(this, System.Windows.Media.EdgeMode.Aliased);
+        RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
         _buff = new WriteableBitmap(16, 16, 96, 96, s_format, palette: null);
         Stretch = Stretch.UniformToFill;
         Source = _buff;
         _canvasPos = coordsAbs;
     }
 
-    public Point CanvasPos => _canvasPos;
+    public PointInt2 CanvasPos => _canvasPos;
 
-    public void SetRandomImage(bool red) {
-        try {
+    public void SetRandomImage(bool red)
+    {
+        try
+        {
             _buff.Lock();
             Random random = new();
-            for (int x = 0; x < Section.BlockCount; x++) {
-                for (int z = 0; z < Section.BlockCount; z++) {
-                    Point blockPixelPos = new(x, z);
+            for (int x = 0; x < Section.BlockCount; x++)
+            {
+                for (int z = 0; z < Section.BlockCount; z++)
+                {
+                    PointInt2 blockPixelPos = new(x, z);
                     Color color;
-                    if (_canvasPos == Point.Origin) {
+                    if (CanvasPos == PointInt2.Zero)
+                    {
                         int col = random.Next(150, 250);
                         color = Color.FromArgb(
                             255,
@@ -70,18 +77,21 @@ public class ChunkModel : Image {
                 }
             }
         }
-        finally {
+        finally
+        {
             _buff.Unlock();
         }
     }
 
-    private void SetBlockColor(Point blockPixelPos, Color color) {
+    private void SetBlockColor(PointInt2 blockPixelPos, Color color)
+    {
         //if (pixelPos.X > 15)
         int xOffset = blockPixelPos.X * s_bytesPerPixel;
         int yOffset = blockPixelPos.Y * s_bytesPerPixel * _buff.PixelWidth;
         int offset = xOffset + yOffset;
         IntPtr backBuffPtr = _buff.BackBuffer;
-        unsafe {
+        unsafe
+        {
             byte* backBuffData = (byte*)backBuffPtr.ToPointer();
             backBuffData[offset + 0] = color.B;
             backBuffData[offset + 1] = color.G;

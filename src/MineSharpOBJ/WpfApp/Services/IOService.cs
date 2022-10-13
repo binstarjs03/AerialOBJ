@@ -25,11 +25,7 @@ public class IOService {
     /// <exception cref="DirectoryNotFoundException"/>
     /// <exception cref="UnauthorizedAccessException"/>
     public static void WriteText(string path, string content) {
-        using FileStream stream = File.Open(path,
-                                            FileMode.Create,
-                                            FileAccess.Write,
-                                            FileShare.None);
-        using StreamWriter writer = new(stream);
+        using StreamWriter writer = File.CreateText(path);
         writer.Write(content);
     }
 
