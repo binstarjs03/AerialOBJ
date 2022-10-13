@@ -1,21 +1,20 @@
-# MineSharpOBJ
+# AerialOBJ - Minecraft World to 3D model and PNG mapper
 
 This is my personal experimental project on converting Minecraft worlds 
 into 3D model, written in .NET C#.
 
-The name MineSharpOBJ is derived from Minecraft itself and the C# 
-(pronounced as "see sharp") language, so i combine both and name it 
-as MineSharpOBJ. 
+The name AerialOBJ was chosen because this program is obviously
+drawing Minecraft world in aerial view and it can convert to 3D model
+in OBJ format.
 
-Note: during the time of this writing, the name "MineSharp" exist
-as Minecraft Server hosting if i'm not mistaken. 
-This is purely coincidence as i didn't know MineSharp was exist when 
-i named this project as MineSharpOBJ.
+Currently this repository is still work in progress.
 
-Currently this repository is still work in progress (even it can't export 
-to 3D model).
+## Compatibility
+Currently AerialOBJ is using WPF technology and it only support Windows only.
+Compatibility with Mac and Linux is planned to be implemented.
 
-If you have any questions or just simply want to get in touch with me,
+## Contact and Contributing
+If you want to get in touch with me or contribute to this project,
 you can DM me in my social medias:
 - Facebook: https://www.facebook.com/bin.starjs/
 - Twitter: https://www.twitter.com/bin_starjs/
