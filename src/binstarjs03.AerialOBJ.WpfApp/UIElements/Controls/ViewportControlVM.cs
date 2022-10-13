@@ -252,8 +252,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         if (propName == nameof(SharedProperty.SessionInfo))
         {
             ReinitializeStates();
-            //if (SharedProperty.SessionInfo != null)
-            //    _chunkManager.GenerateDummyChunk();
+            if (SharedProperty.SessionInfo is null)
+                _chunkManager.OnSessionClosed();
         }
         else if (propName == nameof(SharedProperty.IsSidePanelVisible))
         {
@@ -394,6 +394,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
         public void Update()
         {
+            if (SharedProperty.SessionInfo is null)
+                return;
             UpdateVisibleChunkRange();
             UpdateBuffer();
         }
@@ -473,6 +475,15 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             {
                 chunk.Update(_viewport);
             }
+        }
+
+        public void OnSessionClosed()
+        {
+            foreach (ChunkWrapper chunk in _buffer.Values)
+            {
+                chunk.Deallocate(_viewport);
+            }
+            _buffer.Clear();
         }
 
         public class ChunkWrapper

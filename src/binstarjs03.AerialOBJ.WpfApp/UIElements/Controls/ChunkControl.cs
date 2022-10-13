@@ -108,6 +108,7 @@ public class ChunkControl : Image, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
+#       pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         if (!_disposed)
         {
             if (disposing)
@@ -120,6 +121,7 @@ public class ChunkControl : Image, IDisposable
             Source = null;
             _buff = null;
             _disposed = true;
+#           pragma warning restore CS8625
         }
     }
 
@@ -135,6 +137,6 @@ public class ChunkControl : Image, IDisposable
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
-    } 
+    }
     #endregion
 }
