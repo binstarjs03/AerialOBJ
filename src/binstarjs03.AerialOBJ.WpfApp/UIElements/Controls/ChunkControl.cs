@@ -2,6 +2,8 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
+using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 
@@ -16,22 +18,23 @@ public class ChunkControl : Image, IDisposable
     private static readonly int s_bitsPerByte = 8;
     private static readonly int s_bytesPerPixel = s_format.BitsPerPixel / s_bitsPerByte;
 
-    private readonly PointInt2 _canvasPos;
+    private readonly Coords2 _pos;
     private WriteableBitmap _buff;
 
     private bool _disposed;
 
-    public ChunkControl(PointInt2 canvasPos)
+    public ChunkControl(Coords2 canvasPos)
     {
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
         RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
         _buff = new WriteableBitmap(16, 16, 96, 96, s_format, palette: null);
         Stretch = Stretch.UniformToFill;
         Source = _buff;
-        _canvasPos = canvasPos;
+        _pos = canvasPos;
     }
 
-    public PointInt2 CanvasPos => _canvasPos;
+    public Coords2 Pos => _pos;
+    public PointInt2 CanvasPos => (PointInt2)_pos;
 
     public void SetRandomImage()
     {
@@ -45,7 +48,7 @@ public class ChunkControl : Image, IDisposable
                 {
                     PointInt2 blockPixelPos = new(x, z);
                     Color color;
-                    if (CanvasPos == PointInt2.Zero)
+                    if (Pos == Coords2.Zero)
                     {
                         int col = random.Next(150, 250);
                         color = Color.FromArgb(
@@ -56,7 +59,7 @@ public class ChunkControl : Image, IDisposable
                         );
 
                     }
-                    else if ((_canvasPos.X + _canvasPos.Y) % 2 == 0)
+                    else if ((_pos.X + _pos.Z) % 2 == 0)
                         color = Color.FromArgb(
                             255,
                             random.Next(0, 100),

@@ -193,11 +193,11 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Loaded Chunk Count: "/>
-                            <TextBlock Text=""/>
+                            <TextBlock Text="{Binding Path=ChunkManagerLoadedChunkCount, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Pending Chunk Count: "/>
-                            <TextBlock Text=""/>
+                            <TextBlock Text="{Binding Path=ChunkManagerPendingChunkCount, Mode=OneWay}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
