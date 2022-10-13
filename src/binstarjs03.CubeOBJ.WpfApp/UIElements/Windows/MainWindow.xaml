@@ -50,6 +50,10 @@
                     <MenuItem Header="About..." 
                               Command="{Binding AboutCommand}"/>
                 </MenuItem>
+                <MenuItem Header="Debug">
+                    <MenuItem Header="Force Garbage Collect"
+                              Command="{Binding ForceGCCommand}"/>
+                </MenuItem>
             </Menu>
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem Content="Ready"/>

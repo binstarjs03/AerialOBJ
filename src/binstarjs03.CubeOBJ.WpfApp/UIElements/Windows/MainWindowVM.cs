@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -14,6 +15,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         AboutCommand = new RelayCommand(OnAbout);
         OpenCommand = new RelayCommand(OnOpen);
         CloseCommand = new RelayCommand(OnClose, (arg) => HasSession);
+        ForceGCCommand = new RelayCommand(OnForceGCCommand);
     }
 
 
@@ -108,6 +110,14 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
         SharedProperty.SessionInfoUpdater(null);
         LogService.LogSuccess(logSuccessMsg, useSeparator: true);
+    }
+
+    public ICommand ForceGCCommand { get; }
+    private void OnForceGCCommand(object? arg)
+    {
+        //GC.Collect(5, GCCollectionMode.Forced, true, false);
+        GC.Collect();
+        LogService.LogWarning("Garbage collection was done forced by the user!", useSeparator: true);
     }
 
     #endregion
