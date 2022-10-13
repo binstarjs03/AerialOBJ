@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -10,7 +10,7 @@ using Section = binstarjs03.CubeOBJ.Core.WorldRegion.Section;
 
 namespace binstarjs03.CubeOBJ.WpfApp.UIElements.Controls;
 
-public class ChunkControl : Image
+public class ChunkControl : Image, IDisposable
 {
     private static readonly PixelFormat s_format = PixelFormats.Bgra32;
     private static readonly int s_bitsPerByte = 8;
@@ -18,6 +18,8 @@ public class ChunkControl : Image
 
     private readonly PointInt2 _canvasPos;
     private WriteableBitmap _buff;
+
+    private bool _disposed;
 
     public ChunkControl(PointInt2 canvasPos)
     {
@@ -98,4 +100,38 @@ public class ChunkControl : Image
            so the front buffer will be updated */
         _buff.AddDirtyRect(new(blockPixelPos.X, blockPixelPos.Y, 1, 1));
     }
+
+    #region Disposable Pattern
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                // dispose managed state (managed objects)
+            }
+
+            // free unmanaged resources (unmanaged objects) and override finalizer
+            // set large fields to null
+            Source = null;
+            _buff = null;
+            _disposed = true;
+        }
+    }
+
+    // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~ChunkControl()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    } 
+    #endregion
 }

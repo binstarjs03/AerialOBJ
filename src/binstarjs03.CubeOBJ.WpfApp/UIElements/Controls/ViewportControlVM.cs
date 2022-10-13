@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -250,6 +250,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         if (propName == nameof(SharedProperty.SessionInfo))
         {
             ReinitializeStates();
+            //if (SharedProperty.SessionInfo != null)
+            //    _chunkManager.GenerateDummyChunk();
         }
         else if (propName == nameof(SharedProperty.IsSidePanelVisible))
         {
@@ -381,20 +383,30 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         public ChunkManager(ViewportControlVM viewport)
         {
             _viewport = viewport;
-            // below is a dummy chunk for development purpose.
-            // delete below lines once chunk reallocation is stable
-            Add(new ChunkControl(new PointInt2(0, 0)), new Coords2(0, 0));
-            Add(new ChunkControl(new PointInt2(-1, 0)), new Coords2(-1, 0));
-            Add(new ChunkControl(new PointInt2(0, -1)), new Coords2(0, -1));
-            Add(new ChunkControl(new PointInt2(-1, -1)), new Coords2(-1, -1));
-            Update();
-
         }
 
-        public CoordsRange2 VisibleChunkRange  => _visibleChunkRange;
+        public CoordsRange2 VisibleChunkRange => _visibleChunkRange;
         public int VisibleChunkCount => _buffer.Count;
 
-        // Add(Chunk chunk)
+        public void GenerateDummyChunk(bool single)
+        {
+            // below is a dummy chunk for development purpose.
+            // delete this method once chunk reallocation is stable, no memory leak
+            if (single)
+                Add(new ChunkControl(new PointInt2(0, 0)), new Coords2(0, 0));
+            else
+            {
+                for (int x = -32; x < 32; x++)
+                {
+                    for (int z = -32; z < 32; z++)
+                    {
+                        Add(new ChunkControl(new PointInt2(x, z)), new Coords2(x, z));
+                    }
+                }
+
+            }
+        }
+
         private void Add(ChunkControl chunk, Coords2 coords)
         {
             _buffer.Add(coords, chunk);
@@ -465,6 +477,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         private void UpdateChunkSize(ChunkControl chunk)
         {
             chunk.Width = _viewport.ViewportPixelPerChunk;
+            //chunk.Width = _viewport.ViewportPixelPerChunk / ((double)16/16000);
         }
 
         //private void UpdateVisibleChunkRange()
@@ -518,7 +531,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             Range visibleChunkZRange = new(minZ, maxZ);
 
             CoordsRange2 oldVisibleChunkRange = _visibleChunkRange;
-            CoordsRange2 newVisibleChunkRange = new (visibleChunkXRange, visibleChunkZRange);
+            CoordsRange2 newVisibleChunkRange = new(visibleChunkXRange, visibleChunkZRange);
             if (newVisibleChunkRange == oldVisibleChunkRange)
                 return;
             _visibleChunkRange = newVisibleChunkRange;
@@ -527,9 +540,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeZBinding));
         }
 
-        // TODO CRITICAL deallocation still have memory leaks.
-        // We want to completely deallocate everything inside the ChunkControl
-        // and make it leave no trace of memory leftover
         private void DeallocateChunk()
         {
             // collect non-visible chunks
@@ -546,7 +556,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                 ChunkControl chunk = _buffer[deallocatedChunk];
                 _buffer.Remove(deallocatedChunk);
                 _viewport.Control.ChunkCanvas.Children.Remove(chunk);
+                chunk.Dispose();
             }
+            _viewport.Control.UpdateLayout();
         }
 
         private void AllocateChunk()
