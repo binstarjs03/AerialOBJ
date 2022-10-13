@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="binstarjs03.AerialOBJ.WpfApp.UIElements.Components.DoubleBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:validationRules="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ValidationRules"
+             mc:Ignorable="d" 
+             Name="Root"
+             d:Width="50"
+             
+             KeyUp="OnKeyUp" 
+             LostFocus="OnLostFocus">
+    <Grid>
+        <StackPanel>
+            <TextBox Name="UnderlyingTextBox">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Text">
+                            <Setter.Value>
+                                <Binding ElementName="Root"
+                                         Path="DoubleValue"
+                                         Mode="TwoWay"
+                                         Converter="{StaticResource DoubleToString}"
+                                         UpdateSourceTrigger="Explicit">
+                                    <Binding.ValidationRules>
+                                        <validationRules:DoubleValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsFocused" Value="False">
+                                <Setter Property="Text">
+                                    <Setter.Value>
+                                        <Binding ElementName="Root"
+                                                 Path="DoubleValue"
+                                                 Mode="OneWay"
+                                                 StringFormat="{}{0:f2}"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+        </StackPanel>
+    </Grid>
+</UserControl>  

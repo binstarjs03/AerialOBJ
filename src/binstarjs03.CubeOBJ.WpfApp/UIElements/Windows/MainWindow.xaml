@@ -1,0 +1,66 @@
+﻿<Window x:Class="binstarjs03.AerialOBJ.WpfApp.UIElements.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.UIElements.Windows"
+        xmlns:controls="clr-namespace:binstarjs03.AerialOBJ.WpfApp.UIElements.Controls"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type local:MainWindowVM}}"
+        
+        Title="{Binding Path=Title, 
+                        Mode=OneWay}"
+        d:Title="MineSharpOBJ"
+        Width="800" Height="600"
+        MinWidth="450" MinHeight="300"
+        d:Width="450" d:Height="300"
+        
+        Name="Root"
+        LocationChanged="OnLocationChanged" 
+        SizeChanged="OnSizeChanged" 
+        Loaded="OnLoaded">
+    <Grid>
+        <DockPanel>
+            <Menu IsMainMenu="True" DockPanel.Dock="Top">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open" 
+                              Command="{Binding OpenCommand}"/>
+                    <MenuItem Header="Close"
+                              IsEnabled="{Binding Path=HasSession, 
+                                                  Mode=OneWay}"
+                              Command="{Binding CloseCommand}"/>
+                    <MenuItem Header="Exit" 
+                              Command="{Binding WindowCloseCommand}"/>
+                </MenuItem>
+                <MenuItem Header="View">
+                    <MenuItem Header="Side Panel"
+                              IsEnabled="{Binding Path=HasSession, 
+                                                  Mode=OneWay}"
+                              IsCheckable="True"
+                              IsChecked="{Binding Path=IsSidePanelVisible,
+                                                  Mode=TwoWay,
+                                                  UpdateSourceTrigger=PropertyChanged}"/>
+                    <MenuItem Header="Debug Log" 
+                              IsCheckable="True"
+                              IsChecked="{Binding Path=IsDebugLogWindowVisible, 
+                                                  Mode=TwoWay, 
+                                                  UpdateSourceTrigger=PropertyChanged}"/>
+                </MenuItem>
+                <MenuItem Header="Help">
+                    <MenuItem Header="About..." 
+                              Command="{Binding AboutCommand}"/>
+                </MenuItem>
+                <MenuItem Header="Debug">
+                    <MenuItem Header="Force Garbage Collect"
+                              Command="{Binding ForceGCCommand}"/>
+                </MenuItem>
+            </Menu>
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBarItem Content="Ready"/>
+            </StatusBar>
+            <controls:ViewportControl IsEnabled="{Binding ElementName=Root, 
+                                                          Path=DataContext.HasSession, 
+                                                          Mode=OneWay}"/>
+        </DockPanel>
+    </Grid>
+</Window>
