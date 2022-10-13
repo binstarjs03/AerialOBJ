@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-using binstarjs03.CubeOBJ.Core.CoordinateSystem;
-using binstarjs03.CubeOBJ.Core.Nbt;
-using binstarjs03.CubeOBJ.Core.Nbt.IO;
+using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.Nbt.IO;
 
-namespace binstarjs03.CubeOBJ.Core.WorldRegion;
+namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Region : IDisposable
 {

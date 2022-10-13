@@ -1,6 +1,6 @@
-﻿using binstarjs03.CubeOBJ.Core.Nbt.IO;
+﻿using binstarjs03.AerialOBJ.Core.Nbt.IO;
 
-namespace binstarjs03.CubeOBJ.Core.Nbt;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 public class NbtEnd : NbtBase
 {

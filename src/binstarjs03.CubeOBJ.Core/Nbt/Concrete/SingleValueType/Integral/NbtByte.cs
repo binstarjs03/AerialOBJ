@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.CubeOBJ.Core.Nbt;
+﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 public class NbtByte : NbtSingleValueType<sbyte>
 {

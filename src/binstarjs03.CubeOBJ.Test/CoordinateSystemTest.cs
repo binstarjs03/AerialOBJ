@@ -1,11 +1,11 @@
 using System;
 
-using binstarjs03.CubeOBJ.Core;
-using binstarjs03.CubeOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core;
+using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 
-using Range = binstarjs03.CubeOBJ.Core.Range;
+using Range = binstarjs03.AerialOBJ.Core.Range;
 
-namespace binstarjs03.CubeOBJ.Test;
+namespace binstarjs03.AerialOBJ.Test;
 
 [TestClass]
 public class CoordinateSystemTest

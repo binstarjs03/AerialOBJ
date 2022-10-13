@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.CubeOBJ.Core;
+namespace binstarjs03.AerialOBJ.Core;
 
 /// <summary>
 /// Represent range of number. Handy for testing whether if value is 

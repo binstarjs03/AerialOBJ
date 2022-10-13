@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.CubeOBJ.Core.IO;
+﻿namespace binstarjs03.AerialOBJ.Core.IO;
 
 public enum ByteOrder
 {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
-using binstarjs03.CubeOBJ.Core.CoordinateSystem;
-using binstarjs03.CubeOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Nbt;
 
-namespace binstarjs03.CubeOBJ.Core.WorldRegion;
+namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Section
 {
