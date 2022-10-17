@@ -34,11 +34,11 @@ public struct PointInt2
     }
 
     /// <summary>
-    /// Formatted string version without pi2 prefix, rounded to 2 digits
+    /// Formatted string version without pi2 prefix
     /// </summary>
     public string ToStringAnotherFormat()
     {
-        return $"({MathF.Round(X, 2)}, {MathF.Round(Y, 2)})";
+        return $"({X}, {Y})";
     }
 
     /// <summary>

@@ -6,70 +6,59 @@ using System.Windows.Input;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
+
 public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 {
     public MainWindowVM(MainWindow window) : base(window)
     {
         SharedProperty.PropertyChanged += OnSharedPropertyChanged;
 
+        // set commands to its corresponding implementations
         AboutCommand = new RelayCommand(OnAbout);
         OpenCommand = new RelayCommand(OnOpen);
         CloseCommand = new RelayCommand(OnClose, (arg) => HasSession);
         ForceGCCommand = new RelayCommand(OnForceGCCommand);
     }
 
+    #region States - Fields and Properties
 
+    private string _title = SharedProperty.SessionInfo is null ? App.AppName : $"{App.AppName} - {SharedProperty.SessionInfo.WorldName}";
+    private static bool HasSession => SharedProperty.HasSession;
+
+    #endregion
 
     #region Data Binders
 
-    private string _title = SharedProperty.SessionInfo is null ? "MineSharpOBJ" : $"MineSharpOBJ - {SharedProperty.SessionInfo.WorldName}";
-    public string Title
+    public string TitleBinding => _title;
+
+    public bool HasSessionBinding => HasSession;
+
+    public bool UISidePanelVisibleBinding
     {
-        get => _title;
-        set => SetAndNotifyPropertyChanged(value, ref _title);
+        get => SharedProperty.UISidePanelVisible;
+        set => SharedProperty.UpdateUISidePanelVisible(value);
     }
 
-
-    // we can make this property as static, but XAML databinding
-    // intellisense won't detect this property anymore
-    public bool HasSession => SharedProperty.HasSession;
-
-
-    public bool IsSidePanelVisible
+    public bool UIDebugLogWindowVisibleBinding
     {
-        get => SharedProperty.IsSidePanelVisible;
-        set => SetSharedPropertyChanged
-        (
-            value,
-            SharedProperty.IsSidePanelVisibleUpdater
-        );
-    }
-
-
-    public bool IsDebugLogWindowVisible
-    {
-        get => SharedProperty.IsDebugLogWindowVisible;
-        set => SetSharedPropertyChanged
-        (
-            value,
-            SharedProperty.IsDebugLogWindowVisibleUpdater
-        );
+        get => SharedProperty.UIDebugLogWindowVisible;
+        set => SharedProperty.UpdateUIDebugLogWindowVisible(value);
     }
 
     #endregion
 
-
-
     #region Commands
 
     public ICommand AboutCommand { get; }
+    public ICommand OpenCommand { get; }
+    public ICommand CloseCommand { get; }
+    public ICommand ForceGCCommand { get; }
+
     private void OnAbout(object? arg)
     {
         ModalService.ShowAboutModal();
     }
 
-
-    public ICommand OpenCommand { get; }
     private void OnOpen(object? arg)
     {
         LogService.Log("Attempting to loading savegame...");
@@ -86,12 +75,10 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             LogService.LogAborted("Failed changing session. Aborting...", useSeparator: true);
             return;
         }
-        SharedProperty.SessionInfoUpdater(session);
+        SharedProperty.UpdateSessionInfo(session);
         LogService.LogSuccess("Successfully changed session.", useSeparator: true);
     }
 
-
-    public ICommand CloseCommand { get; }
     private void OnClose(object? arg)
     {
         string logSuccessMsg;
@@ -108,35 +95,45 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             logSuccessMsg = $"Successfully closed session \"{worldName}\".";
         }
 
-        SharedProperty.SessionInfoUpdater(null);
+        SharedProperty.UpdateSessionInfo(null);
         LogService.LogSuccess(logSuccessMsg, useSeparator: true);
     }
 
-    public ICommand ForceGCCommand { get; }
     private void OnForceGCCommand(object? arg)
     {
-        //GC.Collect(5, GCCollectionMode.Forced, true, false);
         GC.Collect();
-        LogService.LogWarning("Garbage collection was done forced by the user!", useSeparator: true);
+        LogService.LogWarning("Garbage collection was forced done by the user!", useSeparator: true);
     }
 
     #endregion
 
+    #region Updaters
 
+    private void UpdateTitle(string title)
+    {
+        _title = title;
+        NotifyPropertyChanged(nameof(TitleBinding));
+    }
+
+    #endregion
 
     #region Event Handlers
 
+    // TODO we need to find a new way to automatically notify shared property change as
+    // data binders are all have "Binding" suffix
+    // solution: maybe on base implementation, add another
+    // NotifyPropertyChanged call with "Binding" suffix added
     protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         base.OnSharedPropertyChanged(sender, e);
-        string name = e.PropertyName!;
-        if (name == nameof(SharedProperty.SessionInfo))
+        string propName = e.PropertyName!;
+
+        if (propName == nameof(SharedProperty.SessionInfo))
         {
-            NotifyPropertyChanged(nameof(HasSession));
             if (SharedProperty.SessionInfo is null)
-                Title = "MineSharpOBJ";
+                UpdateTitle(App.AppName);
             else
-                Title = $"MineSharpOBJ - {SharedProperty.SessionInfo.WorldName}";
+                UpdateTitle($"{App.AppName} - {SharedProperty.SessionInfo.WorldName}");
         }
     }
 

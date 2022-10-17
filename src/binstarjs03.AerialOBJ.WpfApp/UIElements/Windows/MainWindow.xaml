@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type local:MainWindowVM}}"
         
-        Title="{Binding Path=Title, 
+        Title="{Binding Path=TitleBinding, 
                         Mode=OneWay}"
         d:Title="MineSharpOBJ"
         Width="800" Height="600"
@@ -26,7 +26,7 @@
                     <MenuItem Header="Open" 
                               Command="{Binding OpenCommand}"/>
                     <MenuItem Header="Close"
-                              IsEnabled="{Binding Path=HasSession, 
+                              IsEnabled="{Binding Path=HasSessionBinding, 
                                                   Mode=OneWay}"
                               Command="{Binding CloseCommand}"/>
                     <MenuItem Header="Exit" 
@@ -34,15 +34,15 @@
                 </MenuItem>
                 <MenuItem Header="View">
                     <MenuItem Header="Side Panel"
-                              IsEnabled="{Binding Path=HasSession, 
+                              IsEnabled="{Binding Path=HasSessionBinding, 
                                                   Mode=OneWay}"
                               IsCheckable="True"
-                              IsChecked="{Binding Path=IsSidePanelVisible,
+                              IsChecked="{Binding Path=UISidePanelVisibleBinding,
                                                   Mode=TwoWay,
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                     <MenuItem Header="Debug Log" 
                               IsCheckable="True"
-                              IsChecked="{Binding Path=IsDebugLogWindowVisible, 
+                              IsChecked="{Binding Path=UIDebugLogWindowVisibleBinding, 
                                                   Mode=TwoWay, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                 </MenuItem>
@@ -59,7 +59,7 @@
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
             <controls:ViewportControl IsEnabled="{Binding ElementName=Root, 
-                                                          Path=DataContext.HasSession, 
+                                                          Path=DataContext.HasSessionBinding, 
                                                           Mode=OneWay}"/>
         </DockPanel>
     </Grid>

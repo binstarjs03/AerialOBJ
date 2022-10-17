@@ -25,7 +25,9 @@
 
         <StackPanel Margin="20,10" HorizontalAlignment="Center">
             <StackPanel>
-                <TextBlock Text="CubeOBJ" 
+                <!--TODO refer to App resource appname 
+                instead of hard-coding the text-->
+                <TextBlock Text="AerialOBJ" 
                            HorizontalAlignment="Center" 
                            FontSize="20"
                            FontWeight="Bold"/>
@@ -71,7 +73,7 @@
                             Text="Repository Link:"/>
                 <!--TODO hyperlink is unclickable yet, must fix-->
                 <TextBlock Style="{StaticResource CenteredText}" 
-                           Text="https://github.com/binstarjs03/CubeOBJ"
+                           Text="https://github.com/binstarjs03/AerialOBJ"
                            TextDecorations="Underline"
                            Foreground="#759eff">
                 </TextBlock>

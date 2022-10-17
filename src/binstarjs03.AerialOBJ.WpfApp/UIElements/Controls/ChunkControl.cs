@@ -104,11 +104,11 @@ public class ChunkControl : Image, IDisposable
         _buff.AddDirtyRect(new(blockPixelPos.X, blockPixelPos.Y, 1, 1));
     }
 
-    #region Disposable Pattern
+    #region Dispose Pattern
 
+#   pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
     protected virtual void Dispose(bool disposing)
     {
-#       pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         if (!_disposed)
         {
             if (disposing)
@@ -121,9 +121,9 @@ public class ChunkControl : Image, IDisposable
             Source = null;
             _buff = null;
             _disposed = true;
-#           pragma warning restore CS8625
         }
     }
+#   pragma warning restore CS8625
 
     // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
     // ~ChunkControl()
@@ -138,5 +138,6 @@ public class ChunkControl : Image, IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
     #endregion
 }

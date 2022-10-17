@@ -9,12 +9,9 @@ public static class SharedProperty
     // Subscribe to this event if your object is using shared property and want
     // to be notified when there is a change
     public static event PropertyChangedEventHandler? PropertyChanged;
-
-
-
-    #region Internal logic
-
     private readonly static Type s_this = typeof(SharedProperty);
+
+    #region Internal Logic
 
     private static void NotifyPropertyChanged<T>(T newValue, ref T oldValue, bool canNull = false, [CallerMemberName] string propertyName = "")
     {
@@ -45,23 +42,22 @@ public static class SharedProperty
 
     #endregion
 
+    #region Shared Property Backing Field
 
-
-    #region Shared Property Data
-
-    private static bool s_isDebugLogWindowVisible = false;
-    public static bool IsDebugLogWindowVisible
-    {
-        get => s_isDebugLogWindowVisible;
-        set => NotifyPropertyChanged(value, ref s_isDebugLogWindowVisible);
-    }
-    public static void IsDebugLogWindowVisibleUpdater(bool value)
-    {
-        IsDebugLogWindowVisible = value;
-    }
-
-
+    private static bool s_uiDebugLogWindowVisible = false;
     private static SessionInfo? s_sessionInfo = null;
+    private static bool s_uiSidePanelVisible = false;
+
+    #endregion
+
+    #region Shared Property
+
+    public static bool UIDebugLogWindowVisible
+    {
+        get => s_uiDebugLogWindowVisible;
+        set => NotifyPropertyChanged(value, ref s_uiDebugLogWindowVisible);
+    }
+
     public static SessionInfo? SessionInfo
     {
         get => s_sessionInfo;
@@ -71,27 +67,34 @@ public static class SharedProperty
             NotifyPropertyChanged(nameof(HasSession));
         }
     }
-    public static void SessionInfoUpdater(SessionInfo? value)
-    {
-        SessionInfo = value;
-        if (value is null)
-            IsSidePanelVisible = false;
-    }
-
 
     public static bool HasSession => SessionInfo is not null;
 
-
-    private static bool s_isSidePanelVisible = false;
-    public static bool IsSidePanelVisible
+    public static bool UISidePanelVisible
     {
-        get => s_isSidePanelVisible;
-        set => NotifyPropertyChanged(value, ref s_isSidePanelVisible);
-    }
-    public static void IsSidePanelVisibleUpdater(bool value)
-    {
-        IsSidePanelVisible = value;
+        get => s_uiSidePanelVisible;
+        set => NotifyPropertyChanged(value, ref s_uiSidePanelVisible);
     }
 
     #endregion
+
+    #region Shared Property Updater
+
+    public static void UpdateUIDebugLogWindowVisible(bool value)
+    {
+        UIDebugLogWindowVisible = value;
+    }
+    public static void UpdateSessionInfo(SessionInfo? value)
+    {
+        SessionInfo = value;
+        if (value is null)
+            UISidePanelVisible = false;
+    }
+    public static void UpdateUISidePanelVisible(bool value)
+    {
+        UISidePanelVisible = value;
+    } 
+
+    #endregion
+
 }

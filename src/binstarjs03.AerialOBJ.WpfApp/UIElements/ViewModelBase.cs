@@ -15,11 +15,7 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         Control = control;
     }
 
-    // Accessors --------------------------------------------------------------
-
     public U Control { get; }
-
-    // States -----------------------------------------------------------------
 
     protected Visibility _visibility;
     public Visibility Visibility
@@ -27,8 +23,6 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         get => _visibility;
         set => SetAndNotifyPropertyChanged(value, ref _visibility);
     }
-
-    // Methods ----------------------------------------------------------------
 
     // setter also notifier for private fields (non-shared property)
     protected void SetAndNotifyPropertyChanged<V>(V newValue, ref V oldValue, [CallerMemberName] string propertyName = "")
@@ -59,17 +53,10 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         }
     }
 
-
-    // setter for shared property. Note that we cannot ref property so
-    // we set the property value through delegate
-    protected void SetSharedPropertyChanged<V>(V newValue, Action<V> setterMethod)
-    {
-        setterMethod(newValue);
-    }
-    // Event Handlers ---------------------------------------------------------
-
     protected virtual void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        NotifyPropertyChanged(e.PropertyName!);
+        string propName = e.PropertyName!;
+        NotifyPropertyChanged(propName);
+        NotifyPropertyChanged($"{propName}Binding");
     }
 }

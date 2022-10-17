@@ -9,8 +9,6 @@ using System.Windows.Threading;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.WorldRegion;
 
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
-
 using Range = binstarjs03.AerialOBJ.Core.Range;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
@@ -146,8 +144,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     public bool UISidePanelVisibleBinding
     {
-        get => SharedProperty.IsSidePanelVisible;
-        set => SharedProperty.IsSidePanelVisibleUpdater(value);
+        get => SharedProperty.UISidePanelVisible;
+        set => SharedProperty.UpdateUISidePanelVisible(value);
     }
 
 
@@ -172,6 +170,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         _chunkManager.Update();
     }
+
     private void OnMouseWheel(object? arg)
     {
         MouseWheelEventArgs e = (MouseWheelEventArgs)arg!;
@@ -254,10 +253,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             ReinitializeStates();
             if (SharedProperty.SessionInfo is null)
                 _chunkManager.OnSessionClosed();
-        }
-        else if (propName == nameof(SharedProperty.IsSidePanelVisible))
-        {
-            NotifyPropertyChanged(nameof(UISidePanelVisibleBinding));
         }
     }
 
@@ -375,13 +370,12 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     #endregion
 
-    // TODO Buffer Update model is unstable, some chunks are left hollow and
-    // dont allocated even if view is out of screen then goes in screen again
     public class ChunkManager
     {
         private readonly ViewportControlVM _viewport;
-        private CoordsRange2 _visibleChunkRange;
         private readonly Dictionary<Coords2, ChunkWrapper> _buffer = new();
+        private CoordsRange2 _visibleChunkRange;
+        private bool _needReallocate = false;
 
         public ChunkManager(ViewportControlVM viewport)
         {
@@ -430,46 +424,51 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             if (newVisibleChunkRange == oldVisibleChunkRange)
                 return;
             _visibleChunkRange = newVisibleChunkRange;
+            _needReallocate = true;
             v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeXBinding));
             v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeZBinding));
         }
 
         private void UpdateBuffer()
         {
-            List<Coords2> deallocatedChunksPos = new();
-            List<Coords2> allocatedChunksPos = new();
-
-            // perform boundary checking for chunks outside display frame
-            foreach (Coords2 chunkPos in _buffer.Keys)
-                if (!_visibleChunkRange.IsInside(chunkPos))
-                    deallocatedChunksPos.Add(chunkPos);
-
-            // perform sweep checking for chunks inside display frame
-            for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
+            if (_needReallocate)
             {
-                for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
+                List<Coords2> deallocatedChunksPos = new();
+                List<Coords2> allocatedChunksPos = new();
+
+                // perform boundary checking for chunks outside display frame
+                foreach (Coords2 chunkPos in _buffer.Keys)
+                    if (!_visibleChunkRange.IsInside(chunkPos))
+                        deallocatedChunksPos.Add(chunkPos);
+
+                // perform sweep checking for chunks inside display frame
+                for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
                 {
-                    Coords2 chunkCoords = new(x, z);
-                    if (!_buffer.ContainsKey(chunkCoords))
-                        allocatedChunksPos.Add(chunkCoords);
+                    for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
+                    {
+                        Coords2 chunkCoords = new(x, z);
+                        if (!_buffer.ContainsKey(chunkCoords))
+                            allocatedChunksPos.Add(chunkCoords);
+                    }
                 }
-            }
 
-            foreach (Coords2 chunkPos in deallocatedChunksPos)
-            {
-                ChunkWrapper chunk = _buffer[chunkPos];
-                _buffer.Remove(chunkPos);
-                chunk.Deallocate(_viewport);
-            }
+                foreach (Coords2 chunkPos in deallocatedChunksPos)
+                {
+                    ChunkWrapper chunk = _buffer[chunkPos];
+                    _buffer.Remove(chunkPos);
+                    chunk.Deallocate(_viewport);
+                }
 
-            foreach (Coords2 chunkPos in allocatedChunksPos)
-            {
-                ChunkWrapper chunk = new(chunkPos);
-                _buffer.Add(chunkPos, chunk);
-                chunk.Allocate(this);
-            }
+                foreach (Coords2 chunkPos in allocatedChunksPos)
+                {
+                    ChunkWrapper chunk = new(chunkPos);
+                    _buffer.Add(chunkPos, chunk);
+                    chunk.Allocate(this);
+                }
 
-            _viewport.NotifyPropertyChanged(nameof(ChunkManagerVisibleChunkCount));
+                _viewport.NotifyPropertyChanged(nameof(ChunkManagerVisibleChunkCount));
+                _needReallocate = false;
+            }
 
             foreach (ChunkWrapper chunk in _buffer.Values)
             {
@@ -484,6 +483,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                 chunk.Deallocate(_viewport);
             }
             _buffer.Clear();
+            // reset visible chunk range to zero, this will ensure next
+            // update will set visible chunk range to different value,
+            // setting needreallocate to true, in turns allowing chunk reallocation
+            _visibleChunkRange = new CoordsRange2();
         }
 
         public class ChunkWrapper
@@ -496,9 +499,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
             public void Allocate(ChunkManager manager)
             {
+                // cancel allocation if chunk is outside screen frame
                 if (!manager._visibleChunkRange.IsInside(_pos))
                     return;
-                DispatcherOperation allocateOperation = Application.Current.Dispatcher.BeginInvoke(
+                DispatcherOperation allocationOperation = Application.Current.Dispatcher.BeginInvoke(
                     method: OnAllocate,
                     DispatcherPriority.Background,
                     args: new object[] { manager._viewport });
@@ -515,11 +519,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                     return;
                 _chunk = new ChunkControl(_pos);
                 ReadChunk();
-                UpdatePosition(viewport);
-                UpdateSize(viewport);
+                Update(viewport);
                 viewport.Control.ChunkCanvas.Children.Add(_chunk);
-                viewport.NotifyPropertyChanged(nameof(ChunkManagerLoadedChunkCount));
-                viewport.NotifyPropertyChanged(nameof(ChunkManagerPendingChunkCount));
+                OnReallocated(viewport);
             }
 
             public void Deallocate(ViewportControlVM viewport)
@@ -528,10 +530,15 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                 if (_chunk is null)
                     return;
                 viewport.Control.ChunkCanvas.Children.Remove(_chunk);
-                viewport.NotifyPropertyChanged(nameof(ChunkManagerLoadedChunkCount));
-                viewport.NotifyPropertyChanged(nameof(ChunkManagerPendingChunkCount));
+                OnReallocated(viewport);
                 _chunk.Dispose();
                 _chunk = null;
+            }
+
+            private static void OnReallocated(ViewportControlVM viewport)
+            {
+                viewport.NotifyPropertyChanged(nameof(ChunkManagerLoadedChunkCount));
+                viewport.NotifyPropertyChanged(nameof(ChunkManagerPendingChunkCount));
             }
 
             public async void ReadChunk(DispatcherOperation allocateOperation)
@@ -551,58 +558,54 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
             public void Update(ViewportControlVM viewport)
             {
-                UpdatePosition(viewport);
-                UpdateSize(viewport);
-            }
-
-            private void UpdatePosition(ViewportControlVM viewport)
-            {
                 if (_chunk is null)
                     return;
+                UpdatePosition(viewport, _chunk);
+                UpdateSize(viewport, _chunk);
 
-                // we floor all the floating-point number here
-                // so it snaps perfectly to the pixel and it removes
-                // "Jaggy-Moving" illusion.
-                // Try to not floor it and see yourself the illusion
+                static void UpdatePosition(ViewportControlVM viewport, ChunkControl chunk)
+                {
+                    // we floor all the floating-point number here
+                    // so it snaps perfectly to the pixel and it removes
+                    // "Jaggy-Moving" illusion.
+                    // Try to not floor it and see yourself the illusion
 
-                PointF2 chunkPosOffset = viewport.ChunkPosOffset.Floor;
+                    PointF2 chunkPosOffset = viewport.ChunkPosOffset.Floor;
 
-                // scaled unit is offset amount required to align the
-                // coordinate to zoomed coordinate measured from world origin.
-                // Here we are scaling the cartesian coordinate unit by zoom amount
-                // (which is pixel-per-chunk)
+                    // scaled unit is offset amount required to align the
+                    // coordinate to zoomed coordinate measured from world origin.
+                    // Here we are scaling the cartesian coordinate unit by zoom amount
+                    // (which is pixel-per-chunk)
 
-                PointInt2 scaledUnit = _chunk.CanvasPos * viewport.ViewportPixelPerChunk;
+                    PointInt2 scaledUnit = chunk.CanvasPos * viewport.ViewportPixelPerChunk;
 
-                // Push toward center is offset amount required to align the coordinate
-                // relative to the chunk canvas center,
-                // so it creates "zoom toward center" effect
+                    // Push toward center is offset amount required to align the coordinate
+                    // relative to the chunk canvas center,
+                    // so it creates "zoom toward center" effect
 
-                PointF2 pushTowardCenter = viewport.ViewportChunkCanvasCenter.Floor;
+                    PointF2 pushTowardCenter = viewport.ViewportChunkCanvasCenter.Floor;
 
-                // Origin offset is offset amount requred to align the coordinate
-                // to keep it stays aligned with moved world origin
-                // when view is dragged around.
-                // The offset itself is from camera position.
-                // It is inverted because obviously, if camera is 1 meter to the right
-                // of origin, then everything else the camera sees must be 1 meter
-                // shifted to the left of the camera
+                    // Origin offset is offset amount requred to align the coordinate
+                    // to keep it stays aligned with moved world origin
+                    // when view is dragged around.
+                    // The offset itself is from camera position.
+                    // It is inverted because obviously, if camera is 1 meter to the right
+                    // of origin, then everything else the camera sees must be 1 meter
+                    // shifted to the left of the camera
 
-                PointF2 originOffset = -chunkPosOffset;
+                    PointF2 originOffset = -chunkPosOffset;
 
-                PointF2 finalPos
-                    = (originOffset + scaledUnit + pushTowardCenter).Floor;
-                Canvas.SetLeft(_chunk, finalPos.X);
-                Canvas.SetTop(_chunk, finalPos.Y);
-            }
+                    PointF2 finalPos
+                        = (originOffset + scaledUnit + pushTowardCenter).Floor;
+                    Canvas.SetLeft(chunk, finalPos.X);
+                    Canvas.SetTop(chunk, finalPos.Y);
+                }
 
-            private void UpdateSize(ViewportControlVM viewport)
-            {
-                if (_chunk is null)
-                    return;
-                _chunk.Width = viewport.ViewportPixelPerChunk;
+                static void UpdateSize(ViewportControlVM viewport, ChunkControl chunk)
+                {
+                    chunk.Width = viewport.ViewportPixelPerChunk;
+                }
             }
         }
-
     }
 }

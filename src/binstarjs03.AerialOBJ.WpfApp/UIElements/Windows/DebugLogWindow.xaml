@@ -8,7 +8,7 @@
         d:DataContext="{d:DesignInstance Type=local:DebugLogWindowVM}"
         
         Title="Debug Log" 
-        Visibility="{Binding Path=IsDebugLogWindowVisible, 
+        Visibility="{Binding Path=UIDebugLogWindowVisibleBinding, 
                              Mode=TwoWay, 
                              UpdateSourceTrigger=PropertyChanged, 
                              Converter={StaticResource BoolToVisibility}}"
@@ -31,7 +31,7 @@
             </Menu>
 
             <TextBox Name="LogTextBox"
-                     Text="{Binding Path=LogContent, Mode=OneWay}"
+                     Text="{Binding Path=LogContentBinding, Mode=OneWay}"
                      d:Text="Some initial text to preview"
                      BorderThickness="0"
                      Margin="1,0"

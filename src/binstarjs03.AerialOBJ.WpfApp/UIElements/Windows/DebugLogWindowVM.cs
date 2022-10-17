@@ -12,14 +12,13 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
 {
     public DebugLogWindowVM(DebugLogWindow window) : base(window)
     {
-        // listen to shared property change
         SharedProperty.PropertyChanged += OnSharedPropertyChanged;
 
         // listen to service events
         LogService.LogHandlers += OnLogServiceLogging;
         LogService.GetLogContentHandlers += OnLogServiceGetLogContent;
 
-        // assign command implementation to commands
+        // set commands to its corresponding implementations
         SaveLogCommand = new RelayCommand(OnSaveLog);
         ClearLogCommand = new RelayCommand(OnClearLog);
         WriteSingleCommand = new RelayCommand(OnWriteSingle);
@@ -27,28 +26,36 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         WriteVerticalCommand = new RelayCommand(OnWriteVertical);
     }
 
-    // States -----------------------------------------------------------------
-
-    public bool IsDebugLogWindowVisible
-    {
-        get => SharedProperty.IsDebugLogWindowVisible;
-        set => SetSharedPropertyChanged
-        (
-            value,
-            SharedProperty.IsDebugLogWindowVisibleUpdater
-        );
-    }
+    #region States - Fields and Properties
 
     private string _logContent = string.Empty;
-    public string LogContent
+
+    #endregion
+
+    #region Data Binders
+
+    public bool UIDebugLogWindowVisibleBinding
+    {
+        get => SharedProperty.UIDebugLogWindowVisible;
+        set => SharedProperty.UpdateUIDebugLogWindowVisible(value);
+    }
+
+    public string LogContentBinding
     {
         get => _logContent;
         set => SetAndNotifyPropertyChanged(value, ref _logContent);
     }
 
-    // Commands ---------------------------------------------------------------
+    #endregion
+
+    #region Commands
 
     public ICommand SaveLogCommand { get; }
+    public ICommand ClearLogCommand { get; }
+    public ICommand WriteSingleCommand { get; }
+    public ICommand WriteHorizontalCommand { get; }
+    public ICommand WriteVerticalCommand { get; }
+
     private void OnSaveLog(object? arg)
     {
         using SaveFileDialog dialog = new()
@@ -71,26 +78,22 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         }
     }
 
-    public ICommand ClearLogCommand { get; }
     private void OnClearLog(object? arg)
     {
-        LogContent = "";
+        LogContentBinding = "";
         LogService.LogRuntimeInfo();
     }
 
-    public ICommand WriteSingleCommand { get; }
     private void OnWriteSingle(object? arg)
     {
         LogService.Log("Hello World!");
     }
 
-    public ICommand WriteHorizontalCommand { get; }
     private void OnWriteHorizontal(object? arg)
     {
         LogService.Log("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget hendrerit nisl. In ut gravida metus. Suspendisse vitae gravida lacus. Nulla faucibus congue velit, at iaculis dolor interdum a. Nunc id metus sed nunc molestie varius. Cras lobortis auctor urna, ut pulvinar ante. Pellentesque vehicula lobortis nunc et iaculis. Vivamus at lacus tortor. Vivamus euismod eget quam sed rhoncus. Curabitur ipsum velit, venenatis et accumsan vitae, dictum nec augue.");
     }
 
-    public ICommand WriteVerticalCommand { get; }
     private void OnWriteVertical(object? arg)
     {
         string[] contents = new string[] {
@@ -110,23 +113,20 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         }
     }
 
-    // Event Handlers ---------------------------------------------------------
+    #endregion
 
-    protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        string propertyName = e.PropertyName!;
-        if (propertyName == nameof(IsDebugLogWindowVisible))
-            NotifyPropertyChanged(nameof(IsDebugLogWindowVisible));
-    }
+    #region Event Handlers
 
     private void OnLogServiceLogging(string content)
     {
-        LogContent += $"{content}{Environment.NewLine}";
+        LogContentBinding += $"{content}{Environment.NewLine}";
         Window.LogTextBox.ScrollToEnd();
     }
 
     private string OnLogServiceGetLogContent()
     {
-        return LogContent;
+        return LogContentBinding;
     }
+
+    #endregion
 }

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.WpfApp.Converters;
@@ -35,13 +36,12 @@ public partial class DoubleBox : UserControl
 
     private void UpdateValueBinding()
     {
-        # pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        // i have no idea how to pass to another ConvertBack parameter, so i leave it to null
-        DoubleValue = (double)new DoubleToString().ConvertBack(UnderlyingTextBox.Text, null, null, null);
-        # pragma warning restore CS8625
+        // bad idea, this is not updating the binding, it bypasses validation rules etc etc, it just make things worse
+        //DoubleValue = (double)new DoubleToString().ConvertBack(UnderlyingTextBox.Text, null, null, null);
+
         // Originally, updating was done using below code,
         // but it fails to update when focus is lost and it still remains mystery.
-        //BindingExpression expr = UnderlyingTextBox.GetBindingExpression(TextBox.TextProperty);
-        //expr.UpdateSource();
+        BindingExpression expr = UnderlyingTextBox.GetBindingExpression(TextBox.TextProperty);
+        expr.UpdateSource();
     }
 }
