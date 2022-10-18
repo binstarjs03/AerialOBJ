@@ -9,7 +9,8 @@
              d:Width="50"
              
              KeyUp="OnKeyUp" 
-             LostFocus="OnLostFocus">
+             LostFocus="OnLostFocus" 
+             GotFocus="OnGotFocus">
     <Grid>
         <StackPanel>
             <TextBox Name="UnderlyingTextBox">
@@ -29,7 +30,7 @@
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
-                            <Trigger Property="IsFocused" Value="False">
+                            <DataTrigger Binding="{Binding ElementName=Root, Path=Focused}" Value="False">
                                 <Setter Property="Text">
                                     <Setter.Value>
                                         <Binding ElementName="Root"
@@ -38,7 +39,7 @@
                                                  StringFormat="{}{0:f2}"/>
                                     </Setter.Value>
                                 </Setter>
-                            </Trigger>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </TextBox.Style>
