@@ -34,6 +34,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     // for updating value, dont modify field directly! use the updaters
     #region States - Fields and Properties
 
+    // zoom table, using fibonacci sequence to produce natural zoom behaviour
     private static readonly int[] s_blockPixelCount = new int[] {
         1, 2, 3, 5, 8, 13, 21, 34
     };
@@ -53,6 +54,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private bool _mouseInitClickDrag = true;
     private bool _mouseIsOutside = true;
 
+    private bool _uiSidePanelVisible = false;
+    private bool _uiViewportDebugInfoVisible = false;
+
     private PointF2 ViewportChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
                                                      Control.ChunkCanvas.ActualHeight / 2);
     private PointF2 ChunkPosOffset => _viewportCameraPos * ViewportPixelPerBlock;
@@ -65,6 +69,18 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     // do not use data binders (even just dereferencing it),
     // use the non-data binders version instead!
     #region Data Binders
+
+    public bool UISidePanelVisibleBinding
+    {
+        get => _uiSidePanelVisible;
+        set => SetAndNotifyPropertyChanged(value, ref _uiSidePanelVisible);
+    }
+
+    public bool UIViewportDebugInfoVisibleBinding
+    {
+        get => _uiViewportDebugInfoVisible;
+        set => SetAndNotifyPropertyChanged(value, ref _uiViewportDebugInfoVisible);
+    }
 
     public double ViewportCameraPosXBinding
     {
@@ -140,14 +156,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         get => _exportArea2.Z;
         set => UpdateExportArea1(new Coords3(_exportArea2.X, _exportArea2.Y, value));
     }
-
-
-    public bool UISidePanelVisibleBinding
-    {
-        get => SharedProperty.UISidePanelVisible;
-        set => SharedProperty.UpdateUISidePanelVisible(value);
-    }
-
 
     public string MousePosBinding => _mousePos.ToStringAnotherFormat();
     public string MousePosDeltaBinding => _mousePosDelta.ToStringAnotherFormat();
@@ -259,6 +267,11 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     #endregion
 
     #region Updaters
+
+    public void UpdateUISidePanelVisible(bool value)
+    {
+        SetAndNotifyPropertyChanged(value, ref _uiSidePanelVisible, nameof(UISidePanelVisibleBinding));
+    }
 
     private void UpdateViewportCameraPos(PointF2 cameraPos)
     {

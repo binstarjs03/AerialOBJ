@@ -46,7 +46,6 @@ public static class SharedProperty
 
     private static bool s_uiDebugLogWindowVisible = false;
     private static SessionInfo? s_sessionInfo = null;
-    private static bool s_uiSidePanelVisible = false;
 
     #endregion
 
@@ -70,12 +69,6 @@ public static class SharedProperty
 
     public static bool HasSession => SessionInfo is not null;
 
-    public static bool UISidePanelVisible
-    {
-        get => s_uiSidePanelVisible;
-        set => NotifyPropertyChanged(value, ref s_uiSidePanelVisible);
-    }
-
     #endregion
 
     #region Shared Property Updater
@@ -87,13 +80,7 @@ public static class SharedProperty
     public static void UpdateSessionInfo(SessionInfo? value)
     {
         SessionInfo = value;
-        if (value is null)
-            UISidePanelVisible = false;
     }
-    public static void UpdateUISidePanelVisible(bool value)
-    {
-        UISidePanelVisible = value;
-    } 
 
     #endregion
 

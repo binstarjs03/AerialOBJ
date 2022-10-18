@@ -37,8 +37,17 @@
                               IsEnabled="{Binding Path=HasSessionBinding, 
                                                   Mode=OneWay}"
                               IsCheckable="True"
-                              IsChecked="{Binding Path=UISidePanelVisibleBinding,
-                                                  Mode=TwoWay,
+                              IsChecked="{Binding ElementName=Viewport, 
+                                                  Path=DataContext.UISidePanelVisibleBinding, 
+                                                  Mode=OneWayToSource, 
+                                                  UpdateSourceTrigger=PropertyChanged}"/>
+                    <MenuItem Header="Viewport Debug Info"
+                              IsEnabled="{Binding Path=HasSessionBinding,
+                                                  Mode=OneWay}"
+                              IsCheckable="True"
+                              IsChecked="{Binding ElementName=Viewport, 
+                                                  Path=DataContext.UIViewportDebugInfoVisibleBinding, 
+                                                  Mode=OneWayToSource, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                     <MenuItem Header="Debug Log" 
                               IsCheckable="True"
@@ -58,7 +67,8 @@
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <controls:ViewportControl IsEnabled="{Binding ElementName=Root, 
+            <controls:ViewportControl x:Name="Viewport" 
+                                      IsEnabled="{Binding ElementName=Root, 
                                                           Path=DataContext.HasSessionBinding, 
                                                           Mode=OneWay}"/>
         </DockPanel>

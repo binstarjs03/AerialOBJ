@@ -33,12 +33,6 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
     public bool HasSessionBinding => HasSession;
 
-    public bool UISidePanelVisibleBinding
-    {
-        get => SharedProperty.UISidePanelVisible;
-        set => SharedProperty.UpdateUISidePanelVisible(value);
-    }
-
     public bool UIDebugLogWindowVisibleBinding
     {
         get => SharedProperty.UIDebugLogWindowVisible;
