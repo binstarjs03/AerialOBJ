@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -116,6 +116,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     public string ChunkManagerVisibleChunkRangeXBinding => _chunkManager.VisibleChunkRange.XRange.ToString();
     public string ChunkManagerVisibleChunkRangeZBinding => _chunkManager.VisibleChunkRange.ZRange.ToString();
+    public string ChunkManagerVisibleRegionRangeXBinding => _chunkManager.VisibleRegionRange.XRange.ToString();
+    public string ChunkManagerVisibleRegionRangeZBinding => _chunkManager.VisibleRegionRange.ZRange.ToString();
     public int ChunkManagerVisibleChunkCount => _chunkManager.VisibleChunkCount;
     public int ChunkManagerLoadedChunkCount => _chunkManager.LoadedChunkCount;
     public int ChunkManagerPendingChunkCount => ChunkManagerVisibleChunkCount - ChunkManagerLoadedChunkCount;
@@ -396,6 +398,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         }
 
         public CoordsRange2 VisibleChunkRange => _visibleChunkRange;
+        public CoordsRange2 VisibleRegionRange => GetVisibleRegionRange();
         public int VisibleChunkCount => _buffer.Count;
         public int LoadedChunkCount => _viewport.Control.ChunkCanvas.Children.Count;
 
@@ -438,8 +441,29 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                 return;
             _visibleChunkRange = newVisibleChunkRange;
             _needReallocate = true;
-            v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeXBinding));
-            v.NotifyPropertyChanged(nameof(v.ChunkManagerVisibleChunkRangeZBinding));
+            
+            string[] propertyNames = new string[]
+            {
+                nameof(v.ChunkManagerVisibleChunkRangeXBinding),
+                nameof(v.ChunkManagerVisibleChunkRangeZBinding),
+                nameof(v.ChunkManagerVisibleRegionRangeXBinding),
+                nameof(v.ChunkManagerVisibleRegionRangeZBinding),
+            };
+            v.NotifyPropertyChanged(propertyNames);
+        }
+
+        private CoordsRange2 GetVisibleRegionRange()
+        {
+            CoordsRange2 vcr = _visibleChunkRange;
+            
+            int regionMinX = vcr.XRange.Min / Region.ChunkCount;
+            int regionMaxX = vcr.XRange.Max / Region.ChunkCount;
+
+            int regionMinZ = vcr.ZRange.Min / Region.ChunkCount;
+            int regionMaxZ = vcr.ZRange.Max / Region.ChunkCount;
+
+            CoordsRange2 visibleRegionRange = new(regionMinX, regionMaxX, regionMinZ, regionMaxZ);
+            return visibleRegionRange;
         }
 
         private void UpdateBuffer()

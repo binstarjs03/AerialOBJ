@@ -194,6 +194,17 @@
                                 <TextBlock Text="{Binding Path=ChunkManagerVisibleChunkRangeZBinding, Mode=OneWay}"/>
                             </StackPanel>
                         </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Visible Region Range: "/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="- X Range: "/>
+                                <TextBlock Text="{Binding Path=ChunkManagerVisibleRegionRangeXBinding, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="- Z Range: "/>
+                                <TextBlock Text="{Binding Path=ChunkManagerVisibleRegionRangeZBinding, Mode=OneWay}"/>
+                            </StackPanel>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Loaded Chunk Count: "/>
                             <TextBlock Text="{Binding Path=ChunkManagerLoadedChunkCount, Mode=OneWay}"/>
