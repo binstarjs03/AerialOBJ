@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 
+using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.IO;
 using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.WorldRegion;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
@@ -73,5 +75,16 @@ public static class IOService
             ModalService.ShowErrorOK("Error Opening Minecraft Savegame", msg);
         }
     }
-}
 
+    // heavy call, we should call this asynchronously so UI thread doesn't blocked
+    public static Region? LoadRegion(Coords2 regionCoords)
+    {
+        if (SharedProperty.SessionInfo is null)
+            return null;
+        string savegameDir = SharedProperty.SessionInfo.SavegameDirectory.FullName;
+        string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
+        if (File.Exists(regionPath))
+            return Region.Open(regionPath);
+        return null;
+    }
+}
