@@ -34,9 +34,16 @@ public class Section
         _yPos = nbtSection.Get<NbtByte>("Y").Value;
         _coordsAbs = calculateCoordsAbs(chunk, _yPos);
         _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
-        _nbtBlockStates = nbtSection.Get<NbtCompound>("block_states");
-        _nbtPalette = initNbtPalette(_nbtBlockStates);
-        _nbtData = initNbtData(_nbtBlockStates);
+        if (nbtSection.HasTag("block_states"))
+        {
+            _nbtBlockStates = nbtSection.Get<NbtCompound>("block_states");
+            _nbtPalette = initNbtPalette(_nbtBlockStates);
+            _nbtData = initNbtData(_nbtBlockStates);
+        }
+        else
+        {
+            return;
+        }
 
         static Coords3 calculateCoordsAbs(Chunk chunk, int yPos)
         {
