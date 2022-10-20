@@ -40,12 +40,12 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
     }
 
     // notifier only
-    protected void NotifyPropertyChanged(string propertyName)
+    public void NotifyPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected void NotifyPropertyChanged(string[] propertyNames)
+    public void NotifyPropertyChanged(string[] propertyNames)
     {
         foreach (string propertyName in propertyNames)
         {
