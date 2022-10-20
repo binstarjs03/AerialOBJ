@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
@@ -117,7 +117,7 @@ public class Region : IDisposable
             throw new ObjectDisposedException(nameof(Region), "Region is already disposed");
         byte[] buff = new byte[count];
         int readCount;
-        
+
         MemoryStream stream = new(_data!);
         stream.Seek(pos, SeekOrigin.Begin);
         readCount = stream.Read(buff);
@@ -133,16 +133,16 @@ public class Region : IDisposable
         return Read(pos, 1)[0];
     }
 
-    public static Coords2 ConvertChunkAbsToRel(Coords2 coords)
+    public static Coords2 ConvertChunkCoordsAbsToRel(Coords2 coords)
     {
         int relCx = MathUtils.Mod(coords.X, ChunkCount);
         int relCz = MathUtils.Mod(coords.Z, ChunkCount);
         return new Coords2(relCx, relCz);
     }
 
-    public bool HasChunkGenerated(Coords2 coords, bool relative)
+    public bool HasChunkGenerated(Coords2 chunkCoordsRel)
     {
-        var (sectorPos, sectorLength) = GetChunkHeaderData(coords, relative);
+        var (sectorPos, sectorLength) = GetChunkHeaderData(chunkCoordsRel);
         return HasChunkGenerated(sectorPos, sectorLength);
     }
 
@@ -153,19 +153,11 @@ public class Region : IDisposable
         return true;
     }
 
-    private (int sectorPos, int sectorLength) GetChunkHeaderData(Coords2 coords, bool relative)
+    private (int sectorPos, int sectorLength) GetChunkHeaderData(Coords2 chunkCoordsRel)
     {
-        if (!relative)
-        {
-            ChunkRangeAbs.ThrowIfOutside(coords);
-            coords = ConvertChunkAbsToRel(coords);
-        }
-        else
-        {
-            ChunkRangeRel.ThrowIfOutside(coords);
-        }
+        ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
 
-        long seekPos = (coords.X + coords.Z * ChunkCount) * ChunkHeaderSize;
+        long seekPos = (chunkCoordsRel.X + chunkCoordsRel.Z * ChunkCount) * ChunkHeaderSize;
         byte[] chunkHeader = Read(seekPos, ChunkHeaderSize);
 
         int chunkPos = BinaryPrimitives.ReadInt32BigEndian(new byte[1].Concat(chunkHeader[0..3]).ToArray());
@@ -181,21 +173,34 @@ public class Region : IDisposable
             for (int z = 0; z < ChunkCount; z++)
             {
                 Coords2 coordsChunk = new(x, z);
-                if (HasChunkGenerated(coordsChunk, relative: true))
+                if (HasChunkGenerated(coordsChunk))
                     generatedChunks.Add(coordsChunk);
             }
         }
         return generatedChunks.ToArray();
     }
 
-    public Chunk GetChunk(Coords2 coords, bool relative)
+    public Chunk GetChunk(Coords2 chunkCoords, bool relative)
     {
-        var (sectorPos, sectorLength) = GetChunkHeaderData(coords, relative);
+        Coords2 chunkCoordsRel;
+        if (relative)
+        {
+            ChunkRangeRel.ThrowIfOutside(chunkCoords);
+            chunkCoordsRel = chunkCoords;
+        }
+        else
+        {
+            ChunkRangeAbs.ThrowIfOutside(chunkCoords);
+            chunkCoordsRel = ConvertChunkCoordsAbsToRel(chunkCoords);
+        }
+
+        var (sectorPos, sectorLength) = GetChunkHeaderData(chunkCoordsRel);
         if (!HasChunkGenerated(sectorPos, sectorLength))
         {
             string msg = $"Chunk is not generated yet";
             throw new ChunkNotGeneratedException(msg);
         }
+
         long seekPos = sectorPos * SectorDataSize;
         int dataLength = sectorLength * SectorDataSize;
         byte[] chunkSectorData = Read(seekPos, dataLength);
@@ -211,16 +216,13 @@ public class Region : IDisposable
                 new MemoryStream(compressedNbtData),
                 IO.ByteOrder.BigEndian,
                 compressionMethod);
-            if (!relative)
-                coords = ConvertChunkAbsToRel(coords);
-            return new Chunk(nbtChunk, coords);
+            return new Chunk(nbtChunk);
         }
     }
 
     public override string ToString()
     {
-        string disposeStatus;
-        disposeStatus = _hasDisposed ? "Disposed" : "Ready";
+        string disposeStatus = _hasDisposed ? "Disposed" : "Ready";
         return $"Region {Coords} at \"{_path}\", status: {disposeStatus}";
     }
 }
