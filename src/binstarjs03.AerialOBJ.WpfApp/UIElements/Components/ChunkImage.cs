@@ -3,77 +3,55 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.WpfApp.Converters;
 
-using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 
 using PointInt2 = binstarjs03.AerialOBJ.Core.CoordinateSystem.PointInt2;
 using Section = binstarjs03.AerialOBJ.Core.WorldRegion.Section;
 
-namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
+namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
-public class ChunkControl : Image, IDisposable
+public class ChunkImage : Image, IDisposable
 {
     private static readonly PixelFormat s_format = PixelFormats.Bgra32;
     private static readonly int s_bitsPerByte = 8;
     private static readonly int s_bytesPerPixel = s_format.BitsPerPixel / s_bitsPerByte;
 
+    private readonly Chunk _chunk;
     private readonly Coords2 _pos;
     private WriteableBitmap _buff;
 
     private bool _disposed;
 
-    public ChunkControl(Coords2 canvasPos)
+    public ChunkImage(Chunk chunk)
     {
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
         RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
         _buff = new WriteableBitmap(16, 16, 96, 96, s_format, palette: null);
         Stretch = Stretch.UniformToFill;
         Source = _buff;
-        _pos = canvasPos;
+        _pos = chunk.CoordsAbs;
+        _chunk = chunk;
     }
 
     public Coords2 Pos => _pos;
     public PointInt2 CanvasPos => (PointInt2)_pos;
 
-    public void SetRandomImage()
+    public void SetImageToChunkTerrain()
     {
         try
         {
             _buff.Lock();
-            Random random = new();
+            Block[,] blocks = _chunk.GetBlockTopmost(new string[] { "minecraft:air" });
             for (int x = 0; x < Section.BlockCount; x++)
             {
                 for (int z = 0; z < Section.BlockCount; z++)
                 {
-                    PointInt2 blockPixelPos = new(x, z);
-                    Color color;
-                    if (Pos == Coords2.Zero)
-                    {
-                        int col = random.Next(150, 250);
-                        color = Color.FromArgb(
-                            255,
-                            col,
-                            col,
-                            col
-                        );
-
-                    }
-                    else if ((_pos.X + _pos.Z) % 2 == 0)
-                        color = Color.FromArgb(
-                            255,
-                            random.Next(0, 100),
-                            random.Next(100, 200),
-                            random.Next(150, 250)
-                        );
-                    else
-                        color = Color.FromArgb(
-                            255,
-                            random.Next(150, 250),
-                            random.Next(0, 100),
-                            random.Next(0, 100)
-                        );
-                    SetBlockColor(blockPixelPos, color);
+                    Coords2 coords = new(x, z);
+                    Color color = BlockToColor.Convert(blocks[x,z]);
+                    SetBlockColor((PointInt2)coords, color);
                 }
             }
         }
