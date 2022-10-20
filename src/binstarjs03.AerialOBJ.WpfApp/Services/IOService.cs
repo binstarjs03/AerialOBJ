@@ -84,7 +84,17 @@ public static class IOService
         string savegameDir = SharedProperty.SessionInfo.SavegameDirectory.FullName;
         string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
         if (File.Exists(regionPath))
-            return Region.Open(regionPath);
+        {
+            try
+            {
+                Region region = Region.Open(regionPath);
+                return region;
+            }
+            catch (InvalidDataException) // region file size is too small
+            {
+                return null;
+            }
+        }
         return null;
     }
 }
