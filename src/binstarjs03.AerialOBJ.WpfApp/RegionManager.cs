@@ -95,4 +95,14 @@ public class RegionManager
         CoordsRange2 visibleRegionRange = new(regionMinX, regionMaxX, regionMinZ, regionMaxZ);
         return visibleRegionRange;
     }
+
+    public void OnSessionClosed()
+    {
+        foreach (RegionWrapper region in _regions.Values)
+        {
+            if (region.Region is not null)
+                region.Region.Dispose();
+            _regions.Clear();
+        }
+    }
 }

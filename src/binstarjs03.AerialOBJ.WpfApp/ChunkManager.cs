@@ -150,5 +150,6 @@ public class ChunkManager
         // update will set visible chunk range to different value,
         // setting needreallocate to true, in turns allowing chunk reallocation
         _visibleChunkRange = new CoordsRange2();
+        _regionManager.OnSessionClosed();
     }
 }
