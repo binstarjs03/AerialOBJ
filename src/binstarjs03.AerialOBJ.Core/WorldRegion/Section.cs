@@ -20,9 +20,9 @@ public class Section
 
     private readonly NbtCompound _nbtSection;
     private readonly int _yPos;
-    private readonly Coords3 _coordsRel;
     private readonly Coords3 _coordsAbs;
     private readonly CoordsRange3 _blockRangeAbs;
+
     private readonly NbtCompound? _nbtBlockStates;
     private readonly NbtList? _nbtPalette;
     private readonly NbtArrayLong? _nbtData;
@@ -32,28 +32,20 @@ public class Section
     {
         _nbtSection = nbtSection;
         _yPos = nbtSection.Get<NbtByte>("Y").Value;
-        _coordsRel = evaluateCoordsRel(chunk, _yPos);
-        _coordsAbs = evaluateCoordsAbs(chunk, _yPos);
-        _blockRangeAbs = evaluateBlockRangeAbs(_coordsAbs);
+        _coordsAbs = calculateCoordsAbs(chunk, _yPos);
+        _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
         _nbtBlockStates = nbtSection.Get<NbtCompound>("block_states");
         _nbtPalette = initNbtPalette(_nbtBlockStates);
         _nbtData = initNbtData(_nbtBlockStates);
 
-        static Coords3 evaluateCoordsRel(Chunk chunk, int yPos)
-        {
-            int x = chunk.CoordsRel.X;
-            int y = yPos;
-            int z = chunk.CoordsRel.Z;
-            return new Coords3(x, y, z);
-        }
-        static Coords3 evaluateCoordsAbs(Chunk chunk, int yPos)
+        static Coords3 calculateCoordsAbs(Chunk chunk, int yPos)
         {
             int x = chunk.CoordsAbs.X;
             int y = yPos;
             int z = chunk.CoordsAbs.Z;
             return new Coords3(x, y, z);
         }
-        static CoordsRange3 evaluateBlockRangeAbs(Coords3 coordsAbs)
+        static CoordsRange3 calculateBlockRangeAbs(Coords3 coordsAbs)
         {
             int minAbsBx = coordsAbs.X * BlockCount;
             int minAbsBy = coordsAbs.Y * BlockCount;
@@ -81,8 +73,6 @@ public class Section
         }
     }
 
-    public Coords3 CoordsRel => _coordsRel;
-
     public Coords3 CoordsAbs => _coordsAbs;
 
     public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
@@ -99,20 +89,29 @@ public class Section
 
     public Block GetBlock(Coords3 coords, bool relative)
     {
+        Coords3 coordsRel;
+        Coords3 coordsAbs;
         if (relative)
+        {
             BlockRangeRel.ThrowIfOutside(coords);
+            coordsRel = coords;
+            coordsAbs = new Coords3(_coordsAbs.X * BlockCount + coords.X,
+                                    _coordsAbs.Y * BlockCount + coords.Y,
+                                    _coordsAbs.Z * BlockCount + coords.Z);
+        }
         else
         {
             BlockRangeAbs.ThrowIfOutside(coords);
-            coords = ConvertBlockAbsToRel(coords);
+            coordsRel = ConvertBlockAbsToRel(coords);
+            coordsAbs = coords;
         }
         if (_nbtBlockStates is null)
-            return new Block(this, coords);
+            return new Block(coordsAbs);
         else
-            return GetBlockFromPalette(coords);
+            return GetBlockFromPalette(coordsRel, coordsAbs);
     }
 
-    private Block GetBlockFromPalette(Coords3 coords)
+    private Block GetBlockFromPalette(Coords3 coordsRel, Coords3 coordsAbs)
     {
         NbtCompound nbtBlockProperties;
         if (_nbtPalette is null)
@@ -126,17 +125,17 @@ public class Section
         }
         else
         {
-            int paletteIndex = GetPaletteIndex(coords);
+            int paletteIndex = GetPaletteIndex(coordsRel);
             nbtBlockProperties = _nbtPalette.Get<NbtCompound>(paletteIndex);
         }
-        return new Block(this, coords, nbtBlockProperties);
+        return new Block(coordsAbs, nbtBlockProperties);
     }
 
-    private int GetPaletteIndex(Coords3 relcoords)
+    private int GetPaletteIndex(Coords3 coordsRel)
     {
-        int linearIndex = relcoords.X // map 3D array idx to linear array idx
-                        + relcoords.Z * (int)Math.Pow(BlockCount, 1)
-                        + relcoords.Y * (int)Math.Pow(BlockCount, 2);
+        int linearIndex = coordsRel.X // map 3D array idx to linear array idx
+                        + coordsRel.Z * (int)Math.Pow(BlockCount, 1)
+                        + coordsRel.Y * (int)Math.Pow(BlockCount, 2);
 
         _paletteIndexTable ??= ReadNbtLongData(); // if null, invoke
         int paletteIndex = _paletteIndexTable[linearIndex];

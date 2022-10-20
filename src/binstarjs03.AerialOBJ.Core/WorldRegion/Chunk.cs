@@ -9,6 +9,7 @@ namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Chunk
 {
+    // TODO: these static fields are unreliable. some custom worlds have their own range
     public static readonly int TotalSectionCount = SectionRange.max - SectionRange.min;
     public static readonly (int min, int max) SectionRange = (-4, 19);
     public static readonly int TotalBlockCount = Section.TotalBlockCount * TotalSectionCount;
@@ -18,28 +19,26 @@ public class Chunk
         zRange: new Range(0, Section.BlockCount)
     );
 
-    private readonly Coords2 _coordsRel;
     private readonly Coords2 _coordsAbs;
     private readonly CoordsRange3 _blockRangeAbs;
     private readonly NbtCompound _nbtChunk;
     private readonly Dictionary<int, NbtCompound> _nbtSections;
     private readonly int[] _sectionsYPos;
 
-    public Chunk(NbtCompound nbtChunk, Coords2 coordsRel)
+    public Chunk(NbtCompound nbtChunk)
     {
-        _coordsRel = coordsRel;
-        _coordsAbs = evaluateCoordsAbs(nbtChunk);
-        _blockRangeAbs = evaluateBlockRangeAbs(_coordsAbs);
+        _coordsAbs = calculateCoordsAbs(nbtChunk);
+        _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
         _nbtChunk = nbtChunk;
-        (_sectionsYPos, _nbtSections) = initSections(nbtChunk);
+        (_sectionsYPos, _nbtSections) = readSectionsTag(nbtChunk);
 
-        static Coords2 evaluateCoordsAbs(NbtCompound nbtChunk)
+        static Coords2 calculateCoordsAbs(NbtCompound nbtChunk)
         {
             int x = nbtChunk.Get<NbtInt>("xPos").Value;
             int z = nbtChunk.Get<NbtInt>("zPos").Value;
             return new Coords2(x, z);
         }
-        static CoordsRange3 evaluateBlockRangeAbs(Coords2 coordsAbs)
+        static CoordsRange3 calculateBlockRangeAbs(Coords2 coordsAbs)
         {
             int minAbsBx = coordsAbs.X * Section.BlockCount;
             int minAbsBy = SectionRange.min * Section.BlockCount;
@@ -53,31 +52,25 @@ public class Chunk
 
             return new CoordsRange3(minAbsB, maxAbsB);
         }
-        static (int[], Dictionary<int, NbtCompound>) initSections(NbtCompound nbtChunk)
+        static (int[], Dictionary<int, NbtCompound>) readSectionsTag(NbtCompound nbtChunk)
         {
             NbtList nbtSections = nbtChunk.Get<NbtList>("sections");
             int sectionLength = nbtSections.Length;
 
-            int[] retInts = new int[nbtSections.Length];
-            Dictionary<int, NbtCompound> retDict = new();
+            int[] sectionInts = new int[nbtSections.Length];
+            Dictionary<int, NbtCompound> sectionDict = new();
 
             for (int i = 0; i < sectionLength; i++)
             {
                 NbtCompound nbtSection = nbtSections.Get<NbtCompound>(i);
                 int sectionYPos = nbtSection.Get<NbtByte>("Y").Value;
 
-                if (!nbtSection.HasTag("block_states"))
-                    // TODO: send warning signal that this chunk contains skipped section
-                    continue;
-
-                retInts[i] = sectionYPos;
-                retDict.Add(sectionYPos, nbtSection);
+                sectionInts[i] = sectionYPos;
+                sectionDict.Add(sectionYPos, nbtSection);
             }
-            return (retInts, retDict);
+            return (sectionInts, sectionDict);
         }
     }
-
-    public Coords2 CoordsRel => _coordsRel;
 
     public Coords2 CoordsAbs => _coordsAbs;
 
@@ -87,11 +80,18 @@ public class Chunk
 
     public int[] SectionsYPos => _sectionsYPos;
 
-    public Section GetSection(int yPos)
+    public bool HasSection(int sectionY)
     {
-        if (!_nbtSections.ContainsKey(yPos))
-            throw new KeyNotFoundException($"Section {yPos} does not exist in chunk");
-        return new Section(this, _nbtSections[yPos]);
+        if (_nbtSections.ContainsKey(sectionY))
+            return true;
+        return false;
+    }
+
+    public Section GetSection(int sectionY)
+    {
+        if (!_nbtSections.ContainsKey(sectionY))
+            throw new KeyNotFoundException($"Section {sectionY} does not exist in chunk");
+        return new Section(this, _nbtSections[sectionY]);
     }
 
     public Section[] GetSections()
@@ -107,41 +107,77 @@ public class Chunk
 
     public Block GetBlock(Coords3 coords, bool relative)
     {
-        int sectionYPos = (int)MathF.Floor(coords.Y / Section.BlockCount);
+        Coords3 coordsAbs;
+        Coords3 coordsRel;
+        Coords3 coordsLocalToSection;
         if (relative)
-            coords.Y = MathUtils.Mod(coords.Y, Section.BlockCount);
-        Section section = GetSection(sectionYPos);
-        return section.GetBlock(coords, relative);
+        {
+            BlockRangeRel.ThrowIfOutside(coords);
+            coordsAbs = new Coords3(_coordsAbs.X * Section.BlockCount + coords.X,
+                                     coords.Y,
+                                    _coordsAbs.Z * Section.BlockCount + coords.Z);
+            coordsRel = coords;
+        }
+        else // absolute
+        {
+            BlockRangeAbs.ThrowIfOutside(coords);
+            coordsAbs = coords;
+            coordsRel = ConvertBlockAbsToRel(coords);
+        }
+
+        coordsLocalToSection = new Coords3(coordsRel.X,
+                                           MathUtils.Mod(coords.Y, Section.BlockCount),
+                                           coordsRel.Z);
+
+        int sectionYPos = (int)MathF.Floor(coords.Y / Section.BlockCount);
+        if (HasSection(sectionYPos))
+        {
+            Section section = GetSection(sectionYPos);
+            return section.GetBlock(coordsLocalToSection, relative: true);
+        }
+        else
+            return new Block("minecraft:air", coordsAbs);
     }
 
-    public Block[] GetBlockTopmost(string[] exclusions)
+    // TODO need more polishing, especially if height limit value is invalid
+    public Block[,] GetBlockTopmost(string[] exclusions, int? heightLimit = null)
     {
-        int sectionBlockCountXZ = (int)MathF.Pow(Section.BlockCount, 2);
-        Block[] topBlocks = new Block[sectionBlockCountXZ];
+        int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
+        Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
+
         foreach (Section section in GetSections())
         {
+            int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
+            if (heightAtSection > limit)
+                break;
             for (int z = 0; z < Section.BlockCount; z++)
             {
                 for (int x = 0; x < Section.BlockCount; x++)
                 {
-                    Block? topBlockAtThisXZ = null;
                     for (int y = 0; y < Section.BlockCount; y++)
                     {
-                        Coords3 coordsBlockRel = new(x, y, z);
-                        Block block = section.GetBlock(coordsBlockRel, relative: true);
-                        //if (topmost[index].Name == block.Name)
-                        //    continue;
+                        Coords3 coordsBlockAbs = new(section.CoordsAbs.X * Section.BlockCount + x,
+                                                     section.CoordsAbs.Y * Section.BlockCount + y,
+                                                     section.CoordsAbs.Z * Section.BlockCount + z);
+                        if (blocks[x,z] is null)
+                        {
+                            Block air = new(coordsBlockAbs);
+                            blocks[x, z] = air;
+                        }
+
+                        int height = heightAtSection + Section.BlockCount + y;
+                        if (height > limit)
+                            break;
+
+                        Block block = section.GetBlock(coordsBlockAbs, relative: false);
                         if (exclusions.Contains(block.Name))
                             continue;
-                        topBlockAtThisXZ = block;
+                        blocks[x, z] = block;
                     }
-                    int index = x + z * Section.BlockCount;
-                    if (topBlockAtThisXZ is not null)
-                        topBlocks[index] = topBlockAtThisXZ;
                 }
             }
         }
-        return topBlocks;
+        return blocks;
     }
 
     public static Coords3 ConvertBlockAbsToRel(Coords3 coords)

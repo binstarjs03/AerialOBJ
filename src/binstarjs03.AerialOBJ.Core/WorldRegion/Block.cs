@@ -1,48 +1,60 @@
-﻿using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+﻿using System.Collections;
+using System.Collections.Generic;
+
+using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
 namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Block
 {
-    private readonly string _name;
-    private readonly Coords3 _coordsRel;
-    private readonly Coords3 _coordsAbs;
-    private readonly NbtCompound _properties;
+    private string _name;
+    private Coords3 _coordsAbs;
+    private Dictionary<string, string>? _properties;
 
-    public Block(Section section, Coords3 coordsRel)
+    public Block()
     {
-        _coordsRel = coordsRel;
-        _coordsAbs = EvaluateCoordsAbs(section, coordsRel);
-        string name = "minecraft:air";
-        NbtBase[] propertiesNbt = new NbtBase[1] { new NbtString("Name", name) };
+        _name = "minecraft:air";
+        _coordsAbs = Coords3.Zero;
+    }
+    public Block(Coords3 coordsAbs)
+    {
+        _name = "minecraft:air";
+        _coordsAbs = coordsAbs;
+    }
+
+
+    public Block(string name, Coords3 coordsAbs)
+    {
         _name = name;
-        _properties = new(propertiesNbt);
+        _coordsAbs = coordsAbs;
     }
 
-    public Block(Section section, Coords3 coordsRel, NbtCompound properties)
+    // TODO properties parser isn't implemented yet. Any properties from nbt
+    // compound will be ignored and not stored inside properties dictionary
+    public Block(Coords3 coordsAbs, NbtCompound properties)
     {
-        _coordsRel = coordsRel;
-        _coordsAbs = EvaluateCoordsAbs(section, coordsRel);
         _name = properties.Get<NbtString>("Name").Value;
-        _properties = properties;
+        _coordsAbs = coordsAbs;
     }
 
-    private static Coords3 EvaluateCoordsAbs(Section section, Coords3 coordsRel)
+    public string Name
     {
-        int x = coordsRel.X + (section.CoordsAbs.X * Section.BlockCount);
-        int y = coordsRel.Y + (section.CoordsAbs.Y * Section.BlockCount);
-        int z = coordsRel.Z + (section.CoordsAbs.Z * Section.BlockCount);
-        return new Coords3(x, y, z);
+        get => _name;
+        set => _name = value;
     }
 
-    public string Name => _name;
+    public Coords3 CoordsAbs
+    {
+        get => _coordsAbs;
+        set => _coordsAbs = value;
+    }
 
-    public Coords3 CoordsRel => _coordsRel;
-
-    public Coords3 CoordsAbs => _coordsAbs;
-
-    public NbtCompound Properties => _properties;
+    public Dictionary<string, string>? Properties
+    {
+        get => _properties;
+        set => _properties = value;
+    }
 
     public override string ToString()
     {
