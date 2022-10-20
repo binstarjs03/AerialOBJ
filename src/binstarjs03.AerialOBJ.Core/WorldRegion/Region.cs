@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
@@ -25,35 +25,21 @@ public class Region : IDisposable
     public static readonly int ChunkHeaderSize = 4;
 
     private readonly string _path;
-    private bool _useStream;
     private byte[]? _data;
-    private readonly Stream? _stream;
 
     private readonly Coords2 _coords;
     private readonly CoordsRange2 _chunkRangeAbs;
 
     private bool _hasDisposed;
 
-    public Region(string path, Coords2 coords, bool useStream)
+    public Region(string path, Coords2 coords)
     {
-        _useStream = useStream;
-        _path = path;
         FileInfo fi = new(path);
         checkRegionData(fi);
-        if (useStream)
-        {
-            _stream = File.Open(
-                path,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read);
-        }
-        else
-        {
-            _data = File.ReadAllBytes(path);
-        }
+        _path = path;
+        _data = File.ReadAllBytes(path);
         _coords = coords;
-        _chunkRangeAbs = evaluateChunkRangeAbs(coords);
+        _chunkRangeAbs = calculateChunkRangeAbs(coords);
 
         static void checkRegionData(FileInfo fileInfo)
         {
@@ -63,7 +49,7 @@ public class Region : IDisposable
             throw new InvalidDataException(msg);
         }
 
-        static CoordsRange2 evaluateChunkRangeAbs(Coords2 coords)
+        static CoordsRange2 calculateChunkRangeAbs(Coords2 coords)
         {
             int minAbsCx = coords.X * ChunkCount;
             int minAbsCz = coords.Z * ChunkCount;
@@ -77,11 +63,11 @@ public class Region : IDisposable
         }
     }
 
-    public static Region Open(string path, Coords2 coords, bool useStream) 
-        => new(path, coords, useStream);
+    public static Region Open(string path, Coords2 coords)
+        => new(path, coords);
 
     /// <exception cref="RegionUnrecognizedFileException"></exception>
-    public static Region Open(string path, bool useStream)
+    public static Region Open(string path)
     {
         FileInfo fi = new(path);
         string[] split = fi.Name.Split('.');
@@ -93,7 +79,7 @@ public class Region : IDisposable
             int x = int.Parse(split[1]);
             int z = int.Parse(split[2]);
             Coords2 coords = new(x, z);
-            return new Region(path, coords, useStream);
+            return new Region(path, coords);
         }
         else
         {
@@ -107,18 +93,9 @@ public class Region : IDisposable
     {
         if (!_hasDisposed)
         {
-            //if (disposing) {
-            //    dispose managed objects
-            //}
             _data = null;
-            _stream?.Dispose();
             _hasDisposed = true;
         }
-    }
-
-    ~Region()
-    {
-        Dispose(disposing: false);
     }
 
     public void Dispose()
@@ -129,35 +106,29 @@ public class Region : IDisposable
 
     #endregion
 
-    public bool UseStream => _useStream;
     public Coords2 Coords => _coords;
     public CoordsRange2 ChunkRangeAbs => _chunkRangeAbs;
 
     /// <exception cref="ObjectDisposedException"></exception>
     /// <exception cref="EndOfStreamException"></exception>
-    public byte[] Read(long pos, int count)
+    private byte[] Read(long pos, int count)
     {
+        if (_hasDisposed)
+            throw new ObjectDisposedException(nameof(Region), "Region is already disposed");
         byte[] buff = new byte[count];
         int readCount;
-        if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(_stream), "Region is already disposed");
-        if (_useStream)
-        {
-            _stream!.Seek(pos, SeekOrigin.Begin);
-            readCount = _stream.Read(buff);
-        }
-        else
-        {
-            MemoryStream stream = new(_data!);
-            stream.Seek(pos, SeekOrigin.Begin);
-            readCount = stream.Read(buff);
-        }
+        
+        MemoryStream stream = new(_data!);
+        stream.Seek(pos, SeekOrigin.Begin);
+        readCount = stream.Read(buff);
+        stream.Close();
+
         if (readCount < count)
             throw new EndOfStreamException();
         return buff;
     }
 
-    public byte Read(long pos)
+    private byte Read(long pos)
     {
         return Read(pos, 1)[0];
     }
@@ -219,7 +190,17 @@ public class Region : IDisposable
 
     public Chunk GetChunk(Coords2 coords, bool relative)
     {
-        using (MemoryStream chunkSectorStream = GetChunkRawStream(coords, relative))
+        var (sectorPos, sectorLength) = GetChunkHeaderData(coords, relative);
+        if (!HasChunkGenerated(sectorPos, sectorLength))
+        {
+            string msg = $"Chunk is not generated yet";
+            throw new ChunkNotGeneratedException(msg);
+        }
+        long seekPos = sectorPos * SectorDataSize;
+        int dataLength = sectorLength * SectorDataSize;
+        byte[] chunkSectorData = Read(seekPos, dataLength);
+
+        using (MemoryStream chunkSectorStream = new(chunkSectorData))
         using (IO.BinaryReaderEndian reader = new(chunkSectorStream, IO.ByteOrder.BigEndian))
         {
             int nbtChunkLength = reader.ReadInt();
@@ -236,47 +217,10 @@ public class Region : IDisposable
         }
     }
 
-    public static Chunk GetChunk(MemoryStream chunkStream, Coords2 coords, bool relative)
-    {
-        using (chunkStream)
-        using (IO.BinaryReaderEndian reader = new(chunkStream, IO.ByteOrder.BigEndian))
-        {
-            int nbtChunkLength = reader.ReadInt();
-            NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
-            byte[] compressedNbtData = reader.ReadBytes(nbtChunkLength, endianMatter: false);
-
-            NbtCompound nbtChunk = (NbtCompound)NbtBase.ReadStream(
-                new MemoryStream(compressedNbtData),
-                IO.ByteOrder.BigEndian,
-                compressionMethod);
-            if (!relative)
-                coords = ConvertChunkAbsToRel(coords);
-            return new Chunk(nbtChunk, coords);
-        }
-    }
-
-    public MemoryStream GetChunkRawStream(Coords2 coords, bool relative)
-    {
-        var (sectorPos, sectorLength) = GetChunkHeaderData(coords, relative);
-        if (!HasChunkGenerated(sectorPos, sectorLength))
-        {
-            string msg = $"Chunk is not generated yet";
-            throw new ChunkNotGeneratedException(msg);
-        }
-
-        long seekPos = sectorPos * SectorDataSize;
-        int dataLength = sectorLength * SectorDataSize;
-        byte[] chunkSectorData = Read(seekPos, dataLength);
-
-        return new MemoryStream(chunkSectorData);
-    }
-
     public override string ToString()
     {
-        string ioStatus;
-        string dataSource;
-        ioStatus = _hasDisposed ? "Closed" : "Open";
-        dataSource = _useStream ? "disk" : "memory";
-        return $"Region {Coords} at \"{_path}\", stream status: {ioStatus}, data source: {dataSource}";
+        string disposeStatus;
+        disposeStatus = _hasDisposed ? "Disposed" : "Ready";
+        return $"Region {Coords} at \"{_path}\", status: {disposeStatus}";
     }
 }
