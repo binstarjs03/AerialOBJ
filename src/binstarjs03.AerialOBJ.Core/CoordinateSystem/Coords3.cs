@@ -28,8 +28,6 @@ public struct Coords3
 
     public static Coords3 Zero => new(0, 0, 0);
 
-
-
     #region Object overrides 
 
     public override string ToString()
@@ -52,8 +50,6 @@ public struct Coords3
 
     #endregion
 
-
-
     #region Equality Operators 
 
     public static bool operator ==(Coords3 left, Coords3 right)
@@ -67,8 +63,6 @@ public struct Coords3
     }
 
     #endregion
-
-
 
     #region Casters 
 

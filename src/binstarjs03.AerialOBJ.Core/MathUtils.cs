@@ -1,4 +1,6 @@
-﻿namespace binstarjs03.AerialOBJ.Core;
+﻿using System;
+
+namespace binstarjs03.AerialOBJ.Core;
 
 public static class MathUtils
 {
@@ -8,5 +10,10 @@ public static class MathUtils
         if (right >= 0 && result < 0 || right < 0 && result >= 0)
             result += right;
         return result;
+    }
+
+    public static int DivFloor(double num, double divisor)
+    {
+        return (int)Math.Floor(num / divisor);
     }
 }
