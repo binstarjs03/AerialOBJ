@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -6,6 +8,7 @@ using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.WorldRegion;
 using binstarjs03.AerialOBJ.WpfApp.Converters;
 
+using ImageFormat = System.Drawing.Imaging.ImageFormat;
 using Image = System.Windows.Controls.Image;
 
 using PointInt2 = binstarjs03.AerialOBJ.Core.CoordinateSystem.PointInt2;
@@ -15,13 +18,8 @@ namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
 public class ChunkImage : Image, IDisposable
 {
-    private static readonly PixelFormat s_format = PixelFormats.Bgra32;
-    private static readonly int s_bitsPerByte = 8;
-    private static readonly int s_bytesPerPixel = s_format.BitsPerPixel / s_bitsPerByte;
-
     private readonly Chunk _chunk;
     private readonly Coords2 _pos;
-    private WriteableBitmap _buff;
 
     private bool _disposed;
 
@@ -29,9 +27,7 @@ public class ChunkImage : Image, IDisposable
     {
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
         RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
-        _buff = new WriteableBitmap(16, 16, 96, 96, s_format, palette: null);
         Stretch = Stretch.UniformToFill;
-        Source = _buff;
         _pos = chunk.CoordsAbs;
         _chunk = chunk;
     }
@@ -39,52 +35,45 @@ public class ChunkImage : Image, IDisposable
     public Coords2 Pos => _pos;
     public PointInt2 CanvasPos => (PointInt2)_pos;
 
+    // call this from secondary thread as calling it from main thread will
+    // block UI thread!
     public void SetImageToChunkTerrain()
     {
-        try
+        Bitmap bitmap = new(16, 16);
+        Block[,] blocks = _chunk.GetBlockTopmost(new string[] { "minecraft:air" });
+        for (int x = 0; x < Section.BlockCount; x++)
         {
-            _buff.Lock();
-            Block[,] blocks = _chunk.GetBlockTopmost(new string[] { "minecraft:air" });
-            for (int x = 0; x < Section.BlockCount; x++)
+            for (int z = 0; z < Section.BlockCount; z++)
             {
-                for (int z = 0; z < Section.BlockCount; z++)
-                {
-                    Coords2 coords = new(x, z);
-                    Color color = BlockToColor.Convert(blocks[x,z]);
-                    SetBlockColor((PointInt2)coords, color);
-                }
+                bitmap.SetPixel(x, z, BlockToColor2.Convert(blocks[x, z]));
             }
         }
-        finally
-        {
-            _buff.Unlock();
-        }
-    }
+        MemoryStream memory = new();
+        bitmap.Save(memory, ImageFormat.Bmp);
+        memory.Position = 0;
 
-    private void SetBlockColor(PointInt2 blockPixelPos, Color color)
-    {
-        //if (pixelPos.X > 15)
-        int xOffset = blockPixelPos.X * s_bytesPerPixel;
-        int yOffset = blockPixelPos.Y * s_bytesPerPixel * _buff.PixelWidth;
-        int offset = xOffset + yOffset;
-        IntPtr backBuffPtr = _buff.BackBuffer;
-        unsafe
+        object[] args = new object[]
         {
-            byte* backBuffData = (byte*)backBuffPtr.ToPointer();
-            backBuffData[offset + 0] = color.B;
-            backBuffData[offset + 1] = color.G;
-            backBuffData[offset + 2] = color.R;
-            backBuffData[offset + 3] = color.A;
-        }
+            memory
+        };
 
-        /* Mark buffer area of mutated pixel
-           so the front buffer will be updated */
-        _buff.AddDirtyRect(new(blockPixelPos.X, blockPixelPos.Y, 1, 1));
+        Action<object> method = (object arg) =>
+        {
+            MemoryStream memory = (MemoryStream)arg;
+            BitmapImage image = new();
+            image.BeginInit();
+            image.StreamSource = memory;
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.EndInit();
+            Source = image;
+            memory.Dispose();
+        };
+
+        Dispatcher.BeginInvoke(method, System.Windows.Threading.DispatcherPriority.Background, args);
     }
 
     #region Dispose Pattern
 
-#   pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
     protected virtual void Dispose(bool disposing)
     {
         if (!_disposed)
@@ -97,11 +86,9 @@ public class ChunkImage : Image, IDisposable
             // free unmanaged resources (unmanaged objects) and override finalizer
             // set large fields to null
             Source = null;
-            _buff = null;
             _disposed = true;
         }
     }
-#   pragma warning restore CS8625
 
     // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
     // ~ChunkControl()

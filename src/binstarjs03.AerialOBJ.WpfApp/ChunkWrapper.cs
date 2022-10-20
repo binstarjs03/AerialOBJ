@@ -33,7 +33,7 @@ public class ChunkWrapper
             return;
         Application.Current.Dispatcher.BeginInvoke(
             method: OnAllocate,
-            DispatcherPriority.Background);
+            DispatcherPriority.ContextIdle);
     }
 
     private void OnAllocate()
@@ -41,11 +41,20 @@ public class ChunkWrapper
         if (_abortAllocation)
             return;
         Chunk? chunk = _manager.RegionManager.GetChunk(_pos);
-        if (chunk is null) 
+        if (chunk is null)
             return;
         _chunk = new ChunkImage(chunk);
-        _chunk.SetImageToChunkTerrain();
-        Update();
+
+        Task.Run(() =>
+        {
+            // at any time when this invoked, chunk may be null or aborted
+            // this can happened when the thread that
+            // executing this is happening after chunk is deallocated (too late to execute)
+            if (_abortAllocation || _chunk is null)
+                return;
+            _chunk.SetImageToChunkTerrain();
+        });
+
         _viewport.Control.ChunkCanvas.Children.Add(_chunk);
         OnReallocated();
     }
