@@ -209,6 +209,7 @@ public class Region : IDisposable
         using (IO.BinaryReaderEndian reader = new(chunkSectorStream, IO.ByteOrder.BigEndian))
         {
             int nbtChunkLength = reader.ReadInt();
+            nbtChunkLength -= 1;
             NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
             byte[] compressedNbtData = reader.ReadBytes(nbtChunkLength, endianMatter: false);
 
