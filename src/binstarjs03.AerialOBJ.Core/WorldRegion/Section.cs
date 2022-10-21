@@ -8,6 +8,10 @@ using binstarjs03.AerialOBJ.Core.Nbt;
 
 namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
+// TODO section is the culprit for garbage collection pressure,
+// maybe we should delete it at all and merge it with Chunk
+// or maybe after all the culprit is the NbtCompound as it is a large object
+// with a lot of strings and arrays and such
 public class Section
 {
     public static readonly int BlockCount = 16;

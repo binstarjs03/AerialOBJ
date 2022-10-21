@@ -140,12 +140,20 @@ public class Chunk
     }
 
     // TODO need more polishing, especially if height limit value is invalid
+    // TODO this function pressurizes GC too much!
+    // calling this method in parallel will trigger GC alot,
+    // we need to refactor this method to reduce heap allocation
     public Block[,] GetBlockTopmost(string[] exclusions, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
         Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
 
-        foreach (Section section in GetSections())
+        // iterate through all sections and set block to top-most of
+        // section block if it isn't in exclusions
+
+        // we need to find a way to deallocate section immediately,
+        // because there are a lots of heap allocations in section
+        foreach (Section section in GetSections()) 
         {
             int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
             if (heightAtSection > limit)
