@@ -32,30 +32,18 @@ public class ChunkImage : Image, IDisposable
 
     // call this from secondary thread as calling it from main thread will
     // block UI thread!
-    public void SetImageToChunkTerrain(Bitmap bitmap)
+    public void SetImageToChunkTerrain(MemoryStream bitmapStream)
     {
-        MemoryStream memory = new();
-        bitmap.Save(memory, ImageFormat.Bmp);
-        memory.Position = 0;
+        bitmapStream.Position = 0;
 
-        object[] args = new object[]
-        {
-            memory
-        };
+        BitmapImage image = new();
+        image.BeginInit();
+        image.StreamSource = bitmapStream;
+        image.CacheOption = BitmapCacheOption.OnLoad;
+        image.EndInit();
+        Source = image;
+        bitmapStream.Dispose();
 
-        Action<object> method = (object arg) =>
-        {
-            MemoryStream memory = (MemoryStream)arg;
-            BitmapImage image = new();
-            image.BeginInit();
-            image.StreamSource = memory;
-            image.CacheOption = BitmapCacheOption.OnLoad;
-            image.EndInit();
-            Source = image;
-            memory.Dispose();
-        };
-
-        Dispatcher.BeginInvoke(method, System.Windows.Threading.DispatcherPriority.Background, args);
     }
 
     #region Dispose Pattern

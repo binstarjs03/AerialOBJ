@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,12 +29,23 @@ public class ChunkWrapper
         _viewport = manager.Viewport;
     }
 
-    public void Allocate()
+    // return true if can allocate, false otherwise
+    public bool Allocate()
     {
         // cancel allocation if chunk is outside screen frame
         if (!_manager.VisibleChunkRange.IsInside(_pos))
-            return;
-        Task.Run(OnAllocateThreaded);
+            return false;
+        // cancel allocation if returned chunk does not exist
+        if (_manager.RegionManager.CanGetChunk(_pos))
+        {
+            Task.Run(OnAllocateThreaded);
+            return true;
+        }
+        else
+        {
+            _abortAllocation = true;
+            return false;
+        }
     }
 
     private void OnAllocateThreaded()
@@ -55,16 +67,22 @@ public class ChunkWrapper
                 bitmap.SetPixel(x, z, BlockToColor2.Convert(blocks[x, z]));
             }
         }
+        MemoryStream memory = new();
+        bitmap.Save(memory, ImageFormat.Bmp);
+
+        // at this point application may be already terminated, we just return it
+        if (Application.Current is null)
+            return;
         Application.Current.Dispatcher.BeginInvoke(
             method: OnAllocateDispatcher,
             DispatcherPriority.ContextIdle,
-            new object[] { bitmap });
+            new object[] { memory });
     }
 
-    private void OnAllocateDispatcher(Bitmap bitmap)
+    private void OnAllocateDispatcher(MemoryStream memory)
     {
         _chunkImage = new(_pos);
-        _chunkImage.SetImageToChunkTerrain(bitmap);
+        _chunkImage.SetImageToChunkTerrain(memory);
         Update();
         if (_abortAllocation)
             return;

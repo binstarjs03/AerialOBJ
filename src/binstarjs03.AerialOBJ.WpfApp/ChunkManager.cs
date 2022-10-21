@@ -100,8 +100,8 @@ public class ChunkManager
     {
         if (_needReallocate)
         {
-            List<Coords2> deallocatedChunksPos = new();
-            List<Coords2> allocatedChunksPos = new();
+            List<Coords2> deallocatedChunksPos = new(30);
+            List<Coords2> allocatedChunksPos = new(30);
 
             // perform boundary checking for chunks outside display frame
             foreach (Coords2 chunkPos in _chunks.Keys)
@@ -129,8 +129,8 @@ public class ChunkManager
             foreach (Coords2 chunkPos in allocatedChunksPos)
             {
                 ChunkWrapper chunk = new(chunkPos, this);
-                _chunks.Add(chunkPos, chunk);
-                chunk.Allocate();
+                if (chunk.Allocate()) // only add to buffer if can allocate
+                    _chunks.Add(chunkPos, chunk);
             }
 
             _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerVisibleChunkCount));
