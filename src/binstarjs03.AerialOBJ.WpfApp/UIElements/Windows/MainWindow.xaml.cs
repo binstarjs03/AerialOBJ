@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 
 using binstarjs03.AerialOBJ.WpfApp.Services;
 
@@ -38,5 +39,10 @@ public partial class MainWindow : Window
     {
         MainService.Initialize();
 
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        Application.Current.Shutdown();
     }
 }

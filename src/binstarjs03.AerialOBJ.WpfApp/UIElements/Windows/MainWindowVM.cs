@@ -5,6 +5,8 @@ using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.WpfApp.Services;
 
+using Application = System.Windows.Application;
+
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
@@ -47,6 +49,11 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     public ICommand OpenCommand { get; }
     public ICommand CloseCommand { get; }
     public ICommand ForceGCCommand { get; }
+
+    protected override void OnWindowClose(object? arg)
+    {
+        Application.Current.Shutdown();
+    }
 
     private void OnAbout(object? arg)
     {
