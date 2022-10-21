@@ -17,13 +17,15 @@ public class Block
         _name = "minecraft:air";
         _coordsAbs = Coords3.Zero;
     }
+
+    // propertiesless and nameless constructor
     public Block(Coords3 coordsAbs)
     {
         _name = "minecraft:air";
         _coordsAbs = coordsAbs;
     }
 
-
+    // propertiesless constructor
     public Block(string name, Coords3 coordsAbs)
     {
         _name = name;
@@ -36,6 +38,15 @@ public class Block
     {
         _name = properties.Get<NbtString>("Name").Value;
         _coordsAbs = coordsAbs;
+    }
+
+    // private constructor for clone method
+    private Block(string name, Coords3 coordsAbs, Dictionary<string, string>? properties)
+    {
+        _name = name;
+        _coordsAbs = coordsAbs;
+        if (properties is not null)
+            _properties = new Dictionary<string, string>(properties);
     }
 
     public string Name
@@ -54,6 +65,11 @@ public class Block
     {
         get => _properties;
         set => _properties = value;
+    }
+
+    public Block Clone()
+    {
+        return new Block(_name, _coordsAbs, _properties);
     }
 
     public override string ToString()
