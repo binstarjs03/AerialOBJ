@@ -9,7 +9,7 @@ namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Chunk
 {
-    // TODO: these static fields are unreliable. some custom worlds have their own range
+    // TODO: these static fields are unreliable. some custom worlds have their own range so we have to refactor the class
     public static readonly int TotalSectionCount = SectionRange.max - SectionRange.min;
     public static readonly (int min, int max) SectionRange = (-4, 19);
     public static readonly int TotalBlockCount = Section.TotalBlockCount * TotalSectionCount;
@@ -21,16 +21,15 @@ public class Chunk
 
     private readonly Coords2 _coordsAbs;
     private readonly CoordsRange3 _blockRangeAbs;
-    private readonly NbtCompound _nbtChunk;
-    private readonly Dictionary<int, NbtCompound> _nbtSections;
     private readonly int[] _sectionsYPos;
+
+    private readonly Dictionary<int, Section> _sections;
 
     public Chunk(NbtCompound nbtChunk)
     {
         _coordsAbs = calculateCoordsAbs(nbtChunk);
         _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
-        _nbtChunk = nbtChunk;
-        (_sectionsYPos, _nbtSections) = readSectionsTag(nbtChunk);
+        (_sectionsYPos, _sections) = readSections(_coordsAbs, nbtChunk);
 
         static Coords2 calculateCoordsAbs(NbtCompound nbtChunk)
         {
@@ -52,23 +51,24 @@ public class Chunk
 
             return new CoordsRange3(minAbsB, maxAbsB);
         }
-        static (int[], Dictionary<int, NbtCompound>) readSectionsTag(NbtCompound nbtChunk)
+        static (int[], Dictionary<int, Section>) readSections(Coords2 chunkCoordsAbs, NbtCompound nbtChunk)
         {
-            NbtList nbtSections = nbtChunk.Get<NbtList>("sections");
-            int sectionLength = nbtSections.Length;
+            NbtList sectionsNbt = nbtChunk.Get<NbtList>("sections");
+            int sectionLength = sectionsNbt.Length;
 
-            int[] sectionInts = new int[nbtSections.Length];
-            Dictionary<int, NbtCompound> sectionDict = new();
+            int[] sectionsYPos = new int[sectionsNbt.Length];
+            Dictionary<int, Section> sections = new();
 
             for (int i = 0; i < sectionLength; i++)
             {
-                NbtCompound nbtSection = nbtSections.Get<NbtCompound>(i);
-                int sectionYPos = nbtSection.Get<NbtByte>("Y").Value;
+                NbtCompound sectionNbt = sectionsNbt.Get<NbtCompound>(i);
+                int sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
+                Section section = new(chunkCoordsAbs, sectionNbt);
 
-                sectionInts[i] = sectionYPos;
-                sectionDict.Add(sectionYPos, nbtSection);
+                sectionsYPos[i] = sectionYPos;
+                sections.Add(sectionYPos, section);
             }
-            return (sectionInts, sectionDict);
+            return (sectionsYPos, sections);
         }
     }
 
@@ -76,22 +76,20 @@ public class Chunk
 
     public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
 
-    public NbtCompound NbtChunk => _nbtChunk;
-
     public int[] SectionsYPos => _sectionsYPos;
 
     public bool HasSection(int sectionY)
     {
-        if (_nbtSections.ContainsKey(sectionY))
+        if (_sections.ContainsKey(sectionY))
             return true;
         return false;
     }
 
     public Section GetSection(int sectionY)
     {
-        if (!_nbtSections.ContainsKey(sectionY))
+        if (!_sections.ContainsKey(sectionY))
             throw new KeyNotFoundException($"Section {sectionY} does not exist in chunk");
-        return new Section(this, _nbtSections[sectionY]);
+        return _sections[sectionY];
     }
 
     public Section[] GetSections()
@@ -140,20 +138,19 @@ public class Chunk
     }
 
     // TODO need more polishing, especially if height limit value is invalid
-    // TODO this function pressurizes GC too much!
-    // calling this method in parallel will trigger GC alot,
-    // we need to refactor this method to reduce heap allocation
     public Block[,] GetBlockTopmost(string[] exclusions, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
         Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
+        Block block;
+        Coords3 coords;
 
         // set initial block, which is air
         for (int x = 0; x < Section.BlockCount; x++)
         {
             for (int z = 0; z < Section.BlockCount; z++)
             {
-                Coords3 coords = new(_coordsAbs.X * Section.BlockCount + x,
+                coords = new(_coordsAbs.X * Section.BlockCount + x,
                                      0,
                                      _coordsAbs.Z * Section.BlockCount + z);
                 Block air = new(coords);
@@ -161,35 +158,34 @@ public class Chunk
             }
         }
 
-        // iterate through all sections and set block to top-most of
-        // section block if it isn't in exclusions
-        // we need to find a way to deallocate section immediately,
-        // because there are a lots of heap allocations in section
-        foreach (Section section in GetSections()) 
+        for (int z = 0; z < Section.BlockCount; z++)
         {
-            int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
-            if (heightAtSection > limit)
-                break;
-            for (int z = 0; z < Section.BlockCount; z++)
+            for (int x = 0; x < Section.BlockCount; x++)
             {
-                for (int x = 0; x < Section.BlockCount; x++)
+                // iterate through all sections and set block to top-most of
+                // section block if it isn't in exclusions
+                foreach (Section section in GetSections())
                 {
+                    int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
+                    if (heightAtSection > limit)
+                        break;
+
                     for (int y = 0; y < Section.BlockCount; y++)
                     {
-                        Coords3 coordsBlockAbs = new(section.CoordsAbs.X * Section.BlockCount + x,
-                                                     section.CoordsAbs.Y * Section.BlockCount + y,
-                                                     section.CoordsAbs.Z * Section.BlockCount + z);
-
                         int height = heightAtSection + Section.BlockCount + y;
                         if (height > limit)
                             break;
 
-                        // TODO block is the REAL culprit for heavy GC pressure, we should
-                        // set existing block instance instead if both are different
-                        Block block = section.GetBlock(coordsBlockAbs, relative: false);
-                        if (exclusions.Contains(block.Name))
-                            continue;
-                        blocks[x, z] = block;
+                        block = blocks[x, z];
+
+                        // new coords in case if SetBlock successfully modifying the coords
+                        coords = new(x + section.CoordsAbs.X * Section.BlockCount,
+                                             y + section.CoordsAbs.Y * Section.BlockCount,
+                                             z + section.CoordsAbs.Z * Section.BlockCount);
+
+                        // set existing block instance to avoid heap generation.
+                        // generating heap at tight-loop like this will trash the GC very badly
+                        section.SetBlock(block, coords, relative: false, useAir:false);
                     }
                 }
             }
