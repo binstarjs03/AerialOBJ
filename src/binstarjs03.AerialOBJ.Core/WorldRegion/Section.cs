@@ -8,10 +8,6 @@ using binstarjs03.AerialOBJ.Core.Nbt;
 
 namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
-// TODO section is the culprit for garbage collection pressure,
-// maybe we should delete it at all and merge it with Chunk
-// or maybe after all the culprit is the NbtCompound as it is a large object
-// with a lot of strings and arrays and such
 public class Section
 {
     public static readonly int BlockCount = 16;
@@ -22,38 +18,50 @@ public class Section
         max: new Coords3(BlockRange, BlockRange, BlockRange)
     );
 
-    private readonly NbtCompound _nbtSection;
     private readonly int _yPos;
     private readonly Coords3 _coordsAbs;
     private readonly CoordsRange3 _blockRangeAbs;
 
-    private readonly NbtCompound? _nbtBlockStates;
-    private readonly NbtList? _nbtPalette;
-    private readonly NbtArrayLong? _nbtData;
-    private int[]? _paletteIndexTable;
+    private readonly int[,,]? _blockPaletteIndexTable;
+    private readonly Block[]? _blockTable;
 
-    public Section(Chunk chunk, NbtCompound nbtSection)
+    public Section(Coords2 chunkCoordsAbs, NbtCompound sectionNbt)
     {
-        _nbtSection = nbtSection;
-        _yPos = nbtSection.Get<NbtByte>("Y").Value;
-        _coordsAbs = calculateCoordsAbs(chunk, _yPos);
+        _yPos = sectionNbt.Get<NbtByte>("Y").Value;
+        _coordsAbs = calculateCoordsAbs(chunkCoordsAbs, _yPos);
         _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
-        if (nbtSection.HasTag("block_states"))
+
+        if (sectionNbt.HasTag("block_states"))
         {
-            _nbtBlockStates = nbtSection.Get<NbtCompound>("block_states");
-            _nbtPalette = initNbtPalette(_nbtBlockStates);
-            _nbtData = initNbtData(_nbtBlockStates);
+            if (!sectionNbt.HasTag("block_states"))
+                return;
+            NbtCompound blockStatesNbt = sectionNbt.Get<NbtCompound>("block_states");
+            NbtList? paletteBlockNbt = readPaletteNbt(blockStatesNbt);
+
+            if (paletteBlockNbt is null)
+                return;
+
+            _blockTable = new Block[paletteBlockNbt.Length];
+            for (int i = 0; i < paletteBlockNbt.Length; i++)
+            {
+                NbtCompound blockPropertyNbt = paletteBlockNbt.Get<NbtCompound>(i);
+                // block template in block table coordinate doesn't matter
+                // so we set it to zero
+                _blockTable[i] = new Block(Coords3.Zero, blockPropertyNbt);
+            }
+
+            NbtArrayLong? dataNbt = readDataNbt(blockStatesNbt);
+            if (dataNbt is not null)
+                _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteBlockNbt.Length);
         }
         else
-        {
             return;
-        }
 
-        static Coords3 calculateCoordsAbs(Chunk chunk, int yPos)
+        static Coords3 calculateCoordsAbs(Coords2 chunkCoordsAbs, int yPos)
         {
-            int x = chunk.CoordsAbs.X;
+            int x = chunkCoordsAbs.X;
             int y = yPos;
-            int z = chunk.CoordsAbs.Z;
+            int z = chunkCoordsAbs.Z;
             return new Coords3(x, y, z);
         }
         static CoordsRange3 calculateBlockRangeAbs(Coords3 coordsAbs)
@@ -70,13 +78,13 @@ public class Section
 
             return new CoordsRange3(minAbsB, maxAbsB);
         }
-        static NbtList? initNbtPalette(NbtCompound nbtBlockStates)
+        static NbtList? readPaletteNbt(NbtCompound nbtBlockStates)
         {
             if (!nbtBlockStates.HasTag("palette"))
                 return null;
             return nbtBlockStates.Get<NbtList>("palette");
         }
-        static NbtArrayLong? initNbtData(NbtCompound nbtBlockStates)
+        static NbtArrayLong? readDataNbt(NbtCompound nbtBlockStates)
         {
             if (!nbtBlockStates.HasTag("data"))
                 return null;
@@ -87,8 +95,6 @@ public class Section
     public Coords3 CoordsAbs => _coordsAbs;
 
     public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
-
-    public NbtCompound NbtSection => _nbtSection;
 
     public static Coords3 ConvertBlockAbsToRel(Coords3 coords)
     {
@@ -116,49 +122,23 @@ public class Section
             coordsRel = ConvertBlockAbsToRel(coords);
             coordsAbs = coords;
         }
-        if (_nbtBlockStates is null)
-            return new Block(coordsAbs);
-        else
-            return GetBlockFromPalette(coordsRel, coordsAbs);
-    }
-
-    private Block GetBlockFromPalette(Coords3 coordsRel, Coords3 coordsAbs)
-    {
-        NbtCompound nbtBlockProperties;
-        if (_nbtPalette is null)
-            throw new NullReferenceException();
-        if (_nbtData is null)
-        {
-            if (_nbtPalette.Length != 1)
-                throw new InvalidOperationException();
-            else
-                nbtBlockProperties = _nbtPalette.Get<NbtCompound>(0);
-        }
+        if (_blockPaletteIndexTable is null)
+            return new Block(coordsAbs); // return air block
         else
         {
-            int paletteIndex = GetPaletteIndex(coordsRel);
-            nbtBlockProperties = _nbtPalette.Get<NbtCompound>(paletteIndex);
+            int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
+            Block block = _blockTable![blockTableIndex].Clone();
+            block.CoordsAbs = coordsAbs;
+            return block;
         }
-        return new Block(coordsAbs, nbtBlockProperties);
     }
 
-    private int GetPaletteIndex(Coords3 coordsRel)
+    // long data stores what block is at xyz, and that block is corresponds
+    // to one block from palette. The long data itself is in long data type form
+    // and when being interpreted as binary, it holds many integers that stores
+    // exactly what block is at xyz.
+    private static int[,,] ReadNbtLongData(NbtArrayLong dataNbt, int paletteLength)
     {
-        int linearIndex = coordsRel.X // map 3D array idx to linear array idx
-                        + coordsRel.Z * (int)Math.Pow(BlockCount, 1)
-                        + coordsRel.Y * (int)Math.Pow(BlockCount, 2);
-
-        _paletteIndexTable ??= ReadNbtLongData(); // if null, invoke
-        int paletteIndex = _paletteIndexTable[linearIndex];
-        return paletteIndex;
-    }
-
-    private int[] ReadNbtLongData()
-    {
-        if (_nbtPalette is null || _nbtData is null)
-            throw new NullReferenceException();
-        int paletteLength = _nbtPalette.Length;
-
         // bit-length required for single block id (minimum of 4) based from palette length.
         int blockBitLength = Math.Max((paletteLength - 1).Bitlength(), 4);
 
@@ -181,8 +161,9 @@ public class Section
          * which in this case no single bit are left discarded, no wastage.
          */
 
+        // linear table, order is XZY **
         List<int> paletteIndexTable = new(TotalBlockCount);
-        foreach (long binInLongForm in _nbtData.Values)
+        foreach (long binInLongForm in dataNbt.Values)
         {
             // extract binary from long and reverse it.
             // This makes the data bit order in little-endian.
@@ -209,7 +190,21 @@ public class Section
             }
             paletteIndexTable.AddRange(intTableFragment);
         }
-        return paletteIndexTable.ToArray();
+
+        // transform linear table (1D) becoming 3D table
+        int[,,] paletteIndexTable3D = new int[BlockCount, BlockCount, BlockCount];
+        for (int x = 0; x < BlockCount; x++)
+            for (int y = 0; y < BlockCount; y++)
+                for (int z = 0; z < BlockCount; z++)
+                {
+                    // map 3D array idx to linear array idx, see ** above
+                    int linearIndex = x
+                                    + z * (int)Math.Pow(BlockCount, 1)
+                                    + y * (int)Math.Pow(BlockCount, 2);
+                    paletteIndexTable3D[x, y, z] = paletteIndexTable[linearIndex];
+                }
+
+        return paletteIndexTable3D;
     }
 
     public override string ToString()
