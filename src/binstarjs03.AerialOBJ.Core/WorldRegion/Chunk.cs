@@ -148,9 +148,21 @@ public class Chunk
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
         Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
 
+        // set initial block, which is air
+        for (int x = 0; x < Section.BlockCount; x++)
+        {
+            for (int z = 0; z < Section.BlockCount; z++)
+            {
+                Coords3 coords = new(_coordsAbs.X * Section.BlockCount + x,
+                                     0,
+                                     _coordsAbs.Z * Section.BlockCount + z);
+                Block air = new(coords);
+                blocks[x, z] = air;
+            }
+        }
+
         // iterate through all sections and set block to top-most of
         // section block if it isn't in exclusions
-
         // we need to find a way to deallocate section immediately,
         // because there are a lots of heap allocations in section
         foreach (Section section in GetSections()) 
@@ -167,16 +179,13 @@ public class Chunk
                         Coords3 coordsBlockAbs = new(section.CoordsAbs.X * Section.BlockCount + x,
                                                      section.CoordsAbs.Y * Section.BlockCount + y,
                                                      section.CoordsAbs.Z * Section.BlockCount + z);
-                        if (blocks[x,z] is null)
-                        {
-                            Block air = new(coordsBlockAbs);
-                            blocks[x, z] = air;
-                        }
 
                         int height = heightAtSection + Section.BlockCount + y;
                         if (height > limit)
                             break;
 
+                        // TODO block is the REAL culprit for heavy GC pressure, we should
+                        // set existing block instance instead if both are different
                         Block block = section.GetBlock(coordsBlockAbs, relative: false);
                         if (exclusions.Contains(block.Name))
                             continue;
