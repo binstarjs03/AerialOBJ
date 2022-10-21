@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Drawing;
+using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -6,6 +7,7 @@ using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.WpfApp.Converters;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
@@ -16,7 +18,7 @@ public class ChunkWrapper
     private readonly ChunkManager _manager;
     private readonly ViewportControlVM _viewport;
     private readonly Coords2 _pos;
-    private ChunkImage? _chunk;
+    private ChunkImage? _chunkImage;
     private bool _abortAllocation = false;
 
     public ChunkWrapper(Coords2 pos, ChunkManager manager)
@@ -31,43 +33,54 @@ public class ChunkWrapper
         // cancel allocation if chunk is outside screen frame
         if (!_manager.VisibleChunkRange.IsInside(_pos))
             return;
-        Application.Current.Dispatcher.BeginInvoke(
-            method: OnAllocate,
-            DispatcherPriority.ContextIdle);
+        Task.Run(OnAllocateThreaded);
     }
 
-    private void OnAllocate()
+    private void OnAllocateThreaded()
     {
         if (_abortAllocation)
             return;
         Chunk? chunk = _manager.RegionManager.GetChunk(_pos);
         if (chunk is null)
             return;
-        _chunk = new ChunkImage(chunk);
 
-        Task.Run(() =>
+        Bitmap bitmap = new(16, 16, PixelFormat.Format32bppArgb);
+        Block[,] blocks = chunk.GetBlockTopmost(new string[] { "minecraft:air" });
+        for (int x = 0; x < Section.BlockCount; x++)
         {
-            // at any time when this invoked, chunk may be null or aborted
-            // this can happened when the thread that
-            // executing this is happening after chunk is deallocated (too late to execute)
-            if (_abortAllocation || _chunk is null)
-                return;
-            _chunk.SetImageToChunkTerrain();
-        });
+            for (int z = 0; z < Section.BlockCount; z++)
+            {
+                if (_abortAllocation)
+                    return;
+                bitmap.SetPixel(x, z, BlockToColor2.Convert(blocks[x, z]));
+            }
+        }
+        Application.Current.Dispatcher.BeginInvoke(
+            method: OnAllocateDispatcher,
+            DispatcherPriority.ContextIdle,
+            new object[] { bitmap });
+    }
 
-        _viewport.Control.ChunkCanvas.Children.Add(_chunk);
+    private void OnAllocateDispatcher(Bitmap bitmap)
+    {
+        _chunkImage = new(_pos);
+        _chunkImage.SetImageToChunkTerrain(bitmap);
+        Update();
+        if (_abortAllocation)
+            return;
+        _viewport.Control.ChunkCanvas.Children.Add(_chunkImage);
         OnReallocated();
     }
 
     public void Deallocate()
     {
         _abortAllocation = true;
-        if (_chunk is null)
+        if (_chunkImage is null)
             return;
-        _viewport.Control.ChunkCanvas.Children.Remove(_chunk);
+        _viewport.Control.ChunkCanvas.Children.Remove(_chunkImage);
         OnReallocated();
-        _chunk.Dispose();
-        _chunk = null;
+        _chunkImage.Dispose();
+        _chunkImage = null;
     }
 
     private void OnReallocated()
@@ -78,10 +91,10 @@ public class ChunkWrapper
 
     public void Update()
     {
-        if (_chunk is null)
+        if (_chunkImage is null)
             return;
-        UpdatePosition(_chunk);
-        UpdateSize(_chunk);
+        UpdatePosition(_chunkImage);
+        UpdateSize(_chunkImage);
 
         void UpdatePosition(ChunkImage chunk)
         {

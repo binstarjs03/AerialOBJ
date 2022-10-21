@@ -5,49 +5,35 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
-using binstarjs03.AerialOBJ.WpfApp.Converters;
 
 using ImageFormat = System.Drawing.Imaging.ImageFormat;
 using Image = System.Windows.Controls.Image;
 
 using PointInt2 = binstarjs03.AerialOBJ.Core.CoordinateSystem.PointInt2;
-using Section = binstarjs03.AerialOBJ.Core.WorldRegion.Section;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
 public class ChunkImage : Image, IDisposable
 {
-    private readonly Chunk _chunk;
-    private readonly Coords2 _pos;
+    private readonly Coords2 _chunkCoordsAbs;
 
     private bool _disposed;
 
-    public ChunkImage(Chunk chunk)
+    public ChunkImage(Coords2 chunkCoordsAbs)
     {
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
         RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
         Stretch = Stretch.UniformToFill;
-        _pos = chunk.CoordsAbs;
-        _chunk = chunk;
+        _chunkCoordsAbs = chunkCoordsAbs;
     }
 
-    public Coords2 Pos => _pos;
-    public PointInt2 CanvasPos => (PointInt2)_pos;
+    public Coords2 chunkCoordsAbs => _chunkCoordsAbs;
+    public PointInt2 CanvasPos => (PointInt2)_chunkCoordsAbs;
 
     // call this from secondary thread as calling it from main thread will
     // block UI thread!
-    public void SetImageToChunkTerrain()
+    public void SetImageToChunkTerrain(Bitmap bitmap)
     {
-        Bitmap bitmap = new(16, 16);
-        Block[,] blocks = _chunk.GetBlockTopmost(new string[] { "minecraft:air" });
-        for (int x = 0; x < Section.BlockCount; x++)
-        {
-            for (int z = 0; z < Section.BlockCount; z++)
-            {
-                bitmap.SetPixel(x, z, BlockToColor2.Convert(blocks[x, z]));
-            }
-        }
         MemoryStream memory = new();
         bitmap.Save(memory, ImageFormat.Bmp);
         memory.Position = 0;
