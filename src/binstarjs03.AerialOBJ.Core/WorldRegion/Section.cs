@@ -18,6 +18,8 @@ public class Section
         max: new Coords3(BlockRange, BlockRange, BlockRange)
     );
 
+    private static readonly Block s_airBlock = new();
+
     private readonly int _yPos;
     private readonly Coords3 _coordsAbs;
     private readonly CoordsRange3 _blockRangeAbs;
@@ -104,32 +106,86 @@ public class Section
         return new Coords3(relBx, relBy, relBz);
     }
 
-    public Block GetBlock(Coords3 coords, bool relative)
+    public (Coords3 blockCoordsRel, Coords3 blockCoordsAbs) CalculateBlockCoords(Coords3 blockCoords, bool relative)
     {
-        Coords3 coordsRel;
-        Coords3 coordsAbs;
+        Coords3 blockCoordsRel;
+        Coords3 blockCoordsAbs;
         if (relative)
         {
-            BlockRangeRel.ThrowIfOutside(coords);
-            coordsRel = coords;
-            coordsAbs = new Coords3(_coordsAbs.X * BlockCount + coords.X,
-                                    _coordsAbs.Y * BlockCount + coords.Y,
-                                    _coordsAbs.Z * BlockCount + coords.Z);
+            BlockRangeRel.ThrowIfOutside(blockCoords);
+            blockCoordsRel = blockCoords;
+            blockCoordsAbs = new Coords3(_coordsAbs.X * BlockCount + blockCoords.X,
+                                    _coordsAbs.Y * BlockCount + blockCoords.Y,
+                                    _coordsAbs.Z * BlockCount + blockCoords.Z);
         }
         else
         {
-            BlockRangeAbs.ThrowIfOutside(coords);
-            coordsRel = ConvertBlockAbsToRel(coords);
-            coordsAbs = coords;
+            BlockRangeAbs.ThrowIfOutside(blockCoords);
+            blockCoordsRel = ConvertBlockAbsToRel(blockCoords);
+            blockCoordsAbs = blockCoords;
         }
+        return (blockCoordsRel, blockCoordsAbs);
+    }
+
+    // get what block the block table returned from given input.
+    // This method does generate heap so avoid calling this method at tight-loops
+    public Block GetBlock(Coords3 coords, bool relative)
+    {
+        (Coords3 coordsRel, Coords3 coordsAbs) = CalculateBlockCoords(coords, relative);
         if (_blockPaletteIndexTable is null)
-            return new Block(coordsAbs); // return air block
+        {
+            Block block = s_airBlock.Clone();
+            block.CoordsAbs = coordsAbs;
+            return block;
+        }
         else
         {
             int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
             Block block = _blockTable![blockTableIndex].Clone();
             block.CoordsAbs = coordsAbs;
             return block;
+        }
+    }
+
+    // peek what the block table returned from given input.
+    // does not generate heap
+    public Block PeekBlock(Coords3 coords, bool relative)
+    {
+        (Coords3 coordsRel, _) = CalculateBlockCoords(coords, relative);
+        if (_blockPaletteIndexTable is null)
+            return s_airBlock;
+        else
+        {
+            int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
+            return _blockTable![blockTableIndex];
+        }
+    }
+
+    // set all input block properties to block table block properties, if inequal.
+    // does not generate heap
+    public void SetBlock(Block block, Coords3 coords, bool relative, string[]? exclusions = null, bool useAir = false)
+    {
+        (Coords3 coordsRel, Coords3 coordsAbs) = CalculateBlockCoords(coords, relative);
+        if (_blockPaletteIndexTable is null) // set to air block
+        {
+            if (!useAir)
+                return;
+            block.Name = s_airBlock.Name;
+            block.CoordsAbs = coordsAbs;
+            block.Properties = s_airBlock.Properties;
+        }
+        else
+        {
+            int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
+            Block blockTemplate = _blockTable![blockTableIndex];
+            if (!useAir && blockTemplate.Name == s_airBlock.Name)
+                return;
+            if (exclusions is not null)
+                if (!exclusions.Contains(blockTemplate.Name))
+                    return;
+            block.Name = blockTemplate.Name;
+            block.CoordsAbs = blockTemplate.CoordsAbs;
+            block.Properties = blockTemplate.Properties;
         }
     }
 
