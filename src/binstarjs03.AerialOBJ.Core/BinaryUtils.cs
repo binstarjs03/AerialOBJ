@@ -35,6 +35,8 @@ public static class BinaryUtils
         byte[] ret = new byte[bitLength];
         for (int i = 0; i < bitLength; i++)
         {
+            // TODO parsing is slow especially in tight-loops.
+            // maybe we should calculate it by our own using binary shifting?
             ret[i] = byte.Parse($"{binNum[i]}");
         }
         return ret;

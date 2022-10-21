@@ -111,10 +111,18 @@ public struct CoordsRange3
     }
 
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void ThrowIfOutside(Coords3 other)
+    public void ThrowIfOutside(Coords3 other, bool displayMessage = false)
     {
-        if (!IsInside(other, out string message))
-            throw new ArgumentOutOfRangeException(nameof(other), message);
+        if (displayMessage)
+        {
+            if (!IsInside(other, out string message))
+                throw new ArgumentOutOfRangeException(nameof(other), message);
+        }
+        else
+        {
+            if (!IsInside(other))
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     #endregion
