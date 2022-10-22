@@ -199,10 +199,11 @@ public class Section
         int blockBitLength = Math.Max((paletteLength - 1).Bitlength(), 4);
 
         int bitsInByte = 8;
+
         int longBitLength = sizeof(long) * bitsInByte; // sizeof unit is byte, convert to bit
 
         // maximum count of blocks can fit within single 'long' value
-        int blockCount = (int)MathF.Floor(longBitLength / blockBitLength);
+        int blockCount = longBitLength / blockBitLength;
 
         /* bit-length required for many blocks that can fit as much in 'long' bit-length (64-bit)
          * bit-length required to store block as many as block count
@@ -217,49 +218,47 @@ public class Section
          * which in this case no single bit are left discarded, no wastage.
          */
 
-        // linear table, order is XZY **
-        List<int> paletteIndexTable = new(TotalBlockCount);
-        foreach (long binInLongForm in dataNbt.Values)
+        // 3D table, order is XZY
+        int[,,] paletteIndexTable3D = new int[BlockCount, BlockCount, BlockCount];
+
+        // pos is filling position to which index is to fill
+        int posX = 0;
+        int posY = 0;
+        int posZ = 0;
+
+        int[] buffer = new int[blockCount];
+
+        bool breaking = false;
+        foreach (long longValue in dataNbt.Values)
         {
-            // extract binary from long and reverse it.
-            // This makes the data bit order in little-endian.
-            List<int> intTableFragment = new(blockCount);
-            byte[] bin = binInLongForm.ToBinaryArray(longBitLength).Reverse().ToArray();
-            using (MemoryStream binStream = new(bin))
-            using (BinaryReader binReader = new(binStream))
+            if (breaking)
+                break;
+            BinaryUtils.SplitSubnumberFastNoCheck(longValue, buffer, blockBitLength);
+            foreach (int value in buffer)
             {
-                for (int i = 0; i < blockCount; i++)
+                if (breaking)
+                    break;
+                paletteIndexTable3D[posX, posY, posZ] = value;
+                if (posX < 15)
+                    posX++;
+                else
                 {
-                    // do not add remaining redundant data to block-map-palette table
-                    // if the element count reached maximum blocks count of section (16*16*16 = 4096)
-                    if (paletteIndexTable.Count == TotalBlockCount)
-                        break;
-
-                    // bin buffer for current, single block id.
-                    byte[] buff = binReader.ReadBytes(blockBitLength);
-
-                    // convert bin to int, this will return us the block palette index
-                    // for current block
-                    int blockId = buff.ToIntLE();
-                    intTableFragment.Add(blockId);
+                    posX = 0;
+                    if (posZ < 15)
+                        posZ++;
+                    else
+                    {
+                        posZ = 0;
+                        if (posY < 15)
+                            posY++;
+                        else
+                            // if Y reached 15 and want to increment,
+                            // it means filling is finished so we want to break
+                            breaking = true;
+                    }
                 }
             }
-            paletteIndexTable.AddRange(intTableFragment);
         }
-
-        // transform linear table (1D) becoming 3D table
-        int[,,] paletteIndexTable3D = new int[BlockCount, BlockCount, BlockCount];
-        for (int x = 0; x < BlockCount; x++)
-            for (int y = 0; y < BlockCount; y++)
-                for (int z = 0; z < BlockCount; z++)
-                {
-                    // map 3D array idx to linear array idx, see ** above
-                    int linearIndex = x
-                                    + z * (int)Math.Pow(BlockCount, 1)
-                                    + y * (int)Math.Pow(BlockCount, 2);
-                    paletteIndexTable3D[x, y, z] = paletteIndexTable[linearIndex];
-                }
-
         return paletteIndexTable3D;
     }
 

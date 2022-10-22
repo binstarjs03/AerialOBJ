@@ -15,17 +15,11 @@ public static class BinaryUtils
         return bitLength;
     }
 
-    public static char[] ToBinaryChar(this long num)
-    {
-        return Convert.ToString(num, toBase: 2).ToCharArray();
-    }
-
-    public static string ToBinaryString(this long num)
-    {
-        return Convert.ToString(num, toBase: 2);
-    }
-
+    /// <summary>
+    /// This methos is deprecated and use <see cref="SplitSubnumberFast"/> instead
+    /// </summary>
     /// <exception cref="OverflowException"></exception>
+    [Obsolete]
     public static byte[] ToBinaryArray(this long num, int bitLength)
     {
         string binNum = Convert.ToString(num, toBase: 2);
@@ -35,13 +29,15 @@ public static class BinaryUtils
         byte[] ret = new byte[bitLength];
         for (int i = 0; i < bitLength; i++)
         {
-            // TODO parsing is slow especially in tight-loops.
-            // maybe we should calculate it by our own using binary shifting?
+            // parsing is slow especially in tight-loops.
+            // Use SplitSubnumberFast instead as it greatly improve
+            // execution speed by up to 100X
             ret[i] = byte.Parse($"{binNum[i]}");
         }
         return ret;
     }
 
+    [Obsolete]
     public static int ToIntLE(this byte[] buffer)
     {
         int ret = 0;
@@ -57,12 +53,6 @@ public static class BinaryUtils
         }
         return ret;
     }
-
-    public static int ToIntBE(this byte[] buffer)
-    {
-        return buffer.Reverse().ToArray().ToIntLE();
-    }
-
 
     // here buffer is int, means each element may be 32 bits, so bit length can be 32 at most
     // Splitting is done in big-endian (from rightmost side to the left)

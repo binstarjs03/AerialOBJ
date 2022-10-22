@@ -60,6 +60,8 @@ public class BinaryReaderEndian : IDisposable
 
     #endregion
 
+    // TODO do not allocate heap! do not use Reverse then ToArray chained!
+    // implement your own reversing algorithm
     /// <exception cref="EndOfStreamException"></exception>
     /// <exception cref="ObjectDisposedException"></exception>
     /// <exception cref="IOException"></exception>
