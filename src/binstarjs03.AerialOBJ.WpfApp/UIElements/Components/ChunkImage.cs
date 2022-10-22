@@ -41,6 +41,7 @@ public class ChunkImage : Image, IDisposable
         image.StreamSource = bitmapStream;
         image.CacheOption = BitmapCacheOption.OnLoad;
         image.EndInit();
+        image.Freeze();
         Source = image;
         bitmapStream.Dispose();
 

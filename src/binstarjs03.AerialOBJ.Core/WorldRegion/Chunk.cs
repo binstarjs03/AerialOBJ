@@ -138,10 +138,10 @@ public class Chunk
     }
 
     // TODO need more polishing, especially if height limit value is invalid
-    public Block[,] GetBlockTopmost(string[] exclusions, int? heightLimit = null)
+    public Block[,] GetBlockTopmost(Block[,] buffer, string[]? exclusions = null, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
-        Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
+        Block[,] blocks = buffer;
         Block block;
         Coords3 coordsAbs;
 
@@ -186,7 +186,7 @@ public class Chunk
 
                         // set existing block instance to avoid heap generation.
                         // generating heap at tight-loop like this will trash the GC very badly
-                        section.SetBlock(block, coordsAbs, coordsRel, relative: false, useAir:false);
+                        section.SetBlock(block, coordsAbs, coordsRel, relative: false, exclusions, useAir:false);
                     }
                 }
             }

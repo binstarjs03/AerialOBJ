@@ -57,7 +57,8 @@ public class ChunkWrapper
             return;
 
         Bitmap bitmap = new(16, 16, PixelFormat.Format32bppArgb);
-        Block[,] blocks = chunk.GetBlockTopmost(new string[] { "minecraft:air" });
+        Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
+        chunk.GetBlockTopmost(blocks);
         for (int x = 0; x < Section.BlockCount; x++)
         {
             for (int z = 0; z < Section.BlockCount; z++)
@@ -75,7 +76,7 @@ public class ChunkWrapper
             return;
         Application.Current.Dispatcher.BeginInvoke(
             method: OnAllocateDispatcher,
-            DispatcherPriority.ContextIdle,
+            DispatcherPriority.Background,
             new object[] { memory });
     }
 

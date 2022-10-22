@@ -50,7 +50,8 @@ public class ChunkManager
         if (SharedProperty.SessionInfo is null)
             return;
         UpdateVisibleChunkRange();
-        UpdateChunk();
+        ReallocateChunks();
+        UpdateChunks();
     }
 
     private void UpdateVisibleChunkRange()
@@ -96,7 +97,7 @@ public class ChunkManager
         v.NotifyPropertyChanged(propertyNames);
     }
 
-    private void UpdateChunk()
+    private void ReallocateChunks()
     {
         if (_needReallocate)
         {
@@ -136,7 +137,10 @@ public class ChunkManager
             _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerVisibleChunkCount));
             _needReallocate = false;
         }
+    }
 
+    private void UpdateChunks()
+    {
         foreach (ChunkWrapper chunk in _chunks.Values)
             chunk.Update();
     }
