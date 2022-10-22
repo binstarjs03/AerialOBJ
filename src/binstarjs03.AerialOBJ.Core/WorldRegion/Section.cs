@@ -106,13 +106,14 @@ public class Section
         return new Coords3(relBx, relBy, relBz);
     }
 
-    public (Coords3 blockCoordsRel, Coords3 blockCoordsAbs) CalculateBlockCoords(Coords3 blockCoords, bool relative)
+    public (Coords3 blockCoordsRel, Coords3 blockCoordsAbs) CalculateBlockCoords(Coords3 blockCoords, bool relative, bool skipTest = false)
     {
         Coords3 blockCoordsRel;
         Coords3 blockCoordsAbs;
         if (relative)
         {
-            BlockRangeRel.ThrowIfOutside(blockCoords);
+            if (!skipTest)
+                BlockRangeRel.ThrowIfOutside(blockCoords);
             blockCoordsRel = blockCoords;
             blockCoordsAbs = new Coords3(_coordsAbs.X * BlockCount + blockCoords.X,
                                     _coordsAbs.Y * BlockCount + blockCoords.Y,
@@ -120,7 +121,8 @@ public class Section
         }
         else
         {
-            BlockRangeAbs.ThrowIfOutside(blockCoords);
+            if (!skipTest)
+                BlockRangeAbs.ThrowIfOutside(blockCoords);
             blockCoordsRel = ConvertBlockAbsToRel(blockCoords);
             blockCoordsAbs = blockCoords;
         }
@@ -163,9 +165,9 @@ public class Section
 
     // set all input block properties to block table block properties, if inequal.
     // does not generate heap
-    public void SetBlock(Block block, Coords3 coords, bool relative, string[]? exclusions = null, bool useAir = false)
+    public void SetBlock(Block block, Coords3 coordsAbs, Coords3 coordsRel, bool relative, string[]? exclusions = null, bool useAir = false)
     {
-        (Coords3 coordsRel, Coords3 coordsAbs) = CalculateBlockCoords(coords, relative);
+        //(Coords3 coordsRel, Coords3 coordsAbs) = CalculateBlockCoords(coordsAbs, relative, skipTest: true);
         if (_blockPaletteIndexTable is null) // set to air block
         {
             if (!useAir)

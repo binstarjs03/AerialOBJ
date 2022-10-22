@@ -143,17 +143,17 @@ public class Chunk
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
         Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
         Block block;
-        Coords3 coords;
+        Coords3 coordsAbs;
 
         // set initial block, which is air
         for (int x = 0; x < Section.BlockCount; x++)
         {
             for (int z = 0; z < Section.BlockCount; z++)
             {
-                coords = new(_coordsAbs.X * Section.BlockCount + x,
-                                     0,
-                                     _coordsAbs.Z * Section.BlockCount + z);
-                Block air = new(coords);
+                coordsAbs = new(_coordsAbs.X * Section.BlockCount + x,
+                                 0,
+                                 _coordsAbs.Z * Section.BlockCount + z);
+                Block air = new(coordsAbs);
                 blocks[x, z] = air;
             }
         }
@@ -179,13 +179,14 @@ public class Chunk
                         block = blocks[x, z];
 
                         // new coords in case if SetBlock successfully modifying the coords
-                        coords = new(x + section.CoordsAbs.X * Section.BlockCount,
-                                             y + section.CoordsAbs.Y * Section.BlockCount,
-                                             z + section.CoordsAbs.Z * Section.BlockCount);
+                        coordsAbs = new(x + section.CoordsAbs.X * Section.BlockCount,
+                                        y + section.CoordsAbs.Y * Section.BlockCount,
+                                        z + section.CoordsAbs.Z * Section.BlockCount);
+                        Coords3 coordsRel = new(x, y, z);
 
                         // set existing block instance to avoid heap generation.
                         // generating heap at tight-loop like this will trash the GC very badly
-                        section.SetBlock(block, coords, relative: false, useAir:false);
+                        section.SetBlock(block, coordsAbs, coordsRel, relative: false, useAir:false);
                     }
                 }
             }
