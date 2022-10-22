@@ -29,6 +29,6 @@ public class NbtString : NbtSingleValueType<NonNullString>
 
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
-        _value.Value = reader.ReadString(sizeof(short));
+        _value.Value = reader.ReadString();
     }
 }

@@ -146,7 +146,7 @@ public abstract class NbtBase
         string name = "";
         if (isInsideList && type is null)
         {
-            string msg = $"Nbt type cannot null if tag is inside list";
+            string msg = "Nbt type cannot null if tag is inside list";
             throw new NullReferenceException(msg);
             // Theoretically, above exception should never thrown 
             // because we always pass the nbt type if its inside list
@@ -155,7 +155,7 @@ public abstract class NbtBase
         {
             type = reader.ReadTagType();
             if (type != NbtType.NbtEnd)
-                name = reader.ReadString(sizeof(short));
+                name = reader.ReadString();
         }
 
         NbtBase nbt = type switch

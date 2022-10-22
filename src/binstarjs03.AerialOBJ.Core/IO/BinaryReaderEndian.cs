@@ -17,7 +17,6 @@ public class BinaryReaderEndian : IDisposable
     protected readonly ByteOrder _byteOrder;
     private bool _hasDisposed;
 
-    /// <exception cref="ArgumentException"></exception>
     public BinaryReaderEndian(Stream input, ByteOrder ByteOrder)
     {
         if (!input.CanRead)
@@ -60,11 +59,6 @@ public class BinaryReaderEndian : IDisposable
 
     #endregion
 
-    // TODO do not allocate heap! do not use Reverse then ToArray chained!
-    // implement your own reversing algorithm
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
     public byte[] ReadBytes(int length, bool endianMatter = true)
     {
         byte[] buff = new byte[length];
@@ -73,101 +67,108 @@ public class BinaryReaderEndian : IDisposable
         if (_reader.Read(buff) != length)
             throw new EndOfStreamException();
         if (_byteOrder == ByteOrder.BigEndian && endianMatter)
-            return buff.Reverse().ToArray();
+        {
+            Array.Reverse(buff);
+            return buff;
+        }
         return buff;
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
     public byte ReadByte()
     {
-        if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(_reader), s_disposedExceptionMsg);
         return _reader.ReadByte();
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
     public sbyte ReadSByte()
     {
-        if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(_reader), s_disposedExceptionMsg);
         return _reader.ReadSByte();
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
     public short ReadShort()
     {
-        return BinaryPrimitives.ReadInt16LittleEndian(ReadBytes(sizeof(short)));
+        long originalPos = _baseStream.Position;
+        long posAfterReadingLong = originalPos + sizeof(short);
+        _baseStream.Position = posAfterReadingLong;
+        short result = 0;
+        for (int i = 0; i < sizeof(short); i++)
+        {
+            _baseStream.Position = posAfterReadingLong - 1 - i;
+            int buff = _reader.ReadByte();
+            buff = buff << (i) * 8;
+            result += (short)buff;
+        }
+        _baseStream.Position = posAfterReadingLong;
+        return result;
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
-    public ushort ReadUShort()
-    {
-        return BinaryPrimitives.ReadUInt16LittleEndian(ReadBytes(sizeof(ushort)));
-    }
+    //public ushort ReadUShort()
+    //{
+    //    return BinaryPrimitives.ReadUInt16LittleEndian(ReadBytes(sizeof(ushort)));
+    //}
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
     public int ReadInt()
     {
-        return BinaryPrimitives.ReadInt32LittleEndian(ReadBytes(sizeof(int)));
+        long originalPos = _baseStream.Position;
+        long posAfterReadingLong = originalPos + sizeof(int);
+        _baseStream.Position = posAfterReadingLong;
+        int result = 0;
+        for (int i = 0; i < sizeof(int); i++)
+        {
+            _baseStream.Position = posAfterReadingLong - 1 - i;
+            int buff = _reader.ReadByte();
+            buff = buff << (i) * 8;
+            result += buff;
+        }
+        _baseStream.Position = posAfterReadingLong;
+        return result;
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
-    public uint ReadUInt()
-    {
-        return BinaryPrimitives.ReadUInt32LittleEndian(ReadBytes(sizeof(uint)));
-    }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
+    //public uint ReadUInt()
+    //{
+    //    return BinaryPrimitives.ReadUInt32LittleEndian(ReadBytes(sizeof(uint)));
+    //}
+
     public long ReadLong()
     {
-        return BinaryPrimitives.ReadInt64LittleEndian(ReadBytes(sizeof(long)));
+        // readable version, which is unoptimized: it allocates heap (array)
+        //return BinaryPrimitives.ReadInt64LittleEndian(ReadBytes(sizeof(long)));
+
+        // unreadable version, but is optimized: no heap allocation
+        long originalPos = _baseStream.Position;
+        long posAfterReadingLong = originalPos + sizeof(long);
+        _baseStream.Position = posAfterReadingLong;
+        long result = 0;
+        for (int i = 0; i < sizeof(long); i++)
+        {
+            _baseStream.Position = posAfterReadingLong - 1 - i;
+            long buff = _reader.ReadByte();
+            buff = buff << (i) * 8;
+            result += buff;
+        }
+        _baseStream.Position = posAfterReadingLong;
+        return result;
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
-    public ulong ReadULong()
-    {
-        return BinaryPrimitives.ReadUInt64LittleEndian(ReadBytes(sizeof(ulong)));
-    }
+    //public ulong ReadULong()
+    //{
+    //    return BinaryPrimitives.ReadUInt64LittleEndian(ReadBytes(sizeof(ulong)));
+    //}
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
+    // float and double cannot be optimized to no-heap allocation
     public float ReadFloat()
     {
         return BinaryPrimitives.ReadSingleLittleEndian(ReadBytes(sizeof(float)));
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
     public double ReadDouble()
     {
         return BinaryPrimitives.ReadDoubleLittleEndian(ReadBytes(sizeof(double)));
     }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
-    /// <exception cref="DecoderFallbackException"></exception>
-    public string ReadString(int prefixByteLength)
+    public string ReadString()
     {
-        int length = BinaryPrimitives.ReadInt16LittleEndian(ReadBytes(prefixByteLength));
+        int length = ReadShort();
         long originalPos = BaseStream.Position;
         byte[] chars = ReadBytes(length, endianMatter: false);
         long newPos = BaseStream.Position;
