@@ -109,28 +109,17 @@ public class Region : IDisposable
     public Coords2 Coords => _coords;
     public CoordsRange2 ChunkRangeAbs => _chunkRangeAbs;
 
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="EndOfStreamException"></exception>
-    private byte[] Read(long pos, int count)
+    private ArraySegment<byte> Read(int pos, int count)
     {
-        if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(Region), "Region is already disposed");
-        byte[] buff = new byte[count];
-        int readCount;
-
-        MemoryStream stream = new(_data!);
-        stream.Seek(pos, SeekOrigin.Begin);
-        readCount = stream.Read(buff);
-        stream.Close();
-
-        if (readCount < count)
-            throw new EndOfStreamException();
-        return buff;
+        long endPos = pos + count;
+        if (endPos > _data!.Length)
+            throw new IndexOutOfRangeException("data is outside bounds");
+        return new ArraySegment<byte>(_data!, pos, count);
     }
 
-    private byte Read(long pos)
+    private byte Read(int pos)
     {
-        return Read(pos, 1)[0];
+        return _data![pos];
     }
 
     public static Coords2 ConvertChunkCoordsAbsToRel(Coords2 coords)
@@ -157,11 +146,23 @@ public class Region : IDisposable
     {
         ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
 
-        long seekPos = (chunkCoordsRel.X + chunkCoordsRel.Z * ChunkCount) * ChunkHeaderSize;
-        byte[] chunkHeader = Read(seekPos, ChunkHeaderSize);
+        int seekPos = (chunkCoordsRel.X + chunkCoordsRel.Z * ChunkCount) * ChunkHeaderSize;
 
-        int chunkPos = BinaryPrimitives.ReadInt32BigEndian(new byte[1].Concat(chunkHeader[0..3]).ToArray());
-        int chunkLength = chunkHeader[3];
+        // original code
+        //byte[] chunkHeader = Read(seekPos, ChunkHeaderSize);
+        //int chunkPos = BinaryPrimitives.ReadInt32BigEndian(new byte[1].Concat(chunkHeader[0..3]).ToArray());
+        //int chunkLength = chunkHeader[3];
+
+        // more unreadable version, it does not allocate heap, prevent GC
+        ArraySegment<byte> chunkHeaderSegment = Read(seekPos, 4);
+        int chunkPos = 0;
+        for (int i = 0; i < 3; i++)
+        {
+            int buff = chunkHeaderSegment[i];
+            buff = buff << (3 - i - 1) * 8;
+            chunkPos += buff;
+        }
+        int chunkLength = chunkHeaderSegment[3];
         return (chunkPos, chunkLength);
     }
 
@@ -201,23 +202,23 @@ public class Region : IDisposable
             throw new ChunkNotGeneratedException(msg);
         }
 
-        long seekPos = sectorPos * SectorDataSize;
+        int seekPos = sectorPos * SectorDataSize;
         int dataLength = sectorLength * SectorDataSize;
-        byte[] chunkSectorData = Read(seekPos, dataLength);
 
-        using (MemoryStream chunkSectorStream = new(chunkSectorData))
+        using (MemoryStream chunkSectorStream = new(_data!, seekPos, dataLength, false))
         using (IO.BinaryReaderEndian reader = new(chunkSectorStream, IO.ByteOrder.BigEndian))
         {
-            int nbtChunkLength = reader.ReadInt();
-            nbtChunkLength -= 1;
+            int chunkNbtLength = reader.ReadInt();
+            chunkNbtLength -= 1;
             NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
-            byte[] compressedNbtData = reader.ReadBytes(nbtChunkLength, endianMatter: false);
+            int chunkNbtDataPos = (int)(seekPos + chunkSectorStream.Position);
+            int chunkNbtDataLength = (int)(dataLength - chunkSectorStream.Position);
 
-            NbtCompound nbtChunk = (NbtCompound)NbtBase.ReadStream(
-                new MemoryStream(compressedNbtData),
+            NbtCompound chunkNbt = (NbtCompound)NbtBase.ReadStream(
+                new MemoryStream(_data!, chunkNbtDataPos, chunkNbtDataLength, false),
                 IO.ByteOrder.BigEndian,
                 compressionMethod);
-            return new Chunk(nbtChunk);
+            return new Chunk(chunkNbt);
         }
     }
 

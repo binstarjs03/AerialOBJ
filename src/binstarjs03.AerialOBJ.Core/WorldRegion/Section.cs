@@ -227,6 +227,7 @@ public class Section
         int posX = 0;
         int posY = 0;
         int posZ = 0;
+        // int longIndex = 0; this was added before for easier debugging
 
         int[] buffer = new int[blockCount];
 
@@ -260,6 +261,7 @@ public class Section
                     }
                 }
             }
+            // longIndex++;
         }
         return paletteIndexTable3D;
     }
