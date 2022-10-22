@@ -70,12 +70,22 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             LogService.LogAborted("Dialog cancelled. Aborting...", useSeparator: true);
             return;
         }
+
         SessionInfo? session = IOService.LoadSavegame(dialog.SelectedPath);
         if (session is null)
         {
             LogService.LogAborted("Failed changing session. Aborting...", useSeparator: true);
             return;
         }
+
+        // close if session exist, this is to ensure
+        // every components are reinitialized, such as ChunkManager, etc
+        if (SharedProperty.HasSession)
+        {
+            LogService.Log("Session exist, closing...");
+            OnClose(null);
+        }
+
         SharedProperty.UpdateSessionInfo(session);
         LogService.LogSuccess("Successfully changed session.", useSeparator: true);
     }
