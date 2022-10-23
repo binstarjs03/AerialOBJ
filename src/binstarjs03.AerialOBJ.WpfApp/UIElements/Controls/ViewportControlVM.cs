@@ -37,7 +37,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private PointF2 _viewportCameraPos = PointF2.Zero;
     private int _viewportZoomLevel = 1;
-    private int _viewportLimitHeight = 255;
+    private int _viewportHeightLimit = 255;
 
     private readonly ChunkManager _chunkManager;
 
@@ -55,6 +55,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     // public accessor
     public PointF2 ViewportCameraPos => _viewportCameraPos;
+    public int ViewportHeightLimit => _viewportHeightLimit;
     public PointF2 ViewportChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
                                                     Control.ChunkCanvas.ActualHeight / 2);
     public static int ViewportMaximumZoomLevel => s_blockPixelCount.Length - 1;
@@ -101,10 +102,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public int ViewportMaximumZoomLevelBinding => ViewportMaximumZoomLevel;
     public int ViewportPixelPerBlockBinding => ViewportPixelPerBlock;
     public int ViewportPixelPerChunkBinding => ViewportPixelPerChunk;
-    public int ViewportLimitHeightBinding
+    public int ViewportHeightLimitBinding
     {
-        get => _viewportLimitHeight;
-        set => UpdateViewportLimitHeight(value);
+        get => _viewportHeightLimit;
+        set => UpdateViewportHeightLimit(value);
     }
 
     public string ChunkPosOffsetBinding => ChunkPosOffset.ToStringAnotherFormat();
@@ -174,7 +175,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void OnSizeChanged(object? arg)
     {
-        _chunkManager.Update(_viewportLimitHeight);
+        _chunkManager.Update();
     }
 
     private void OnMouseWheel(object? arg)
@@ -294,12 +295,13 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ViewportCameraPosZBinding),
             nameof(ChunkPosOffsetBinding),
         });
-        _chunkManager.Update(_viewportLimitHeight);
+        _chunkManager.Update();
     }
 
-    private void UpdateViewportLimitHeight(int viewportLimitHeight)
+    private void UpdateViewportHeightLimit(int viewportHeightLimit)
     {
-        SetAndNotifyPropertyChanged(viewportLimitHeight, ref _viewportLimitHeight, nameof(ViewportLimitHeightBinding));
+        SetAndNotifyPropertyChanged(viewportHeightLimit, ref _viewportHeightLimit, nameof(ViewportHeightLimitBinding));
+        _chunkManager.Update();
     }
 
     private void UpdateExportArea1(Coords3 exportArea1)
@@ -323,7 +325,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ViewportPixelPerBlockBinding),
             nameof(ViewportPixelPerChunkBinding),
         });
-        _chunkManager.Update(_viewportLimitHeight);
+        _chunkManager.Update();
     }
 
     private void UpdateExportArea2(Coords3 exportArea2)
@@ -377,7 +379,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         ClearFocus();
         UpdateViewportCameraPos(PointF2.Zero);
         UpdateZoomLevel(1);
-        UpdateViewportLimitHeight(255);
+        UpdateViewportHeightLimit(255);
 
         UpdateExportArea1(Coords3.Zero);
         UpdateExportArea2(Coords3.Zero);

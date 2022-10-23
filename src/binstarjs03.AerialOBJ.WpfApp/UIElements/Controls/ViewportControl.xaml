@@ -46,7 +46,7 @@
                         </Style>
                     </StackPanel.Resources>
                     <TextBlock Text="Height"/>
-                    <TextBlock Text="{Binding Path=ViewportLimitHeightBinding}" d:Text="255"/>
+                    <TextBlock Text="{Binding Path=ViewportHeightLimitBinding}" d:Text="255"/>
                 </StackPanel>
                 <Slider Grid.Column="1"
                         Margin="0,0,10,0"
@@ -54,7 +54,7 @@
                         VerticalAlignment="Center"
                         Name="HeightSlider"
                         SmallChange="1" 
-                        Value="{Binding Path=ViewportLimitHeightBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Value="{Binding Path=ViewportHeightLimitBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         d:Value="255"
                         IsSnapToTickEnabled="True" 
                         Minimum="-64"
@@ -143,7 +143,7 @@
                         </StackPanel>
                         <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="Height: "/>
-                            <TextBlock Text="{Binding Path=ViewportLimitHeightBinding}" d:Text="255"/>
+                            <TextBlock Text="{Binding Path=ViewportHeightLimitBinding}" d:Text="255"/>
                         </StackPanel>
                         <components:DoubleBox Grid.Row="0" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosXBinding, Mode=TwoWay}"/>
                         <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosZBinding, Mode=TwoWay}" x:Name="Testing"/>
@@ -157,7 +157,7 @@
                                 Maximum="{Binding Path=ViewportMaximumZoomLevelBinding, Mode=OneTime}"/>
                         <Slider Grid.Row="3" Grid.Column="1"
                                 SmallChange="1" 
-                                Value="{Binding Path=ViewportLimitHeightBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Value="{Binding Path=ViewportHeightLimitBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="255"
                                 IsSnapToTickEnabled="True" 
                                 Minimum="-64"

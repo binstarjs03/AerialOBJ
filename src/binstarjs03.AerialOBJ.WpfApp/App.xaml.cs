@@ -13,10 +13,10 @@ public partial class App : Application
     {
         LauchTime = DateTime.Now;
 
-        // set max threadPool according to user setting chunk threads!
-        //ThreadPool.GetMaxThreads(out _, out int completionPortThreads);
-        //ThreadPool.SetMinThreads(1, completionPortThreads);
-        //ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
+        // TODO set max threadPool according to user setting chunk threads!
+        ThreadPool.GetMaxThreads(out _, out int completionPortThreads);
+        ThreadPool.SetMinThreads(0, completionPortThreads);
+        ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
     }
 
     public static DateTime LauchTime { get; set; }

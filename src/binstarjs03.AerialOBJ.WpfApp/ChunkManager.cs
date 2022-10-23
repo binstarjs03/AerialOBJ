@@ -19,6 +19,8 @@ public class ChunkManager
     private readonly Queue<Coords2> _deallocatedChunkBuffer = new(3000);
     private readonly List<Coords2> _allocatedChunkBuffer = new(3000);
 
+    private int _displayedHeightLimit;
+
     private CoordsRange2 _visibleChunkRange;
     private bool _needReallocate = false;
 
@@ -49,13 +51,21 @@ public class ChunkManager
         return visibleRegionRange;
     }
 
-    public void Update(int heightLimit)
+    public void Update()
     {
         if (SharedProperty.SessionInfo is null)
             return;
         UpdateVisibleChunkRange();
-        ReallocateChunks(heightLimit);
+        if (_displayedHeightLimit != _viewport.ViewportHeightLimit)
+        {
+            foreach (ChunkWrapper chunk in _chunks.Values)
+                chunk.Deallocate();
+            _chunks.Clear();
+            _needReallocate = true;
+        }
+        ReallocateChunks();
         UpdateChunks();
+        _displayedHeightLimit = _viewport.ViewportHeightLimit;
     }
 
     private void UpdateVisibleChunkRange()
@@ -101,7 +111,7 @@ public class ChunkManager
         v.NotifyPropertyChanged(propertyNames);
     }
 
-    private void ReallocateChunks(int heightLimit)
+    private void ReallocateChunks()
     {
         if (_needReallocate)
         {
@@ -124,14 +134,13 @@ public class ChunkManager
             {
                 _chunks.Remove(chunkCoordsAbs, out ChunkWrapper? chunk);
                 chunk?.Deallocate();
-
             }
 
             _allocatedChunkBuffer.FisherYatesShuffe();
             foreach(Coords2 chunkCoordsAbs in _allocatedChunkBuffer)
             {
                 ChunkWrapper chunk = new(chunkCoordsAbs, this);
-                if (chunk.Allocate(heightLimit)) // only add to buffer if can allocate
+                if (chunk.Allocate()) // only add to buffer if can allocate
                     _chunks.Add(chunkCoordsAbs, chunk);
             }
             _allocatedChunkBuffer.Clear();
