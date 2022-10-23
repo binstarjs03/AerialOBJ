@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=local:ViewportControlVM}"
              
              Background="White"
-             d:DesignWidth="500" d:DesignHeight="500">
+             d:DesignWidth="700" d:DesignHeight="500">
     <Grid>
         <Grid.Resources>
             <Style TargetType="{x:Type ColumnDefinition}" x:Key="CollapsibleColumn">
@@ -30,36 +30,66 @@
             <ColumnDefinition Width="230" Style="{StaticResource CollapsibleColumn}" Name="SidePanelColumn"/>
         </Grid.ColumnDefinitions>
         <Rectangle Grid.Column="1" Fill="#FFF0F0F0"/>
-        <Canvas Grid.Column="0" Name="ViewportCanvas" 
-                Focusable="True"
-                Background="#FF333333"
-                RenderOptions.EdgeMode="Aliased"
-                RenderOptions.BitmapScalingMode="NearestNeighbor">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseWheel">
-                    <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" 
+        <DockPanel Grid.Column="0">
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" 
+                            Margin="10,5"
+                            Orientation="Vertical"
+                            HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Text="Height"/>
+                    <TextBlock Text="{Binding Path=ViewportLimitHeightBinding}" d:Text="255"/>
+                </StackPanel>
+                <Slider Grid.Column="1"
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Name="HeightSlider"
+                        SmallChange="1" 
+                        Value="{Binding Path=ViewportLimitHeightBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        d:Value="255"
+                        IsSnapToTickEnabled="True" 
+                        Minimum="-64"
+                        Maximum="320"/>
+            </Grid>
+            <Canvas Name="ViewportCanvas" 
+                    Focusable="True"
+                    Background="#FF333333"
+                    RenderOptions.EdgeMode="Aliased"
+                    RenderOptions.BitmapScalingMode="NearestNeighbor">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseWheel">
+                        <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" 
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseMove">
+                        <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
                                            PassEventArgsToCommand="True"/>
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseMove">
-                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseUp">
+                        <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
                                            PassEventArgsToCommand="True"/>
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseUp">
-                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
                                            PassEventArgsToCommand="True"/>
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseDown">
-                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
-                                           PassEventArgsToCommand="True"/>
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseLeave">
-                    <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseEnter">
-                    <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-            <Canvas Name="ChunkCanvas"
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Canvas Name="ChunkCanvas"
                     ClipToBounds="True"
                     Width="{Binding ElementName=ViewportCanvas, 
                                     Path=ActualWidth, 
@@ -67,13 +97,14 @@
                     Height="{Binding ElementName=ViewportCanvas, 
                                      Path=ActualHeight,
                                      Mode=OneWay}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SizeChanged">
-                        <i:InvokeCommandAction Command="{Binding SizeChangedCommand}"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SizeChanged">
+                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Canvas>
             </Canvas>
-        </Canvas>
+        </DockPanel>
         <ScrollViewer Grid.Column="2" 
                       Visibility="{Binding Path=UISidePanelVisibleBinding,
                                            Mode=OneWay,
@@ -81,6 +112,12 @@
                       VerticalScrollBarVisibility="Auto" 
                       HorizontalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="{Binding ElementName=SidePanelColumn, Path=Width.Value}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="KeyUp">
+                        <i:InvokeCommandAction Command="{Binding KeyUpCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <GroupBox Header="Viewport">
                     <Grid>
                         <Grid.Resources>
@@ -109,7 +146,7 @@
                             <TextBlock Text="{Binding Path=ViewportLimitHeightBinding}" d:Text="255"/>
                         </StackPanel>
                         <components:DoubleBox Grid.Row="0" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosXBinding, Mode=TwoWay}"/>
-                        <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosZBinding, Mode=TwoWay}"/>
+                        <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosZBinding, Mode=TwoWay}" x:Name="Testing"/>
                         <Slider Grid.Row="2" Grid.Column="1" 
                                 SmallChange="1" 
                                 Value="{Binding Path=ViewportZoomLevelBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -119,13 +156,12 @@
                                 Minimum="0"
                                 Maximum="{Binding Path=ViewportMaximumZoomLevelBinding, Mode=OneTime}"/>
                         <Slider Grid.Row="3" Grid.Column="1"
-                                Name="HeightSlider"
                                 SmallChange="1" 
                                 Value="{Binding Path=ViewportLimitHeightBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="255"
                                 IsSnapToTickEnabled="True" 
-                                Minimum="0"
-                                Maximum="255"/>
+                                Minimum="-64"
+                                Maximum="320"/>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Export Selection Area">

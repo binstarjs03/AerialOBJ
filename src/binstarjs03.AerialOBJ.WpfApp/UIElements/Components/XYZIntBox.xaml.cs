@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
-public partial class XYZIntBox : UserControl
+public partial class XYZIntBox : UserControl, INumericBox
 {
     public XYZIntBox()
     {
@@ -42,4 +42,11 @@ public partial class XYZIntBox : UserControl
 
     public static readonly DependencyProperty ZValueProperty =
         DependencyProperty.Register(nameof(ZValue), typeof(int), typeof(XYZIntBox), new PropertyMetadata(0));
+
+    public void ClearValue()
+    {
+        XValue = 0;
+        YValue = 0;
+        ZValue = 0;
+    }
 }

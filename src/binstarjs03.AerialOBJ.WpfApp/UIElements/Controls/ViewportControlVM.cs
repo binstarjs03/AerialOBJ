@@ -4,6 +4,7 @@ using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
@@ -23,6 +24,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseDownCommand = new RelayCommand(OnMouseDown);
         MouseLeaveCommand = new RelayCommand(OnMouseLeave);
         MouseEnterCommand = new RelayCommand(OnMouseEnter);
+        KeyUpCommand = new RelayCommand(OnKeyUp);
     }
 
     // for updating value, dont modify field directly! use the updaters
@@ -34,7 +36,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     };
 
     private PointF2 _viewportCameraPos = PointF2.Zero;
-    private int _viewportZoomLevel = 2;
+    private int _viewportZoomLevel = 1;
     private int _viewportLimitHeight = 255;
 
     private readonly ChunkManager _chunkManager;
@@ -168,6 +170,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public ICommand MouseDownCommand { get; }
     public ICommand MouseLeaveCommand { get; }
     public ICommand MouseEnterCommand { get; }
+    public ICommand KeyUpCommand { get; }
 
     private void OnSizeChanged(object? arg)
     {
@@ -241,6 +244,20 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private void OnMouseEnter(object? arg)
     {
         UpdateMouseIsOutside(false);
+    }
+
+    private void OnKeyUp(object? arg)
+    {
+        if (arg is null)
+            throw new ArgumentNullException(nameof(arg));
+        KeyEventArgs e = (KeyEventArgs)arg;
+        object sender = e.Source;
+        if (e.Key == Key.Return && sender is INumericBox)
+        {
+            ClearFocus();
+            e.Handled = true;
+            return;
+        }
     }
 
     #endregion
@@ -351,19 +368,15 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void ClearFocus()
     {
-        //Keyboard.ClearFocus();
-        // ^ even focus is cleared, DoubleBox is still displaying the
-        // non-formatted string, which only does that when IsFocused is false.
-        // To fix this, we set focus to any element other that DoubleBox,
-        // may be inappropriate but it works
         Control.HeightSlider.Focus();
+        Keyboard.ClearFocus();
     }
 
     private void ReinitializeStates()
     {
         ClearFocus();
         UpdateViewportCameraPos(PointF2.Zero);
-        UpdateZoomLevel(2);
+        UpdateZoomLevel(1);
         UpdateViewportLimitHeight(255);
 
         UpdateExportArea1(Coords3.Zero);
