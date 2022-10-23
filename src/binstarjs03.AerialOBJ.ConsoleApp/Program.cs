@@ -37,8 +37,8 @@ internal class Program
         ChunkJob chunkJob = GetGeneratedChunksAsCoords(region);
 
         // create new threads up to cpu thread count
-        int threadCount = Environment.ProcessorCount;
-        //int threadCount = 1;
+        //int threadCount = Environment.ProcessorCount;
+        int threadCount = 1;
         Thread[] threads = new Thread[threadCount];
         for (int i = 0; i < threadCount; i++)
         {
@@ -73,19 +73,19 @@ internal class Program
 
         Console.WriteLine($"Finished reading all chunks in single Region file. Operation took {duration.TotalSeconds} s");
 
-        Console.WriteLine($"Merging all chunk images...");
-        // create new timer
-        startTime = DateTime.Now;
+        //Console.WriteLine($"Merging all chunk images...");
+        //// create new timer
+        //startTime = DateTime.Now;
 
-        Bitmap finalImage = MergeChunkImage(chunkJob);
+        //Bitmap finalImage = MergeChunkImage(chunkJob);
 
-        // calculate duration
-        duration = DateTime.Now - startTime;
-        Console.WriteLine($"Finished merging all chunk images. Operation took {duration.TotalMilliseconds} ms");
+        //// calculate duration
+        //duration = DateTime.Now - startTime;
+        //Console.WriteLine($"Finished merging all chunk images. Operation took {duration.TotalMilliseconds} ms");
 
-        string savePath = @"D:\testing.png";
-        finalImage.Save(savePath, ImageFormat.Png);
-        Console.WriteLine($"Saved final image to {savePath}");
+        //string savePath = @"D:\testing.png";
+        //finalImage.Save(savePath, ImageFormat.Png);
+        //Console.WriteLine($"Saved final image to {savePath}");
     }
 
     private static ChunkJob GetGeneratedChunksAsCoords(Region region)
@@ -115,6 +115,7 @@ internal class Program
             throw new NullReferenceException();
         (Region region, ChunkJob chunkJob) = ((Region, ChunkJob))arg;
 
+        Block[,] buffer = new Block[Section.BlockCount, Section.BlockCount];
         while (true)
         {
             Coords2 chunkCoords;
@@ -126,27 +127,28 @@ internal class Program
                     break;
             }
             Chunk chunk = region.GetChunk(chunkCoords, relative: true);
-            Bitmap chunkImage = GenerateChunkImage(chunk);
+            //chunk.GetBlockTopmost(buffer);
+            //Bitmap chunkImage = GenerateChunkImage(chunk, buffer);
 
-            lock (chunkJob.ChunkWrappers)
-            {
-                ChunkWrapper chunkWrapper = chunkJob.ChunkWrappers[chunkCoords.X, chunkCoords.Z];
-                chunkWrapper.Chunk = chunk;
-                chunkWrapper.ChunkImage = chunkImage;
-            }
+            //lock (chunkJob.ChunkWrappers)
+            //{
+            //    ChunkWrapper chunkWrapper = chunkJob.ChunkWrappers[chunkCoords.X, chunkCoords.Z];
+            //    chunkWrapper.Chunk = chunk;
+            //    chunkWrapper.ChunkImage = chunkImage;
+            //}
         }
         Console.WriteLine($"Terminated thread {Thread.CurrentThread.Name}");
     }
 
-    private static Bitmap GenerateChunkImage(Chunk chunk)
+    private static Bitmap GenerateChunkImage(Chunk chunk, Block[,] buffer)
     {
-        Block[,] blocks = chunk.GetBlockTopmost(new string[] { "minecraft:air" });
+        chunk.GetBlockTopmost(buffer);
         Bitmap bitmap = new(Section.BlockCount, Section.BlockCount, PixelFormat.Format32bppArgb);
         for (int x = 0; x < Section.BlockCount; x++)
         {
             for (int z = 0; z < Section.BlockCount; z++)
             {
-                Color color = BlockToColor.Convert(blocks[x, z]);
+                Color color = BlockToColor.Convert(buffer[x, z]);
                 bitmap.SetPixel(x, z, color);
             }
         }
