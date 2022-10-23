@@ -165,7 +165,7 @@ public class Section
 
     // set all input block properties to block table block properties, if inequal.
     // does not generate heap
-    public void SetBlock(Block block, Coords3 coordsAbs, Coords3 coordsRel, bool relative, string[]? exclusions = null, bool useAir = false)
+    public void SetBlock(Block block, Coords3 coordsAbs, Coords3 coordsRel, string[]? exclusions = null, bool useAir = false)
     {
         //(Coords3 coordsRel, Coords3 coordsAbs) = CalculateBlockCoords(coordsAbs, relative, skipTest: true);
         if (_blockPaletteIndexTable is null) // set to air block
@@ -183,7 +183,7 @@ public class Section
             if (!useAir && blockTemplate.Name == s_airBlock.Name)
                 return;
             if (exclusions is not null)
-                if (!exclusions.Contains(blockTemplate.Name))
+                if (exclusions.Contains(blockTemplate.Name))
                     return;
             block.Name = blockTemplate.Name;
             block.CoordsAbs = blockTemplate.CoordsAbs;
@@ -193,8 +193,8 @@ public class Section
 
     // long data stores what block is at xyz, and that block is corresponds
     // to one block from palette. The long data itself is in long data type form
-    // and when being interpreted as binary, it holds many integers that stores
-    // exactly what block is at xyz.
+    // and when being interpreted as binary, it can be broken into several sub-numbers,
+    // holding many integers that stores pointers to palette index
     private static int[,,] ReadNbtLongData(NbtArrayLong dataNbt, int paletteLength)
     {
         // bit-length required for single block id (minimum of 4) based from palette length.

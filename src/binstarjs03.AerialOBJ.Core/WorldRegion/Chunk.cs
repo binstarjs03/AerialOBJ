@@ -186,7 +186,7 @@ public class Chunk
 
                         // set existing block instance to avoid heap generation.
                         // generating heap at tight-loop like this will trash the GC very badly
-                        section.SetBlock(block, coordsAbs, coordsRel, relative: false, exclusions, useAir:false);
+                        section.SetBlock(block, coordsAbs, coordsRel, exclusions, useAir:false);
                     }
                 }
             }
