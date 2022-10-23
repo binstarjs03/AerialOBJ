@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.WorldRegion;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
@@ -14,6 +15,9 @@ public class ChunkManager
     private readonly ViewportControlVM _viewport;
     private readonly RegionManager _regionManager = new();
     private readonly Dictionary<Coords2, ChunkWrapper> _chunks = new();
+
+    private readonly Queue<Coords2> _deallocatedChunkBuffer = new(3000);
+    private readonly List<Coords2> _allocatedChunkBuffer = new(3000);
 
     private CoordsRange2 _visibleChunkRange;
     private bool _needReallocate = false;
@@ -101,13 +105,10 @@ public class ChunkManager
     {
         if (_needReallocate)
         {
-            List<Coords2> deallocatedChunksPos = new(30);
-            List<Coords2> allocatedChunksPos = new(30);
-
             // perform boundary checking for chunks outside display frame
             foreach (Coords2 chunkPos in _chunks.Keys)
                 if (!_visibleChunkRange.IsInside(chunkPos))
-                    deallocatedChunksPos.Add(chunkPos);
+                    _deallocatedChunkBuffer.Enqueue(chunkPos);
 
             // perform sweep checking for chunks inside display frame
             for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
@@ -115,24 +116,25 @@ public class ChunkManager
                 {
                     Coords2 chunkCoords = new(x, z);
                     if (!_chunks.ContainsKey(chunkCoords))
-                        allocatedChunksPos.Add(chunkCoords);
+                        _allocatedChunkBuffer.Add(chunkCoords);
                 }
 
             // deallocate
-            foreach (Coords2 chunkPos in deallocatedChunksPos)
+            while(_deallocatedChunkBuffer.TryDequeue(out Coords2 chunkCoordsAbs))
             {
-                ChunkWrapper chunk = _chunks[chunkPos];
-                _chunks.Remove(chunkPos);
-                chunk.Deallocate();
+                _chunks.Remove(chunkCoordsAbs, out ChunkWrapper? chunk);
+                chunk?.Deallocate();
+
             }
 
-            // allocate
-            foreach (Coords2 chunkPos in allocatedChunksPos)
+            _allocatedChunkBuffer.FisherYatesShuffe();
+            foreach(Coords2 chunkCoordsAbs in _allocatedChunkBuffer)
             {
-                ChunkWrapper chunk = new(chunkPos, this);
+                ChunkWrapper chunk = new(chunkCoordsAbs, this);
                 if (chunk.Allocate(heightLimit)) // only add to buffer if can allocate
-                    _chunks.Add(chunkPos, chunk);
+                    _chunks.Add(chunkCoordsAbs, chunk);
             }
+            _allocatedChunkBuffer.Clear();
 
             _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerVisibleChunkCount));
             _needReallocate = false;

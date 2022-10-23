@@ -64,12 +64,12 @@ public class ChunkWrapper
         chunk.GetBlockTopmost(blocks, heightLimit: heightLimit);
         for (int x = 0; x < Section.BlockCount; x++)
         {
+            if (!_manager.VisibleChunkRange.IsInside(_pos))
+                return;
+            if (_abortAllocation)
+                return;
             for (int z = 0; z < Section.BlockCount; z++)
             {
-                if (_abortAllocation)
-                    return;
-                if (!_manager.VisibleChunkRange.IsInside(_pos))
-                    return;
                 bitmap.SetPixel(x, z, BlockToColor2.Convert(blocks[x, z]));
             }
         }
