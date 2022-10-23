@@ -1,0 +1,71 @@
+﻿<Window x:Class="binstarjs03.AerialOBJ.WpfApp.UIElements.Modals.SettingModal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.UIElements.Modals"
+        mc:Ignorable="d"
+        Title="Setting" 
+        Height="250" Width="300"
+        ResizeMode="NoResize">
+    <Grid Margin="10">
+        <StackPanel>
+            <StackPanel.Resources>
+                <Style TargetType="RadioButton">
+                    <Setter Property="Margin" Value="2"/>
+                </Style>
+                <Style TargetType="GroupBox">
+                    <Setter Property="Padding" Value="5"/>
+                </Style>
+            </StackPanel.Resources>
+            <GroupBox Header="Offscreen Chunk Behaviour">
+                <StackPanel>
+                    <RadioButton Content="Deallocate Chunk">
+                        <RadioButton.ToolTip>
+                            Chunk will be deallocated when they are no longer on 
+                            visible area of the screen. 
+                            This will save RAM usage but chunks will need reallocated back
+                            when they are visible again which takes some time.
+                        </RadioButton.ToolTip>
+                    </RadioButton>
+                    <RadioButton Content="Keep Chunk">
+                        <RadioButton.ToolTip>
+                            Chunk will not be deallocated when they are no longer on 
+                            visible area of the screen. 
+                            This will increase RAM usage the more chunks are visible
+                            but improve user experience as chunks are persisted.
+                        </RadioButton.ToolTip>
+                    </RadioButton>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Performance Profile">
+                <StackPanel>
+                    <RadioButton Content="Prefer Minimal RAM Usage">
+                        <RadioButton.ToolTip>
+                            This setting makes AerialOBJ operate on minimum RAM usage amount
+                            however when trying to change height limit, all chunks will need to
+                            be re-rendered again in order to display the new height limit.
+                        </RadioButton.ToolTip>
+                    </RadioButton>
+                    <RadioButton Content="Prefer Maximum Performance">
+                        <RadioButton.ToolTip>
+                            This setting makes AerialOBJ operate as fast as possible
+                            at cost more RAM usage, however when trying to change height limit, 
+                            all chunks will render the new height limit instantly.
+                        </RadioButton.ToolTip>
+                    </RadioButton>
+                    <RadioButton Content="Prefer Maximum Responsiveness">
+                        <RadioButton.ToolTip>
+                            This setting is the slowest setting as AerialOBJ will operate
+                            on single thread mode (for the viewport) and it uses Minimal RAM usage,
+                            however AerialOBJ will be very resposive as it doesn't need to communicate
+                            with other thread.
+                        </RadioButton.ToolTip>
+                    </RadioButton>
+                </StackPanel>
+            </GroupBox>
+            
+            <Button Width="70" Margin="10" Content="OK" Click="OnClickOK"/>
+        </StackPanel>
+    </Grid>
+</Window>

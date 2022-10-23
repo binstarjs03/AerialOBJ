@@ -11,6 +11,11 @@ public static class ModalService
         new AboutModal().ShowDialog();
     }
 
+    public static void ShowSettingModal()
+    {
+        new SettingModal().ShowDialog();
+    }
+
     public static void ShowErrorOK(string caption, string errorMsg)
     {
         MessageBox.Show(errorMsg,

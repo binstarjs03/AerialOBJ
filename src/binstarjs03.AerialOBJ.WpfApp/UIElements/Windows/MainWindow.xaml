@@ -13,7 +13,7 @@
         d:Title="MineSharpOBJ"
         Width="800" Height="600"
         MinWidth="450" MinHeight="300"
-        d:Width="450" d:Height="300"
+        d:Width="600" d:Height="400"
         
         Name="Root"
         LocationChanged="OnLocationChanged" 
@@ -29,6 +29,9 @@
                               IsEnabled="{Binding Path=HasSessionBinding, 
                                                   Mode=OneWay}"
                               Command="{Binding CloseCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Setting"
+                              Command="{Binding SettingCommand}"/>
                     <MenuItem Header="Exit" 
                               Command="{Binding WindowCloseCommand}"/>
                 </MenuItem>

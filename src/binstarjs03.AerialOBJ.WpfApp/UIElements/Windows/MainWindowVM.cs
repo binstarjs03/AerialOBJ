@@ -19,6 +19,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         AboutCommand = new RelayCommand(OnAbout);
         OpenCommand = new RelayCommand(OnOpen);
         CloseCommand = new RelayCommand(OnClose, (arg) => HasSession);
+        SettingCommand = new RelayCommand(OnSetting);
         ForceGCCommand = new RelayCommand(OnForceGCCommand);
     }
 
@@ -48,6 +49,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     public ICommand AboutCommand { get; }
     public ICommand OpenCommand { get; }
     public ICommand CloseCommand { get; }
+    public ICommand SettingCommand { get; }
     public ICommand ForceGCCommand { get; }
 
     protected override void OnWindowClose(object? arg)
@@ -108,6 +110,11 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
         SharedProperty.UpdateSessionInfo(null);
         LogService.LogSuccess(logSuccessMsg, useSeparator: true);
+    }
+
+    private void OnSetting(object? arg)
+    {
+        ModalService.ShowSettingModal();
     }
 
     private void OnForceGCCommand(object? arg)
