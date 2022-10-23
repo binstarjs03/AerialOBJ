@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
-public partial class IntBox : UserControl
+public partial class IntBox : UserControl, INumericBox
 {
     public IntBox()
     {
@@ -36,5 +36,10 @@ public partial class IntBox : UserControl
     {
         BindingExpression expr = UnderlyingTextBox.GetBindingExpression(TextBox.TextProperty);
         expr.UpdateSource();
+    }
+
+    public void ClearValue()
+    {
+        IntValue = 0;
     }
 }

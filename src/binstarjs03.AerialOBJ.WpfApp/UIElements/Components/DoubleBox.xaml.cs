@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
-public partial class DoubleBox : UserControl, INotifyPropertyChanged
+public partial class DoubleBox : UserControl, INotifyPropertyChanged, INumericBox
 {
     public DoubleBox()
     {
@@ -42,6 +42,7 @@ public partial class DoubleBox : UserControl, INotifyPropertyChanged
     {
         if (e.Key == Key.Enter)
             UpdateValueBinding();
+        
     }
 
     private void OnLostFocus(object sender, RoutedEventArgs e)
@@ -59,5 +60,10 @@ public partial class DoubleBox : UserControl, INotifyPropertyChanged
     {
         BindingExpression expr = UnderlyingTextBox.GetBindingExpression(TextBox.TextProperty);
         expr.UpdateSource();
+    }
+
+    public void ClearValue()
+    {
+        DoubleValue = 0.0;
     }
 }
