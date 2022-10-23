@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -11,6 +12,11 @@ public partial class App : Application
     public App()
     {
         LauchTime = DateTime.Now;
+
+        // set max threadPool according to user setting chunk threads!
+        //ThreadPool.GetMaxThreads(out _, out int completionPortThreads);
+        //ThreadPool.SetMinThreads(1, completionPortThreads);
+        //ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
     }
 
     public static DateTime LauchTime { get; set; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
@@ -45,12 +45,12 @@ public class ChunkManager
         return visibleRegionRange;
     }
 
-    public void Update()
+    public void Update(int heightLimit)
     {
         if (SharedProperty.SessionInfo is null)
             return;
         UpdateVisibleChunkRange();
-        ReallocateChunks();
+        ReallocateChunks(heightLimit);
         UpdateChunks();
     }
 
@@ -97,7 +97,7 @@ public class ChunkManager
         v.NotifyPropertyChanged(propertyNames);
     }
 
-    private void ReallocateChunks()
+    private void ReallocateChunks(int heightLimit)
     {
         if (_needReallocate)
         {
@@ -130,7 +130,7 @@ public class ChunkManager
             foreach (Coords2 chunkPos in allocatedChunksPos)
             {
                 ChunkWrapper chunk = new(chunkPos, this);
-                if (chunk.Allocate()) // only add to buffer if can allocate
+                if (chunk.Allocate(heightLimit)) // only add to buffer if can allocate
                     _chunks.Add(chunkPos, chunk);
             }
 

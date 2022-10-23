@@ -174,7 +174,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void OnSizeChanged(object? arg)
     {
-        _chunkManager.Update();
+        _chunkManager.Update(_viewportLimitHeight);
     }
 
     private void OnMouseWheel(object? arg)
@@ -294,7 +294,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ViewportCameraPosZBinding),
             nameof(ChunkPosOffsetBinding),
         });
-        _chunkManager.Update();
+        _chunkManager.Update(_viewportLimitHeight);
     }
 
     private void UpdateViewportLimitHeight(int viewportLimitHeight)
@@ -323,7 +323,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ViewportPixelPerBlockBinding),
             nameof(ViewportPixelPerChunkBinding),
         });
-        _chunkManager.Update();
+        _chunkManager.Update(_viewportLimitHeight);
     }
 
     private void UpdateExportArea2(Coords3 exportArea2)

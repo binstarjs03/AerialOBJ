@@ -30,7 +30,7 @@ public class ChunkWrapper
     }
 
     // return true if can allocate, false otherwise
-    public bool Allocate()
+    public bool Allocate(int heightLimit)
     {
         // cancel allocation if chunk is outside screen frame
         if (!_manager.VisibleChunkRange.IsInside(_pos))
@@ -38,7 +38,7 @@ public class ChunkWrapper
         // cancel allocation if returned chunk does not exist
         if (_manager.RegionManager.CanGetChunk(_pos))
         {
-            Task.Run(OnAllocateThreaded);
+            Task.Run(() => OnAllocateThreaded(heightLimit));
             return true;
         }
         else
@@ -48,8 +48,11 @@ public class ChunkWrapper
         }
     }
 
-    private void OnAllocateThreaded()
+    private void OnAllocateThreaded(int heightLimit)
     {
+        // cancel allocation if chunk is outside screen frame
+        if (!_manager.VisibleChunkRange.IsInside(_pos))
+            return;
         if (_abortAllocation)
             return;
         Chunk? chunk = _manager.RegionManager.GetChunk(_pos);
@@ -58,12 +61,14 @@ public class ChunkWrapper
 
         Bitmap bitmap = new(16, 16, PixelFormat.Format32bppArgb);
         Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
-        chunk.GetBlockTopmost(blocks);
+        chunk.GetBlockTopmost(blocks, heightLimit: heightLimit);
         for (int x = 0; x < Section.BlockCount; x++)
         {
             for (int z = 0; z < Section.BlockCount; z++)
             {
                 if (_abortAllocation)
+                    return;
+                if (!_manager.VisibleChunkRange.IsInside(_pos))
                     return;
                 bitmap.SetPixel(x, z, BlockToColor2.Convert(blocks[x, z]));
             }
