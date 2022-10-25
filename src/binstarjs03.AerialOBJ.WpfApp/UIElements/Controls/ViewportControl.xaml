@@ -60,50 +60,70 @@
                         Minimum="-64"
                         Maximum="320"/>
             </Grid>
-            <Canvas Name="ViewportCanvas" 
-                    Focusable="True"
-                    Background="#FF333333"
-                    RenderOptions.EdgeMode="Aliased"
-                    RenderOptions.BitmapScalingMode="NearestNeighbor">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseWheel">
-                        <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" 
-                                               PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseMove">
-                        <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
-                                           PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseUp">
-                        <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
-                                           PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseDown">
-                        <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
-                                           PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseLeave">
-                        <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseEnter">
-                        <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-                <Canvas Name="ChunkCanvas"
-                    ClipToBounds="True"
-                    Width="{Binding ElementName=ViewportCanvas, 
-                                    Path=ActualWidth, 
-                                    Mode=OneWay}"
-                    Height="{Binding ElementName=ViewportCanvas, 
-                                     Path=ActualHeight,
-                                     Mode=OneWay}">
+            <Grid>
+                <Canvas Name="ViewportCanvas" 
+                        Focusable="True"
+                        Background="#FF333333"
+                        RenderOptions.EdgeMode="Aliased"
+                        RenderOptions.BitmapScalingMode="NearestNeighbor">
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SizeChanged">
-                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}"/>
+                        <i:EventTrigger EventName="MouseWheel">
+                            <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" 
+                                                   PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseMove">
+                            <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                                               PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseUp">
+                            <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
+                                               PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseDown">
+                            <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
+                                               PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseLeave">
+                            <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseEnter">
+                            <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
+                    <Canvas Name="ChunkCanvas"
+                        ClipToBounds="True"
+                        Width="{Binding ElementName=ViewportCanvas, 
+                                        Path=ActualWidth, 
+                                        Mode=OneWay}"
+                        Height="{Binding ElementName=ViewportCanvas, 
+                                         Path=ActualHeight,
+                                         Mode=OneWay}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SizeChanged">
+                                <i:InvokeCommandAction Command="{Binding SizeChangedCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Canvas>
+
                 </Canvas>
-            </Canvas>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <Rectangle Grid.Column="1" Grid.RowSpan="3" Fill="White"
+                               Height="15"/>
+                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Fill="White"
+                               Width="15"/>
+                </Grid>
+            </Grid>
         </DockPanel>
         <ScrollViewer Grid.Column="2" 
                       Visibility="{Binding Path=UISidePanelVisibleBinding,
