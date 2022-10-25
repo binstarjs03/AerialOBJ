@@ -19,6 +19,6 @@ public class NbtDouble : NbtSingleValueType<double>
 
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
-        _value = reader.ReadDouble();
+        _value = reader.ReadDoubleBE();
     }
 }

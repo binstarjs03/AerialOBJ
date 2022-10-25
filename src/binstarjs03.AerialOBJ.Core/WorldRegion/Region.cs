@@ -117,11 +117,6 @@ public class Region : IDisposable
         return new ArraySegment<byte>(_data!, pos, count);
     }
 
-    private byte Read(int pos)
-    {
-        return _data![pos];
-    }
-
     public static Coords2 ConvertChunkCoordsAbsToRel(Coords2 coords)
     {
         int relCx = MathUtils.Mod(coords.X, ChunkCount);
@@ -181,7 +176,7 @@ public class Region : IDisposable
         return generatedChunks.ToArray();
     }
 
-    public Chunk GetChunk(Coords2 chunkCoords, bool relative)
+    public NbtCompound GetChunkNbt(Coords2 chunkCoords, bool relative)
     {
         Coords2 chunkCoordsRel;
         if (relative)
@@ -205,21 +200,23 @@ public class Region : IDisposable
         int seekPos = sectorPos * SectorDataSize;
         int dataLength = sectorLength * SectorDataSize;
 
-        using (MemoryStream chunkSectorStream = new(_data!, seekPos, dataLength, false))
-        using (IO.BinaryReaderEndian reader = new(chunkSectorStream, IO.ByteOrder.BigEndian))
-        {
-            int chunkNbtLength = reader.ReadInt();
-            chunkNbtLength -= 1;
-            NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
-            int chunkNbtDataPos = (int)(seekPos + chunkSectorStream.Position);
-            int chunkNbtDataLength = (int)(dataLength - chunkSectorStream.Position);
+        using MemoryStream chunkSectorStream = new(_data!, seekPos, dataLength, false);
+        using IO.BinaryReaderEndian reader = new(chunkSectorStream);
+        int chunkNbtLength = reader.ReadIntBE();
+        chunkNbtLength -= 1;
+        NbtCompression.Method compressionMethod = (NbtCompression.Method)reader.ReadByte();
+        int chunkNbtDataPos = (int)(seekPos + chunkSectorStream.Position);
+        int chunkNbtDataLength = (int)(dataLength - chunkSectorStream.Position);
 
-            NbtCompound chunkNbt = (NbtCompound)NbtBase.ReadStream(
-                new MemoryStream(_data!, chunkNbtDataPos, chunkNbtDataLength, false),
-                IO.ByteOrder.BigEndian,
-                compressionMethod);
-            return new Chunk(chunkNbt);
-        }
+        NbtCompound chunkNbt = (NbtCompound)NbtBase.ReadStream(
+            new MemoryStream(_data!, chunkNbtDataPos, chunkNbtDataLength, false),
+            compressionMethod);
+        return chunkNbt;
+    }
+
+    public Chunk GetChunk(Coords2 chunkCoords, bool relative)
+    {
+        return new Chunk(GetChunkNbt(chunkCoords, relative));
     }
 
     public override string ToString()

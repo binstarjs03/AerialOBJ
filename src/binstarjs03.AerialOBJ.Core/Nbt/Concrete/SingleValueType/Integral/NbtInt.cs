@@ -19,6 +19,6 @@ public class NbtInt : NbtSingleValueType<int>
 
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
-        _value = reader.ReadInt();
+        _value = reader.ReadIntBE();
     }
 }

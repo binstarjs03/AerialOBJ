@@ -19,6 +19,6 @@ public class NbtFloat : NbtSingleValueType<float>
 
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
-        _value = reader.ReadFloat();
+        _value = reader.ReadFloatBE();
     }
 }

@@ -33,31 +33,26 @@ public class Section
         _coordsAbs = calculateCoordsAbs(chunkCoordsAbs, _yPos);
         _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
 
-        if (sectionNbt.HasTag("block_states"))
-        {
-            if (!sectionNbt.HasTag("block_states"))
-                return;
-            NbtCompound blockStatesNbt = sectionNbt.Get<NbtCompound>("block_states");
-            NbtList? paletteBlockNbt = readPaletteNbt(blockStatesNbt);
-
-            if (paletteBlockNbt is null)
-                return;
-
-            _blockTable = new Block[paletteBlockNbt.Length];
-            for (int i = 0; i < paletteBlockNbt.Length; i++)
-            {
-                NbtCompound blockPropertyNbt = paletteBlockNbt.Get<NbtCompound>(i);
-                // block template in block table coordinate doesn't matter
-                // so we set it to zero
-                _blockTable[i] = new Block(Coords3.Zero, blockPropertyNbt);
-            }
-
-            NbtArrayLong? dataNbt = readDataNbt(blockStatesNbt);
-            if (dataNbt is not null)
-                _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteBlockNbt.Length);
-        }
-        else
+        if (!sectionNbt.HasTag("block_states"))
             return;
+        NbtCompound blockStatesNbt = sectionNbt.Get<NbtCompound>("block_states");
+        NbtList? paletteBlockNbt = readPaletteNbt(blockStatesNbt);
+
+        if (paletteBlockNbt is null)
+            return;
+
+        _blockTable = new Block[paletteBlockNbt.Length];
+        for (int i = 0; i < paletteBlockNbt.Length; i++)
+        {
+            NbtCompound blockPropertyNbt = paletteBlockNbt.Get<NbtCompound>(i);
+            // block template in block table coordinate doesn't matter
+            // so we set it to zero
+            _blockTable[i] = new Block(Coords3.Zero, blockPropertyNbt);
+        }
+
+        NbtArrayLong? dataNbt = readDataNbt(blockStatesNbt);
+        if (dataNbt is not null)
+            _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteBlockNbt.Length);
 
         static Coords3 calculateCoordsAbs(Coords2 chunkCoordsAbs, int yPos)
         {
@@ -116,8 +111,8 @@ public class Section
                 BlockRangeRel.ThrowIfOutside(blockCoords);
             blockCoordsRel = blockCoords;
             blockCoordsAbs = new Coords3(_coordsAbs.X * BlockCount + blockCoords.X,
-                                    _coordsAbs.Y * BlockCount + blockCoords.Y,
-                                    _coordsAbs.Z * BlockCount + blockCoords.Z);
+                                         _coordsAbs.Y * BlockCount + blockCoords.Y,
+                                         _coordsAbs.Z * BlockCount + blockCoords.Z);
         }
         else
         {

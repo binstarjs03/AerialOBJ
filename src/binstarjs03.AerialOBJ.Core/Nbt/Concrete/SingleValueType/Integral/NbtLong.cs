@@ -19,6 +19,6 @@ public class NbtLong : NbtSingleValueType<long>
 
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
-        _value = reader.ReadLong();
+        _value = reader.ReadLongBE();
     }
 }

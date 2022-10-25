@@ -58,9 +58,9 @@ public abstract class NbtBase
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
     /// <exception cref="EndOfStreamException"></exception>
-    public static NbtBase ReadDisk(string path, ByteOrder byteOrder)
+    public static NbtBase ReadDisk(string path)
     {
-        return ReadDisk(new FileInfo(path), byteOrder);
+        return ReadDisk(new FileInfo(path));
     }
 
     /// <exception cref="NbtUnknownCompressionMethodException"></exception>
@@ -68,13 +68,13 @@ public abstract class NbtBase
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
     /// <exception cref="EndOfStreamException"></exception>
-    public static NbtBase ReadDisk(FileInfo fileInfo, ByteOrder byteOrder)
+    public static NbtBase ReadDisk(FileInfo fileInfo)
     {
         if (fileInfo.Length == 0)
             throw new NbtNoDataException("Data length is zero. No nbt data exist");
         using (MemoryStream ms = new(File.ReadAllBytes(fileInfo.FullName)))
         {
-            return ReadStream(ms, byteOrder, NbtCompression.Method.AutoDetect);
+            return ReadStream(ms, NbtCompression.Method.AutoDetect);
         }
     }
 
@@ -83,10 +83,10 @@ public abstract class NbtBase
     /// <exception cref="NbtDeserializationError"></exception>
     /// <exception cref="InvalidDataException"></exception>
     /// <exception cref="EndOfStreamException"></exception>
-    public static NbtBase ReadStream(Stream stream, ByteOrder byteOrder, NbtCompression.Method compressionMethod)
+    public static NbtBase ReadStream(Stream stream, NbtCompression.Method compressionMethod)
     {
         using (MemoryStream decompressed = NbtCompression.DecompressStream(stream, compressionMethod))
-        using (NbtBinaryReader reader = new(decompressed, byteOrder))
+        using (NbtBinaryReader reader = new(decompressed))
         {
             NbtBase nbt;
             try

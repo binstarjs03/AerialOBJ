@@ -19,7 +19,7 @@ public class NbtArrayByte : NbtArrayType<sbyte>
 
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
-        int elementLength = reader.ReadInt();
+        int elementLength = reader.ReadIntBE();
         for (int i = 0; i < elementLength; i++)
         {
             Values.Add(reader.ReadSByte());

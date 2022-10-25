@@ -49,7 +49,7 @@ public static class IOService
         }
         try
         {
-            NbtCompound nbtLevel = (NbtCompound)NbtBase.ReadDisk(nbtLevelPath, ByteOrder.BigEndian);
+            NbtCompound nbtLevel = (NbtCompound)NbtBase.ReadDisk(nbtLevelPath);
             SessionInfo ret = new(di, nbtLevel);
             LogService.Log($"Successfully loaded \"{di.Name}\" (\"{ret.WorldName}\")");
             return ret;

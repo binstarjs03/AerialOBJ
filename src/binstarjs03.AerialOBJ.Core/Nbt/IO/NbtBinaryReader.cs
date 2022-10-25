@@ -12,11 +12,8 @@ public class NbtBinaryReader : BinaryReaderEndian
 {
     public readonly Stack<NbtBase> NbtTagStack = new();
 
-    public NbtBinaryReader(Stream input, ByteOrder byteOrder) : base(input, byteOrder) { }
+    public NbtBinaryReader(Stream input) : base(input) { }
 
-    /// <exception cref="EndOfStreamException"></exception>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="IOException"></exception>
     /// <exception cref="NbtUnknownTagTypeException"></exception>
     public NbtType ReadTagType()
     {
@@ -25,7 +22,7 @@ public class NbtBinaryReader : BinaryReaderEndian
             return (NbtType)type;
         else
             throw new NbtUnknownTagTypeException(
-                $"Unknown tag type '{type}' at stream position {BaseStream.Position}"
+                $"Unknown tag type '{type}' at stream position {_stream.Position}"
             );
     }
 

@@ -1,77 +1,38 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace binstarjs03.AerialOBJ.Core.IO;
-
-/// <summary>
-/// Wrapper around <see cref="BinaryReader"/> that is endian-aware.
-/// </summary>
 public class BinaryReaderEndian : IDisposable
 {
-    private static readonly string s_disposedExceptionMsg = "Cannot read data, reader is already disposed";
-    protected readonly Stream _baseStream;
-    protected readonly BinaryReader _reader;
-    protected readonly ByteOrder _byteOrder;
-    private bool _hasDisposed;
+    protected Stream _stream;
+    protected BinaryReader _reader;
+    private bool _disposed = false;
 
-    public BinaryReaderEndian(Stream input, ByteOrder ByteOrder)
+    public BinaryReaderEndian(Stream stream)
     {
-        if (!input.CanRead)
-            throw new ArgumentException("Input stream is unreadable (may be closed/disposed or write-only)");
-        _baseStream = input;
-        _reader = new BinaryReader(input);
-        _byteOrder = ByteOrder;
-        _hasDisposed = false;
+        _stream = stream;
+        _reader = new BinaryReader(_stream);
     }
-
-    public Stream BaseStream => _baseStream;
-
-    public BinaryReader Reader => _reader;
-
-    #region Dispose Pattern
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_hasDisposed)
+        if (!_disposed)
         {
             if (disposing)
             {
                 _reader.Dispose();
-                _baseStream.Dispose();
+                _stream.Dispose();
             }
-            // dispose unmanaged object
-            // set large fields to null
-            _hasDisposed = true;
+            _disposed = true;
         }
     }
-
-    // Destructor not implemented
-    // cause there is no unmanaged object to dispose
 
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
-    }
-
-    #endregion
-
-    public byte[] ReadBytes(int length, bool endianMatter = true)
-    {
-        byte[] buff = new byte[length];
-        if (_hasDisposed)
-            throw new ObjectDisposedException(nameof(_reader), s_disposedExceptionMsg);
-        if (_reader.Read(buff) != length)
-            throw new EndOfStreamException();
-        if (_byteOrder == ByteOrder.BigEndian && endianMatter)
-        {
-            Array.Reverse(buff);
-            return buff;
-        }
-        return buff;
     }
 
     public byte ReadByte()
@@ -84,104 +45,57 @@ public class BinaryReaderEndian : IDisposable
         return _reader.ReadSByte();
     }
 
-    public short ReadShort()
+    public short ReadShortBE()
     {
-        long originalPos = _baseStream.Position;
-        long posAfterReadingLong = originalPos + sizeof(short);
-        _baseStream.Position = posAfterReadingLong;
-        short result = 0;
-        for (int i = 0; i < sizeof(short); i++)
-        {
-            _baseStream.Position = posAfterReadingLong - 1 - i;
-            int buff = _reader.ReadByte();
-            buff = buff << (i) * 8;
-            result += (short)buff;
-        }
-        _baseStream.Position = posAfterReadingLong;
-        return result;
+        int readLength = sizeof(short);
+        Span<byte> buffer = stackalloc byte[readLength];
+        if (_reader.Read(buffer) != readLength)
+            throw new EndOfStreamException();
+        return BinaryPrimitives.ReadInt16BigEndian(buffer);
     }
 
-    //public ushort ReadUShort()
-    //{
-    //    return BinaryPrimitives.ReadUInt16LittleEndian(ReadBytes(sizeof(ushort)));
-    //}
-
-    public int ReadInt()
+    public int ReadIntBE()
     {
-        long originalPos = _baseStream.Position;
-        long posAfterReadingLong = originalPos + sizeof(int);
-        _baseStream.Position = posAfterReadingLong;
-        int result = 0;
-        for (int i = 0; i < sizeof(int); i++)
-        {
-            _baseStream.Position = posAfterReadingLong - 1 - i;
-            int buff = _reader.ReadByte();
-            buff = buff << (i) * 8;
-            result += buff;
-        }
-        _baseStream.Position = posAfterReadingLong;
-        return result;
+        int readLength = sizeof(int);
+        Span<byte> buffer = stackalloc byte[readLength];
+        if (_reader.Read(buffer) != readLength)
+            throw new EndOfStreamException();
+        return BinaryPrimitives.ReadInt32BigEndian(buffer);
     }
 
-
-    //public uint ReadUInt()
-    //{
-    //    return BinaryPrimitives.ReadUInt32LittleEndian(ReadBytes(sizeof(uint)));
-    //}
-
-    public long ReadLong()
+    public long ReadLongBE()
     {
-        // readable version, which is unoptimized: it allocates heap (array)
-        //return BinaryPrimitives.ReadInt64LittleEndian(ReadBytes(sizeof(long)));
-
-        // unreadable version, but is optimized: no heap allocation
-        long originalPos = _baseStream.Position;
-        long posAfterReadingLong = originalPos + sizeof(long);
-        _baseStream.Position = posAfterReadingLong;
-        long result = 0;
-        for (int i = 0; i < sizeof(long); i++)
-        {
-            _baseStream.Position = posAfterReadingLong - 1 - i;
-            long buff = _reader.ReadByte();
-            buff = buff << (i) * 8;
-            result += buff;
-        }
-        _baseStream.Position = posAfterReadingLong;
-        return result;
+        int readLength = sizeof(long);
+        Span<byte> buffer = stackalloc byte[readLength];
+        if (_reader.Read(buffer) != readLength)
+            throw new EndOfStreamException();
+        return BinaryPrimitives.ReadInt64BigEndian(buffer);
     }
 
-    //public ulong ReadULong()
-    //{
-    //    return BinaryPrimitives.ReadUInt64LittleEndian(ReadBytes(sizeof(ulong)));
-    //}
-
-    // float and double cannot be optimized to no-heap allocation
-    public float ReadFloat()
+    public float ReadFloatBE()
     {
-        return BinaryPrimitives.ReadSingleLittleEndian(ReadBytes(sizeof(float)));
+        int readLength = sizeof(float);
+        Span<byte> buffer = stackalloc byte[readLength];
+        if (_reader.Read(buffer) != readLength)
+            throw new EndOfStreamException();
+        return BinaryPrimitives.ReadSingleBigEndian(buffer);
     }
 
-    public double ReadDouble()
+    public double ReadDoubleBE()
     {
-        return BinaryPrimitives.ReadDoubleLittleEndian(ReadBytes(sizeof(double)));
+        int readLength = sizeof(double);
+        Span<byte> buffer = stackalloc byte[readLength];
+        if (_reader.Read(buffer) != readLength)
+            throw new EndOfStreamException();
+        return BinaryPrimitives.ReadDoubleBigEndian(buffer);
     }
 
     public string ReadString()
     {
-        int length = ReadShort();
-        long originalPos = BaseStream.Position;
-        byte[] chars = ReadBytes(length, endianMatter: false);
-        long newPos = BaseStream.Position;
-        try
-        {
-            return Encoding.UTF8.GetString(chars);
-        }
-        catch (DecoderFallbackException e)
-        {
-            string msg = "Failed to decode binary Nbt string "
-                       + $"at steam {originalPos} through {newPos}. ";
-            throw new DecoderFallbackException(msg, e);
-        }
+        int length = ReadShortBE();
+        Span<byte> bytes = stackalloc byte[length];
+        if (_reader.Read(bytes) != length)
+            throw new EndOfStreamException();
+        return Encoding.UTF8.GetString(bytes);
     }
-
 }

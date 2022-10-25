@@ -49,7 +49,7 @@ public class NbtList : NbtContainerType
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
         NbtType listType = (NbtType)reader.ReadByte();
-        int elementLength = reader.ReadInt();
+        int elementLength = reader.ReadIntBE();
         for (int i = 0; i < elementLength; i++)
         {
             NbtBase tag = NewFromStream(reader, isInsideList: true, type: listType);
