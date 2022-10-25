@@ -27,6 +27,9 @@ public class Section
     private readonly int[,,]? _blockPaletteIndexTable;
     private readonly Block[]? _blockTable;
 
+    public Coords3 CoordsAbs => _coordsAbs;
+    public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
+
     public Section(Coords2 chunkCoordsAbs, NbtCompound sectionNbt)
     {
         _yPos = sectionNbt.Get<NbtByte>("Y").Value;
@@ -88,10 +91,6 @@ public class Section
             return nbtBlockStates.Get<NbtArrayLong>("data");
         }
     }
-
-    public Coords3 CoordsAbs => _coordsAbs;
-
-    public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
 
     public static Coords3 ConvertBlockAbsToRel(Coords3 coords)
     {
@@ -159,30 +158,23 @@ public class Section
     }
 
     // set all input block properties to block table block properties, if inequal.
-    // does not generate heap
-    public void SetBlock(Block block, Coords3 coordsAbs, Coords3 coordsRel, string[]? exclusions = null, bool useAir = false)
+    // does not generate heap, return true if setting is succeed
+    public bool SetBlock(Block block, Coords3 coordsRel, string[]? exclusions = null)
     {
-        //(Coords3 coordsRel, Coords3 coordsAbs) = CalculateBlockCoords(coordsAbs, relative, skipTest: true);
         if (_blockPaletteIndexTable is null) // set to air block
-        {
-            if (!useAir)
-                return;
-            block.Name = s_airBlock.Name;
-            block.CoordsAbs = coordsAbs;
-            block.Properties = s_airBlock.Properties;
-        }
+            return false;
         else
         {
             int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
             Block blockTemplate = _blockTable![blockTableIndex];
-            if (!useAir && blockTemplate.Name == s_airBlock.Name)
-                return;
-            if (exclusions is not null)
-                if (exclusions.Contains(blockTemplate.Name))
-                    return;
+            if (blockTemplate.Name == s_airBlock.Name)
+                return false;
+            if (exclusions is not null && exclusions.Contains(blockTemplate.Name))
+                return false;
             block.Name = blockTemplate.Name;
             block.CoordsAbs = blockTemplate.CoordsAbs;
             block.Properties = blockTemplate.Properties;
+            return true;
         }
     }
 

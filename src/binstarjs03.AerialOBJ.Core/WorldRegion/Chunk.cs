@@ -137,7 +137,6 @@ public class Chunk
             return new Block("minecraft:air", coordsAbs);
     }
 
-    // TODO need more polishing, especially if height limit value is invalid
     public Block[,] GetBlockTopmost(Block[,] buffer, string[]? exclusions = null, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
@@ -151,8 +150,8 @@ public class Chunk
             for (int z = 0; z < Section.BlockCount; z++)
             {
                 coordsAbs = new(_coordsAbs.X * Section.BlockCount + x,
-                                 0,
-                                 _coordsAbs.Z * Section.BlockCount + z);
+                                0,
+                                _coordsAbs.Z * Section.BlockCount + z);
                 Block air = new(coordsAbs);
                 blocks[x, z] = air;
             }
@@ -162,31 +161,39 @@ public class Chunk
         {
             for (int x = 0; x < Section.BlockCount; x++)
             {
-                // iterate through all sections and set block to top-most of
-                // section block if it isn't in exclusions
-                foreach (Section section in GetSections())
+                bool breaking = false;
+                // iterate through all sections, reversed from top-most to bottom
+                // and set block to top-most of section block if it isn't in exclusions
+                for (int i = _sectionsYPos.Length - 1; i >= 0; i--)
                 {
-                    int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
-                    if (heightAtSection > limit)
+                    if (breaking)
                         break;
 
-                    for (int y = 0; y < Section.BlockCount; y++)
+                    Section section = _sections[_sectionsYPos[i]];
+
+                    // skip sections that is higher than heightLimit
+                    int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
+                    if (heightAtSection > limit)
+                        continue;
+
+                    for (int y = Section.BlockRange; y >= 0; y--)
                     {
-                        int height = heightAtSection + Section.BlockCount + y;
-                        if (height > limit)
+                        if (breaking)
                             break;
 
-                        block = blocks[x, z];
+                        // we also want to skip blocks that is higher than height limit
+                        int height = heightAtSection + y;
+                        if (height > limit)
+                            continue;
 
-                        // new coords in case if SetBlock successfully modifying the coords
-                        coordsAbs = new(x + section.CoordsAbs.X * Section.BlockCount,
-                                        y + section.CoordsAbs.Y * Section.BlockCount,
-                                        z + section.CoordsAbs.Z * Section.BlockCount);
+                        block = blocks[x, z];
                         Coords3 coordsRel = new(x, y, z);
 
                         // set existing block instance to avoid heap generation.
                         // generating heap at tight-loop like this will trash the GC very badly
-                        section.SetBlock(block, coordsAbs, coordsRel, exclusions, useAir:false);
+                        // also SetBlock return true if setting is successful, 
+                        // we want to break early if so since that is the highest block
+                        breaking = section.SetBlock(block, coordsRel, exclusions);
                     }
                 }
             }
