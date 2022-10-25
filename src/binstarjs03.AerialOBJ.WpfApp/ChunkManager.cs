@@ -58,8 +58,8 @@ public class ChunkManager
         UpdateVisibleChunkRange();
         if (_displayedHeightLimit != _viewport.ViewportHeightLimit)
         {
-            foreach (ChunkWrapper chunk in _chunks.Values)
-                chunk.Deallocate();
+            foreach (Coords2 chunkCoordsAbs in _chunks.Keys)
+                RemoveRenderedChunk(chunkCoordsAbs);
             _chunks.Clear();
             _needReallocate = true;
         }
@@ -116,38 +116,55 @@ public class ChunkManager
         if (_needReallocate)
         {
             // perform boundary checking for chunks outside display frame
-            foreach (Coords2 chunkPos in _chunks.Keys)
-                if (!_visibleChunkRange.IsInside(chunkPos))
-                    _deallocatedChunkBuffer.Enqueue(chunkPos);
+            foreach (Coords2 chunkCoordsAbs in _chunks.Keys)
+                if (!_visibleChunkRange.IsInside(chunkCoordsAbs))
+                    _deallocatedChunkBuffer.Enqueue(chunkCoordsAbs);
 
             // perform sweep checking for chunks inside display frame
             for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
                 for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
                 {
-                    Coords2 chunkCoords = new(x, z);
-                    if (!_chunks.ContainsKey(chunkCoords))
-                        _allocatedChunkBuffer.Add(chunkCoords);
+                    Coords2 chunkCoordsAbs = new(x, z);
+                    if (!_chunks.ContainsKey(chunkCoordsAbs))
+                        _allocatedChunkBuffer.Add(chunkCoordsAbs);
                 }
 
             // deallocate
-            while(_deallocatedChunkBuffer.TryDequeue(out Coords2 chunkCoordsAbs))
+            while (_deallocatedChunkBuffer.TryDequeue(out Coords2 chunkCoordsAbs))
             {
-                _chunks.Remove(chunkCoordsAbs, out ChunkWrapper? chunk);
-                chunk?.Deallocate();
+                RemoveRenderedChunk(chunkCoordsAbs);
             }
 
             _allocatedChunkBuffer.FisherYatesShuffe();
-            foreach(Coords2 chunkCoordsAbs in _allocatedChunkBuffer)
+            foreach (Coords2 chunkCoordsAbs in _allocatedChunkBuffer)
             {
-                ChunkWrapper chunk = new(chunkCoordsAbs, this);
-                if (chunk.Allocate()) // only add to buffer if can allocate
-                    _chunks.Add(chunkCoordsAbs, chunk);
+                ChunkWrapper chunkWrapper = new(chunkCoordsAbs, this);
+                if (chunkWrapper.Allocate()) // only add to buffer if can allocate
+                    _chunks.Add(chunkCoordsAbs, chunkWrapper);
             }
             _allocatedChunkBuffer.Clear();
 
             _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerVisibleChunkCount));
             _needReallocate = false;
         }
+    }
+
+    public void RemoveRenderedChunk(Coords2 chunkCoordsAbs)
+    {
+        if (!_chunks.ContainsKey(chunkCoordsAbs))
+            return;
+        ChunkWrapper chunkWrapper = _chunks[chunkCoordsAbs];
+        _chunks.Remove(chunkWrapper.ChunkCoordsAbs);
+        if (chunkWrapper.ChunkImage is not null)
+            _viewport.Control.ChunkCanvas.Children.Remove(chunkWrapper.ChunkImage);
+        chunkWrapper.Deallocate();
+        OnRenderedChunkChanged();
+    }
+
+    private void OnRenderedChunkChanged()
+    {
+        _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerLoadedChunkCount));
+        _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerPendingChunkCount));
     }
 
     private void UpdateChunks()

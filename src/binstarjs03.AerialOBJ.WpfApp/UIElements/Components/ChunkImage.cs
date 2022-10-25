@@ -16,7 +16,6 @@ namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 public class ChunkImage : Image, IDisposable
 {
     private readonly Coords2 _chunkCoordsAbs;
-
     private bool _disposed;
 
     public ChunkImage(Coords2 chunkCoordsAbs)
@@ -27,23 +26,23 @@ public class ChunkImage : Image, IDisposable
         _chunkCoordsAbs = chunkCoordsAbs;
     }
 
-    public Coords2 chunkCoordsAbs => _chunkCoordsAbs;
+    public Coords2 ChunkCoordsAbs => _chunkCoordsAbs;
     public PointInt2 CanvasPos => (PointInt2)_chunkCoordsAbs;
 
     // call this from secondary thread as calling it from main thread will
     // block UI thread!
-    public void SetImageToChunkTerrain(MemoryStream bitmapStream)
+    public void SetImageToChunkTerrain(MemoryStream chunkImageStream)
     {
-        bitmapStream.Position = 0;
+        chunkImageStream.Position = 0;
 
         BitmapImage image = new();
         image.BeginInit();
-        image.StreamSource = bitmapStream;
+        image.StreamSource = chunkImageStream;
         image.CacheOption = BitmapCacheOption.OnLoad;
         image.EndInit();
         image.Freeze();
         Source = image;
-        bitmapStream.Dispose();
+        chunkImageStream.Dispose();
 
     }
 
@@ -53,28 +52,13 @@ public class ChunkImage : Image, IDisposable
     {
         if (!_disposed)
         {
-            if (disposing)
-            {
-                // dispose managed state (managed objects)
-            }
-
-            // free unmanaged resources (unmanaged objects) and override finalizer
-            // set large fields to null
             Source = null;
             _disposed = true;
         }
     }
 
-    // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~ChunkControl()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
-
     public void Dispose()
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
