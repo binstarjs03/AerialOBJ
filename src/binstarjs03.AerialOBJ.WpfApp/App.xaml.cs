@@ -14,17 +14,32 @@ public partial class App : Application
         LauchTime = DateTime.Now;
 
         // TODO set max threadPool according to user setting chunk threads!
+        int maxThreadPoolCount = Math.Clamp(Environment.ProcessorCount - 1, 1, Environment.ProcessorCount);
         ThreadPool.GetMaxThreads(out _, out int completionPortThreads);
         ThreadPool.SetMinThreads(0, completionPortThreads);
-        ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
+        ThreadPool.SetMaxThreads(maxThreadPoolCount, completionPortThreads);
     }
 
     public static DateTime LauchTime { get; set; }
     public static string AppName => "AerialOBJ";
 
+    public static void InvokeDispatcher(Action action, DispatcherPriority priority)
+    {
+        if (Current is null)
+            return;
+        Current.Dispatcher.Invoke(action, priority);
+    }
+
+    public static DispatcherOperation? BeginInvokeDispatcher(Action action, DispatcherPriority priority)
+    {
+        if (Current is null)
+            return null;
+        return Current.Dispatcher.BeginInvoke(action, priority);
+    }
+
     private void OnStartup(object sender, StartupEventArgs e)
     {
-        Current.DispatcherUnhandledException += OnUnhandledException;
+        //Current.DispatcherUnhandledException += OnUnhandledException;
     }
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

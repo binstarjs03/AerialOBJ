@@ -1,12 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 
-using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.WpfApp.Converters;
+using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
 using Range = binstarjs03.AerialOBJ.Core.Range;
+using Region = binstarjs03.AerialOBJ.Core.WorldRegion.Region;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
@@ -14,19 +22,35 @@ public class ChunkManager
 {
     private readonly ViewportControlVM _viewport;
     private readonly RegionManager _regionManager = new();
-    private readonly Dictionary<Coords2, ChunkWrapper> _chunks = new();
+    private readonly Dictionary<Coords2, ChunkWrapper> _renderedChunks = new();
 
-    private readonly Queue<Coords2> _deallocatedChunkBuffer = new(3000);
-    private readonly List<Coords2> _allocatedChunkBuffer = new(3000);
+    // we use HashSet to check for fast chunk coords existence checking.
+    // it also guaranteed to not having duplicates
+    private readonly HashSet<Coords2> _pendingChunkSet = new(7000);
 
+    // we use list for fast chunk coords access.
+    // it allows us to access randomly using indexing.
+    private readonly List<Coords2> _pendingChunkQueue = new(7000);
+
+    // list of chunks that is being worked on by threads
+    private readonly List<Coords2> _workedChunkList = new(Environment.ProcessorCount);
+
+    // queues for chunks that needs to be deallocated
+    private readonly Queue<Coords2> _deallocatedChunkQueue = new(7000);
+
+    // random number generator to select random pending chunk to be processed
+    private readonly Random _rng = new();
+
+    private int _runningChunkWorkerThreadCount = 0;
     private int _displayedHeightLimit;
-
     private CoordsRange2 _visibleChunkRange;
     private bool _needReallocate = false;
 
     public ChunkManager(ViewportControlVM viewport)
     {
         _viewport = viewport;
+        RunPendingChunkCheckerThread();
+
     }
 
     // public accessors
@@ -34,8 +58,11 @@ public class ChunkManager
     public RegionManager RegionManager => _regionManager;
     public CoordsRange2 VisibleChunkRange => _visibleChunkRange;
     public CoordsRange2 VisibleRegionRange => GetVisibleRegionRange();
-    public int VisibleChunkCount => _chunks.Count;
-    public int LoadedChunkCount => _viewport.Control.ChunkCanvas.Children.Count;
+    public int VisibleChunkCount => (_visibleChunkRange.XRange.Max - _visibleChunkRange.XRange.Min + 1)
+                                  * (_visibleChunkRange.ZRange.Max - _visibleChunkRange.ZRange.Min + 1);
+    public int RenderedChunkCount => _viewport.Control.ChunkCanvas.Children.Count;
+    public int PendingChunkCount => _pendingChunkQueue.Count;
+    public int WorkedChunkCount => _workedChunkList.Count;
 
     private CoordsRange2 GetVisibleRegionRange()
     {
@@ -58,9 +85,11 @@ public class ChunkManager
         UpdateVisibleChunkRange();
         if (_displayedHeightLimit != _viewport.ViewportHeightLimit)
         {
-            foreach (Coords2 chunkCoordsAbs in _chunks.Keys)
+            foreach (Coords2 chunkCoordsAbs in _renderedChunks.Keys)
                 RemoveRenderedChunk(chunkCoordsAbs);
-            _chunks.Clear();
+            _renderedChunks.Clear();
+            _pendingChunkSet.Clear();
+            _pendingChunkQueue.Clear();
             _needReallocate = true;
         }
         ReallocateChunks();
@@ -116,68 +145,217 @@ public class ChunkManager
         if (_needReallocate)
         {
             // perform boundary checking for chunks outside display frame
-            foreach (Coords2 chunkCoordsAbs in _chunks.Keys)
-                if (!_visibleChunkRange.IsInside(chunkCoordsAbs))
-                    _deallocatedChunkBuffer.Enqueue(chunkCoordsAbs);
+            foreach (Coords2 chunkCoordsAbs in _renderedChunks.Keys)
+            {
+                if (_visibleChunkRange.IsInside(chunkCoordsAbs))
+                    continue;
+                _deallocatedChunkQueue.Enqueue(chunkCoordsAbs);
+
+            }
+
+            // remove all pending chunk queue that is no longer visible
+            _pendingChunkSet.RemoveWhere(chunkCoordsAbs => !_visibleChunkRange.IsInside(chunkCoordsAbs));
+            _pendingChunkQueue.RemoveAll(chunkCoordsAbs => !_visibleChunkRange.IsInside(chunkCoordsAbs));
 
             // perform sweep checking for chunks inside display frame
             for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
                 for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
                 {
                     Coords2 chunkCoordsAbs = new(x, z);
-                    if (!_chunks.ContainsKey(chunkCoordsAbs))
-                        _allocatedChunkBuffer.Add(chunkCoordsAbs);
+                    if (_renderedChunks.ContainsKey(chunkCoordsAbs))
+                        continue;
+                    //if (_pendingChunkQueue.Contains(chunkCoordsAbs))
+                    //    continue;
+                    if (_pendingChunkSet.Contains(chunkCoordsAbs))
+                        continue;
+                    if (_workedChunkList.Contains(chunkCoordsAbs))
+                        continue;
+                    _pendingChunkSet.Add(chunkCoordsAbs);
+                    _pendingChunkQueue.Add(chunkCoordsAbs);
                 }
 
             // deallocate
-            while (_deallocatedChunkBuffer.TryDequeue(out Coords2 chunkCoordsAbs))
+            while (_deallocatedChunkQueue.TryDequeue(out Coords2 chunkCoordsAbs))
             {
                 RemoveRenderedChunk(chunkCoordsAbs);
             }
-
-            _allocatedChunkBuffer.FisherYatesShuffe();
-            foreach (Coords2 chunkCoordsAbs in _allocatedChunkBuffer)
-            {
-                ChunkWrapper chunkWrapper = new(chunkCoordsAbs, this);
-                if (chunkWrapper.Allocate()) // only add to buffer if can allocate
-                    _chunks.Add(chunkCoordsAbs, chunkWrapper);
-            }
-            _allocatedChunkBuffer.Clear();
-
+            InitiateChunkAllocation();
+            _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerPendingChunkCount));
             _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerVisibleChunkCount));
             _needReallocate = false;
         }
     }
 
-    public void RemoveRenderedChunk(Coords2 chunkCoordsAbs)
+    public void RunPendingChunkCheckerThread()
     {
-        if (!_chunks.ContainsKey(chunkCoordsAbs))
-            return;
-        ChunkWrapper chunkWrapper = _chunks[chunkCoordsAbs];
-        _chunks.Remove(chunkWrapper.ChunkCoordsAbs);
-        if (chunkWrapper.ChunkImage is not null)
-            _viewport.Control.ChunkCanvas.Children.Remove(chunkWrapper.ChunkImage);
-        chunkWrapper.Deallocate();
-        OnRenderedChunkChanged();
+        //return;
+        Thread pendingChunkCheckerThread = new(() => PendingChunkCheckerLoopAsync())
+        {
+            Name = "PendingChunkChecker",
+            IsBackground = true,
+        };
+        pendingChunkCheckerThread.Start();
     }
 
-    private void OnRenderedChunkChanged()
+    private void PendingChunkCheckerLoopAsync()
     {
-        _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerLoadedChunkCount));
+        Thread.Sleep(1000);
+        // TODO this log message displayed after initialization completed. we want to send any initialization
+        // log message to appear before it tells us that initialization is completed
+        App.BeginInvokeDispatcher(
+            () => LogService.Log($"Background pending chunk checker thread successfully started", useSeparator: true),
+            DispatcherPriority.Normal);
+        try
+        {
+            while (true)
+            {
+                App.BeginInvokeDispatcher(
+                    () => InitiateChunkAllocation(),
+                    DispatcherPriority.Send);
+                Thread.Sleep(500);
+            }
+        }
+        catch
+        {
+            // guard this thread against any exceptions, restart if so
+            LogService.LogError($"{Thread.CurrentThread.Name} crashed! restarting...", useSeparator: true);
+            RunPendingChunkCheckerThread();
+            return;
+        }
+    }
+
+    // run this method in UI thread, else we have to deal with lock and such
+    private void InitiateChunkAllocation()
+    {
+        // TODO set max chunk worker thread count according to user setting chunk threads!
+        while (_runningChunkWorkerThreadCount < Environment.ProcessorCount)
+        {
+            if (_pendingChunkSet.Count == 0)
+                break;
+            int index = _rng.Next(0, _pendingChunkSet.Count);
+            Coords2 chunkCoordsAbs = _pendingChunkQueue[index];
+            _pendingChunkSet.Remove(chunkCoordsAbs);
+            _pendingChunkQueue.RemoveAt(index);
+            if (_regionManager.CanGetChunk(chunkCoordsAbs))
+            {
+                _workedChunkList.Add(chunkCoordsAbs);
+                Task.Run(() => AllocateChunkAsync(chunkCoordsAbs));
+                _runningChunkWorkerThreadCount++;
+            }
+        }
         _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerPendingChunkCount));
+        _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerWorkedChunkCount));
+    }
+
+    private void AllocateChunkAsync(Coords2 chunkCoordsAbs)
+    {
+        // we do not lock visible chunk range because its unneccessary, furthermore
+        // it will avoid stalling the UI thread when it is trying to updating it
+        if (!_visibleChunkRange.IsInside(chunkCoordsAbs))
+        {
+            // if this method wants to return (aborting), we have to remove the chunk coordinate
+            // this thread is working on in the list, and we do it on main thread using dispatcher
+            App.BeginInvokeDispatcher(
+                () => OnAllocateChunkAsyncExit(chunkCoordsAbs),
+                DispatcherPriority.Normal);
+            return;
+        }
+
+        // since we are not locking region manager,
+        // chunk may not be gettable anymore at any point of time
+        Chunk? chunk = _regionManager.GetChunk(chunkCoordsAbs);
+        if (chunk is null)
+        {
+            App.BeginInvokeDispatcher(
+                () => OnAllocateChunkAsyncExit(chunkCoordsAbs),
+                DispatcherPriority.Normal);
+            return;
+        }
+
+        Bitmap chunkImage = new(16, 16, PixelFormat.Format32bppArgb);
+        Block[,] blocks = new Block[Section.BlockCount, Section.BlockCount];
+
+        // we also do not lock height limit, and if the height limit is changed
+        // while this thread is rendering on different height limit,
+        // it will not be added to viewport (see AllocateChunkSynchronized method)
+        int renderedHeight = _viewport.ViewportHeightLimit;
+        chunk.GetBlockTopmost(blocks, heightLimit: renderedHeight);
+        for (int x = 0; x < Section.BlockCount; x++)
+        {
+            for (int z = 0; z < Section.BlockCount; z++)
+            {
+                chunkImage.SetPixel(x, z, BlockToColor2.Convert(blocks[x, z]));
+            }
+        }
+        MemoryStream chunkImageStream = new();
+        chunkImage.Save(chunkImageStream, ImageFormat.Bmp);
+
+        App.BeginInvokeDispatcher(
+            () => OnAllocateChunkAsyncExit(chunkCoordsAbs),
+            DispatcherPriority.Background);
+
+        App.BeginInvokeDispatcher(
+            () => AllocateChunkSynchronized(chunkCoordsAbs, chunkImageStream, renderedHeight),
+            DispatcherPriority.Background);
+    }
+
+    private void OnAllocateChunkAsyncExit(Coords2 chunkCoordsAbs)
+    {
+        _runningChunkWorkerThreadCount--;
+        _workedChunkList.Remove(chunkCoordsAbs);
+        _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerWorkedChunkCount));
+        // rerun chunk allocation to see if there
+        // is still pending chunk to be processed
+        InitiateChunkAllocation();
+    }
+
+    private void AllocateChunkSynchronized(Coords2 chunkCoordsAbs, MemoryStream chunkImageStream, int renderedHeight)
+    {
+        // discard this chunk if it is no longer visible
+        if (!_visibleChunkRange.IsInside(chunkCoordsAbs))
+            return;
+
+        // discard this chunk if it was rendered on different height limit
+        // than the display is currently displaying
+        if (renderedHeight != _displayedHeightLimit)
+            return;
+        ChunkWrapper chunkWrapper = new(chunkCoordsAbs, this, chunkImageStream);
+        AddRenderedChunk(chunkWrapper);
+    }
+
+    private void AddRenderedChunk(ChunkWrapper chunkWrapper)
+    {
+        if (!_visibleChunkRange.IsInside(chunkWrapper.ChunkCoordsAbs))
+            return;
+        if (_renderedChunks.ContainsKey(chunkWrapper.ChunkCoordsAbs))
+            return;
+        _renderedChunks.Add(chunkWrapper.ChunkCoordsAbs, chunkWrapper);
+        _viewport.Control.ChunkCanvas.Children.Add(chunkWrapper.ChunkImage);
+        _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerRenderedChunkCount));
+    }
+
+    public void RemoveRenderedChunk(Coords2 chunkCoordsAbs)
+    {
+        if (!_renderedChunks.ContainsKey(chunkCoordsAbs))
+            return;
+        ChunkWrapper chunkWrapper = _renderedChunks[chunkCoordsAbs];
+        _renderedChunks.Remove(chunkWrapper.ChunkCoordsAbs);
+        _viewport.Control.ChunkCanvas.Children.Remove(chunkWrapper.ChunkImage);
+        _viewport.NotifyPropertyChanged(nameof(_viewport.ChunkManagerRenderedChunkCount));
+        chunkWrapper.Deallocate();
     }
 
     private void UpdateChunks()
     {
-        foreach (ChunkWrapper chunk in _chunks.Values)
+        foreach (ChunkWrapper chunk in _renderedChunks.Values)
             chunk.Update();
     }
 
     public void OnSessionClosed()
     {
-        foreach (ChunkWrapper chunk in _chunks.Values)
+        foreach (ChunkWrapper chunk in _renderedChunks.Values)
             chunk.Deallocate();
-        _chunks.Clear();
+        _renderedChunks.Clear();
         // reset visible chunk range to zero, this will ensure next
         // update will set visible chunk range to different value,
         // setting needreallocate to true, in turns allowing chunk reallocation

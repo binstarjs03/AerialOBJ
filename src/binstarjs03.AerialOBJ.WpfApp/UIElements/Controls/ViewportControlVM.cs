@@ -115,8 +115,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public string ChunkManagerVisibleRegionRangeXBinding => _chunkManager.VisibleRegionRange.XRange.ToString();
     public string ChunkManagerVisibleRegionRangeZBinding => _chunkManager.VisibleRegionRange.ZRange.ToString();
     public int ChunkManagerVisibleChunkCount => _chunkManager.VisibleChunkCount;
-    public int ChunkManagerLoadedChunkCount => _chunkManager.LoadedChunkCount;
-    public int ChunkManagerPendingChunkCount => ChunkManagerVisibleChunkCount - ChunkManagerLoadedChunkCount;
+    public int ChunkManagerRenderedChunkCount => _chunkManager.RenderedChunkCount;
+    public int ChunkManagerPendingChunkCount => _chunkManager.PendingChunkCount;
+    public int ChunkManagerWorkedChunkCount => _chunkManager.WorkedChunkCount;
 
     public int ExportArea1XBinding
     {
