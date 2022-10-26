@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:DebugLogWindowVM}"
         
-        Title="Debug Log" 
+        Title="{Binding Path=TitleBinding, 
+                        Mode=OneWay}" 
         Visibility="{Binding Path=UIDebugLogWindowVisibleBinding, 
                              Mode=TwoWay, 
                              UpdateSourceTrigger=PropertyChanged, 

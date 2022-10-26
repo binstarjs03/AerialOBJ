@@ -2,7 +2,6 @@
 using System.IO;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.IO;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.WorldRegion;
 
@@ -76,12 +75,11 @@ public static class IOService
         }
     }
 
-    // heavy call, we should call this asynchronously so UI thread doesn't blocked
     public static Region? LoadRegion(Coords2 regionCoords)
     {
-        if (SharedProperty.SessionInfo is null)
+        if (App.CurrentCast.Properties.SessionInfo is null)
             return null;
-        string savegameDir = SharedProperty.SessionInfo.SavegameDirectory.FullName;
+        string savegameDir = App.CurrentCast.Properties.SessionInfo.SavegameDirectory.FullName;
         string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
         if (File.Exists(regionPath))
         {

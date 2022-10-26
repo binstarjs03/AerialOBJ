@@ -1,30 +1,33 @@
 ﻿using System;
-using System.Windows;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
-public class LogService
+public static class LogService
 {
-    private static Action<string>? s_logHandler;
-    private static Action<string>? s_notificationHandler;
-    private static Func<string>? s_getLogContent;
+    public static event StringDelegate? Logging;
+    public static event StringDelegate? NotificationPushed;
+    public delegate void StringDelegate(string content);
+    private static string s_logContent = "";
+    private static string s_notificationContent = "";
 
-    public static Action<string>? LogHandlers
+    public static string GetLogContent()
     {
-        get => s_logHandler;
-        set => s_logHandler = value;
+        return s_logContent;
     }
 
-    public static Action<string>? NotificationHandlers
+    public static string GetNotificationContent()
     {
-        get => s_notificationHandler;
-        set => s_notificationHandler = value;
+        return s_notificationContent;
     }
 
-    public static Func<string>? GetLogContentHandlers
+    public static void ClearLogContent()
     {
-        get => s_getLogContent;
-        set => s_getLogContent = value;
+        s_logContent = "";
+    }
+
+    public static void ClearNotificationContent()
+    {
+        s_notificationContent = "";
     }
 
     /// <summary>
@@ -36,8 +39,7 @@ public class LogService
     {
         try
         {
-            string logContent = GetLogContentHandlers?.Invoke()!;
-            IOService.WriteText(path, logContent);
+            IOService.WriteText(path, s_logContent);
             return true;
         }
         catch
@@ -48,14 +50,15 @@ public class LogService
 
     public static void LogNewline()
     {
-        s_logHandler?.Invoke("");
+        Log("");
     }
 
     public static void Log(string content, bool useSeparator = false)
     {
-        s_logHandler?.Invoke(content);
+        s_logContent += $"{content}{Environment.NewLine}";
         if (useSeparator)
             LogNewline();
+        Logging?.Invoke(content);
     }
 
     public static void LogWarning(string content, bool pushNotification = false, bool useSeparator = false)
@@ -85,7 +88,7 @@ public class LogService
 
     private static void LogEmphasis(string content, string emphasisWord, bool pushNotification = true, bool useSeparator = false)
     {
-        s_logHandler?.Invoke($"--{emphasisWord}--: {content}");
+        Log($"--{emphasisWord}--: {content}");
         if (pushNotification)
             PushNotification(content);
         if (useSeparator)
@@ -94,13 +97,14 @@ public class LogService
 
     public static void PushNotification(string message)
     {
-        s_notificationHandler?.Invoke($"{message}");
+        s_notificationContent = message;
+        NotificationPushed?.Invoke(message);
     }
 
     public static void LogRuntimeInfo()
     {
-        Log($"Launch time: {App.LauchTime}");
-        Log("MineSharpOBJ Version: ...");
+        Log($"Launch time: {App.CurrentCast.Properties.LaunchTime}");
+        Log($"{App.AppProperty.AppName} Version: ...");
         Log("Commit Hash: ...", useSeparator: true);
 
         Log($"Host OS: {Environment.OSVersion}");

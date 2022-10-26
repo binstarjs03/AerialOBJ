@@ -8,6 +8,8 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
+		<StartupObject>binstarjs03.AerialOBJ.ConsoleApp.ReadRegionChunkBenchmark</StartupObject>
+		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

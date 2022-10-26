@@ -13,7 +13,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 {
     public MainWindowVM(MainWindow window) : base(window)
     {
-        SharedProperty.PropertyChanged += OnSharedPropertyChanged;
+        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
 
         // set commands to its corresponding implementations
         AboutCommand = new RelayCommand(OnAbout);
@@ -25,8 +25,9 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
     #region States - Fields and Properties
 
-    private string _title = SharedProperty.SessionInfo is null ? App.AppName : $"{App.AppName} - {SharedProperty.SessionInfo.WorldName}";
-    private static bool HasSession => SharedProperty.HasSession;
+    private string _title = App.CurrentCast.Properties.SessionInfo is null ?
+        App.AppProperty.AppName : $"{App.AppProperty.AppName} - {App.CurrentCast.Properties.SessionInfo.WorldName}";
+    private static bool HasSession => App.CurrentCast.Properties.HasSession;
 
     #endregion
 
@@ -38,8 +39,8 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
     public bool UIDebugLogWindowVisibleBinding
     {
-        get => SharedProperty.UIDebugLogWindowVisible;
-        set => SharedProperty.UpdateUIDebugLogWindowVisible(value);
+        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
+        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
     }
 
     #endregion
@@ -82,13 +83,13 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 
         // close if session exist, this is to ensure
         // every components are reinitialized, such as ChunkManager, etc
-        if (SharedProperty.HasSession)
+        if (App.CurrentCast.Properties.HasSession)
         {
             LogService.Log("Session exist, closing...");
             OnClose(null);
         }
 
-        SharedProperty.UpdateSessionInfo(session);
+        App.CurrentCast.Properties.UpdateSessionInfo(session);
         LogService.LogSuccess("Successfully changed session.", useSeparator: true);
     }
 
@@ -97,18 +98,18 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         string logSuccessMsg;
         LogService.Log("Attempting to closing savegame...");
 
-        if (SharedProperty.SessionInfo is null)
+        if (App.CurrentCast.Properties.SessionInfo is null)
         {
-            LogService.LogWarning($"{nameof(SharedProperty.SessionInfo)} is already null!");
+            LogService.LogWarning($"{nameof(App.CurrentCast.Properties.SessionInfo)} is already null!");
             logSuccessMsg = "Successfully closed session.";
         }
         else
         {
-            string worldName = SharedProperty.SessionInfo.WorldName;
+            string worldName = App.CurrentCast.Properties.SessionInfo.WorldName;
             logSuccessMsg = $"Successfully closed session \"{worldName}\".";
         }
 
-        SharedProperty.UpdateSessionInfo(null);
+        App.CurrentCast.Properties.UpdateSessionInfo(null);
         LogService.LogSuccess(logSuccessMsg, useSeparator: true);
     }
 
@@ -146,12 +147,12 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         base.OnSharedPropertyChanged(sender, e);
         string propName = e.PropertyName!;
 
-        if (propName == nameof(SharedProperty.SessionInfo))
+        if (propName == nameof(App.CurrentCast.Properties.SessionInfo))
         {
-            if (SharedProperty.SessionInfo is null)
-                UpdateTitle(App.AppName);
+            if (App.CurrentCast.Properties.SessionInfo is null)
+                UpdateTitle(App.AppProperty.AppName);
             else
-                UpdateTitle($"{App.AppName} - {SharedProperty.SessionInfo.WorldName}");
+                UpdateTitle($"{App.AppProperty.AppName} - {App.CurrentCast.Properties.SessionInfo.WorldName}");
         }
     }
 

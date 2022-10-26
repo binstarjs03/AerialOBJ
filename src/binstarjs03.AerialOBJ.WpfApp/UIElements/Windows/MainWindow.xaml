@@ -17,8 +17,7 @@
         
         Name="Root"
         LocationChanged="OnLocationChanged" 
-        SizeChanged="OnSizeChanged" 
-        Loaded="OnLoaded">
+        SizeChanged="OnSizeChanged" >
     <Grid>
         <DockPanel>
             <Menu IsMainMenu="True" DockPanel.Dock="Top">

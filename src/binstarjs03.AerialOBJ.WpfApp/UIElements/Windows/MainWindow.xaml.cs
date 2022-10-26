@@ -1,23 +1,19 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
-
-using binstarjs03.AerialOBJ.WpfApp.Services;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    public DebugLogWindow DebugLogWindow { get; }
+
+    public MainWindow(DebugLogWindow debugLogWindow)
     {
         InitializeComponent();
         DataContext = new MainWindowVM(this);
-        
-        DebugLogWindow = new DebugLogWindow();
-        Show();
-        DebugLogWindow.Owner = this;
+        DebugLogWindow = debugLogWindow;
     }
-
-    public DebugLogWindow DebugLogWindow { get; }
 
     private void SynchronizeDebugLogWindowPosition()
     {
@@ -25,7 +21,7 @@ public partial class MainWindow : Window
         DebugLogWindow.Left = Left + ActualWidth;
     }
 
-    private void OnLocationChanged(object sender, System.EventArgs e)
+    private void OnLocationChanged(object sender, EventArgs e)
     {
         SynchronizeDebugLogWindowPosition();
     }
@@ -33,12 +29,6 @@ public partial class MainWindow : Window
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
         SynchronizeDebugLogWindowPosition();
-    }
-
-    private void OnLoaded(object sender, RoutedEventArgs e)
-    {
-        MainService.Initialize();
-
     }
 
     protected override void OnClosing(CancelEventArgs e)

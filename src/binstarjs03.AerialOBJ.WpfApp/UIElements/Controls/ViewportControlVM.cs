@@ -12,7 +12,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 {
     public ViewportControlVM(ViewportControl control) : base(control)
     {
-        SharedProperty.PropertyChanged += OnSharedPropertyChanged;
+        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
 
         _chunkManager = new(this);
 
@@ -35,11 +35,11 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         1, 2, 3, 5, 8, 13, 21, 34
     };
 
+    private readonly ChunkManager _chunkManager;
+
     private PointF2 _viewportCameraPos = PointF2.Zero;
     private int _viewportZoomLevel = 1;
     private int _viewportHeightLimit = 255;
-
-    private readonly ChunkManager _chunkManager;
 
     private Coords3 _exportArea1 = Coords3.Zero;
     private Coords3 _exportArea2 = Coords3.Zero;
@@ -270,10 +270,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         base.OnSharedPropertyChanged(sender, e);
         string propName = e.PropertyName!;
-        if (propName == nameof(SharedProperty.SessionInfo))
+        if (propName == nameof(App.CurrentCast.Properties.SessionInfo))
         {
             ReinitializeStates();
-            if (SharedProperty.SessionInfo is null)
+            if (App.CurrentCast.Properties.SessionInfo is null)
                 _chunkManager.OnSessionClosed();
         }
     }

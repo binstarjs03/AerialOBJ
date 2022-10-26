@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -12,11 +10,10 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
 {
     public DebugLogWindowVM(DebugLogWindow window) : base(window)
     {
-        SharedProperty.PropertyChanged += OnSharedPropertyChanged;
+        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
 
         // listen to service events
-        LogService.LogHandlers += OnLogServiceLogging;
-        LogService.GetLogContentHandlers += OnLogServiceGetLogContent;
+        LogService.Logging += OnLogServiceLogging;
 
         // set commands to its corresponding implementations
         SaveLogCommand = new RelayCommand(OnSaveLog);
@@ -26,25 +23,17 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         WriteVerticalCommand = new RelayCommand(OnWriteVertical);
     }
 
-    #region States - Fields and Properties
-
-    private string _logContent = string.Empty;
-
-    #endregion
-
     #region Data Binders
+
+    public string TitleBinding => $"{App.AppProperty.AppName} - Debug Log";
 
     public bool UIDebugLogWindowVisibleBinding
     {
-        get => SharedProperty.UIDebugLogWindowVisible;
-        set => SharedProperty.UpdateUIDebugLogWindowVisible(value);
+        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
+        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
     }
 
-    public string LogContentBinding
-    {
-        get => _logContent;
-        set => SetAndNotifyPropertyChanged(value, ref _logContent);
-    }
+    public string LogContentBinding => LogService.GetLogContent();
 
     #endregion
 
@@ -80,7 +69,7 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
 
     private void OnClearLog(object? arg)
     {
-        LogContentBinding = "";
+        LogService.ClearLogContent();
         LogService.LogRuntimeInfo();
     }
 
@@ -119,13 +108,8 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
 
     private void OnLogServiceLogging(string content)
     {
-        LogContentBinding += $"{content}{Environment.NewLine}";
+        NotifyPropertyChanged(nameof(LogContentBinding));
         Window.LogTextBox.ScrollToEnd();
-    }
-
-    private string OnLogServiceGetLogContent()
-    {
-        return LogContentBinding;
     }
 
     #endregion
