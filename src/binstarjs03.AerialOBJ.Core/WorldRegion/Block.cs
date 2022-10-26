@@ -74,6 +74,6 @@ public class Block
 
     public override string ToString()
     {
-        return $"{_name} block {_coordsAbs}";
+        return $"{_name} at {_coordsAbs}";
     }
 }

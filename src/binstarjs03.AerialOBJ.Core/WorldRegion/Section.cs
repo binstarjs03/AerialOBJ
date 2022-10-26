@@ -172,7 +172,9 @@ public class Section
             if (exclusions is not null && exclusions.Contains(blockTemplate.Name))
                 return false;
             block.Name = blockTemplate.Name;
-            block.CoordsAbs = blockTemplate.CoordsAbs;
+            block.CoordsAbs = new Coords3(CoordsAbs.X * BlockCount + coordsRel.X,
+                                          CoordsAbs.Y * BlockCount + coordsRel.Y,
+                                          CoordsAbs.Z * BlockCount + coordsRel.Z);
             block.Properties = blockTemplate.Properties;
             return true;
         }
