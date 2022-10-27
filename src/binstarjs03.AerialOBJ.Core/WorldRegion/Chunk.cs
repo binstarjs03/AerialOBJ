@@ -9,20 +9,25 @@ namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Chunk
 {
-    // TODO: these static fields are unreliable. some custom worlds have their own range so we have to refactor the class
-    public static readonly int TotalSectionCount = SectionRange.max - SectionRange.min;
-    public static readonly (int min, int max) SectionRange = (-4, 19);
+    // TODO: these static fields are unreliable.
+    // some custom worlds have their own range so we shouldn't rely on it
+    public static readonly int TotalSectionCount = SectionRange.Max - SectionRange.Min;
+    public static readonly Range SectionRange = new(-4, 19);
     public static readonly int TotalBlockCount = Section.TotalBlockCount * TotalSectionCount;
     public static readonly CoordsRange3 BlockRangeRel = new(
         xRange: new Range(0, Section.BlockCount),
-        yRange: new Range(Section.BlockCount * SectionRange.min, Section.BlockCount * SectionRange.max + Section.BlockRange),
+        yRange: new Range(Section.BlockCount * SectionRange.Min, Section.BlockCount * SectionRange.Max + Section.BlockRange),
         zRange: new Range(0, Section.BlockCount)
     );
 
     private readonly Coords2 _coordsAbs;
     private readonly CoordsRange3 _blockRangeAbs;
+
+    // array of section position or height
     private readonly int[] _sectionsYPos;
 
+    // key is the position or height of the section.
+    // if we are not sure, we can just index any sectionsYPos element
     private readonly Dictionary<int, Section> _sections;
 
     public Chunk(NbtCompound nbtChunk)
@@ -30,6 +35,9 @@ public class Chunk
         _coordsAbs = calculateCoordsAbs(nbtChunk);
         _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
         (_sectionsYPos, _sections) = readSections(_coordsAbs, nbtChunk);
+
+        // just in case section is unordered, we order them first
+        Array.Sort(_sectionsYPos);
 
         static Coords2 calculateCoordsAbs(NbtCompound nbtChunk)
         {
@@ -40,12 +48,12 @@ public class Chunk
         static CoordsRange3 calculateBlockRangeAbs(Coords2 coordsAbs)
         {
             int minAbsBx = coordsAbs.X * Section.BlockCount;
-            int minAbsBy = SectionRange.min * Section.BlockCount;
+            int minAbsBy = SectionRange.Min * Section.BlockCount;
             int minAbsBz = coordsAbs.Z * Section.BlockCount;
             Coords3 minAbsB = new(minAbsBx, minAbsBy, minAbsBz);
 
             int maxAbsBx = minAbsBx + Section.BlockRange;
-            int maxAbsBy = SectionRange.max * Section.BlockCount + Section.BlockRange;
+            int maxAbsBy = SectionRange.Max * Section.BlockCount + Section.BlockRange;
             int maxAbsBz = minAbsBz + Section.BlockRange;
             Coords3 maxAbsB = new(maxAbsBx, maxAbsBy, maxAbsBz);
 
@@ -90,6 +98,12 @@ public class Chunk
         if (!_sections.ContainsKey(sectionY))
             throw new KeyNotFoundException($"Section {sectionY} does not exist in chunk");
         return _sections[sectionY];
+    }
+
+    public Section GetSectionAt(int index)
+    {
+        int sectionPosition = _sectionsYPos[index];
+        return _sections[sectionPosition];
     }
 
     public Section[] GetSections()
@@ -137,39 +151,23 @@ public class Chunk
             return new Block("minecraft:air", coordsAbs);
     }
 
-    public Block[,] GetBlockTopmost(Block[,] buffer, string[]? exclusions = null, int? heightLimit = null)
+    public void GetHighestBlock(Block[,] buffer, string[]? exclusions = null, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
-        Block[,] blocks = buffer;
-        Block block;
-        Coords3 coordsAbs;
 
-        // set initial block, which is air
-        for (int x = 0; x < Section.BlockCount; x++)
-        {
-            for (int z = 0; z < Section.BlockCount; z++)
-            {
-                coordsAbs = new(_coordsAbs.X * Section.BlockCount + x,
-                                0,
-                                _coordsAbs.Z * Section.BlockCount + z);
-                Block air = new(coordsAbs);
-                blocks[x, z] = air;
-            }
-        }
+        // We expect the buffer is already initialized
 
         for (int z = 0; z < Section.BlockCount; z++)
-        {
             for (int x = 0; x < Section.BlockCount; x++)
             {
                 bool breaking = false;
-                // iterate through all sections, reversed from top-most to bottom
-                // and set block to top-most of section block if it isn't in exclusions
-                for (int i = _sectionsYPos.Length - 1; i >= 0; i--)
+                for (int index = _sectionsYPos.Length - 1; index >= 0; index--)
                 {
                     if (breaking)
                         break;
 
-                    Section section = _sections[_sectionsYPos[i]];
+                    int sectionPosition = _sectionsYPos[index];
+                    Section section = _sections[sectionPosition];
 
                     // skip sections that is higher than heightLimit
                     int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
@@ -186,7 +184,8 @@ public class Chunk
                         if (height > limit)
                             continue;
 
-                        block = blocks[x, z];
+                        // get reference to current block
+                        Block block = buffer[x, z];
                         Coords3 coordsRel = new(x, y, z);
 
                         // set existing block instance to avoid heap generation.
@@ -197,8 +196,6 @@ public class Chunk
                     }
                 }
             }
-        }
-        return blocks;
     }
 
     public static Coords3 ConvertBlockAbsToRel(Coords3 coords)

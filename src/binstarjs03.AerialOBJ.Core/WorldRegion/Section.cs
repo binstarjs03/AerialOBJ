@@ -10,9 +10,9 @@ namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Section
 {
-    public static readonly int BlockCount = 16;
-    public static readonly int TotalBlockCount = (int)Math.Pow(BlockCount, 3);
-    public static readonly int BlockRange = BlockCount - 1;
+    public const int BlockCount = 16;
+    public const int TotalBlockCount = BlockCount * BlockCount * BlockCount;
+    public const int BlockRange = BlockCount - 1;
     public static readonly CoordsRange3 BlockRangeRel = new(
         min: Coords3.Zero,
         max: new Coords3(BlockRange, BlockRange, BlockRange)
@@ -144,15 +144,14 @@ public class Section
     }
 
     // peek what the block table returned from given input.
-    // does not generate heap
-    public Block PeekBlock(Coords3 coords, bool relative)
+    // does not generate heap since it just referencing palette block
+    public Block GetBlockPalette(Coords3 blockCoordsRel)
     {
-        (Coords3 coordsRel, _) = CalculateBlockCoords(coords, relative);
         if (_blockPaletteIndexTable is null)
             return s_airBlock;
         else
         {
-            int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
+            int blockTableIndex = _blockPaletteIndexTable[blockCoordsRel.X, blockCoordsRel.Y, blockCoordsRel.Z];
             return _blockTable![blockTableIndex];
         }
     }
@@ -213,9 +212,7 @@ public class Section
         int[,,] paletteIndexTable3D = new int[BlockCount, BlockCount, BlockCount];
 
         // pos is filling position to which index is to fill
-        int posX = 0;
-        int posY = 0;
-        int posZ = 0;
+        Coords3 fillPos = Coords3.Zero;
         // int longIndex = 0; this was added before for easier debugging
 
         int[] buffer = new int[blockCount];
@@ -230,19 +227,19 @@ public class Section
             {
                 if (breaking)
                     break;
-                paletteIndexTable3D[posX, posY, posZ] = value;
-                if (posX < 15)
-                    posX++;
+                paletteIndexTable3D[fillPos.X, fillPos.Y, fillPos.Z] = value;
+                if (fillPos.X < 15)
+                    fillPos.X++;
                 else
                 {
-                    posX = 0;
-                    if (posZ < 15)
-                        posZ++;
+                    fillPos.X = 0;
+                    if (fillPos.Z < 15)
+                        fillPos.Z++;
                     else
                     {
-                        posZ = 0;
-                        if (posY < 15)
-                            posY++;
+                        fillPos.Z = 0;
+                        if (fillPos.Y < 15)
+                            fillPos.Y++;
                         else
                             // if Y reached 15 and want to increment,
                             // it means filling is finished so we want to break

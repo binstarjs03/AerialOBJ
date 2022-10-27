@@ -8,20 +8,21 @@ namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Block
 {
+    public const string AirBlockName = "minecraft:air";
     private string _name;
     private Coords3 _coordsAbs;
     private Dictionary<string, string>? _properties;
 
     public Block()
     {
-        _name = "minecraft:air";
+        _name = AirBlockName;
         _coordsAbs = Coords3.Zero;
     }
 
     // propertiesless and nameless constructor
     public Block(Coords3 coordsAbs)
     {
-        _name = "minecraft:air";
+        _name = AirBlockName;
         _coordsAbs = coordsAbs;
     }
 
@@ -67,6 +68,18 @@ public class Block
         set => _properties = value;
     }
 
+    public static bool IsAir(Block block)
+    {
+        return block.Name == AirBlockName;
+    }
+
+    public static bool IsAir(string blockName)
+    {
+        return blockName == AirBlockName;
+    }
+
+    // TODO Cloning will NOT clone everything. Since properties are reference type,
+    // change from original block to other cloned block will affect each other
     public Block Clone()
     {
         return new Block(_name, _coordsAbs, _properties);

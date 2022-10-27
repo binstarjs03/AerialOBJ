@@ -11,17 +11,17 @@ namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Region : IDisposable
 {
-    public static readonly int ChunkCount = 32;
-    public static readonly int TotalChunkCount = (int)Math.Pow(ChunkCount, 2);
-    public static readonly int ChunkRange = ChunkCount - 1;
+    public const int ChunkCount = 32;
+    public const int TotalChunkCount = ChunkCount * ChunkCount;
+    public const int ChunkRange = ChunkCount - 1;
     public static readonly CoordsRange2 ChunkRangeRel = new(
         min: Coords2.Zero,
         max: new Coords2(ChunkRange, ChunkRange)
     );
 
-    public static readonly int SectorDataSize = 4096;
-    public static readonly int ChunkHeaderTableSize = SectorDataSize * 1;
-    public static readonly int ChunkHeaderSize = 4;
+    public const int SectorDataSize = 4096;
+    public const int ChunkHeaderTableSize = SectorDataSize * 1;
+    public const int ChunkHeaderSize = 4;
 
     private readonly string _path;
     private byte[]? _data;
@@ -160,7 +160,7 @@ public class Region : IDisposable
         return (chunkPos, chunkLength);
     }
 
-    public ReadOnlyCollection<Coords2> GetGeneratedChunksAsCoords()
+    public ReadOnlyCollection<Coords2> GetGeneratedChunksAsCoordsRel()
     {
         List<Coords2> generatedChunks = new(TotalChunkCount);
         for (int x = 0; x < ChunkCount; x++)
