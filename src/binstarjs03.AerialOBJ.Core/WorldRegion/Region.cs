@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Buffers.Binary;
 using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.Nbt.IO;
+using System.Collections.ObjectModel;
 
 namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
@@ -161,9 +160,9 @@ public class Region : IDisposable
         return (chunkPos, chunkLength);
     }
 
-    public Coords2[] GetGeneratedChunksAsCoords()
+    public ReadOnlyCollection<Coords2> GetGeneratedChunksAsCoords()
     {
-        List<Coords2> generatedChunks = new();
+        List<Coords2> generatedChunks = new(TotalChunkCount);
         for (int x = 0; x < ChunkCount; x++)
         {
             for (int z = 0; z < ChunkCount; z++)
@@ -173,7 +172,8 @@ public class Region : IDisposable
                     generatedChunks.Add(coordsChunk);
             }
         }
-        return generatedChunks.ToArray();
+        generatedChunks.TrimExcess();
+        return generatedChunks.AsReadOnly();
     }
 
     public NbtCompound GetChunkNbt(Coords2 chunkCoords, bool relative)
