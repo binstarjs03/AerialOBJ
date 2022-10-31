@@ -10,23 +10,6 @@ namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
 public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportControl>
 {
-    public ViewportControlVM(ViewportControl control) : base(control)
-    {
-        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
-
-        _chunkManager = new(this);
-
-        // set commands to its corresponding implementations
-        SizeChangedCommand = new RelayCommand(OnSizeChanged);
-        MouseWheelCommand = new RelayCommand(OnMouseWheel);
-        MouseMoveCommand = new RelayCommand(OnMouseMove);
-        MouseUpCommand = new RelayCommand(OnMouseUp);
-        MouseDownCommand = new RelayCommand(OnMouseDown);
-        MouseLeaveCommand = new RelayCommand(OnMouseLeave);
-        MouseEnterCommand = new RelayCommand(OnMouseEnter);
-        KeyUpCommand = new RelayCommand(OnKeyUp);
-    }
-
     // for updating value, dont modify field directly! use the updaters
     #region States - Fields and Properties
 
@@ -35,7 +18,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         1, 2, 3, 5, 8, 13, 21, 34
     };
 
-    private readonly ChunkManager _chunkManager;
+    private readonly ChunkRegionManager _chunkManager;
 
     private PointF2 _viewportCameraPos = PointF2.Zero;
     private int _viewportZoomLevel = 1;
@@ -55,113 +38,120 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     // public accessor
     public PointF2 ViewportCameraPos => _viewportCameraPos;
-    public int ViewportHeightLimit => _viewportHeightLimit;
-    public PointF2 ViewportChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
-                                                    Control.ChunkCanvas.ActualHeight / 2);
-    public static int ViewportMaximumZoomLevel => s_blockPixelCount.Length - 1;
-    public int ViewportPixelPerBlock => s_blockPixelCount[_viewportZoomLevel];
-    public int ViewportPixelPerChunk => ViewportPixelPerBlock * Section.BlockCount;
-    public PointF2 ChunkPosOffset => _viewportCameraPos * ViewportPixelPerBlock;
-
-    #endregion
-
-    // do not use data binders (even just dereferencing it),
-    // use the non-data binders version instead!
-    #region Data Binders
-
-    public bool UISidePanelVisibleBinding
-    {
-        get => _uiSidePanelVisible;
-        set => SetAndNotifyPropertyChanged(value, ref _uiSidePanelVisible);
-    }
-
-    public bool UIViewportDebugInfoVisibleBinding
-    {
-        get => _uiViewportDebugInfoVisible;
-        set => SetAndNotifyPropertyChanged(value, ref _uiViewportDebugInfoVisible);
-    }
-
-    public double ViewportCameraPosXBinding
+    public double ViewportCameraPosX
     {
         get => _viewportCameraPos.X;
         set => UpdateViewportCameraPos(new PointF2(value, _viewportCameraPos.Y));
     }
-
-    public double ViewportCameraPosZBinding
+    public double ViewportCameraPosZ
     {
         get => _viewportCameraPos.Y;
         set => UpdateViewportCameraPos(new PointF2(_viewportCameraPos.X, value));
     }
-
-    public int ViewportZoomLevelBinding
+    public int ViewportZoomLevel
     {
         get => _viewportZoomLevel;
         set => UpdateZoomLevel(value);
     }
+    public int ViewportMaximumZoomLevel => s_blockPixelCount.Length - 1;
 
-    public int ViewportMaximumZoomLevelBinding => ViewportMaximumZoomLevel;
-    public int ViewportPixelPerBlockBinding => ViewportPixelPerBlock;
-    public int ViewportPixelPerChunkBinding => ViewportPixelPerChunk;
-    public int ViewportHeightLimitBinding
+    public int ViewportHeightLimit
     {
         get => _viewportHeightLimit;
         set => UpdateViewportHeightLimit(value);
     }
 
-    public string ChunkPosOffsetBinding => ChunkPosOffset.ToStringAnotherFormat();
+    public PointF2 ViewportChunkCanvasCenter => new(Control.ChunkCanvas.ActualWidth / 2,
+                                                    Control.ChunkCanvas.ActualHeight / 2);
 
-    public string ChunkManagerVisibleChunkRangeXBinding => _chunkManager.VisibleChunkRange.XRange.ToString();
-    public string ChunkManagerVisibleChunkRangeZBinding => _chunkManager.VisibleChunkRange.ZRange.ToString();
-    public string ChunkManagerVisibleRegionRangeXBinding => _chunkManager.VisibleRegionRange.XRange.ToString();
-    public string ChunkManagerVisibleRegionRangeZBinding => _chunkManager.VisibleRegionRange.ZRange.ToString();
-    public int ChunkManagerVisibleChunkCount => _chunkManager.VisibleChunkCount;
-    public int ChunkManagerRenderedChunkCount => _chunkManager.RenderedChunkCount;
-    public int ChunkManagerPendingChunkCount => _chunkManager.PendingChunkCount;
-    public int ChunkManagerWorkedChunkCount => _chunkManager.WorkedChunkCount;
+    public int ViewportPixelPerBlock => s_blockPixelCount[_viewportZoomLevel];
+    public int ViewportPixelPerChunk => ViewportPixelPerBlock * Section.BlockCount;
+    public int ViewportPixelPerRegion => ViewportPixelPerChunk * Region.ChunkCount;
 
-    public int ExportArea1XBinding
+    public PointF2 ChunkPosOffset => _viewportCameraPos * ViewportPixelPerBlock;
+    public PointF2 RegionPosOffset => _viewportCameraPos * ViewportPixelPerBlock;
+    public string ChunkPosOffsetStringized => ChunkPosOffset.ToStringAnotherFormat();
+    public string RegionPosOffsetStringized => RegionPosOffset.ToStringAnotherFormat();
+
+
+    public string ChunkRegionManagerVisibleChunkRangeXStringized => _chunkManager.VisibleChunkRange.XRange.ToString();
+    public string ChunkRegionManagerVisibleChunkRangeZStringized => _chunkManager.VisibleChunkRange.ZRange.ToString();
+    public string ChunkRegionManagerVisibleRegionRangeXStringized => _chunkManager.VisibleRegionRange.XRange.ToString();
+    public string ChunkRegionManagerVisibleRegionRangeZStringized => _chunkManager.VisibleRegionRange.ZRange.ToString();
+    public int ChunkRegionManagerVisibleChunkCount => _chunkManager.VisibleChunkCount;
+    public int ChunkRegionManagerVisibleRegionCount => _chunkManager.VisibleRegionCount;
+    public int ChunkRegionManagerRenderedChunkCount => _chunkManager.LoadedChunkCount;
+    public int ChunkRegionManagerRenderedRegionCount => _chunkManager.LoadedRegionCount;
+    public int ChunkRegionManagerPendingChunkCount => _chunkManager.PendingChunkCount;
+    public int ChunkRegionManagerWorkedChunkCount => _chunkManager.WorkedChunkCount;
+
+    public bool UISidePanelVisible
+    {
+        get => _uiSidePanelVisible;
+        set => SetAndNotifyPropertyChanged(value, ref _uiSidePanelVisible);
+    }
+    public bool UIViewportDebugInfoVisible
+    {
+        get => _uiViewportDebugInfoVisible;
+        set => SetAndNotifyPropertyChanged(value, ref _uiViewportDebugInfoVisible);
+    }
+
+    public int ExportArea1X
     {
         get => _exportArea1.X;
         set => UpdateExportArea1(new Coords3(value, _exportArea1.Y, _exportArea1.Z));
     }
-
-    public int ExportArea1YBinding
+    public int ExportArea1Y
     {
         get => _exportArea1.Y;
         set => UpdateExportArea1(new Coords3(_exportArea1.X, value, _exportArea1.Z));
 
     }
-
-    public int ExportArea1ZBinding
+    public int ExportArea1Z
     {
         get => _exportArea1.Z;
         set => UpdateExportArea1(new Coords3(_exportArea1.X, _exportArea1.Y, value));
     }
 
-    public int ExportArea2XBinding
+    public int ExportArea2X
     {
         get => _exportArea2.X;
         set => UpdateExportArea2(new Coords3(value, _exportArea2.Y, _exportArea2.Z));
     }
-
-    public int ExportArea2YBinding
+    public int ExportArea2Y
     {
         get => _exportArea2.Y;
         set => UpdateExportArea1(new Coords3(_exportArea2.X, value, _exportArea2.Z));
     }
-
-    public int ExportArea2ZBinding
+    public int ExportArea2Z
     {
         get => _exportArea2.Z;
         set => UpdateExportArea1(new Coords3(_exportArea2.X, _exportArea2.Y, value));
     }
 
-    public string MousePosBinding => _mousePos.ToStringAnotherFormat();
-    public string MousePosDeltaBinding => _mousePosDelta.ToStringAnotherFormat();
-    public bool MouseClickHoldingBinding => _mouseClickHolding;
-    public bool MouseIsOutsideBinding => _mouseIsOutside;
+    public string MousePosStringized => _mousePos.ToStringAnotherFormat();
+    public string MousePosDeltaStringized => _mousePosDelta.ToStringAnotherFormat();
+    public bool MouseClickHolding => _mouseClickHolding;
+    public bool MouseIsOutside => _mouseIsOutside;
 
     #endregion
+
+    public ViewportControlVM(ViewportControl control) : base(control)
+    {
+        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
+
+        _chunkManager = new ChunkRegionManager(this);
+
+        // set commands to its corresponding implementations
+        SizeChangedCommand = new RelayCommand(OnSizeChanged);
+        MouseWheelCommand = new RelayCommand(OnMouseWheel);
+        MouseMoveCommand = new RelayCommand(OnMouseMove);
+        MouseUpCommand = new RelayCommand(OnMouseUp);
+        MouseDownCommand = new RelayCommand(OnMouseDown);
+        MouseLeaveCommand = new RelayCommand(OnMouseLeave);
+        MouseEnterCommand = new RelayCommand(OnMouseEnter);
+        KeyUpCommand = new RelayCommand(OnKeyUp);
+    }
 
     #region Commands
 
@@ -207,7 +197,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         newMousePosDelta.Y = _mouseInitClickDrag && _mouseClickHolding ? 0 : newMousePos.Y - oldMousePos.Y;
         UpdateMousePosDelta(newMousePosDelta);
 
-        if (MouseClickHoldingBinding)
+        if (MouseClickHolding)
         {
             // increase division resolution or precision from int to double
             PointF2 newCameraPos = _viewportCameraPos;
@@ -284,7 +274,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     public void UpdateUISidePanelVisible(bool value)
     {
-        SetAndNotifyPropertyChanged(value, ref _uiSidePanelVisible, nameof(UISidePanelVisibleBinding));
+        SetAndNotifyPropertyChanged(value, ref _uiSidePanelVisible, nameof(UISidePanelVisible));
     }
 
     private void UpdateViewportCameraPos(PointF2 cameraPos)
@@ -292,16 +282,17 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         _viewportCameraPos = cameraPos;
         NotifyPropertyChanged(new string[]
         {
-            nameof(ViewportCameraPosXBinding),
-            nameof(ViewportCameraPosZBinding),
-            nameof(ChunkPosOffsetBinding),
+            nameof(ViewportCameraPosX),
+            nameof(ViewportCameraPosZ),
+            nameof(ChunkPosOffsetStringized),
+            nameof(RegionPosOffsetStringized),
         });
         _chunkManager.Update();
     }
 
     private void UpdateViewportHeightLimit(int viewportHeightLimit)
     {
-        SetAndNotifyPropertyChanged(viewportHeightLimit, ref _viewportHeightLimit, nameof(ViewportHeightLimitBinding));
+        SetAndNotifyPropertyChanged(viewportHeightLimit, ref _viewportHeightLimit, nameof(ViewportHeightLimit));
         _chunkManager.Update();
     }
 
@@ -310,21 +301,23 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         _exportArea1 = exportArea1;
         NotifyPropertyChanged(new string[]
         {
-            nameof(ViewportZoomLevelBinding),
-            nameof(ExportArea1XBinding),
-            nameof(ExportArea1YBinding),
-            nameof(ExportArea1ZBinding),
+            nameof(ViewportZoomLevel),
+            nameof(ExportArea1X),
+            nameof(ExportArea1Y),
+            nameof(ExportArea1Z),
         });
     }
 
     private void UpdateZoomLevel(int zoomLevel)
     {
-        SetAndNotifyPropertyChanged(zoomLevel, ref _viewportZoomLevel, nameof(ViewportZoomLevelBinding));
+        SetAndNotifyPropertyChanged(zoomLevel, ref _viewportZoomLevel, nameof(ViewportZoomLevel));
         NotifyPropertyChanged(new string[]
         {
-            nameof(ChunkPosOffsetBinding),
-            nameof(ViewportPixelPerBlockBinding),
-            nameof(ViewportPixelPerChunkBinding),
+            nameof(ViewportPixelPerBlock),
+            nameof(ViewportPixelPerChunk),
+            nameof(ViewportPixelPerRegion),
+            nameof(ChunkPosOffsetStringized),
+            nameof(RegionPosOffsetStringized),
         });
         _chunkManager.Update();
     }
@@ -334,30 +327,30 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         _exportArea2 = exportArea2;
         NotifyPropertyChanged(new string[]
         {
-            nameof(ExportArea2XBinding),
-            nameof(ExportArea2YBinding),
-            nameof(ExportArea2ZBinding),
+            nameof(ExportArea2X),
+            nameof(ExportArea2Y),
+            nameof(ExportArea2Z),
         });
     }
 
     private void UpdateMousePos(PointInt2 mousePos)
     {
-        SetAndNotifyPropertyChanged(mousePos, ref _mousePos, nameof(MousePosBinding));
+        SetAndNotifyPropertyChanged(mousePos, ref _mousePos, nameof(MousePosStringized));
     }
 
     private void UpdateMousePosDelta(PointInt2 mousePosDelta)
     {
-        SetAndNotifyPropertyChanged(mousePosDelta, ref _mousePosDelta, nameof(MousePosDeltaBinding));
+        SetAndNotifyPropertyChanged(mousePosDelta, ref _mousePosDelta, nameof(MousePosDeltaStringized));
     }
 
     private void UpdateMouseClickHolding(bool mouseClickHolding)
     {
-        SetAndNotifyPropertyChanged(mouseClickHolding, ref _mouseClickHolding, nameof(MouseClickHoldingBinding));
+        SetAndNotifyPropertyChanged(mouseClickHolding, ref _mouseClickHolding, nameof(MouseClickHolding));
     }
 
     private void UpdateMouseIsOutside(bool mouseIsOutside)
     {
-        SetAndNotifyPropertyChanged(mouseIsOutside, ref _mouseIsOutside, nameof(MouseIsOutsideBinding));
+        SetAndNotifyPropertyChanged(mouseIsOutside, ref _mouseIsOutside, nameof(MouseIsOutside));
     }
 
     private void UpdateMouseInitClickDrag(bool mouseInitClickDrag)

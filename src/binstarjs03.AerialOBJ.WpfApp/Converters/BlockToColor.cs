@@ -1,53 +1,63 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Media;
-
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using System.Drawing;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Converters;
+
 public static class BlockToColor
 {
-    private static Dictionary<string, Color> _blockColors = new()
+    private readonly static ColorConverter s_converter = new();
+
+    private static readonly Dictionary<string, Color> s_blockColors = new()
     {
         {"minecraft:air", FromHex("#00000000")},
 
-        {"minecraft:water", FromHex("#FF22417f")},
+        {"minecraft:water", FromHex("#22417f")},
+        {"minecraft:lava", FromHex("#cc4600")},
 
-        {"minecraft:grass_block", FromHex("#FF5d923a")},
-        {"minecraft:coarse_dirt", FromHex("#FF4e3826")},
+        {"minecraft:grass_block", FromHex("#5d923a")},
+        {"minecraft:mycelium", FromHex("#595155")},
         {"minecraft:podzol", FromHex("#FF3b2913")},
         {"minecraft:snow", FromHex("#FFf0fbfb")},
         {"minecraft:sand", FromHex("#FFd7ce9c")},
+        {"minecraft:sandstone", FromHex("#FFd7ce9c")},
 
-        {"minecraft:stone", FromHex("#FF838383")},
-        {"minecraft:gravel", FromHex("#FF615e5d")},
+        {"minecraft:dirt", FromHex("#6c4d36")},
+        {"minecraft:coarse_dirt", FromHex("#4e3826")},
+        {"minecraft:stone", FromHex("#6a6a6a")},
+        {"minecraft:deepslate", FromHex("#464648")},
+        {"minecraft:tuff", FromHex("#575853")},
+        {"minecraft:andesite", FromHex("#767676")},
+        {"minecraft:gravel", FromHex("#615e5d")},
+        {"minecraft:diorite", FromHex("#919194")},
+        {"minecraft:granite", FromHex("#7b5c50")},
 
-        {"minecraft:oak_leaves", FromHex("#FF266c08")},
-        {"minecraft:spruce_leaves", FromHex("#FF3f633f")},
-        {"minecraft:birch_leaves", FromHex("#FF52742d")},
-        {"minecraft:dark_oak_leaves", FromHex("#FF358b22")},
+        {"minecraft:oak_leaves", FromHex("#266c08")},
+        {"minecraft:spruce_leaves", FromHex("#3f633f")},
+        {"minecraft:birch_leaves", FromHex("#52742d")},
+        {"minecraft:dark_oak_leaves", FromHex("#358b22")},
         {"minecraft:jungle_leaves", FromHex("#00000000")},
         {"minecraft:acacia_leaves", FromHex("#00000000")},
 
-        {"minecraft:brown_mushroom_block", FromHex("#FF735643")},
-        {"minecraft:red_mushroom_block", FromHex("#FF941e1d")},
+        {"minecraft:brown_mushroom_block", FromHex("#735643")},
+        {"minecraft:red_mushroom_block", FromHex("#941e1d")},
 
-        {"minecraft:grass", FromHex("#ff51872d")},
-        {"minecraft:seagrass", FromHex("#ff2d876c")},
-        {"minecraft:cornflower", FromHex("#FF46689f")},
-        {"minecraft:blue_orchid", FromHex("#FF3ba6ca")},
-        {"minecraft:peony", FromHex("#ffb47cac")},
+        {"minecraft:grass", FromHex("#51872d")},
+        {"minecraft:seagrass", FromHex("#2d876c")},
+        {"minecraft:cornflower", FromHex("#46689f")},
+        {"minecraft:blue_orchid", FromHex("#3ba6ca")},
+        {"minecraft:peony", FromHex("#b47cac")},
     };
 
-    public static Color Convert(Block block)
+    public static Color Convert(string blockName)
     {
-        if (_blockColors.ContainsKey(block.Name))
-            return _blockColors[block.Name];
+        if (s_blockColors.ContainsKey(blockName))
+            return s_blockColors[blockName];
         else
-            return _blockColors["minecraft:air"];
+            return s_blockColors["minecraft:air"];
     }
 
     public static Color FromHex(string hexColor)
     {
-        return (Color)ColorConverter.ConvertFromString(hexColor);
+        return (Color)s_converter.ConvertFromString(hexColor)!;
     }
 }

@@ -10,12 +10,12 @@
              d:DataContext="{d:DesignInstance Type=local:ViewportControlVM}"
              
              Background="White"
-             d:DesignWidth="700" d:DesignHeight="500">
+             d:DesignWidth="700" d:DesignHeight="700">
     <Grid>
         <Grid.Resources>
             <Style TargetType="{x:Type ColumnDefinition}" x:Key="CollapsibleColumn">
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding Path=UISidePanelVisibleBinding}" Value="False">
+                    <DataTrigger Binding="{Binding Path=UISidePanelVisible}" Value="False">
                         <DataTrigger.Setters>
                             <Setter Property="Width" Value="0"/>
                             <Setter Property="MaxWidth" Value="0"/>
@@ -46,7 +46,7 @@
                         </Style>
                     </StackPanel.Resources>
                     <TextBlock Text="Height"/>
-                    <TextBlock Text="{Binding Path=ViewportHeightLimitBinding}" d:Text="255"/>
+                    <TextBlock Text="{Binding Path=ViewportHeightLimit}" d:Text="255"/>
                 </StackPanel>
                 <Slider Grid.Column="1"
                         Margin="0,0,10,0"
@@ -54,7 +54,7 @@
                         VerticalAlignment="Center"
                         Name="HeightSlider"
                         SmallChange="1" 
-                        Value="{Binding Path=ViewportHeightLimitBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Value="{Binding Path=ViewportHeightLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         d:Value="255"
                         IsSnapToTickEnabled="True" 
                         Minimum="-64"
@@ -126,7 +126,7 @@
             </Grid>
         </DockPanel>
         <ScrollViewer Grid.Column="2" 
-                      Visibility="{Binding Path=UISidePanelVisibleBinding,
+                      Visibility="{Binding Path=UISidePanelVisible,
                                            Mode=OneWay,
                                            Converter={StaticResource BoolToVisibility}}"
                       VerticalScrollBarVisibility="Auto" 
@@ -159,25 +159,25 @@
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Camera Pos Z"/>
                         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="Zoom Level: "/>
-                            <TextBlock Text="{Binding Path=ViewportZoomLevelBinding}" d:Text="2"/>
+                            <TextBlock Text="{Binding Path=ViewportZoomLevel}" d:Text="2"/>
                         </StackPanel>
                         <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="Height: "/>
-                            <TextBlock Text="{Binding Path=ViewportHeightLimitBinding}" d:Text="255"/>
+                            <TextBlock Text="{Binding Path=ViewportHeightLimit}" d:Text="255"/>
                         </StackPanel>
-                        <components:DoubleBox Grid.Row="0" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosXBinding, Mode=TwoWay}"/>
-                        <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosZBinding, Mode=TwoWay}" x:Name="Testing"/>
+                        <components:DoubleBox Grid.Row="0" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosX, Mode=TwoWay}"/>
+                        <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosZ, Mode=TwoWay}" x:Name="Testing"/>
                         <Slider Grid.Row="2" Grid.Column="1" 
                                 SmallChange="1" 
-                                Value="{Binding Path=ViewportZoomLevelBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Value="{Binding Path=ViewportZoomLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="2"
                                 IsSnapToTickEnabled="True" 
                                 TickPlacement="BottomRight"
                                 Minimum="0"
-                                Maximum="{Binding Path=ViewportMaximumZoomLevelBinding, Mode=OneTime}"/>
+                                Maximum="{Binding Path=ViewportMaximumZoomLevel, Mode=OneTime}"/>
                         <Slider Grid.Row="3" Grid.Column="1"
                                 SmallChange="1" 
-                                Value="{Binding Path=ViewportHeightLimitBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Value="{Binding Path=ViewportHeightLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="255"
                                 IsSnapToTickEnabled="True" 
                                 Minimum="-64"
@@ -191,87 +191,113 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <components:XYZIntBox Grid.Column="0" Header="Export Area 1" 
-                                              XValue="{Binding Path=ExportArea1XBinding, Mode=TwoWay}"
-                                              YValue="{Binding Path=ExportArea1YBinding, Mode=TwoWay}"
-                                              ZValue="{Binding Path=ExportArea1ZBinding, Mode=TwoWay}"/>
+                                              XValue="{Binding Path=ExportArea1X, Mode=TwoWay}"
+                                              YValue="{Binding Path=ExportArea1Y, Mode=TwoWay}"
+                                              ZValue="{Binding Path=ExportArea1Z, Mode=TwoWay}"/>
                         <components:XYZIntBox Grid.Column="1" Header="Export Area 2" 
-                                              XValue="{Binding Path=ExportArea2XBinding, Mode=TwoWay}"
-                                              YValue="{Binding Path=ExportArea2YBinding, Mode=TwoWay}"
-                                              ZValue="{Binding Path=ExportArea2ZBinding, Mode=TwoWay}"/>
+                                              XValue="{Binding Path=ExportArea2X, Mode=TwoWay}"
+                                              YValue="{Binding Path=ExportArea2Y, Mode=TwoWay}"
+                                              ZValue="{Binding Path=ExportArea2Z, Mode=TwoWay}"/>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Viewport Debug Info" 
-                          Visibility="{Binding Path=UIViewportDebugInfoVisibleBinding, 
+                          Visibility="{Binding Path=UIViewportDebugInfoVisible, 
                                                Mode=OneWay,
                                                Converter={StaticResource BoolToVisibility}}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Chunk Pos Offset: "/>
-                            <TextBlock Text="{Binding Path=ChunkPosOffsetBinding, Mode=OneWay}"/>
-                        </StackPanel>
+
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Pixel-Per-Block: "/>
-                            <TextBlock Text="{Binding Path=ViewportPixelPerBlockBinding, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=ViewportPixelPerBlock, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Pixel-Per-Chunk: "/>
-                            <TextBlock Text="{Binding Path=ViewportPixelPerChunkBinding, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=ViewportPixelPerChunk, Mode=OneWay}"/>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Pixel-Per-Region: "/>
+                            <TextBlock Text="{Binding Path=ViewportPixelPerRegion, Mode=OneWay}"/>
+                        </StackPanel>
+
                         <Separator/>
+
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Mouse Pos: "/>
-                            <TextBlock Text="{Binding Path=MousePosBinding, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=MousePosStringized, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Mouse Pos Delta: "/>
-                            <TextBlock Text="{Binding Path=MousePosDeltaBinding, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=MousePosDeltaStringized, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Mouse Is Clicking: "/>
-                            <TextBlock Text="{Binding Path=MouseClickHoldingBinding, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=MouseClickHolding, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Mouse Is Outside: "/>
-                            <TextBlock Text="{Binding Path=MouseIsOutsideBinding, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=MouseIsOutside, Mode=OneWay}"/>
                         </StackPanel>
+
                         <Separator/>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Visible Chunk Count: "/>
-                            <TextBlock Text="{Binding Path=ChunkManagerVisibleChunkCount, Mode=OneWay}"/>
-                        </StackPanel>
+
                         <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Chunk Pos Offset: "/>
+                                <TextBlock Text="{Binding Path=ChunkPosOffset, Mode=OneWay}"/>
+                            </StackPanel>
                             <TextBlock Text="Visible Chunk Range: "/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="- X Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkManagerVisibleChunkRangeXBinding, Mode=OneWay}"/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkRangeXStringized, Mode=OneWay}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="- Z Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkManagerVisibleChunkRangeZBinding, Mode=OneWay}"/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkRangeZStringized, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Visible Chunk Count: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkCount, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Rendered Chunk Count: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerRenderedChunkCount, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pending Chunk Count: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerPendingChunkCount, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Worked Chunk Count: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerPendingChunkCount, Mode=OneWay}"/>
                             </StackPanel>
                         </StackPanel>
+
+                        <Separator/>
+
                         <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Region Pos Offset: "/>
+                                <TextBlock Text="{Binding Path=RegionPosOffset, Mode=OneWay}"/>
+                            </StackPanel>
                             <TextBlock Text="Visible Region Range: "/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="- X Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkManagerVisibleRegionRangeXBinding, Mode=OneWay}"/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionRangeXStringized, Mode=OneWay}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="- Z Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkManagerVisibleRegionRangeZBinding, Mode=OneWay}"/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionRangeZStringized, Mode=OneWay}"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Rendered Chunk Count: "/>
-                            <TextBlock Text="{Binding Path=ChunkManagerRenderedChunkCount, Mode=OneWay}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Visible Region Count: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionCount, Mode=OneWay}"/>
+                            </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Pending Chunk Count: "/>
-                            <TextBlock Text="{Binding Path=ChunkManagerPendingChunkCount, Mode=OneWay}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Worked Chunk Count: "/>
-                            <TextBlock Text="{Binding Path=ChunkManagerWorkedChunkCount, Mode=OneWay}"/>
+                            <TextBlock Text="Rendered Region Count: "/>
+                            <TextBlock Text="{Binding Path=ChunkRegionManagerRenderedRegionCount, Mode=OneWay}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>

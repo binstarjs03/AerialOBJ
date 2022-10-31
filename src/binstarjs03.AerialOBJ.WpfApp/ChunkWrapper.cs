@@ -9,7 +9,6 @@ namespace binstarjs03.AerialOBJ.WpfApp;
 
 public class ChunkWrapper
 {
-    private readonly ChunkManager _chunkManager;
     private readonly ViewportControlVM _viewport;
     private readonly Coords2 _chunkCoordsAbs;
     private ChunkImage _chunkImage;
@@ -17,10 +16,9 @@ public class ChunkWrapper
     public ChunkImage ChunkImage => _chunkImage;
     public Coords2 ChunkCoordsAbs => _chunkCoordsAbs;
 
-    public ChunkWrapper(Coords2 chunkCoordsAbs, ChunkManager chunkManager, MemoryStream chunkImageStream)
+    public ChunkWrapper(Coords2 chunkCoordsAbs, ChunkRegionManager chunkManager, MemoryStream chunkImageStream)
     {
         _chunkCoordsAbs = chunkCoordsAbs;
-        _chunkManager = chunkManager;
         _viewport = chunkManager.Viewport;
         _chunkImage = new(_chunkCoordsAbs);
         _chunkImage.SetImageToChunkTerrain(chunkImageStream);
