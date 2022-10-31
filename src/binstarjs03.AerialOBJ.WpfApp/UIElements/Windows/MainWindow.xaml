@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type local:MainWindowVM}}"
         
-        Title="{Binding Path=TitleBinding, 
+        Title="{Binding Path=Title,
                         Mode=OneWay}"
         d:Title="MineSharpOBJ"
         Width="800" Height="600"
@@ -25,7 +25,7 @@
                     <MenuItem Header="Open" 
                               Command="{Binding OpenCommand}"/>
                     <MenuItem Header="Close"
-                              IsEnabled="{Binding Path=HasSessionBinding, 
+                              IsEnabled="{Binding Path=HasSession,
                                                   Mode=OneWay}"
                               Command="{Binding CloseCommand}"/>
                     <Separator/>
@@ -36,24 +36,24 @@
                 </MenuItem>
                 <MenuItem Header="View">
                     <MenuItem Header="Side Panel"
-                              IsEnabled="{Binding Path=HasSessionBinding, 
+                              IsEnabled="{Binding Path=HasSession, 
                                                   Mode=OneWay}"
                               IsCheckable="True"
                               IsChecked="{Binding ElementName=Viewport, 
-                                                  Path=DataContext.UISidePanelVisibleBinding, 
+                                                  Path=DataContext.UISidePanelVisible, 
                                                   Mode=OneWayToSource, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                     <MenuItem Header="Viewport Debug Info"
-                              IsEnabled="{Binding Path=HasSessionBinding,
+                              IsEnabled="{Binding Path=HasSession,
                                                   Mode=OneWay}"
                               IsCheckable="True"
                               IsChecked="{Binding ElementName=Viewport, 
-                                                  Path=DataContext.UIViewportDebugInfoVisibleBinding, 
+                                                  Path=DataContext.UIViewportDebugInfoVisible, 
                                                   Mode=OneWayToSource, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                     <MenuItem Header="Debug Log" 
                               IsCheckable="True"
-                              IsChecked="{Binding Path=UIDebugLogWindowVisibleBinding, 
+                              IsChecked="{Binding Path=UIDebugLogWindowVisible, 
                                                   Mode=TwoWay, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                 </MenuItem>
@@ -69,9 +69,8 @@
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <controls:ViewportControl x:Name="Viewport" 
-                                      IsEnabled="{Binding ElementName=Root, 
-                                                          Path=DataContext.HasSessionBinding, 
+            <controls:ViewportControl x:Name="Viewport" IsEnabled="{Binding ElementName=Root, 
+                                                          Path=DataContext.HasSession,
                                                           Mode=OneWay}"/>
         </DockPanel>
     </Grid>

@@ -8,6 +8,16 @@ namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow>
 {
+    public string Title => $"{App.AppProperty.AppName} - Debug Log";
+
+    public bool UIDebugLogWindowVisible
+    {
+        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
+        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
+    }
+
+    public string LogContent => LogService.GetLogContent();
+
     public DebugLogWindowVM(DebugLogWindow window) : base(window)
     {
         App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
@@ -22,20 +32,6 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         WriteHorizontalCommand = new RelayCommand(OnWriteHorizontal);
         WriteVerticalCommand = new RelayCommand(OnWriteVertical);
     }
-
-    #region Data Binders
-
-    public string TitleBinding => $"{App.AppProperty.AppName} - Debug Log";
-
-    public bool UIDebugLogWindowVisibleBinding
-    {
-        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
-        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
-    }
-
-    public string LogContentBinding => LogService.GetLogContent();
-
-    #endregion
 
     #region Commands
 
@@ -108,7 +104,7 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
 
     private void OnLogServiceLogging(string content)
     {
-        NotifyPropertyChanged(nameof(LogContentBinding));
+        NotifyPropertyChanged(nameof(LogContent));
         Window.LogTextBox.ScrollToEnd();
     }
 

@@ -7,9 +7,10 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:DebugLogWindowVM}"
         
-        Title="{Binding Path=TitleBinding, 
+        Title="{Binding Path=Title,
                         Mode=OneWay}" 
-        Visibility="{Binding Path=UIDebugLogWindowVisibleBinding, 
+        d:Title="AerialOBJ - Debug Log"
+        Visibility="{Binding Path=UIDebugLogWindowVisible,
                              Mode=TwoWay, 
                              UpdateSourceTrigger=PropertyChanged, 
                              Converter={StaticResource BoolToVisibility}}"
@@ -32,7 +33,7 @@
             </Menu>
 
             <TextBox Name="LogTextBox"
-                     Text="{Binding Path=LogContentBinding, Mode=OneWay}"
+                     Text="{Binding Path=LogContent, Mode=OneWay}"
                      d:Text="Some initial text to preview"
                      BorderThickness="0"
                      Margin="1,0"

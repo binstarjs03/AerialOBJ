@@ -11,6 +11,23 @@ namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 {
+    #region States - Fields and Properties
+
+    private string _title = App.CurrentCast.Properties.SessionInfo is null ?
+        App.AppProperty.AppName : $"{App.AppProperty.AppName} - {App.CurrentCast.Properties.SessionInfo.WorldName}";
+    
+    public string Title => _title;
+
+    public bool HasSession => App.CurrentCast.Properties.HasSession;
+
+    public bool UIDebugLogWindowVisible
+    {
+        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
+        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
+    }
+
+    #endregion
+
     public MainWindowVM(MainWindow window) : base(window)
     {
         App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
@@ -22,28 +39,6 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         SettingCommand = new RelayCommand(OnSetting);
         ForceGCCommand = new RelayCommand(OnForceGCCommand);
     }
-
-    #region States - Fields and Properties
-
-    private string _title = App.CurrentCast.Properties.SessionInfo is null ?
-        App.AppProperty.AppName : $"{App.AppProperty.AppName} - {App.CurrentCast.Properties.SessionInfo.WorldName}";
-    private static bool HasSession => App.CurrentCast.Properties.HasSession;
-
-    #endregion
-
-    #region Data Binders
-
-    public string TitleBinding => _title;
-
-    public bool HasSessionBinding => HasSession;
-
-    public bool UIDebugLogWindowVisibleBinding
-    {
-        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
-        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
-    }
-
-    #endregion
 
     #region Commands
 
@@ -74,7 +69,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             return;
         }
 
-        SessionInfo? session = IOService.LoadSavegame(dialog.SelectedPath);
+        SessionInfo? session = IOService.LoadSession(dialog.SelectedPath);
         if (session is null)
         {
             LogService.LogAborted("Failed changing session. Aborting...", useSeparator: true);
@@ -131,7 +126,7 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
     private void UpdateTitle(string title)
     {
         _title = title;
-        NotifyPropertyChanged(nameof(TitleBinding));
+        NotifyPropertyChanged(nameof(Title));
     }
 
     #endregion

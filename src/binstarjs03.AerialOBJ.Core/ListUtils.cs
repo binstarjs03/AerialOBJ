@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace binstarjs03.AerialOBJ.Core;
 public static class ListUtils
 {
-    private static Random s_random = new();
+    private static readonly Random s_random = new();
 
     public static void FisherYatesShuffe<T>(this IList<T> list)
     {
@@ -12,7 +12,11 @@ public static class ListUtils
         while (index > 0)
         {
             index--;
-            int randomIndex = s_random.Next(index + 1);
+            int randomIndex;
+            lock(s_random)
+            {
+                randomIndex = s_random.Next(index + 1);
+            }
             T temp = list[randomIndex];
             list[randomIndex] = list[index];
             list[index] = temp;

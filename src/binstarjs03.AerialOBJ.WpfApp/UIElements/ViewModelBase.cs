@@ -57,6 +57,5 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
     {
         string propName = e.PropertyName!;
         NotifyPropertyChanged(propName);
-        NotifyPropertyChanged($"{propName}Binding");
     }
 }

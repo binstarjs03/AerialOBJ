@@ -19,7 +19,7 @@ public static class BinaryUtils
     /// This methos is deprecated and use <see cref="SplitSubnumberFast"/> instead
     /// </summary>
     /// <exception cref="OverflowException"></exception>
-    [Obsolete]
+    [Obsolete($"Use {nameof(SplitSubnumberFast)} instead")]
     public static byte[] ToBinaryArray(this long num, int bitLength)
     {
         string binNum = Convert.ToString(num, toBase: 2);
@@ -37,7 +37,7 @@ public static class BinaryUtils
         return ret;
     }
 
-    [Obsolete]
+    [Obsolete($"Use {nameof(SplitSubnumberFast)} instead")]
     public static int ToIntLE(this byte[] buffer)
     {
         int ret = 0;

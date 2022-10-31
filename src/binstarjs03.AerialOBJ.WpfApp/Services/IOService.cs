@@ -32,7 +32,7 @@ public static class IOService
         writer.Write(content);
     }
 
-    public static SessionInfo? LoadSavegame(string path)
+    public static SessionInfo? LoadSession(string path)
     {
         DirectoryInfo di = new(path);
         LogService.Log($"Selected path: \"{di.FullName}\"");
@@ -75,8 +75,9 @@ public static class IOService
         }
     }
 
-    public static Region? LoadRegion(Coords2 regionCoords)
+    public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
     {
+        e = null;
         if (App.CurrentCast.Properties.SessionInfo is null)
             return null;
         string savegameDir = App.CurrentCast.Properties.SessionInfo.SavegameDirectory.FullName;
@@ -88,8 +89,9 @@ public static class IOService
                 Region region = Region.Open(regionPath);
                 return region;
             }
-            catch (InvalidDataException) // region file size is too small
+            catch (Exception ex)
             {
+                e = ex;
                 return null;
             }
         }
