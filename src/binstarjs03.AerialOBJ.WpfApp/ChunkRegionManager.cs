@@ -26,11 +26,10 @@ public class ChunkRegionManager
     // unless for huge monitor resolution at zoom level 0 of course
     private const int s_regionBufferSize = 15;
     private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
-    private const string s_pendingChunkCheckerThreadName = "Background Pending Chunk Checker";
 
     private readonly ViewportControlVM _viewport;
 
-    private readonly Dictionary<Coords2, Region> _loadedRegions = new(s_regionBufferSize);
+    private readonly Dictionary<Coords2, RegionWrapper> _loadedRegions = new(s_regionBufferSize);
     private readonly Dictionary<Coords2, ChunkWrapper> _loadedChunks = new(s_regionBufferSize * Region.TotalChunkCount);
 
     private readonly Random _rng = new();
@@ -46,7 +45,6 @@ public class ChunkRegionManager
     public ChunkRegionManager(ViewportControlVM viewport)
     {
         _viewport = viewport;
-        App.CurrentCast.Initializing += OnAppInitializing;
     }
 
     // public accessors
@@ -60,49 +58,6 @@ public class ChunkRegionManager
     public int PendingChunkCount => _pendingChunkList.Count;
     public int WorkedChunkCount => _workedChunks.Count;
 
-    private void OnAppInitializing(object sender, StartupEventArgs e)
-    {
-        RunPendingChunkCheckerThread();
-    }
-
-    private void RunPendingChunkCheckerThread()
-    {
-        Thread pendingChunkCheckerThread = new(() => PendingChunkCheckerLoopAsync())
-        {
-            Name = s_pendingChunkCheckerThreadName,
-            IsBackground = true,
-        };
-        pendingChunkCheckerThread.Start();
-        LogService.Log($"{s_pendingChunkCheckerThreadName} thread successfully started");
-    }
-
-    // background routine that periodically check for chunk allocation queue
-    // every 500ms (which can only be invoked if need reallocate), in case
-    // chunk allocation routine is stopped or if there is "hole" of unrendered chunk 
-    private void PendingChunkCheckerLoopAsync()
-    {
-        try
-        {
-            while (true)
-            {
-                Action method = () =>
-                {
-                    if (App.CurrentCast is null || App.CurrentCast.Properties.SessionInfo is null)
-                        return;
-                    LoadUnloadChunks();
-                };
-                App.CurrentCast?.Dispatcher.BeginInvoke(method, DispatcherPriority.Send);
-                Thread.Sleep(500);
-            }
-        }
-        catch
-        {
-            LogService.LogError($"{s_pendingChunkCheckerThreadName} thread crashed! restarting...", useSeparator: true);
-            // guard this thread against any exceptions, restart if so
-            RunPendingChunkCheckerThread();
-            return;
-        }
-    }
 
     public void Update()
     {
@@ -198,8 +153,8 @@ public class ChunkRegionManager
         {
             if (_visibleRegionRange.IsInside(regionCoords))
                 continue;
-            Region region = _loadedRegions[regionCoords];
-            UnloadRegion(region);
+            RegionWrapper regionWrapper = _loadedRegions[regionCoords];
+            UnloadRegion(regionWrapper);
         }
 
         // perform sweep checking from min to max range for visible regions
@@ -240,13 +195,13 @@ public class ChunkRegionManager
         // Since nobody referencing that region, the GC will collect it eventually.
         if (_loadedRegions.ContainsKey(region.Coords))
             return;
-
-        _loadedRegions.Add(region.Coords, region);
+        RegionWrapper regionWrapper = new(region);
+        _loadedRegions.Add(region.Coords, regionWrapper);
         OnRegionLoadChanged();
     }
-    private void UnloadRegion(Region region)
+    private void UnloadRegion(RegionWrapper regionWrapper)
     {
-        _loadedRegions.Remove(region.Coords);
+        _loadedRegions.Remove(regionWrapper.RegionCoords);
         OnRegionLoadChanged();
     }
 
@@ -320,7 +275,7 @@ public class ChunkRegionManager
         _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerRenderedChunkCount));
     }
 
-    private Region? GetRegion(Coords2 chunkCoordsAbs)
+    private RegionWrapper? GetRegionWrapper(Coords2 chunkCoordsAbs)
     {
         Coords2 regionCoords = Region.GetRegionCoordsFromChunkCoordsAbs(chunkCoordsAbs);
         if (_loadedRegions.ContainsKey(regionCoords))
@@ -344,8 +299,9 @@ public class ChunkRegionManager
             // their underlying regions but this is added for extra safety.
             // Simply don't do anything if the region for particular chunk
             // is not loaded (e.g culled or whatnot)
-            Region? region = GetRegion(chunkCoordsAbs);
-            if (region is not null)
+            RegionWrapper? regionWrapper = GetRegionWrapper(chunkCoordsAbs);
+            Coords2 chunkCoordsRel = Region.ConvertChunkCoordsAbsToRel(chunkCoordsAbs);
+            if (regionWrapper is not null && regionWrapper.HasChunkGenerated(chunkCoordsRel))
             {
                 _workedChunks.Add(chunkCoordsAbs);
                 Task.Run(() => AllocateChunkAsync(chunkCoordsAbs));
@@ -370,15 +326,15 @@ public class ChunkRegionManager
             return;
         }
 
-        Region? region = GetRegion(chunkCoordsAbs);
-        if (region is null)
+        RegionWrapper? regionWrapper = GetRegionWrapper(chunkCoordsAbs);
+        if (regionWrapper is null)
         {
             App.CurrentCast?.Dispatcher.BeginInvoke(
                 () => OnAllocateChunkAsyncExit(chunkCoordsAbs),
                 DispatcherPriority.Normal);
             return;
         }
-        Chunk chunk = region.GetChunk(chunkCoordsAbs, relative: false);
+        Chunk chunk = regionWrapper.GetChunk(chunkCoordsAbs, relative: false);
         Bitmap chunkImage = new(16, 16, PixelFormat.Format32bppArgb);
         chunkImage.MakeTransparent();
         string[,] highestBlocks = Chunk.GenerateHighestBlocksBuffer();

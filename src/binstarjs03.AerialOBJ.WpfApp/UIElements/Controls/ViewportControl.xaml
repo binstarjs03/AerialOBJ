@@ -268,7 +268,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Worked Chunk Count: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerPendingChunkCount, Mode=OneWay}"/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerWorkedChunkCount, Mode=OneWay}"/>
                             </StackPanel>
                         </StackPanel>
 

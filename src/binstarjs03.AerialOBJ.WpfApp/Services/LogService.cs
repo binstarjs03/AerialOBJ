@@ -88,11 +88,9 @@ public static class LogService
 
     private static void LogEmphasis(string content, string emphasisWord, bool pushNotification = true, bool useSeparator = false)
     {
-        Log($"--{emphasisWord}--: {content}");
+        Log($"--{emphasisWord}--: {content}", useSeparator);
         if (pushNotification)
             PushNotification(content);
-        if (useSeparator)
-            LogNewline();
     }
 
     public static void PushNotification(string message)

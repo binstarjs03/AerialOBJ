@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 
 namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
-public class Region : IDisposable
+public class Region
 {
     public const int ChunkCount = 32;
     public const int TotalChunkCount = ChunkCount * ChunkCount;
@@ -25,11 +25,8 @@ public class Region : IDisposable
 
     private readonly string _path;
     private byte[]? _data;
-
     private readonly Coords2 _coords;
     private readonly CoordsRange2 _chunkRangeAbs;
-
-    private bool _hasDisposed;
 
     public Region(string path, Coords2 coords)
     {
@@ -85,25 +82,6 @@ public class Region : IDisposable
             throw new RegionUnrecognizedFileException("Cannot automatically determine region position");
         }
     }
-
-    #region Dispose Pattern
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_hasDisposed)
-        {
-            _data = null;
-            _hasDisposed = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    #endregion
 
     public Coords2 Coords => _coords;
     public CoordsRange2 ChunkRangeAbs => _chunkRangeAbs;
@@ -182,6 +160,22 @@ public class Region : IDisposable
         return generatedChunks.AsReadOnly();
     }
 
+    public HashSet<Coords2> GetGeneratedChunksAsCoordsRelSet()
+    {
+        HashSet<Coords2> generatedChunks = new(TotalChunkCount);
+        for (int x = 0; x < ChunkCount; x++)
+        {
+            for (int z = 0; z < ChunkCount; z++)
+            {
+                Coords2 coordsChunk = new(x, z);
+                if (HasChunkGenerated(coordsChunk))
+                    generatedChunks.Add(coordsChunk);
+            }
+        }
+        generatedChunks.TrimExcess();
+        return generatedChunks;
+    }
+
     public NbtCompound GetChunkNbt(Coords2 chunkCoords, bool relative)
     {
         Coords2 chunkCoordsRel;
@@ -227,7 +221,6 @@ public class Region : IDisposable
 
     public override string ToString()
     {
-        string disposeStatus = _hasDisposed ? "Disposed" : "Ready";
-        return $"Region {Coords} at \"{_path}\", status: {disposeStatus}";
+        return $"Region {Coords} at \"{_path}\"";
     }
 }

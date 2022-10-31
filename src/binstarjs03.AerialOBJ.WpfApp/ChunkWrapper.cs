@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows.Controls;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
@@ -11,7 +11,7 @@ public class ChunkWrapper
 {
     private readonly ViewportControlVM _viewport;
     private readonly Coords2 _chunkCoordsAbs;
-    private ChunkImage _chunkImage;
+    private readonly ChunkImage _chunkImage;
 
     public ChunkImage ChunkImage => _chunkImage;
     public Coords2 ChunkCoordsAbs => _chunkCoordsAbs;
@@ -37,7 +37,7 @@ public class ChunkWrapper
         UpdatePosition(_chunkImage);
         UpdateSize(_chunkImage);
 
-        void UpdatePosition(ChunkImage chunk)
+        void updatePosition(ChunkImage chunk)
         {
             // we floor all the floating-point number here
             // so it snaps perfectly to the pixel and it removes
@@ -75,7 +75,7 @@ public class ChunkWrapper
             Canvas.SetTop(chunk, finalPos.Y);
         }
 
-        void UpdateSize(ChunkImage chunk)
+        void updateSize(ChunkImage chunk)
         {
             chunk.Width = _viewport.ViewportPixelPerChunk;
         }
