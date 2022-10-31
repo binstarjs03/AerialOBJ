@@ -151,7 +151,16 @@ public class Chunk
             return new Block("minecraft:air", coordsAbs);
     }
 
-    public void GetHighestBlock(Block[,] buffer, string[]? exclusions = null, int? heightLimit = null)
+    public static string[,] GenerateHighestBlocksBuffer()
+    {
+        string[,] highestBlocks = new string[Section.BlockCount, Section.BlockCount];
+        for (int x = 0; x < Section.BlockCount; x++)
+            for (int z = 0; z < Section.BlockCount; z++)
+                highestBlocks[x, z] = Block.AirBlockName;
+        return highestBlocks;
+    }
+
+    public void GetHighestBlock(string[,] highestBlocks, string[]? exclusions = null, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
 
@@ -185,14 +194,14 @@ public class Chunk
                             continue;
 
                         // get reference to current block
-                        Block block = buffer[x, z];
                         Coords3 coordsRel = new(x, y, z);
 
                         // set existing block instance to avoid heap generation.
                         // generating heap at tight-loop like this will trash the GC very badly
                         // also SetBlock return true if setting is successful, 
                         // we want to break early if so since that is the highest block
-                        breaking = section.SetBlock(block, coordsRel, exclusions);
+                        breaking = section.SetBlock(out string blockName, coordsRel, exclusions);
+                        highestBlocks[x, z] = blockName;
                     }
                 }
             }

@@ -179,6 +179,25 @@ public class Section
         }
     }
 
+    public bool SetBlock(out string blockName, Coords3 coordsRel, string[]? exclusions = null)
+    {
+        blockName = Block.AirBlockName;
+        if (_blockPaletteIndexTable is null)
+            return false;
+        else
+        {
+            int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
+            Block blockTemplate = _blockTable![blockTableIndex];
+            // short circuit if air block encountered
+            if (blockTemplate.Name == Block.AirBlockName
+                || exclusions is not null
+                && exclusions.Contains(blockTemplate.Name))
+                return false;
+            blockName = blockTemplate.Name;
+            return true;
+        }
+    }
+
     // long data stores what block is at xyz, and that block is corresponds
     // to one block from palette. The long data itself is in long data type form
     // and when being interpreted as binary, it can be broken into several sub-numbers,

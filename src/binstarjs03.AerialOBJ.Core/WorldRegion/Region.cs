@@ -123,6 +123,12 @@ public class Region : IDisposable
         return new Coords2(relCx, relCz);
     }
 
+    public static Coords2 GetRegionCoordsFromChunkCoordsAbs(Coords2 chunkCoordsAbs)
+    {
+        return new((int)MathF.Floor((float)chunkCoordsAbs.X / ChunkCount),
+                   (int)MathF.Floor((float)chunkCoordsAbs.Z / ChunkCount));
+    }
+
     public bool HasChunkGenerated(Coords2 chunkCoordsRel)
     {
         var (sectorPos, sectorLength) = GetChunkHeaderData(chunkCoordsRel);
