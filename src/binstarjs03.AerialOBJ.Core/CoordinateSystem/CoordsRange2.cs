@@ -35,47 +35,9 @@ public struct CoordsRange2
         ZRange = new Range(minZ, maxZ);
     }
 
-
-
-    #region Object overrides
-
-    public override string ToString()
-    {
-        return $"cr2({XRange}, {ZRange})";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is CoordsRange2 pr)
-            return XRange == pr.XRange && ZRange == pr.ZRange;
-        else
-            return false;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(XRange, ZRange);
-    }
-
-    #endregion
-
-
-
-    #region Equality Operators
-
-    public static bool operator ==(CoordsRange2 left, CoordsRange2 right)
-    {
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(CoordsRange2 left, CoordsRange2 right)
-    {
-        return !(left == right);
-    }
-
-    #endregion
-
-
+    public static CoordsRange2 Zero => new(0, 0, 0, 0);
+    public int Sum => (XRange.Max - XRange.Min + 1)
+                    * (ZRange.Max - ZRange.Min + 1);
 
     #region Methods
 
@@ -84,6 +46,11 @@ public struct CoordsRange2
         bool inX = XRange.IsInside(other.X);
         bool inZ = ZRange.IsInside(other.Z);
         return inX && inZ;
+    }
+
+    public bool IsOutside(Coords2 other)
+    {
+        return !IsInside(other);
     }
 
     private bool IsInside(Coords2 other, out string message)
@@ -111,8 +78,44 @@ public struct CoordsRange2
         else
         {
             if (!IsInside(other))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(other));
         }
+    }
+
+    #endregion
+
+    #region Equality Operators
+
+    public static bool operator ==(CoordsRange2 left, CoordsRange2 right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(CoordsRange2 left, CoordsRange2 right)
+    {
+        return !(left == right);
+    }
+
+    #endregion
+
+    #region Object overrides
+
+    public override string ToString()
+    {
+        return $"cr2({XRange}, {ZRange})";
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is CoordsRange2 pr)
+            return XRange == pr.XRange && ZRange == pr.ZRange;
+        else
+            return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(XRange, ZRange);
     }
 
     #endregion
