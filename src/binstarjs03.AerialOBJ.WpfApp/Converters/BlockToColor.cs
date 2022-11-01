@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
+using System.Windows.Media;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 
 public static class BlockToColor
 {
-    private readonly static ColorConverter s_converter = new();
-
     private static readonly Dictionary<string, Color> s_blockColors = new()
     {
         {"minecraft:air", FromHex("#00000000")},
@@ -58,6 +56,6 @@ public static class BlockToColor
 
     public static Color FromHex(string hexColor)
     {
-        return (Color)s_converter.ConvertFromString(hexColor)!;
+        return (Color)ColorConverter.ConvertFromString(hexColor)!;
     }
 }
