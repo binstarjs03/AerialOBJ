@@ -21,6 +21,7 @@ public class Chunk
     );
 
     private readonly Coords2 _coordsAbs;
+    private readonly Coords2 _coordsRel;
     private readonly CoordsRange3 _blockRangeAbs;
 
     // array of section position or height
@@ -30,11 +31,17 @@ public class Chunk
     // if we are not sure, we can just index any sectionsYPos element
     private readonly Dictionary<int, Section> _sections;
 
+    public Coords2 CoordsAbs => _coordsAbs;
+    public Coords2 CoordsRel => _coordsRel;
+    public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
+    public int[] SectionsYPos => _sectionsYPos;
+
     public Chunk(NbtCompound nbtChunk)
     {
         _coordsAbs = calculateCoordsAbs(nbtChunk);
+        _coordsRel = Region.ConvertChunkCoordsAbsToRel(_coordsAbs);
         _blockRangeAbs = calculateBlockRangeAbs(_coordsAbs);
-        (_sectionsYPos, _sections) = readSections(_coordsAbs, nbtChunk);
+        readSections(_coordsAbs, nbtChunk, out _sectionsYPos, out _sections);
 
         // just in case section is unordered, we order them first
         Array.Sort(_sectionsYPos);
@@ -59,13 +66,13 @@ public class Chunk
 
             return new CoordsRange3(minAbsB, maxAbsB);
         }
-        static (int[], Dictionary<int, Section>) readSections(Coords2 chunkCoordsAbs, NbtCompound nbtChunk)
+        static void readSections(Coords2 chunkCoordsAbs, NbtCompound nbtChunk, out int[] sectionsYPos, out Dictionary<int, Section> sections)
         {
             NbtList sectionsNbt = nbtChunk.Get<NbtList>("sections");
             int sectionLength = sectionsNbt.Length;
 
-            int[] sectionsYPos = new int[sectionsNbt.Length];
-            Dictionary<int, Section> sections = new();
+            sectionsYPos = new int[sectionsNbt.Length];
+            sections = new();
 
             for (int i = 0; i < sectionLength; i++)
             {
@@ -76,15 +83,8 @@ public class Chunk
                 sectionsYPos[i] = sectionYPos;
                 sections.Add(sectionYPos, section);
             }
-            return (sectionsYPos, sections);
         }
     }
-
-    public Coords2 CoordsAbs => _coordsAbs;
-
-    public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
-
-    public int[] SectionsYPos => _sectionsYPos;
 
     public bool HasSection(int sectionY)
     {

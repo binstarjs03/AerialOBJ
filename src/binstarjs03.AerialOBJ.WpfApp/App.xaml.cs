@@ -33,7 +33,7 @@ public partial class App : Application
         MainWindow = new MainWindow(debugLogWindow);
         MainWindow.Show();
         debugLogWindow.Owner = MainWindow;
-        Properties.UpdateUIDebugLogWindowVisible(true);
+        //Properties.UpdateUIDebugLogWindowVisible(true);
         LogService.LogRuntimeInfo();
         LogService.Log("Starting Initialization...");
         Initializing?.Invoke(this, e);

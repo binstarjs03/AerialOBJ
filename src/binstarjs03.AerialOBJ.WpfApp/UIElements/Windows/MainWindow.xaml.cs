@@ -33,6 +33,7 @@ public partial class MainWindow : Window
 
     protected override void OnClosing(CancelEventArgs e)
     {
-        Application.Current.Shutdown();
+        Environment.Exit(0);
+        //Application.Current.Shutdown();
     }
 }

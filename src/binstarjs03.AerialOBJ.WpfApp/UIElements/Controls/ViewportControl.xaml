@@ -260,7 +260,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Rendered Chunk Count: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerRenderedChunkCount, Mode=OneWay}"/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedChunkCount, Mode=OneWay}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Pending Chunk Count: "/>
@@ -297,7 +297,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Rendered Region Count: "/>
-                            <TextBlock Text="{Binding Path=ChunkRegionManagerRenderedRegionCount, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedRegionCount, Mode=OneWay}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>

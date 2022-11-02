@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
@@ -18,7 +19,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         1, 2, 3, 5, 8, 13, 21, 34
     };
 
-    private readonly ChunkRegionManager _chunkManager;
+    private readonly ChunkRegionManager _chunkRegionManager;
+    private readonly AutoResetEvent _chunkManagerUpdateEvent = new(initialState: false);
 
     private PointF2 _viewportCameraPos = PointF2.Zero;
     private int _viewportZoomLevel = 1;
@@ -74,16 +76,16 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public string RegionPosOffsetStringized => RegionPosOffset.ToStringAnotherFormat();
 
 
-    public string ChunkRegionManagerVisibleChunkRangeXStringized => _chunkManager.VisibleChunkRange.XRange.ToString();
-    public string ChunkRegionManagerVisibleChunkRangeZStringized => _chunkManager.VisibleChunkRange.ZRange.ToString();
-    public string ChunkRegionManagerVisibleRegionRangeXStringized => _chunkManager.VisibleRegionRange.XRange.ToString();
-    public string ChunkRegionManagerVisibleRegionRangeZStringized => _chunkManager.VisibleRegionRange.ZRange.ToString();
-    public int ChunkRegionManagerVisibleChunkCount => _chunkManager.VisibleChunkCount;
-    public int ChunkRegionManagerVisibleRegionCount => _chunkManager.VisibleRegionCount;
-    public int ChunkRegionManagerRenderedChunkCount => _chunkManager.LoadedChunkCount;
-    public int ChunkRegionManagerRenderedRegionCount => _chunkManager.LoadedRegionCount;
-    public int ChunkRegionManagerPendingChunkCount => _chunkManager.PendingChunkCount;
-    public int ChunkRegionManagerWorkedChunkCount => _chunkManager.WorkedChunkCount;
+    public string ChunkRegionManagerVisibleChunkRangeXStringized => _chunkRegionManager.VisibleChunkRange.XRange.ToString();
+    public string ChunkRegionManagerVisibleChunkRangeZStringized => _chunkRegionManager.VisibleChunkRange.ZRange.ToString();
+    public string ChunkRegionManagerVisibleRegionRangeXStringized => _chunkRegionManager.VisibleRegionRange.XRange.ToString();
+    public string ChunkRegionManagerVisibleRegionRangeZStringized => _chunkRegionManager.VisibleRegionRange.ZRange.ToString();
+    public int ChunkRegionManagerVisibleChunkCount => _chunkRegionManager.VisibleChunkCount;
+    public int ChunkRegionManagerVisibleRegionCount => _chunkRegionManager.VisibleRegionCount;
+    public int ChunkRegionManagerLoadedChunkCount => _chunkRegionManager.LoadedChunkCount;
+    public int ChunkRegionManagerLoadedRegionCount => _chunkRegionManager.LoadedRegionCount;
+    public int ChunkRegionManagerPendingChunkCount => _chunkRegionManager.PendingChunkCount;
+    public int ChunkRegionManagerWorkedChunkCount => _chunkRegionManager.WorkedChunkCount;
 
     public bool UISidePanelVisible
     {
@@ -140,7 +142,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
 
-        _chunkManager = new ChunkRegionManager(this);
+        _chunkRegionManager = new ChunkRegionManager(this, _chunkManagerUpdateEvent);
 
         // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);
@@ -166,7 +168,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void OnSizeChanged(object? arg)
     {
-        _chunkManager.Update();
+        UpdateChunkRegionManager();
     }
 
     private void OnMouseWheel(object? arg)
@@ -264,7 +266,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         {
             ReinitializeStates();
             if (App.CurrentCast.Properties.SessionInfo is null)
-                _chunkManager.OnSessionClosed();
+                _chunkRegionManager.OnSessionClosed();
         }
     }
 
@@ -272,9 +274,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     #region Updaters
 
-    public void UpdateUISidePanelVisible(bool value)
+    private void UpdateChunkRegionManager()
     {
-        SetAndNotifyPropertyChanged(value, ref _uiSidePanelVisible, nameof(UISidePanelVisible));
+        _chunkManagerUpdateEvent.Set();
     }
 
     private void UpdateViewportCameraPos(PointF2 cameraPos)
@@ -287,13 +289,13 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ChunkPosOffsetStringized),
             nameof(RegionPosOffsetStringized),
         });
-        _chunkManager.Update();
+        UpdateChunkRegionManager();
     }
 
     private void UpdateViewportHeightLimit(int viewportHeightLimit)
     {
         SetAndNotifyPropertyChanged(viewportHeightLimit, ref _viewportHeightLimit, nameof(ViewportHeightLimit));
-        _chunkManager.Update();
+        UpdateChunkRegionManager();
     }
 
     private void UpdateExportArea1(Coords3 exportArea1)
@@ -319,7 +321,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             nameof(ChunkPosOffsetStringized),
             nameof(RegionPosOffsetStringized),
         });
-        _chunkManager.Update();
+        UpdateChunkRegionManager();
     }
 
     private void UpdateExportArea2(Coords3 exportArea2)

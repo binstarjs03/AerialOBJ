@@ -11,6 +11,7 @@ namespace binstarjs03.AerialOBJ.Core.WorldRegion;
 
 public class Region
 {
+    public const int BlockCount = Section.BlockCount * ChunkCount;
     public const int ChunkCount = 32;
     public const int TotalChunkCount = ChunkCount * ChunkCount;
     public const int ChunkRange = ChunkCount - 1;
@@ -24,9 +25,12 @@ public class Region
     public const int ChunkHeaderSize = 4;
 
     private readonly string _path;
-    private byte[]? _data;
+    private readonly byte[]? _data;
     private readonly Coords2 _coords;
     private readonly CoordsRange2 _chunkRangeAbs;
+    
+    public Coords2 Coords => _coords;
+    public CoordsRange2 ChunkRangeAbs => _chunkRangeAbs;
 
     public Region(string path, Coords2 coords)
     {
@@ -78,14 +82,9 @@ public class Region
             return new Region(path, coords);
         }
         else
-        {
             throw new RegionUnrecognizedFileException("Cannot automatically determine region position");
-        }
     }
-
-    public Coords2 Coords => _coords;
-    public CoordsRange2 ChunkRangeAbs => _chunkRangeAbs;
-
+    
     private ArraySegment<byte> Read(int pos, int count)
     {
         long endPos = pos + count;
@@ -109,7 +108,7 @@ public class Region
 
     public bool HasChunkGenerated(Coords2 chunkCoordsRel)
     {
-        var (sectorPos, sectorLength) = GetChunkHeaderData(chunkCoordsRel);
+        GetChunkHeaderData(chunkCoordsRel, out int sectorPos, out int sectorLength);
         return HasChunkGenerated(sectorPos, sectorLength);
     }
 
@@ -120,7 +119,7 @@ public class Region
         return true;
     }
 
-    private (int sectorPos, int sectorLength) GetChunkHeaderData(Coords2 chunkCoordsRel)
+    private void GetChunkHeaderData(Coords2 chunkCoordsRel, out int sectorPos, out int sectorLength)
     {
         ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
 
@@ -133,15 +132,14 @@ public class Region
 
         // more unreadable version, it does not allocate heap, prevent GC
         ArraySegment<byte> chunkHeaderSegment = Read(seekPos, 4);
-        int chunkPos = 0;
+        sectorPos = 0;
         for (int i = 0; i < 3; i++)
         {
             int buff = chunkHeaderSegment[i];
             buff = buff << (3 - i - 1) * 8;
-            chunkPos += buff;
+            sectorPos += buff;
         }
-        int chunkLength = chunkHeaderSegment[3];
-        return (chunkPos, chunkLength);
+        sectorLength = chunkHeaderSegment[3];
     }
 
     public ReadOnlyCollection<Coords2> GetGeneratedChunksAsCoordsRel()
@@ -190,7 +188,7 @@ public class Region
             chunkCoordsRel = ConvertChunkCoordsAbsToRel(chunkCoords);
         }
 
-        var (sectorPos, sectorLength) = GetChunkHeaderData(chunkCoordsRel);
+        GetChunkHeaderData(chunkCoordsRel, out int sectorPos, out int sectorLength);
         if (!HasChunkGenerated(sectorPos, sectorLength))
         {
             string msg = $"Chunk is not generated yet";
