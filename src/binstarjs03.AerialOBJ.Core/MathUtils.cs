@@ -16,4 +16,9 @@ public static class MathUtils
     {
         return (int)Math.Floor(num / divisor);
     }
+
+    public static int DivFloor(int num, int divisor)
+    {
+        return (int)MathF.Floor((float)num / divisor);
+    }
 }

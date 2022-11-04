@@ -6,11 +6,12 @@ namespace binstarjs03.AerialOBJ.Core.CoordinateSystem;
 /// Represent 3-Dimensional Cartesian Coordinate X, Y and Z integers position 
 /// of Minecraft object (may be Region, Chunk, Block, etc)
 /// </summary>
-public struct Coords3
+public struct Coords3 : IEquatable<Coords3>
 {
-    public int X;
-    public int Y;
-    public int Z;
+    public static Coords3 Zero => new(0, 0, 0);
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int Z { get; set; }
 
     public Coords3()
     {
@@ -26,21 +27,11 @@ public struct Coords3
         Z = z;
     }
 
-    public static Coords3 Zero => new(0, 0, 0);
-
     #region Object overrides 
 
     public override string ToString()
     {
-        return $"c3({X}, {Y}, {Z})";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is Coords3 p)
-            return X == p.X && Y == p.Y && Z == p.Z;
-        else
-            return false;
+        return $"({X}, {Y}, {Z})";
     }
 
     public override int GetHashCode()
@@ -51,6 +42,21 @@ public struct Coords3
     #endregion
 
     #region Equality Operators 
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is Coords3 o)
+            return Equals(o);
+        else
+            return false;
+    }
+
+    public bool Equals(Coords3 other)
+    {
+        return X == other.X 
+            && Y == other.Y 
+            && Z == other.Z;
+    }
 
     public static bool operator ==(Coords3 left, Coords3 right)
     {

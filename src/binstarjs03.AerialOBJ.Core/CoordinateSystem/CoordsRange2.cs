@@ -6,10 +6,11 @@ namespace binstarjs03.AerialOBJ.Core.CoordinateSystem;
 /// Represent range of 2-Dimensional Cartesian Coordinate X and Z integer pair 
 /// of Minecraft object (may be Region, Chunk, Block, etc) in 
 /// </summary>
-public struct CoordsRange2
+public struct CoordsRange2 : IEquatable<CoordsRange2>
 {
-    public Range XRange;
-    public Range ZRange;
+    public Range XRange { get; set; }
+    public Range ZRange { get; set; }
+    public int Sum => XRange.Sum * ZRange.Sum;
 
     public CoordsRange2()
     {
@@ -35,12 +36,6 @@ public struct CoordsRange2
         ZRange = new Range(minZ, maxZ);
     }
 
-    public static CoordsRange2 Zero => new(0, 0, 0, 0);
-    public int Sum => (XRange.Max - XRange.Min + 1)
-                    * (ZRange.Max - ZRange.Min + 1);
-
-    #region Methods
-
     public bool IsInside(Coords2 other)
     {
         bool inX = XRange.IsInside(other.X);
@@ -53,38 +48,42 @@ public struct CoordsRange2
         return !IsInside(other);
     }
 
-    private bool IsInside(Coords2 other, out string message)
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public void ThrowIfOutside(Coords2 other)
     {
-        bool inX = XRange.IsInside(other.X);
-        bool inZ = ZRange.IsInside(other.Z);
-        string outMsgX = $"X:{other.X} is outside range {XRange}";
-        string outMsgZ = $"Z:{other.Z} is outside range {ZRange}";
-        message = "";
-        if (!inX)
-            message += outMsgX + '\n';
-        if (!inZ)
-            message += outMsgZ + '\n';
-        return inX || inZ;
+        if (IsOutside(other))
+            throw new ArgumentOutOfRangeException(nameof(other));
     }
 
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void ThrowIfOutside(Coords2 other, bool displayMessage = false)
+    #region Object overrides
+
+    public override string ToString()
     {
-        if (displayMessage)
-        {
-            if (!IsInside(other, out string message))
-                throw new ArgumentOutOfRangeException(nameof(other), message);
-        }
-        else
-        {
-            if (!IsInside(other))
-                throw new ArgumentOutOfRangeException(nameof(other));
-        }
+        return $"({XRange}, {ZRange})";
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(XRange, ZRange);
     }
 
     #endregion
 
-    #region Equality Operators
+    #region Equality
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is CoordsRange2 o)
+            return Equals(o);
+        else
+            return false;
+    }
+
+    public bool Equals(CoordsRange2 other)
+    {
+        return XRange == other.XRange
+            && ZRange == other.ZRange;
+    }
 
     public static bool operator ==(CoordsRange2 left, CoordsRange2 right)
     {
@@ -94,28 +93,6 @@ public struct CoordsRange2
     public static bool operator !=(CoordsRange2 left, CoordsRange2 right)
     {
         return !(left == right);
-    }
-
-    #endregion
-
-    #region Object overrides
-
-    public override string ToString()
-    {
-        return $"cr2({XRange}, {ZRange})";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is CoordsRange2 pr)
-            return XRange == pr.XRange && ZRange == pr.ZRange;
-        else
-            return false;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(XRange, ZRange);
     }
 
     #endregion

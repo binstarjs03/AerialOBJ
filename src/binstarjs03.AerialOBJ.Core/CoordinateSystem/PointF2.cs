@@ -8,8 +8,10 @@ namespace binstarjs03.AerialOBJ.Core.CoordinateSystem;
 /// </summary>
 public struct PointF2
 {
+    public static PointF2 Zero => new(0, 0);
     public double X;
     public double Y;
+    public PointF2 Floor => new(Math.Floor(X), Math.Floor(Y));
 
     public PointF2()
     {
@@ -23,8 +25,6 @@ public struct PointF2
         Y = y;
     }
 
-    public static PointF2 Zero => new(0, 0);
-    public PointF2 Floor => new(Math.Floor(X), Math.Floor(Y));
 
 
 

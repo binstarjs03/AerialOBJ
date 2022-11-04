@@ -15,45 +15,6 @@ public static class BinaryUtils
         return bitLength;
     }
 
-    /// <summary>
-    /// This methos is deprecated and use <see cref="SplitSubnumberFast"/> instead
-    /// </summary>
-    /// <exception cref="OverflowException"></exception>
-    [Obsolete($"Use {nameof(SplitSubnumberFast)} instead")]
-    public static byte[] ToBinaryArray(this long num, int bitLength)
-    {
-        string binNum = Convert.ToString(num, toBase: 2);
-        if (binNum.Length > bitLength)
-            throw new OverflowException("Bit-length is not enough");
-        binNum = binNum.PadLeft(bitLength, '0');
-        byte[] ret = new byte[bitLength];
-        for (int i = 0; i < bitLength; i++)
-        {
-            // parsing is slow especially in tight-loops.
-            // Use SplitSubnumberFast instead as it greatly improve
-            // execution speed by up to 100X
-            ret[i] = byte.Parse($"{binNum[i]}");
-        }
-        return ret;
-    }
-
-    [Obsolete($"Use {nameof(SplitSubnumberFast)} instead")]
-    public static int ToIntLE(this byte[] buffer)
-    {
-        int ret = 0;
-        int length = buffer.Length;
-        if (length == 0)
-            return ret;
-        int add;
-        for (int i = 0; i < length; i++)
-        {
-            add = (int)Math.Pow(2, i);
-            if (buffer[i] == 1)
-                ret += add;
-        }
-        return ret;
-    }
-
     // here buffer is int, means each element may be 32 bits, so bit length can be 32 at most
     // Splitting is done in big-endian (from rightmost side to the left)
     public static void SplitSubnumberFast(this long num, int[] buffer, int bitLength)
@@ -183,23 +144,15 @@ public static class BinaryUtils
     // thousand times, check is only done once so speed is improved greatly
     public static void SplitSubnumberFastNoCheck(this long num, int[] buffer, int bitLength)
     {
-        // total subnumber count is total subnumber long number can hold from given bitlength
         int totalSubnumberCount = 64 / bitLength;
-
-        // total bits is total bits required for all subnumbers
         int totalBits = totalSubnumberCount * bitLength;
-
-        // empty bits count is count of empty, redundant bits from leftmost side
         int emptyBitsCount = 64 - totalBits;
 
-        // iterate through all subnumber indices
         for (int index = 0; index < totalSubnumberCount; index++)
         {
-            // pass 1, make the selected subnumber to the leftmost of bits
             int leftShiftAmount = emptyBitsCount + ((totalSubnumberCount - 1 - index) * bitLength);
             long numLeftShifted = num << leftShiftAmount;
-
-            // pass 2, make the selected subnumber to the rightmost of bits
+            
             int rightShiftAmount = (totalBits - bitLength) + emptyBitsCount;
             int numRightShifted = (int)((ulong)numLeftShifted >> rightShiftAmount);
             buffer[index] = numRightShifted;

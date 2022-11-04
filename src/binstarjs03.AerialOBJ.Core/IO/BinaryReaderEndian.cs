@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 
 namespace binstarjs03.AerialOBJ.Core.IO;
+
 public class BinaryReaderEndian : IDisposable
 {
     protected Stream _stream;
@@ -90,7 +91,7 @@ public class BinaryReaderEndian : IDisposable
         return BinaryPrimitives.ReadDoubleBigEndian(buffer);
     }
 
-    public string ReadString()
+    public string ReadStringLengthPrefixed()
     {
         int length = ReadShortBE();
         Span<byte> bytes = stackalloc byte[length];

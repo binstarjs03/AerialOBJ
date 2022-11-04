@@ -155,7 +155,7 @@ public abstract class NbtBase
         {
             type = reader.ReadTagType();
             if (type != NbtType.NbtEnd)
-                name = reader.ReadString();
+                name = reader.ReadStringLengthPrefixed();
         }
 
         NbtBase nbt = type switch

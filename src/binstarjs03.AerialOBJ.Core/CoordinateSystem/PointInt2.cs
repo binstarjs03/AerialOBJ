@@ -7,8 +7,9 @@ namespace binstarjs03.AerialOBJ.Core.CoordinateSystem;
 /// </summary>
 public struct PointInt2
 {
-    public int X;
-    public int Y;
+    public static PointInt2 Zero => new(0, 0);
+    public int X { get; set; }
+    public int Y { get; set; }
 
     public PointInt2()
     {
@@ -22,21 +23,9 @@ public struct PointInt2
         Y = y;
     }
 
-    public static PointInt2 Zero => new(0, 0);
-
-
-
     #region Object overrides
 
     public override string ToString()
-    {
-        return $"pi2({X}, {Y})";
-    }
-
-    /// <summary>
-    /// Formatted string version without pi2 prefix
-    /// </summary>
-    public string ToStringAnotherFormat()
     {
         return $"({X}, {Y})";
     }
@@ -59,8 +48,6 @@ public struct PointInt2
 
     #endregion
 
-
-
     #region Equality Operators
 
     public static bool operator ==(PointInt2 left, PointInt2 right)
@@ -74,8 +61,6 @@ public struct PointInt2
     }
 
     #endregion
-
-
 
     #region Casters
 
@@ -95,8 +80,6 @@ public struct PointInt2
     }
 
     #endregion
-
-
 
     #region Operator Overloads
 
