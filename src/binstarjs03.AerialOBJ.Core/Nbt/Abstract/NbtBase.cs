@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 
-using binstarjs03.AerialOBJ.Core.IO;
 using binstarjs03.AerialOBJ.Core.Nbt.IO;
 using binstarjs03.AerialOBJ.Core.Nbt.Utils;
 

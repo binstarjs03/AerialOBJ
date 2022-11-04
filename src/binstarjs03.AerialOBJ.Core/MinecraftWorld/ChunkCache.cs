@@ -3,7 +3,7 @@ using System.Linq;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 
-namespace binstarjs03.AerialOBJ.Core.WorldRegion;
+namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public class ChunkCache
 {
     private readonly SortedDictionary<int, string>[,] _highestBlocks
@@ -39,7 +39,7 @@ public class ChunkCache
                 // initialize last block to whatever block is at lowest section at lowest Y level
                 Section lowestSection = chunk.GetSectionAt(0);
                 Block lowestBlock = lowestSection.GetBlockPalette(new Coords3(x, 0, z));
-                int highestHeight = chunk.GetSectionAt(chunk.SectionsYPos.Length - 1).CoordsAbs.Y * Section.BlockCount + Section.BlockCount - 1;
+                int highestHeight = chunk.GetSectionAt(chunk.SectionsYPos.Length - 1).SectionCoordsAbs.Y * Section.BlockCount + Section.BlockCount - 1;
                 string lastBlockName = lowestBlock.Name;
 
                 for (int index = 0; index < chunk.SectionsYPos.Length; index++)
@@ -51,7 +51,7 @@ public class ChunkCache
                         Coords3 blockCoordsRel = new(x, y, z);
                         Block block = section.GetBlockPalette(blockCoordsRel);
 
-                        int currentHeightLevel = section.CoordsAbs.Y * Section.BlockCount + y;
+                        int currentHeightLevel = section.SectionCoordsAbs.Y * Section.BlockCount + y;
                         int lastHeightLevel = currentHeightLevel - 1;
 
                         // if we don't do this statement, the highest-most block will not be added

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-
-using binstarjs03.AerialOBJ.Core.IO;
 
 namespace binstarjs03.AerialOBJ.Core.NbtNew;
 
@@ -22,12 +19,23 @@ public static class NbtIO
         return ReadStream(ms);
     }
 
+    /// <exception cref="NbtDeserializationError"></exception>
     public static INbt ReadStream(Stream inputStream)
     {
         Stream stream = DecompressNbtStream(inputStream);
         NbtBinaryReader reader = new(stream);
         NbtType nbtType = ReadNbtType(reader);
-        return ReadNbtSwitch(reader, nbtType, insideList: false);
+        try
+        {
+            return ReadNbtSwitch(reader, nbtType, insideList: false);
+        }
+        catch (Exception e)
+        {
+            throw new NbtDeserializationError(
+                $"Exception occured while parsing serialized nbt data.\n" +
+                $"Exception details: {e}\n" +
+                reader.GetNbtStackParseErrorAsString(), e);
+        }
     }
 
     private static MemoryStream DecompressNbtStream(Stream inputStream)
@@ -179,7 +187,7 @@ public static class NbtIO
         NbtType listType = ReadNbtType(reader);
         return listType switch
         {
-            NbtType.NbtEnd => ReadNbtList<NbtByte>(reader, name, listType),
+            NbtType.NbtEnd => ReadNbtList<NbtByte>(reader, name, listType), // NbtEnd does not exist
             NbtType.NbtByte => ReadNbtList<NbtByte>(reader, name, listType),
             NbtType.NbtShort => ReadNbtList<NbtShort>(reader, name, listType),
             NbtType.NbtInt => ReadNbtList<NbtInt>(reader, name, listType),
@@ -190,10 +198,29 @@ public static class NbtIO
             NbtType.NbtByteArray => ReadNbtList<NbtByteArray>(reader, name, listType),
             NbtType.NbtIntArray => ReadNbtList<NbtIntArray>(reader, name, listType),
             NbtType.NbtLongArray => ReadNbtList<NbtLongArray>(reader, name, listType),
-            NbtType.NbtList => ReadNbtListSwitch(reader, name),
+            NbtType.NbtList => ReadNestedNbtList(reader, name),
             NbtType.NbtCompound => ReadNbtList<NbtCompound>(reader, name, listType),
             _ => throw new NbtUnknownTypeException()
         };
+    }
+
+    private static INbt ReadNestedNbtList(NbtBinaryReader reader, string name)
+    {
+        /* Reading nested NbtList is tricky because we can't determine what the
+         * type of the NbtList is (can't instantiate, undefined type argument)
+         * until we actually read what items that instance of NbtList is holding.
+         *
+         * To solve this, we have to polymorph it to its top-level inheritance, 
+         * which is the interface of INbt in this case.
+         * 
+         * Technically we can inline the call in ReadNbtListSwitch at switch NbtType.NbtList
+         * with => ReadNbtList<INbt>, but else we cannot make a documentation comment like this :)
+         */
+
+        // return ReadNbtList<???>(reader, name, NbtType.NbtList);
+        // Here the ??? of T is Polymorphed to INbt.
+        // OOP can be very powerful if done properly
+        return ReadNbtList<INbt>(reader, name, NbtType.NbtList);
     }
 
     private static NbtList<T> ReadNbtList<T>(NbtBinaryReader reader, string name, NbtType listType) where T : class, INbt
@@ -202,7 +229,7 @@ public static class NbtIO
         NbtList<T> nbtList = new(name);
         for (int i = 0; i < listLength; i++)
         {
-            T nbt = (T)ReadNbtSwitch(reader, listType, insideList: true);
+            T nbt = (ReadNbtSwitch(reader, listType, insideList: true) as T)!;
             nbtList.Add(nbt);
         }
         return nbtList;

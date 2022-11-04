@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 using System.IO;
 using System.Text;
 
-namespace binstarjs03.AerialOBJ.Core.IO;
+namespace binstarjs03.AerialOBJ.Core;
 
 public class BinaryReaderEndian : IDisposable
 {
@@ -11,7 +11,7 @@ public class BinaryReaderEndian : IDisposable
     protected BinaryReader _reader;
     private bool _disposed = false;
 
-    public long Position => _stream.Position;   
+    public long Position => _stream.Position;
 
     public BinaryReaderEndian(Stream stream)
     {

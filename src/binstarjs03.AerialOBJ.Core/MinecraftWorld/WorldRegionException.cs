@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace binstarjs03.AerialOBJ.Core.WorldRegion;
+namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public class ChunkNotGeneratedException : InvalidOperationException
 {

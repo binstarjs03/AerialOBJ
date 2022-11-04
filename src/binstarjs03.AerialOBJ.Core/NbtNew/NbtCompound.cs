@@ -5,6 +5,7 @@ namespace binstarjs03.AerialOBJ.Core.NbtNew;
 public class NbtCompound : Dictionary<string, INbt>, INbtCollection
 {
     public string Name { get; }
+	public static NbtType Type => NbtType.NbtCompound;
 
 	public NbtCompound(string name)
 	{
@@ -22,4 +23,9 @@ public class NbtCompound : Dictionary<string, INbt>, INbtCollection
 			throw new System.InvalidCastException();
 		return ret;
 	}
+
+    public override string ToString()
+    {
+        return $"<{Type}> {Name} - Nbts: {Count} nbts";
+    }
 }

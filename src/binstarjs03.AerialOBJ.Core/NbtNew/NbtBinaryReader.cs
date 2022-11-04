@@ -4,15 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using binstarjs03.AerialOBJ.Core.IO;
-
 namespace binstarjs03.AerialOBJ.Core.NbtNew;
 
 public class NbtBinaryReader : BinaryReaderEndian
 {
     private readonly Stack<(NbtType, string)> _stack = new();
 
-    // Push as soon an nbt tag is first encountered, then pop when a tag is completely parsed
+    // Push as soon an nbt tag type and its name are successfully parsed,
+    // then pop when a tag is completely parsed
     public Stack<(NbtType, string)> Stack => _stack;
 
     public NbtBinaryReader(Stream input) : base(input) { }
@@ -29,13 +28,13 @@ public class NbtBinaryReader : BinaryReaderEndian
             );
     }
 
-    public string GetReadingErrorStackAsString()
+    public string GetNbtStackParseErrorAsString()
     {
         StringBuilder sb = new();
         (NbtType type, string name) errorNbt = _stack.Pop();
         IEnumerable<(NbtType, string)> reversedNbtStack = _stack.Reverse();
 
-        sb.AppendLine("Nbt tag stack: ");
+        sb.AppendLine("Nbt Stack: ");
         foreach ((NbtType type, string name) nbt in reversedNbtStack)
         {
             sb.Append("    ");

@@ -3,4 +3,5 @@
 public interface INbt
 {
     public string Name { get; }
+    public static NbtType Type { get; }
 }
