@@ -6,11 +6,14 @@ using System.Text;
 
 using binstarjs03.AerialOBJ.Core.IO;
 
-namespace binstarjs03.AerialOBJ.Core.Nbt.IO;
+namespace binstarjs03.AerialOBJ.Core.NbtNew;
 
 public class NbtBinaryReader : BinaryReaderEndian
 {
-    public readonly Stack<NbtBase> NbtTagStack = new();
+    private readonly Stack<(NbtType, string)> _stack = new();
+
+    // Push as soon an nbt tag is first encountered, then pop when a tag is completely parsed
+    public Stack<(NbtType, string)> Stack => _stack;
 
     public NbtBinaryReader(Stream input) : base(input) { }
 
@@ -29,19 +32,19 @@ public class NbtBinaryReader : BinaryReaderEndian
     public string GetReadingErrorStackAsString()
     {
         StringBuilder sb = new();
-        NbtBase errorNbt = NbtTagStack.Pop();
-        IEnumerable<NbtBase> reversedNbtStack = NbtTagStack.Reverse();
+        (NbtType type, string name) errorNbt = _stack.Pop();
+        IEnumerable<(NbtType, string)> reversedNbtStack = _stack.Reverse();
 
         sb.AppendLine("Nbt tag stack: ");
-        foreach (NbtBase nbt in reversedNbtStack)
+        foreach ((NbtType type, string name) nbt in reversedNbtStack)
         {
             sb.Append("    ");
-            sb.Append(nbt.NbtType);
+            sb.Append(nbt.type);
             sb.Append(" - ");
-            sb.AppendLine(nbt.Name);
+            sb.AppendLine(nbt.name);
         }
-        sb.Append($"An error occured while parsing nbt data of {errorNbt.NbtType} - {errorNbt.Name}");
-        NbtTagStack.Push(errorNbt);
+        sb.Append($"An error occured while parsing nbt data of {errorNbt.type} - {errorNbt.name}");
+        _stack.Push(errorNbt);
         return sb.ToString();
     }
 }

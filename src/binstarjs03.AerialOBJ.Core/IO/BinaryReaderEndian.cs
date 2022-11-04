@@ -11,6 +11,8 @@ public class BinaryReaderEndian : IDisposable
     protected BinaryReader _reader;
     private bool _disposed = false;
 
+    public long Position => _stream.Position;   
+
     public BinaryReaderEndian(Stream stream)
     {
         _stream = stream;
