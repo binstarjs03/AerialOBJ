@@ -1,26 +1,19 @@
-using System.IO;
-using System.Windows.Controls;
-
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
-using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
-using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
 public class ChunkWrapper
 {
     private readonly Chunk _chunk;
-    private readonly ViewportControlVM _viewport;
     private readonly string[,] _highestBlocks = Chunk.GenerateHighestBlocksBuffer();
 
-    public Coords2 ChunkCoordsAbs => _chunk.CoordsAbs;
-    public Coords2 ChunkCoordsRel => _chunk.CoordsRel;
+    public Coords2 ChunkCoordsAbs => _chunk.ChunkCoordsAbs;
+    public Coords2 ChunkCoordsRel => _chunk.ChunkCoordsRel;
     public string[,] HighestBlocks => _highestBlocks;
 
-    public ChunkWrapper(Chunk chunk, ViewportControlVM viewport)
+    public ChunkWrapper(Chunk chunk)
     {
         _chunk = chunk;
-        _viewport = viewport;
     }
 }

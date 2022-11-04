@@ -2,8 +2,8 @@
 using System.IO;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.Nbt;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.NbtNew;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
@@ -48,7 +48,7 @@ public static class IOService
         }
         try
         {
-            NbtCompound nbtLevel = (NbtCompound)NbtBase.ReadDisk(nbtLevelPath);
+            NbtCompound nbtLevel = (NbtCompound)NbtIO.ReadDisk(nbtLevelPath);
             SessionInfo ret = new(di, nbtLevel);
             LogService.Log($"Successfully loaded \"{di.Name}\" (\"{ret.WorldName}\")");
             return ret;

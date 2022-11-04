@@ -1,24 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
-using binstarjs03.AerialOBJ.WpfApp.Converters;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
 using Range = binstarjs03.AerialOBJ.Core.Range;
-using Region = binstarjs03.AerialOBJ.Core.WorldRegion.Region;
+using Region = binstarjs03.AerialOBJ.Core.MinecraftWorld.Region;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
@@ -45,8 +38,8 @@ public class ChunkRegionManager
     private readonly List<Coords2> _workedChunks = new(Environment.ProcessorCount);
     private readonly List<Task> _workedChunkTasks = new(Environment.ProcessorCount);
 
-    private CoordsRange2 _visibleRegionRange = CoordsRange2.Zero;
-    private CoordsRange2 _visibleChunkRange = CoordsRange2.Zero;
+    private CoordsRange2 _visibleRegionRange = new();
+    private CoordsRange2 _visibleChunkRange = new();
     private int _displayedHeightLimit;
 
     public ChunkRegionManager(ViewportControlVM viewport, AutoResetEvent updateEvent)
@@ -348,7 +341,6 @@ public class ChunkRegionManager
                 _workedChunkTasks.Add(task);
             }
         }
-
     }
 
     private void DispatchPendingChunk(Coords2 chunkCoordsAbs)
@@ -367,7 +359,7 @@ public class ChunkRegionManager
             return;
         }
         Chunk chunk = regionWrapper.GetChunk(chunkCoordsAbs, relative: false);
-        ChunkWrapper chunkWrapper = new(chunk, _viewport);
+        ChunkWrapper chunkWrapper = new(chunk);
         int renderedHeightLimit = _viewport.ViewportHeightLimit;
         chunk.GetHighestBlock(chunkWrapper.HighestBlocks, heightLimit: renderedHeightLimit);
         regionWrapper.AddOrUpdateChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);

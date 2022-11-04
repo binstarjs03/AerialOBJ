@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.Converters;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
@@ -36,8 +29,8 @@ public class RegionWrapper
             () => new RegionImage(),
             DispatcherPriority.Render);
         _viewport = viewport;
-        _regionCoords = region.Coords;
-        _generatedChunks = region.GetGeneratedChunksAsCoordsRelSet();
+        _regionCoords = region.RegionCoords;
+        (_, _generatedChunks) = region.GetGeneratedChunksAsCoordsRel();
     }
 
     public Chunk GetChunk(Coords2 chunkCoords, bool relative)
@@ -91,7 +84,7 @@ public class RegionWrapper
         // Here we are scaling the cartesian coordinate unit by zoom amount
         // (which is pixel-per-chunk)
 
-        PointInt2 scaledUnit = (PointInt2)_region.Coords * _viewport.ViewportPixelPerRegion;
+        PointInt2 scaledUnit = (PointInt2)_region.RegionCoords * _viewport.ViewportPixelPerRegion;
 
         // Push toward center is offset amount required to align the coordinate
         // relative to the canvas center,

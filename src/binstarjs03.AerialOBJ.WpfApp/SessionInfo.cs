@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.NbtNew;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
@@ -131,8 +131,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         set => UpdateExportArea1(new Coords3(_exportArea2.X, _exportArea2.Y, value));
     }
 
-    public string MousePosStringized => _mousePos.ToStringAnotherFormat();
-    public string MousePosDeltaStringized => _mousePosDelta.ToStringAnotherFormat();
+    public string MousePosStringized => _mousePos.ToString();
+    public string MousePosDeltaStringized => _mousePosDelta.ToString();
     public bool MouseClickHolding => _mouseClickHolding;
     public bool MouseIsOutside => _mouseIsOutside;
 

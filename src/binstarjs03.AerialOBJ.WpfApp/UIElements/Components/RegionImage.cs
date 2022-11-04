@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
+
 public class RegionImage
 {
     private const int s_blockCount = Region.ChunkCount * Section.BlockCount;
@@ -56,17 +51,6 @@ public class RegionImage
                                   Region.BlockCount,
                                   Region.BlockCount);
         _writeableBitmap.AddDirtyRect(dirtyRect);
-    }
-
-    private void AddDirtyRect(Int32Rect dirtyRect)
-    {
-        _writeableBitmap.Dispatcher.Invoke(() =>
-        {
-            _writeableBitmap.Lock();
-            _writeableBitmap.AddDirtyRect(dirtyRect);
-            _writeableBitmap.Unlock();
-        },
-        DispatcherPriority.Send);
     }
 
     public void SetPixel(int x, int y, Color color)
