@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 
-using binstarjs03.AerialOBJ.Core.IO;
 using binstarjs03.AerialOBJ.Core.Nbt.IO;
 using binstarjs03.AerialOBJ.Core.Nbt.Utils;
 
@@ -155,7 +154,7 @@ public abstract class NbtBase
         {
             type = reader.ReadTagType();
             if (type != NbtType.NbtEnd)
-                name = reader.ReadString();
+                name = reader.ReadStringLengthPrefixed();
         }
 
         NbtBase nbt = type switch

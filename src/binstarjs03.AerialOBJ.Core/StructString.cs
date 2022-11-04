@@ -1,20 +1,20 @@
 ﻿namespace binstarjs03.AerialOBJ.Core;
 
-public struct NonNullString
+public struct StructString
 {
     private string _value;
 
-    public NonNullString()
+    public StructString()
     {
         _value = string.Empty;
     }
 
-    public NonNullString(string value)
+    public StructString(string value)
     {
         _value = value;
     }
 
-    public static NonNullString Empty => new();
+    public static StructString Empty => new();
 
     public string Value
     {

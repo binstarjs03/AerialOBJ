@@ -1,54 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.NbtNew;
 
-namespace binstarjs03.AerialOBJ.Core.WorldRegion;
+namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public class Block
 {
     public const string AirBlockName = "minecraft:air";
     private string _name;
-    private Coords3 _coordsAbs;
+    private Coords3 _blockCoordsAbs;
     private Dictionary<string, string>? _properties;
 
-    public Block()
-    {
-        _name = AirBlockName;
-        _coordsAbs = Coords3.Zero;
-    }
-
-    // propertiesless and nameless constructor
-    public Block(Coords3 coordsAbs)
-    {
-        _name = AirBlockName;
-        _coordsAbs = coordsAbs;
-    }
-
-    // propertiesless constructor
-    public Block(string name, Coords3 coordsAbs)
-    {
-        _name = name;
-        _coordsAbs = coordsAbs;
-    }
-
-    // TODO properties parser isn't implemented yet. Any properties from nbt
-    // compound will be ignored and not stored inside properties dictionary
-    public Block(Coords3 coordsAbs, NbtCompound properties)
-    {
-        _name = properties.Get<NbtString>("Name").Value;
-        _coordsAbs = coordsAbs;
-    }
-
-    // private constructor for clone method
-    private Block(string name, Coords3 coordsAbs, Dictionary<string, string>? properties)
-    {
-        _name = name;
-        _coordsAbs = coordsAbs;
-        if (properties is not null)
-            _properties = new Dictionary<string, string>(properties);
-    }
+    public static Block Air => new();
 
     public string Name
     {
@@ -56,16 +20,53 @@ public class Block
         set => _name = value;
     }
 
-    public Coords3 CoordsAbs
+    public Coords3 BlockCoordsAbs
     {
-        get => _coordsAbs;
-        set => _coordsAbs = value;
+        get => _blockCoordsAbs;
+        set => _blockCoordsAbs = value;
     }
 
     public Dictionary<string, string>? Properties
     {
         get => _properties;
         set => _properties = value;
+    }
+
+    public Block()
+    {
+        _name = AirBlockName;
+        _blockCoordsAbs = Coords3.Zero;
+    }
+
+    // propertiesless and nameless constructor
+    public Block(Coords3 coordsAbs)
+    {
+        _name = AirBlockName;
+        _blockCoordsAbs = coordsAbs;
+    }
+
+    // propertiesless constructor
+    public Block(string name, Coords3 coordsAbs)
+    {
+        _name = name;
+        _blockCoordsAbs = coordsAbs;
+    }
+
+    // TODO properties parser isn't implemented yet. Any properties from nbt
+    // compound will be ignored and not stored inside properties dictionary
+    public Block(Coords3 coordsAbs, NbtCompound properties)
+    {
+        _name = properties.Get<NbtString>("Name").Value;
+        _blockCoordsAbs = coordsAbs;
+    }
+
+    // private constructor for clone method
+    private Block(string name, Coords3 coordsAbs, Dictionary<string, string>? properties)
+    {
+        _name = name;
+        _blockCoordsAbs = coordsAbs;
+        if (properties is not null)
+            _properties = new Dictionary<string, string>(properties);
     }
 
     public static bool IsAir(Block block)
@@ -78,15 +79,8 @@ public class Block
         return blockName == AirBlockName;
     }
 
-    // TODO Cloning will NOT clone everything. Since properties are reference type,
-    // change from original block to other cloned block will affect each other
-    public Block Clone()
-    {
-        return new Block(_name, _coordsAbs, _properties);
-    }
-
     public override string ToString()
     {
-        return $"{_name} at {_coordsAbs}";
+        return $"Block {_name} at {_blockCoordsAbs}";
     }
 }

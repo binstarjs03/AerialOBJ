@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using binstarjs03.AerialOBJ.Core.IO;
-
 namespace binstarjs03.AerialOBJ.Core.Nbt.IO;
 
 public class NbtBinaryReader : BinaryReaderEndian
@@ -14,14 +12,14 @@ public class NbtBinaryReader : BinaryReaderEndian
 
     public NbtBinaryReader(Stream input) : base(input) { }
 
-    /// <exception cref="NbtUnknownTagTypeException"></exception>
+    /// <exception cref="NbtUnknownTypeException"></exception>
     public NbtType ReadTagType()
     {
         int type = ReadByte();
         if (Enum.IsDefined(typeof(NbtType), type))
             return (NbtType)type;
         else
-            throw new NbtUnknownTagTypeException(
+            throw new NbtUnknownTypeException(
                 $"Unknown tag type '{type}' at stream position {_stream.Position}"
             );
     }

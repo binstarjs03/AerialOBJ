@@ -1,17 +1,17 @@
 ﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
 
-public class NbtString : NbtSingleValueType<NonNullString>
+public class NbtString : NbtSingleValueType<StructString>
 {
     public NbtString()
     {
-        _value = NonNullString.Empty;
+        _value = StructString.Empty;
     }
 
     public NbtString(string name) : base(name) { }
 
     public NbtString(string name, string value) : base(name)
     {
-        _value = new NonNullString(value);
+        _value = new StructString(value);
     }
 
     public override NbtType NbtType => NbtType.NbtString;
@@ -29,6 +29,6 @@ public class NbtString : NbtSingleValueType<NonNullString>
 
     protected override void Deserialize(IO.NbtBinaryReader reader)
     {
-        _value.Value = reader.ReadString();
+        _value.Value = reader.ReadStringLengthPrefixed();
     }
 }

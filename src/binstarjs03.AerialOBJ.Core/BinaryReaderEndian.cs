@@ -3,12 +3,15 @@ using System.Buffers.Binary;
 using System.IO;
 using System.Text;
 
-namespace binstarjs03.AerialOBJ.Core.IO;
+namespace binstarjs03.AerialOBJ.Core;
+
 public class BinaryReaderEndian : IDisposable
 {
     protected Stream _stream;
     protected BinaryReader _reader;
     private bool _disposed = false;
+
+    public long Position => _stream.Position;
 
     public BinaryReaderEndian(Stream stream)
     {
@@ -90,7 +93,7 @@ public class BinaryReaderEndian : IDisposable
         return BinaryPrimitives.ReadDoubleBigEndian(buffer);
     }
 
-    public string ReadString()
+    public string ReadStringLengthPrefixed()
     {
         int length = ReadShortBE();
         Span<byte> bytes = stackalloc byte[length];
