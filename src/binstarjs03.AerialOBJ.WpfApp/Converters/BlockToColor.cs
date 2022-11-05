@@ -7,6 +7,7 @@ public static class BlockToColor
 {
     private static readonly Dictionary<string, Color> s_blockColors = new()
     {
+        {"aerialobj:unknown", FromHex("#FFFF00CC")},
         {"minecraft:air", FromHex("#00000000")},
 
         {"minecraft:water", FromHex("#22417f")},
@@ -51,7 +52,7 @@ public static class BlockToColor
         if (s_blockColors.ContainsKey(blockName))
             return s_blockColors[blockName];
         else
-            return s_blockColors["minecraft:air"];
+            return s_blockColors["aerialobj:unknown"];
     }
 
     public static Color FromHex(string hexColor)

@@ -8,21 +8,19 @@ namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow>
 {
-    public string Title => $"{App.AppProperty.AppName} - Debug Log";
+    public string Title => $"{AppState.AppName} - Debug Log";
 
-    public bool UIDebugLogWindowVisible
+    public bool DebugLogWindowVisible
     {
-        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
-        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
+        get => App.Current.State.DebugLogWindowVisible;
+        set => App.Current.State.DebugLogWindowVisible = value;
     }
 
     public string LogContent => LogService.GetLogContent();
 
     public DebugLogWindowVM(DebugLogWindow window) : base(window)
     {
-        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
-
-        // listen to service events
+        App.Current.State.DebugLogWindowVisibleChanged += OnDebugLogWindowVisibleChanged;
         LogService.Logging += OnLogServiceLogging;
 
         // set commands to its corresponding implementations
@@ -98,9 +96,14 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         }
     }
 
-    #endregion
+    #endregion Commands
 
     #region Event Handlers
+
+    private void OnDebugLogWindowVisibleChanged(bool obj)
+    {
+        NotifyPropertyChanged(nameof(DebugLogWindowVisible));
+    }
 
     private void OnLogServiceLogging(string content)
     {
@@ -108,5 +111,5 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         Window.LogTextBox.ScrollToEnd();
     }
 
-    #endregion
+    #endregion Event Handlers
 }

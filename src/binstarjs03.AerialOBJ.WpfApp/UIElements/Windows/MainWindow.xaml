@@ -25,7 +25,7 @@
                     <MenuItem Header="Open" 
                               Command="{Binding OpenCommand}"/>
                     <MenuItem Header="Close"
-                              IsEnabled="{Binding Path=HasSession,
+                              IsEnabled="{Binding Path=HasSavegameLoaded,
                                                   Mode=OneWay}"
                               Command="{Binding CloseCommand}"/>
                     <Separator/>
@@ -36,24 +36,24 @@
                 </MenuItem>
                 <MenuItem Header="View">
                     <MenuItem Header="Side Panel"
-                              IsEnabled="{Binding Path=HasSession, 
+                              IsEnabled="{Binding Path=HasSavegameLoaded, 
                                                   Mode=OneWay}"
                               IsCheckable="True"
                               IsChecked="{Binding ElementName=Viewport, 
-                                                  Path=DataContext.UISidePanelVisible, 
-                                                  Mode=OneWayToSource, 
+                                                  Path=DataContext.SidePanelVisible, 
+                                                  Mode=TwoWay, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                     <MenuItem Header="Viewport Debug Info"
-                              IsEnabled="{Binding Path=HasSession,
+                              IsEnabled="{Binding Path=HasSavegameLoaded,
                                                   Mode=OneWay}"
                               IsCheckable="True"
                               IsChecked="{Binding ElementName=Viewport, 
-                                                  Path=DataContext.UIViewportDebugInfoVisible, 
-                                                  Mode=OneWayToSource, 
+                                                  Path=DataContext.SidePanelDebugInfoVisible, 
+                                                  Mode=TwoWay, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                     <MenuItem Header="Debug Log" 
                               IsCheckable="True"
-                              IsChecked="{Binding Path=UIDebugLogWindowVisible, 
+                              IsChecked="{Binding Path=DebugLogWindowVisible, 
                                                   Mode=TwoWay, 
                                                   UpdateSourceTrigger=PropertyChanged}"/>
                 </MenuItem>
@@ -70,8 +70,8 @@
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
             <controls:ViewportControl x:Name="Viewport" IsEnabled="{Binding ElementName=Root, 
-                                                          Path=DataContext.HasSession,
-                                                          Mode=OneWay}"/>
+                                                                            Path=DataContext.HasSavegameLoaded,
+                                                                            Mode=OneWay}"/>
         </DockPanel>
     </Grid>
 </Window>

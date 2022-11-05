@@ -32,13 +32,13 @@ public struct PointF2
 
     public override string ToString()
     {
-        return $"pf2({X}, {Y})";
+        return $"({X}, {Y})";
     }
 
     /// <summary>
-    /// Formatted string version without pf2 prefix, rounded to 2 digits
+    /// Formatted string, rounded to 2 digits
     /// </summary>
-    public string ToStringAnotherFormat()
+    public string ToStringRounded()
     {
         return $"({Math.Round(X, 2)}, {Math.Round(Y, 2)})";
     }

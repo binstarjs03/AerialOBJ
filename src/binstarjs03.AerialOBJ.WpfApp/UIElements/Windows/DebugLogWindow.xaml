@@ -10,7 +10,7 @@
         Title="{Binding Path=Title,
                         Mode=OneWay}" 
         d:Title="AerialOBJ - Debug Log"
-        Visibility="{Binding Path=UIDebugLogWindowVisible,
+        Visibility="{Binding Path=DebugLogWindowVisible,
                              Mode=TwoWay, 
                              UpdateSourceTrigger=PropertyChanged, 
                              Converter={StaticResource BoolToVisibility}}"

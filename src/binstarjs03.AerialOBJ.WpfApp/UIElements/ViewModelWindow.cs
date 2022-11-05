@@ -3,16 +3,15 @@ using System.Windows.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements;
 
-public abstract class ViewModelWindow<T, U> : ViewModelBase<T, U> where T : class where U : Window
+public abstract class ViewModelWindow<TViewModel, TWindow> : ViewModelBase<TViewModel, TWindow> where TViewModel : class where TWindow : Window
 {
-    protected ViewModelWindow(U window) : base(window)
+    protected ViewModelWindow(TWindow window) : base(window)
     {
-        // assign command implementation to commands
         WindowCloseCommand = new RelayCommand(OnWindowClose);
         Window = window;
     }
 
-    public U Window { get; }
+    public TWindow Window { get; }
 
     public ICommand WindowCloseCommand { get; }
     protected virtual void OnWindowClose(object? arg)

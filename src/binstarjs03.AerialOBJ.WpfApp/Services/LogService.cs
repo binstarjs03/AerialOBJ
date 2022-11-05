@@ -4,9 +4,9 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
 public static class LogService
 {
-    public static event StringDelegate? Logging;
-    public static event StringDelegate? NotificationPushed;
-    public delegate void StringDelegate(string content);
+    public static event StringAction? Logging;
+    public static event StringAction? NotificationPushed;
+    public delegate void StringAction(string content);
     private static string s_logContent = "";
     private static string s_notificationContent = "";
 
@@ -101,8 +101,8 @@ public static class LogService
 
     public static void LogRuntimeInfo()
     {
-        Log($"Launch time: {App.CurrentCast.Properties.LaunchTime}");
-        Log($"{App.AppProperty.AppName} Version: ...");
+        Log($"Launch time: {App.Current.State.LaunchTime}");
+        Log($"{AppState.AppName} Version: ...");
         Log("Commit Hash: ...", useSeparator: true);
 
         Log($"Host OS: {Environment.OSVersion}");

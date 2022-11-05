@@ -4,17 +4,17 @@ using binstarjs03.AerialOBJ.Core.NbtNew;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
-public class SessionInfo
+// TODO we could cache many things here such as list of valid region files etc
+public class SavegameLoadInfo
 {
-    public SessionInfo(DirectoryInfo savegameDirectory, NbtCompound nbtLevel)
+    public string WorldName { get; }
+    public DirectoryInfo SavegameDirectory { get; }
+
+    public SavegameLoadInfo(DirectoryInfo savegameDirectory, NbtCompound nbtLevel)
     {
         WorldName = nbtLevel.Get<NbtCompound>("Data")
                             .Get<NbtString>("LevelName")
                             .Value;
         SavegameDirectory = savegameDirectory;
     }
-
-    public string WorldName { get; }
-
-    public DirectoryInfo SavegameDirectory { get; }
 }

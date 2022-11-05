@@ -15,7 +15,7 @@
         <Grid.Resources>
             <Style TargetType="{x:Type ColumnDefinition}" x:Key="CollapsibleColumn">
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding Path=UISidePanelVisible}" Value="False">
+                    <DataTrigger Binding="{Binding Path=SidePanelVisible}" Value="False">
                         <DataTrigger.Setters>
                             <Setter Property="Width" Value="0"/>
                             <Setter Property="MaxWidth" Value="0"/>
@@ -46,7 +46,7 @@
                         </Style>
                     </StackPanel.Resources>
                     <TextBlock Text="Height"/>
-                    <TextBlock Text="{Binding Path=ViewportHeightLimit}" d:Text="255"/>
+                    <TextBlock Text="{Binding Path=HeightLimit}" d:Text="255"/>
                 </StackPanel>
                 <Slider Grid.Column="1"
                         Margin="0,0,10,0"
@@ -54,18 +54,19 @@
                         VerticalAlignment="Center"
                         Name="HeightSlider"
                         SmallChange="1" 
-                        Value="{Binding Path=ViewportHeightLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Value="{Binding Path=HeightLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         d:Value="255"
                         IsSnapToTickEnabled="True" 
                         Minimum="-64"
                         Maximum="320"/>
             </Grid>
             <Grid>
-                <Canvas Name="ViewportCanvas" 
+                <Grid Name="ViewportPanel" 
                         Focusable="True"
                         Background="#FF333333"
                         RenderOptions.EdgeMode="Aliased"
-                        RenderOptions.BitmapScalingMode="NearestNeighbor">
+                        RenderOptions.BitmapScalingMode="NearestNeighbor"
+                        ClipToBounds="True">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseWheel">
                             <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" 
@@ -73,15 +74,15 @@
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseMove">
                             <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
-                                               PassEventArgsToCommand="True"/>
+                                                   PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseUp">
                             <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
-                                               PassEventArgsToCommand="True"/>
+                                                   PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseDown">
                             <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
-                                               PassEventArgsToCommand="True"/>
+                                                   PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseLeave">
                             <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
@@ -89,44 +90,33 @@
                         <i:EventTrigger EventName="MouseEnter">
                             <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
                         </i:EventTrigger>
+                        <i:EventTrigger EventName="SizeChanged">
+                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}"/>
+                        </i:EventTrigger>
                     </i:Interaction.Triggers>
-                    <Canvas Name="ChunkCanvas"
-                        ClipToBounds="True"
-                        Width="{Binding ElementName=ViewportCanvas, 
-                                        Path=ActualWidth, 
-                                        Mode=OneWay}"
-                        Height="{Binding ElementName=ViewportCanvas, 
-                                         Path=ActualHeight,
-                                         Mode=OneWay}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SizeChanged">
-                                <i:InvokeCommandAction Command="{Binding SizeChangedCommand}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Canvas>
+                    <Canvas Name="ViewportCanvas"/>
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
 
-                </Canvas>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-
-                    <Rectangle Grid.Column="1" Grid.RowSpan="3" Fill="White"
+                        <Rectangle Grid.Column="1" Grid.RowSpan="3" Fill="DimGray"
                                Height="15"/>
-                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Fill="White"
+                        <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Fill="DimGray"
                                Width="15"/>
+                    </Grid>
                 </Grid>
             </Grid>
         </DockPanel>
         <ScrollViewer Grid.Column="2" 
-                      Visibility="{Binding Path=UISidePanelVisible,
+                      Visibility="{Binding Path=SidePanelVisible,
                                            Mode=OneWay,
                                            Converter={StaticResource BoolToVisibility}}"
                       VerticalScrollBarVisibility="Auto" 
@@ -159,25 +149,25 @@
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Camera Pos Z"/>
                         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="Zoom Level: "/>
-                            <TextBlock Text="{Binding Path=ViewportZoomLevel}" d:Text="2"/>
+                            <TextBlock Text="{Binding Path=ZoomLevel}" d:Text="2"/>
                         </StackPanel>
                         <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="Height: "/>
-                            <TextBlock Text="{Binding Path=ViewportHeightLimit}" d:Text="255"/>
+                            <TextBlock Text="{Binding Path=HeightLimit}" d:Text="255"/>
                         </StackPanel>
-                        <components:DoubleBox Grid.Row="0" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosX, Mode=TwoWay}"/>
-                        <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=ViewportCameraPosZ, Mode=TwoWay}" x:Name="Testing"/>
+                        <components:DoubleBox Grid.Row="0" Grid.Column="1" DoubleValue="{Binding Path=CameraPosX, Mode=TwoWay}"/>
+                        <components:DoubleBox Grid.Row="1" Grid.Column="1" DoubleValue="{Binding Path=CameraPosZ, Mode=TwoWay}"/>
                         <Slider Grid.Row="2" Grid.Column="1" 
                                 SmallChange="1" 
-                                Value="{Binding Path=ViewportZoomLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Value="{Binding Path=ZoomLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="2"
                                 IsSnapToTickEnabled="True" 
                                 TickPlacement="BottomRight"
                                 Minimum="0"
-                                Maximum="{Binding Path=ViewportMaximumZoomLevel, Mode=OneTime}"/>
+                                Maximum="{Binding Path=MaximumZoomLevel, Mode=OneTime}"/>
                         <Slider Grid.Row="3" Grid.Column="1"
                                 SmallChange="1" 
-                                Value="{Binding Path=ViewportHeightLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Value="{Binding Path=HeightLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 d:Value="255"
                                 IsSnapToTickEnabled="True" 
                                 Minimum="-64"
@@ -201,33 +191,33 @@
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Viewport Debug Info" 
-                          Visibility="{Binding Path=UIViewportDebugInfoVisible, 
+                          Visibility="{Binding Path=SidePanelDebugInfoVisible, 
                                                Mode=OneWay,
                                                Converter={StaticResource BoolToVisibility}}">
                     <StackPanel>
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Pixel-Per-Block: "/>
-                            <TextBlock Text="{Binding Path=ViewportPixelPerBlock, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=PixelPerBlock, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Pixel-Per-Chunk: "/>
-                            <TextBlock Text="{Binding Path=ViewportPixelPerChunk, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=PixelPerChunk, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Pixel-Per-Region: "/>
-                            <TextBlock Text="{Binding Path=ViewportPixelPerRegion, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=PixelPerRegion, Mode=OneWay}"/>
                         </StackPanel>
 
                         <Separator/>
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Mouse Pos: "/>
-                            <TextBlock Text="{Binding Path=MousePosStringized, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=MousePos, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Mouse Pos Delta: "/>
-                            <TextBlock Text="{Binding Path=MousePosDeltaStringized, Mode=OneWay}"/>
+                            <TextBlock Text="{Binding Path=MousePosDelta, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Mouse Is Clicking: "/>

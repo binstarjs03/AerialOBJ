@@ -117,13 +117,13 @@ public class RegionWrapper
         // Here we are scaling the cartesian coordinate unit by zoom amount
         // (which is pixel-per-chunk)
 
-        PointInt2 scaledUnit = (PointInt2)_region.RegionCoords * _viewport.ViewportPixelPerRegion;
+        PointInt2 scaledUnit = (PointInt2)_region.RegionCoords * _viewport.PixelPerRegion;
 
         // Push toward center is offset amount required to align the coordinate
         // relative to the canvas center,
         // so it creates "zoom toward center" effect
 
-        PointF2 pushTowardCenter = _viewport.ViewportChunkCanvasCenter;
+        PointF2 pushTowardCenter = _viewport.ChunkCanvasCenter;
 
         // Origin offset is offset amount requred to align the coordinate
         // to keep it stays aligned with moved world origin
@@ -133,7 +133,7 @@ public class RegionWrapper
         // of origin, then everything else the camera sees must be 1 meter
         // shifted to the left of the camera
 
-        PointF2 originOffset = -_viewport.RegionPosOffset;
+        PointF2 originOffset = -_viewport.ViewportItemOffset;
 
         PointF2 finalPos = (originOffset + scaledUnit + pushTowardCenter).Floor;
 
@@ -143,6 +143,6 @@ public class RegionWrapper
 
     private void UpdateImageSize()
     {
-        _regionImage.Image.Width = _viewport.ViewportPixelPerRegion;
+        _regionImage.Image.Width = _viewport.PixelPerRegion;
     }
 }

@@ -6,16 +6,16 @@ using System.Windows.Controls;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements;
 
-public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : class where U : Control
+public abstract class ViewModelBase<TViewModel, TControl> : INotifyPropertyChanged where TViewModel : class where TControl : Control
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected ViewModelBase(U control)
+    protected ViewModelBase(TControl control)
     {
         Control = control;
     }
 
-    public U Control { get; }
+    public TControl Control { get; }
 
     protected Visibility _visibility;
     public Visibility Visibility
@@ -24,8 +24,7 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         set => SetAndNotifyPropertyChanged(value, ref _visibility);
     }
 
-    // setter also notifier for private fields (non-shared property)
-    protected void SetAndNotifyPropertyChanged<V>(V newValue, ref V oldValue, [CallerMemberName] string propertyName = "")
+    protected void SetPropertyChanged<T>(T newValue, ref T oldValue)
     {
         if (newValue is null || oldValue is null)
             throw new ArgumentNullException
@@ -36,7 +35,22 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         if (newValue.Equals(oldValue))
             return;
         oldValue = newValue;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    // setter also notifier for private fields (non-shared property)
+    protected void SetAndNotifyPropertyChanged<T>(T newValue, ref T oldValue, Action? postAction = null, [CallerMemberName] string propertyName = "")
+    {
+        SetPropertyChanged(newValue, ref oldValue);
+        NotifyPropertyChanged(propertyName);
+        postAction?.Invoke();
+    }
+
+    protected void SetAndNotifyPropertyChanged<T>(T newValue, ref T oldValue, string[] propertyNames, Action? postAction = null, [CallerMemberName] string propertyName = "")
+    {
+        SetPropertyChanged(newValue, ref oldValue);
+        NotifyPropertyChanged(propertyName);
+        NotifyPropertyChanged(propertyNames);
+        postAction?.Invoke();
     }
 
     // notifier only
@@ -51,11 +65,5 @@ public abstract class ViewModelBase<T, U> : INotifyPropertyChanged where T : cla
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    }
-
-    protected virtual void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        string propName = e.PropertyName!;
-        NotifyPropertyChanged(propName);
     }
 }

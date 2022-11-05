@@ -32,7 +32,7 @@ public static class IOService
         writer.Write(content);
     }
 
-    public static SessionInfo? LoadSession(string path)
+    public static SavegameLoadInfo? LoadSavegame(string path)
     {
         DirectoryInfo di = new(path);
         LogService.Log($"Selected path: \"{di.FullName}\"");
@@ -41,15 +41,17 @@ public static class IOService
         string nbtLevelPath = $"{di.FullName}/level.dat";
         if (!File.Exists(nbtLevelPath))
         {
-            string msg = "Missing \"level.dat\" file in specified folder";
+            string msg = "Missing \"level.dat\" file in specified savegame folder";
             LogService.LogError($"{msg}.");
             ShowLoadSavegameErrorModal(path, msg);
             return null;
         }
         try
         {
+            LogService.Log("Found \"level.dat\" file, reading NBT data...");
             NbtCompound nbtLevel = (NbtCompound)NbtIO.ReadDisk(nbtLevelPath);
-            SessionInfo ret = new(di, nbtLevel);
+            LogService.Log("Successfully parsed \"level.dat\" NBT data, savegame folder is valid");
+            SavegameLoadInfo ret = new(di, nbtLevel);
             LogService.Log($"Successfully loaded \"{di.Name}\" (\"{ret.WorldName}\")");
             return ret;
         }
@@ -67,6 +69,8 @@ public static class IOService
             return null;
         }
 
+        // TODO i guess services should not interact with UI elemets such as modal,
+        // maybe we should leave that job to the caller and its up to them
         static void ShowLoadSavegameErrorModal(string path, string errorMsg)
         {
             string msg = $"Cannot open \"{path}\" as Minecraft savegame folder: \n"
@@ -77,9 +81,9 @@ public static class IOService
 
     public static bool HasRegionFile(Coords2 regionCoords)
     {
-        if (App.CurrentCast.Properties.SessionInfo is null)
+        if (App.Current.State.SavegameLoadInfo is null)
             return false;
-        string savegameDir = App.CurrentCast.Properties.SessionInfo.SavegameDirectory.FullName;
+        string savegameDir = App.Current.State.SavegameLoadInfo.SavegameDirectory.FullName;
         string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
         if (File.Exists(regionPath))
         {
@@ -96,9 +100,9 @@ public static class IOService
     public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
     {
         e = null;
-        if (App.CurrentCast.Properties.SessionInfo is null)
+        if (App.Current.State.SavegameLoadInfo is null)
             return null;
-        string savegameDir = App.CurrentCast.Properties.SessionInfo.SavegameDirectory.FullName;
+        string savegameDir = App.Current.State.SavegameLoadInfo.SavegameDirectory.FullName;
         string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
         if (File.Exists(regionPath))
         {
