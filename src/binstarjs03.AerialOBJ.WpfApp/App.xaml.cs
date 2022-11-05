@@ -11,6 +11,12 @@ namespace binstarjs03.AerialOBJ.WpfApp;
 
 public partial class App : Application
 {
+    public enum SessionState
+    {
+        Opened,
+        Closed,
+    }
+
     public static App CurrentCast => (App)Current;
     public new AppProperty Properties { get; }
 
@@ -18,7 +24,8 @@ public partial class App : Application
     /// Invoked after all user interface are loaded
     /// </summary>
     public event StartupEventHandler? Initializing;
-    public event Action? SessionClosed;
+    public event SessionChangedHandler? SessionChanged;
+    public delegate void SessionChangedHandler(SessionState state);
 
     public App()
     {
@@ -159,8 +166,12 @@ public partial class App : Application
             {
                 NotifyPropertyChanged(value, ref _sessionInfo, canNull: true);
                 NotifyPropertyChanged(nameof(HasSession));
+                SessionState state;
                 if (value is null)
-                    CurrentCast.SessionClosed?.Invoke();
+                    state = SessionState.Closed;
+                else
+                    state = SessionState.Opened;
+                CurrentCast.SessionChanged?.Invoke(state);
             }
         }
 

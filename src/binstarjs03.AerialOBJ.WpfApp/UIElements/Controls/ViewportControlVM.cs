@@ -21,7 +21,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     //private readonly ChunkRegionManager _chunkRegionManager;
     private readonly ChunkRegionManager2 _chunkRegionManager;
-    private readonly AutoResetEvent _chunkManagerUpdateEvent = new(initialState: false);
 
     private PointF2 _viewportCameraPos = PointF2.Zero;
     private int _viewportZoomLevel = 1;
@@ -145,8 +144,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public ViewportControlVM(ViewportControl control) : base(control)
     {
         App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
+        App.CurrentCast.SessionChanged += OnSessionChanged;
 
-        _chunkRegionManager = new ChunkRegionManager2(this, _chunkManagerUpdateEvent);
+        _chunkRegionManager = new ChunkRegionManager2(this);
 
         // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);
@@ -260,27 +260,11 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     #endregion
 
-    #region Event Handlers
-
-    protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        base.OnSharedPropertyChanged(sender, e);
-        string propName = e.PropertyName!;
-        if (propName == nameof(App.CurrentCast.Properties.SessionInfo))
-        {
-            ReinitializeStates();
-            //if (App.CurrentCast.Properties.SessionInfo is null)
-            //    _chunkRegionManager.OnSessionClosed();
-        }
-    }
-
-    #endregion
-
     #region Updaters
 
     private void UpdateChunkRegionManager()
     {
-        _chunkManagerUpdateEvent.Set();
+        _chunkRegionManager.PostMessage(_chunkRegionManager.Update);
     }
 
     private void UpdateViewportCameraPos(PointF2 cameraPos)
@@ -389,6 +373,17 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         UpdateMouseClickHolding(false);
         UpdateMouseInitClickDrag(true);
         UpdateMouseIsOutside(true);
+    }
+
+    #endregion
+
+    #region Event Handlers
+
+    private void OnSessionChanged(App.SessionState state)
+    {
+        if (state == App.SessionState.Closed)
+            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSessionClosed);
+        ReinitializeStates();
     }
 
     #endregion

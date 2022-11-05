@@ -23,7 +23,7 @@ public class ChunkRegionManager2
     private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
 
     private readonly ViewportControlVM _viewport;
-    private readonly AutoResetEvent _updateEvent;
+    private readonly AutoResetEvent _messageEvent = new(initialState: false);
 
     // we communicate between chunk worker thread and other threads using delegate message
     private readonly Queue<Action> _messageQueue = new(30);
@@ -64,11 +64,9 @@ public class ChunkRegionManager2
     public int WorkedChunkCount => _workedChunks.Count;
 
 
-    public ChunkRegionManager2(ViewportControlVM viewport, AutoResetEvent updateEvent)
+    public ChunkRegionManager2(ViewportControlVM viewport)
     {
         _viewport = viewport;
-        _updateEvent = updateEvent;
-        App.CurrentCast.SessionClosed += OnSessionClosed;
         _mainLoopThread = new Thread(MainLoop)
         {
             Name = $"{nameof(ChunkRegionManager)} Thread",
@@ -83,73 +81,35 @@ public class ChunkRegionManager2
     /// </summary>
     private void MainLoop()
     {
-        TimeSpan redrawLatency = TimeSpan.FromMilliseconds(30);
-        int lowLatencyMultiplier = 1000; // times faster than high latency, yes it is extremely fast
-
-        TimeSpan highLatencyWait = TimeSpan.FromMilliseconds(100);
-        TimeSpan lowLatencyWait = highLatencyWait / lowLatencyMultiplier;
-
         while (true)
         {
-            if (_pendingChunkList.Count > 0)
-            {
-                // Low latency waiting if there is pending chunk.
-                // We want to dispatch pending chunks and process message
-                // as fast as possible to keep all of our CPU cores busy
-                DateTime startForLoop = DateTime.Now;
-                DateTime endForLoop = startForLoop.AddMilliseconds(redrawLatency.Milliseconds);
-                // keep spinning through the loop until 30 ms passed
-                // since we want to redraw region image only after 30 ms
-                for (; DateTime.Now < endForLoop;)
-                {
-                    if (_updateEvent.WaitOne(lowLatencyWait))
-                        Update();
-                    ProcessMessage();
-                    //DispatchPendingChunks();
-                }
-                RedrawRegionImages();
-                _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingChunkCount));
-                _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedChunkCount));
-            }
-
-            else
-            {
-                int messageQueueCount;
-                lock (_messageQueue)
-                    messageQueueCount = _messageQueue.Count;
-
-                // wait indefinitely if there is no message and pending chunk
-                if (messageQueueCount == 0)
-                {
-                    _updateEvent.WaitOne();
-                    Update();
-                    RedrawRegionImages();
-                }
-                else
-                {
-                    // High latency waiting if there is nothing to do but there is message
-                    if (_updateEvent.WaitOne(highLatencyWait))
-                        Update();
-                    ProcessMessage();
-                    RedrawRegionImages();
-                }
-            }
+            _messageEvent.WaitOne();
+            ProcessMessage();
         }
-
     }
 
-    private void PostMessage(Action msg)
+    public void PostMessage(Action msg)
     {
         lock (_messageQueue)
             _messageQueue.Enqueue(msg);
+        _messageEvent.Set();
     }
 
     private void ProcessMessage()
     {
         // Process all messages at once
-        lock (_messageQueue)
-            while (_messageQueue.TryDequeue(out Action? msg))
-                msg();
+        while (true)
+        {
+            Action msg;
+            // lock very short in case message needs long time to process
+            lock (_messageQueue)
+            {
+                if (_messageQueue.Count == 0)
+                    return;
+                msg = _messageQueue.Dequeue();
+            }
+            msg();
+        }
     }
 
     public void Update()
@@ -255,11 +215,11 @@ public class ChunkRegionManager2
             }
 
         // remove all pending region list that is no longer visible
-        _pendingRegionList.RemoveAll(
-            regionCoords => _visibleRegionRange.IsOutside(regionCoords));
+        lock (_pendingRegionList)
+            _pendingRegionList.RemoveAll(regionCoords => _visibleRegionRange.IsOutside(regionCoords));
 
         // perform sweep checking from min to max range for visible regions
-        // add them to pending list if not loaded yet, not in the list, and is not worked on it
+        // add them to pending list if not loaded yet, not in the list, and is not worked yet
         for (int x = _visibleRegionRange.XRange.Min; x <= _visibleRegionRange.XRange.Max; x++)
             for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
             {
@@ -297,9 +257,9 @@ public class ChunkRegionManager2
                 regionCoords = _pendingRegionList[randomIndex];
                 _pendingRegionList.RemoveAt(randomIndex);
                 _workedRegion = regionCoords;
-                _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingRegionCount));
-                _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedRegion));
             }
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingRegionCount));
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedRegion));
 
             Region region;
 
@@ -454,10 +414,6 @@ public class ChunkRegionManager2
 
     public void OnSessionClosed()
     {
-        // event handler will be invoked by Main Thread, since we only want
-        // to access ChunkRegionManager from its corresponding thread
-        // to prevent deadlock and such, we pass a delegate message and
-        // let ChunkRegionManager thread do the job
         PostMessage(method);
         void method()
         {
@@ -465,6 +421,7 @@ public class ChunkRegionManager2
             foreach (RegionWrapper region in loadedRegions)
                 UnloadRegion(region);
             _loadedRegions.Clear();
+            _pendingRegionList.Clear();
             _regionCache.Clear();
             _visibleRegionRange = new CoordsRange2();
             _visibleChunkRange = new CoordsRange2();

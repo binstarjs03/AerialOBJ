@@ -49,34 +49,19 @@ public class RegionWrapper
 
     public void SetRandomImage()
     {
-        Random random = new();
+        Color color;
+        if (RegionCoords == Coords2.Zero)
+            color = Color.FromArgb(255, 255, 255, 255);
+        else
+        {
+            Random random = new();
+            byte[] bytes = new byte[3];
+            random.NextBytes(bytes);
+            color = Color.FromArgb(255, bytes[0], bytes[1], bytes[2]);
+        }
         for (int x = 0; x < Region.BlockCount; x++)
             for (int z = 0; z < Region.BlockCount; z++)
-            {
-                Color color;
-                if (RegionCoords == Coords2.Zero)
-                {
-                    byte col = (byte)random.Next(150, 250);
-                    color = Color.FromArgb(255,
-                                           col,
-                                           col,
-                                           col);
-
-                }
-                else if ((RegionCoords.X + RegionCoords.Z) % 2 == 0)
-                    color = Color.FromArgb(255,
-                        (byte)random.Next(0, 100),
-                        (byte)random.Next(100, 200),
-                        (byte)random.Next(150, 250)
-                    );
-                else
-                    color = Color.FromArgb(255,
-                        (byte)random.Next(150, 250),
-                        (byte)random.Next(0, 100),
-                        (byte)random.Next(0, 100)
-                    );
                 _regionImage.SetPixel(x, z, color);
-            }
     }
 
     public void BlitChunkImage(Coords2 chunkCoordsRel, string[,] highestBlocks)
@@ -150,23 +135,14 @@ public class RegionWrapper
 
         PointF2 originOffset = -_viewport.RegionPosOffset;
 
-        PointF2 finalPos
-            = (originOffset + scaledUnit + pushTowardCenter).Floor;
-        //App.InvokeDispatcher(method, DispatcherPriority.Render, DispatcherSynchronization.Synchronous);
-        //void method()
-        //{
+        PointF2 finalPos = (originOffset + scaledUnit + pushTowardCenter).Floor;
+
         Canvas.SetLeft(_regionImage.Image, finalPos.X);
         Canvas.SetTop(_regionImage.Image, finalPos.Y);
-        //}
     }
 
     private void UpdateImageSize()
     {
         _regionImage.Image.Width = _viewport.ViewportPixelPerRegion;
-        //App.InvokeDispatcher(
-        //    () => _regionImage.Image.Width = _viewport.ViewportPixelPerRegion,
-        //    DispatcherPriority.Render, 
-        //    DispatcherSynchronization.Synchronous);
-
     }
 }
