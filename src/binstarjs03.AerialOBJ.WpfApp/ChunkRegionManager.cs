@@ -362,7 +362,7 @@ public class ChunkRegionManager
         ChunkWrapper chunkWrapper = new(chunk);
         int renderedHeightLimit = _viewport.ViewportHeightLimit;
         chunk.GetHighestBlock(chunkWrapper.HighestBlocks, heightLimit: renderedHeightLimit);
-        regionWrapper.AddOrUpdateChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);
+        regionWrapper.BlitChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);
 
         onExit();
         lock (_messageQueue)
@@ -406,7 +406,7 @@ public class ChunkRegionManager
         _loadedChunks.Remove(chunkWrapper.ChunkCoordsAbs);
         RegionWrapper? regionWrapper = GetRegionWrapper(chunkWrapper.ChunkCoordsAbs);
         if (regionWrapper is not null)
-            regionWrapper.RemoveChunkImage(chunkWrapper.ChunkCoordsRel);
+            regionWrapper.EraseChunkImage(chunkWrapper.ChunkCoordsRel);
         OnChunkLoadChanged();
     }
 
@@ -421,9 +421,9 @@ public class ChunkRegionManager
             foreach (RegionWrapper regionWrapper in _loadedRegions.Values)
             {
                 RegionImage regionImage = regionWrapper.RegionImage;
-                regionImage.Lock();
-                regionImage.AddRegionDirtyRect();
-                regionImage.Unlock();
+                //regionImage.Lock();
+                //regionImage.AddRegionDirtyRect();
+                //regionImage.Unlock();
             }
     }
 

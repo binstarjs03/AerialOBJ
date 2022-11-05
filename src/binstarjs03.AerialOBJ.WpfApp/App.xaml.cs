@@ -18,10 +18,36 @@ public partial class App : Application
     /// Invoked after all user interface are loaded
     /// </summary>
     public event StartupEventHandler? Initializing;
+    public event Action? SessionClosed;
 
     public App()
     {
         Properties = new AppProperty(DateTime.Now);
+    }
+
+    public static void InvokeDispatcher(Action method, DispatcherPriority priority, DispatcherSynchronization synchronization)
+    {
+        if (synchronization == DispatcherSynchronization.Synchronous)
+            Current?.Dispatcher.Invoke(method, priority);
+        else
+            Current?.Dispatcher.BeginInvoke(method, priority);
+    }
+
+    public static T InvokeDispatcherSynchronous<T>(Func<T> method, DispatcherPriority priority)
+    {
+        return Current.Dispatcher.Invoke(method, priority);
+    }
+
+    public new static void VerifyAccess()
+    {
+        CurrentCast?.Dispatcher.VerifyAccess();
+    }
+
+    public new static bool CheckAccess()
+    {
+        if (CurrentCast is not null)
+            return CurrentCast.Dispatcher.CheckAccess();
+        return false;
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -133,6 +159,8 @@ public partial class App : Application
             {
                 NotifyPropertyChanged(value, ref _sessionInfo, canNull: true);
                 NotifyPropertyChanged(nameof(HasSession));
+                if (value is null)
+                    CurrentCast.SessionClosed?.Invoke();
             }
         }
 

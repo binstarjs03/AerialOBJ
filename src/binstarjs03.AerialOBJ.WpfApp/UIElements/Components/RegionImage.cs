@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
@@ -34,22 +35,25 @@ public class RegionImage
         RenderOptions.SetEdgeMode(_image, EdgeMode.Aliased);
     }
 
-    public void Lock()
+    public void Redraw()
     {
-        _writeableBitmap.Lock();
+        if (App.CheckAccess())
+            method();
+        else
+            App.InvokeDispatcher(method, DispatcherPriority.Render, DispatcherSynchronization.Synchronous);
+        void method()
+        {
+            _writeableBitmap.Lock();
+            AddRegionDirtyRect();
+            _writeableBitmap.Unlock();
+        }
     }
 
-    public void Unlock()
+    private void AddRegionDirtyRect()
     {
-        _writeableBitmap.Unlock();
-    }
-
-    public void AddRegionDirtyRect()
-    {
-        Int32Rect dirtyRect = new(0,
-                                  0,
-                                  Region.BlockCount,
-                                  Region.BlockCount);
+        Int32Rect dirtyRect = new(x: 0, y: 0,
+                                  width: Region.BlockCount,
+                                  height: Region.BlockCount);
         _writeableBitmap.AddDirtyRect(dirtyRect);
     }
 

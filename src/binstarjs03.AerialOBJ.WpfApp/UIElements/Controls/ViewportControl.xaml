@@ -303,6 +303,10 @@
                             <TextBlock Text="Pending Region Count: "/>
                             <TextBlock Text="{Binding Path=ChunkRegionManagerPendingRegionCount, Mode=OneWay}"/>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Worked Region: "/>
+                            <TextBlock Text="{Binding Path=ChunkRegionManagerWorkedRegion, Mode=OneWay}"/>
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
             </StackPanel>

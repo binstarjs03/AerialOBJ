@@ -88,7 +88,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public string ChunkRegionManagerVisibleRegionRangeZStringized => _chunkRegionManager.VisibleRegionRange.ZRange.ToString();
     public int ChunkRegionManagerVisibleRegionCount => _chunkRegionManager.VisibleRegionCount;
     public int ChunkRegionManagerLoadedRegionCount => _chunkRegionManager.LoadedRegionCount;
-    public int ChunkRegionManagerPendingRegionCount => _chunkRegionManager.PendingChunkCount;
+    public int ChunkRegionManagerPendingRegionCount => _chunkRegionManager.PendingRegionCount;
+    public string ChunkRegionManagerWorkedRegion => _chunkRegionManager.WorkedRegion;
 
     public bool UISidePanelVisible
     {
@@ -268,8 +269,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         if (propName == nameof(App.CurrentCast.Properties.SessionInfo))
         {
             ReinitializeStates();
-            if (App.CurrentCast.Properties.SessionInfo is null)
-                _chunkRegionManager.OnSessionClosed();
+            //if (App.CurrentCast.Properties.SessionInfo is null)
+            //    _chunkRegionManager.OnSessionClosed();
         }
     }
 

@@ -29,7 +29,7 @@ public class RegionWrapper
     public RegionWrapper(Region region, ViewportControlVM viewport)
     {
         _region = region;
-        _regionImage = App.CurrentCast.Dispatcher.Invoke(
+        _regionImage = App.InvokeDispatcherSynchronous(
             () => new RegionImage(),
             DispatcherPriority.Render);
         _viewport = viewport;
@@ -79,7 +79,7 @@ public class RegionWrapper
             }
     }
 
-    public void AddOrUpdateChunkImage(Coords2 chunkCoordsRel, string[,] highestBlocks)
+    public void BlitChunkImage(Coords2 chunkCoordsRel, string[,] highestBlocks)
     {
         for (int x = 0; x < Section.BlockCount; x++)
             for (int z = 0; z < Section.BlockCount; z++)
@@ -91,7 +91,7 @@ public class RegionWrapper
             }
     }
 
-    public void RemoveChunkImage(Coords2 chunkCoordsRel)
+    public void EraseChunkImage(Coords2 chunkCoordsRel)
     {
         for (int x = 0; x < Section.BlockCount; x++)
             for (int z = 0; z < Section.BlockCount; z++)
@@ -102,10 +102,22 @@ public class RegionWrapper
             }
     }
 
+    public void RedrawImage()
+    {
+        _regionImage.Redraw();
+    }
+
     public void UpdateImageTransformation()
     {
-        UpdateImagePosition();
-        UpdateImageSize();
+        if (App.CheckAccess())
+            method();
+        else
+            App.InvokeDispatcher(method, DispatcherPriority.Render, DispatcherSynchronization.Synchronous);
+        void method()
+        {
+            UpdateImagePosition();
+            UpdateImageSize();
+        }
     }
 
     private void UpdateImagePosition()
@@ -140,12 +152,21 @@ public class RegionWrapper
 
         PointF2 finalPos
             = (originOffset + scaledUnit + pushTowardCenter).Floor;
+        //App.InvokeDispatcher(method, DispatcherPriority.Render, DispatcherSynchronization.Synchronous);
+        //void method()
+        //{
         Canvas.SetLeft(_regionImage.Image, finalPos.X);
         Canvas.SetTop(_regionImage.Image, finalPos.Y);
+        //}
     }
 
     private void UpdateImageSize()
     {
         _regionImage.Image.Width = _viewport.ViewportPixelPerRegion;
+        //App.InvokeDispatcher(
+        //    () => _regionImage.Image.Width = _viewport.ViewportPixelPerRegion,
+        //    DispatcherPriority.Render, 
+        //    DispatcherSynchronization.Synchronous);
+
     }
 }
