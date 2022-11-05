@@ -75,6 +75,24 @@ public static class IOService
         }
     }
 
+    public static bool HasRegionFile(Coords2 regionCoords)
+    {
+        if (App.CurrentCast.Properties.SessionInfo is null)
+            return false;
+        string savegameDir = App.CurrentCast.Properties.SessionInfo.SavegameDirectory.FullName;
+        string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
+        if (File.Exists(regionPath))
+        {
+            FileInfo fi = new(regionPath);
+            // region file exceed a single sector of 4KiB (chunk header table),
+            // we can assume that is a valid region file
+            if (fi.Length > Region.SectorDataSize)
+                return true;
+            return false;
+        }
+        return false;
+    }
+
     public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
     {
         e = null;

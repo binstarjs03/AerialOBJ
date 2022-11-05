@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -8,6 +9,9 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.Converters;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
+
+using Color = System.Windows.Media.Color;
+using Region = binstarjs03.AerialOBJ.Core.MinecraftWorld.Region;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
@@ -41,6 +45,38 @@ public class RegionWrapper
     public bool HasChunkGenerated(Coords2 chunkCoordsRel)
     {
         return _generatedChunks.Contains(chunkCoordsRel);
+    }
+
+    public void SetRandomImage()
+    {
+        Random random = new();
+        for (int x = 0; x < Region.BlockCount; x++)
+            for (int z = 0; z < Region.BlockCount; z++)
+            {
+                Color color;
+                if (RegionCoords == Coords2.Zero)
+                {
+                    byte col = (byte)random.Next(150, 250);
+                    color = Color.FromArgb(255,
+                                           col,
+                                           col,
+                                           col);
+
+                }
+                else if ((RegionCoords.X + RegionCoords.Z) % 2 == 0)
+                    color = Color.FromArgb(255,
+                        (byte)random.Next(0, 100),
+                        (byte)random.Next(100, 200),
+                        (byte)random.Next(150, 250)
+                    );
+                else
+                    color = Color.FromArgb(255,
+                        (byte)random.Next(150, 250),
+                        (byte)random.Next(0, 100),
+                        (byte)random.Next(0, 100)
+                    );
+                _regionImage.SetPixel(x, z, color);
+            }
     }
 
     public void AddOrUpdateChunkImage(Coords2 chunkCoordsRel, string[,] highestBlocks)

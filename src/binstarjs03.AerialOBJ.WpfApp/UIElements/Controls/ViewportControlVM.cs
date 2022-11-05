@@ -19,7 +19,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         1, 2, 3, 5, 8, 13, 21, 34
     };
 
-    private readonly ChunkRegionManager _chunkRegionManager;
+    //private readonly ChunkRegionManager _chunkRegionManager;
+    private readonly ChunkRegionManager2 _chunkRegionManager;
     private readonly AutoResetEvent _chunkManagerUpdateEvent = new(initialState: false);
 
     private PointF2 _viewportCameraPos = PointF2.Zero;
@@ -78,14 +79,16 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     public string ChunkRegionManagerVisibleChunkRangeXStringized => _chunkRegionManager.VisibleChunkRange.XRange.ToString();
     public string ChunkRegionManagerVisibleChunkRangeZStringized => _chunkRegionManager.VisibleChunkRange.ZRange.ToString();
-    public string ChunkRegionManagerVisibleRegionRangeXStringized => _chunkRegionManager.VisibleRegionRange.XRange.ToString();
-    public string ChunkRegionManagerVisibleRegionRangeZStringized => _chunkRegionManager.VisibleRegionRange.ZRange.ToString();
     public int ChunkRegionManagerVisibleChunkCount => _chunkRegionManager.VisibleChunkCount;
-    public int ChunkRegionManagerVisibleRegionCount => _chunkRegionManager.VisibleRegionCount;
     public int ChunkRegionManagerLoadedChunkCount => _chunkRegionManager.LoadedChunkCount;
-    public int ChunkRegionManagerLoadedRegionCount => _chunkRegionManager.LoadedRegionCount;
     public int ChunkRegionManagerPendingChunkCount => _chunkRegionManager.PendingChunkCount;
     public int ChunkRegionManagerWorkedChunkCount => _chunkRegionManager.WorkedChunkCount;
+
+    public string ChunkRegionManagerVisibleRegionRangeXStringized => _chunkRegionManager.VisibleRegionRange.XRange.ToString();
+    public string ChunkRegionManagerVisibleRegionRangeZStringized => _chunkRegionManager.VisibleRegionRange.ZRange.ToString();
+    public int ChunkRegionManagerVisibleRegionCount => _chunkRegionManager.VisibleRegionCount;
+    public int ChunkRegionManagerLoadedRegionCount => _chunkRegionManager.LoadedRegionCount;
+    public int ChunkRegionManagerPendingRegionCount => _chunkRegionManager.PendingChunkCount;
 
     public bool UISidePanelVisible
     {
@@ -142,7 +145,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
 
-        _chunkRegionManager = new ChunkRegionManager(this, _chunkManagerUpdateEvent);
+        _chunkRegionManager = new ChunkRegionManager2(this, _chunkManagerUpdateEvent);
 
         // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);

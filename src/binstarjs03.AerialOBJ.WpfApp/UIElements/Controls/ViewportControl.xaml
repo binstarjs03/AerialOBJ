@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=local:ViewportControlVM}"
              
              Background="White"
-             d:DesignWidth="700" d:DesignHeight="700">
+             d:DesignWidth="800" d:DesignHeight="650">
     <Grid>
         <Grid.Resources>
             <Style TargetType="{x:Type ColumnDefinition}" x:Key="CollapsibleColumn">
@@ -259,7 +259,7 @@
                                 <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkCount, Mode=OneWay}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Rendered Chunk Count: "/>
+                                <TextBlock Text="Loaded Chunk Count: "/>
                                 <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedChunkCount, Mode=OneWay}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -296,8 +296,12 @@
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Rendered Region Count: "/>
+                            <TextBlock Text="Loaded Region Count: "/>
                             <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedRegionCount, Mode=OneWay}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Pending Region Count: "/>
+                            <TextBlock Text="{Binding Path=ChunkRegionManagerPendingRegionCount, Mode=OneWay}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
