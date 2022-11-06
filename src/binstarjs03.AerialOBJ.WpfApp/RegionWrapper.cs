@@ -25,6 +25,7 @@ public class RegionWrapper
 
     public RegionImage RegionImage => _regionImage;
     public Coords2 RegionCoords => _regionCoords;
+    public bool NeedRedraw { get; set; }
 
     public RegionWrapper(Region region, ViewportControlVM viewport)
     {
@@ -74,6 +75,7 @@ public class RegionWrapper
                                       chunkCoordsRel.Z * Section.BlockCount + z,
                                       color);
             }
+        NeedRedraw = true;
     }
 
     public void EraseChunkImage(Coords2 chunkCoordsRel)
@@ -85,11 +87,13 @@ public class RegionWrapper
                                       chunkCoordsRel.Z * Section.BlockCount + z,
                                       Colors.Transparent);
             }
+        NeedRedraw = true;
     }
 
     public void RedrawImage()
     {
         _regionImage.Redraw();
+        NeedRedraw = false;
     }
 
     public void UpdateImageTransformation()

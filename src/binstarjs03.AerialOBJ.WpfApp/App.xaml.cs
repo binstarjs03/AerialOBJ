@@ -58,7 +58,7 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        Current.DispatcherUnhandledException += OnUnhandledException;
+        //Current.DispatcherUnhandledException += OnUnhandledException;
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
         DebugLogWindow debugLogWindow = new();

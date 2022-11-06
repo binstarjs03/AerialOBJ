@@ -209,7 +209,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void UpdateChunkRegionManager()
     {
-        _chunkRegionManager.PostMessage(_chunkRegionManager.Update);
+        _chunkRegionManager.PostMessage(_chunkRegionManager.Update, ChunkRegionManager.MessagePriority.Normal);
     }
 
     private void UpdateCameraPos(PointF2 cameraPos)
@@ -393,7 +393,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private void OnSavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Closed)
-            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSessionClosed);
+            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSessionClosed, ChunkRegionManager.MessagePriority.High);
         ReinitializeStates();
     }
 
