@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,12 +101,6 @@ public class ChunkRegionManager
                 processMessageLoop();
             if (getNeedRedrawRegionImageCount() > 0)
                 RedrawRegionImages();
-
-            //if (getMessageCount() == 0)
-            //    _messageEvent.WaitOne();
-            //ProcessMessage(3, _highPriorityMessageQueue);
-            //ProcessMessage(1, _messageQueue);
-
         }
 
         int getMessageCount()
@@ -132,6 +126,7 @@ public class ChunkRegionManager
                 _messageEvent.WaitOne(1);
                 return;
             }
+            // process 3 high priority  and only one normal priority in single call
             ProcessMessage(3, _highPriorityMessageQueue);
             ProcessMessage(1, _messageQueue);
         }
@@ -221,7 +216,7 @@ public class ChunkRegionManager
         ViewportControlVM v = _viewport;
         PointF2 viewportCameraPos;
         PointF2 viewportChunkCanvasCenter;
-        int viewportPixelPerChunk;
+        float viewportPixelPerChunk;
 
         lock (_viewport)
         {

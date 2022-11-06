@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -121,7 +121,7 @@ public class RegionWrapper
         // Here we are scaling the cartesian coordinate unit by zoom amount
         // (which is pixel-per-chunk)
 
-        PointInt2 scaledUnit = (PointInt2)_region.RegionCoords * _viewport.PixelPerRegion;
+        PointF2 scaledUnit = (PointF2)_region.RegionCoords * _viewport.PixelPerRegion;
 
         // Push toward center is offset amount required to align the coordinate
         // relative to the canvas center,

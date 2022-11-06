@@ -17,14 +17,14 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     // Zoom table, array index represent how many pixels one block is.
     // We use fibonacci sequence to produce natural zoom behaviour
-    private static readonly int[] s_blockPixelCount = new int[] {
-        1, 2, 3, 5, 8, 13, 21, 34
+    private static readonly float[] s_blockPixelCount = new float[] {
+        0.5f, 1f, 2f, 3f, 5f, 8f, 13f, 21f, 34f
     };
 
     private readonly ChunkRegionManager _chunkRegionManager;
 
     private PointF2 _cameraPos = PointF2.Zero;
-    private int _zoomLevel = 1;
+    private int _zoomLevel = 2;
     private int _heightLimit = 255;
 
     private Coords3 _exportArea1 = Coords3.Zero;
@@ -90,9 +90,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                                             Control.ViewportPanel.ActualHeight / 2);
 
     // How many pixels per group \/
-    public int PixelPerBlock => s_blockPixelCount[_zoomLevel];
-    public int PixelPerChunk => PixelPerBlock * Section.BlockCount;
-    public int PixelPerRegion => PixelPerChunk * Region.ChunkCount;
+    public float PixelPerBlock => s_blockPixelCount[ZoomLevel];
+    public float PixelPerChunk => PixelPerBlock * Section.BlockCount;
+    public float PixelPerRegion => PixelPerChunk * Region.ChunkCount;
     // How many pixels per group /\
 
     // Offsets group \/
@@ -213,7 +213,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void UpdateChunkRegionManager()
     {
-        _chunkRegionManager.PostMessage(_chunkRegionManager.Update, ChunkRegionManager.MessagePriority.Normal);
+        _chunkRegionManager.PostMessage(_chunkRegionManager.Update,
+                                        ChunkRegionManager.MessagePriority.High,
+                                        noDuplicate: true);
     }
 
     private void UpdateCameraPos(PointF2 cameraPos)
@@ -376,7 +378,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         ClearFocus();
         CameraPos = PointF2.Zero;
-        ZoomLevel = 1;
+        ZoomLevel = 2;
         HeightLimit = 255;
 
         ExportArea1 = Coords3.Zero;
