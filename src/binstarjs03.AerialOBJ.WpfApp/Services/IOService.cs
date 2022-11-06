@@ -83,18 +83,10 @@ public static class IOService
     {
         if (App.Current.State.SavegameLoadInfo is null)
             return false;
-        string savegameDir = App.Current.State.SavegameLoadInfo.SavegameDirectory.FullName;
-        string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
-        if (File.Exists(regionPath))
-        {
-            FileInfo fi = new(regionPath);
-            // region file exceed a single sector of 4KiB (chunk header table),
-            // we can assume that is a valid region file
-            if (fi.Length > Region.SectorDataSize)
-                return true;
+        else if (App.Current.State.SavegameLoadInfo.RegionFiles.ContainsKey(regionCoords))
+            return true;
+        else
             return false;
-        }
-        return false;
     }
 
     public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
@@ -102,13 +94,12 @@ public static class IOService
         e = null;
         if (App.Current.State.SavegameLoadInfo is null)
             return null;
-        string savegameDir = App.Current.State.SavegameLoadInfo.SavegameDirectory.FullName;
-        string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
-        if (File.Exists(regionPath))
+        if (HasRegionFile(regionCoords))
         {
             try
             {
-                Region region = Region.Open(regionPath);
+                string regionFilePath = App.Current.State.SavegameLoadInfo.RegionFiles[regionCoords].FullName;
+                Region region = new(regionFilePath, regionCoords);
                 return region;
             }
             catch (Exception ex)
