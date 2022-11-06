@@ -401,10 +401,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         while (true)
         {
             _debugMainThreadResposeTestRandomNumber++;
-            if (_debugMainThreadResposeTestRandomNumber > 10000)
+            if (_debugMainThreadResposeTestRandomNumber > 1000)
                 _debugMainThreadResposeTestRandomNumber = 0;
             NotifyPropertyChanged(nameof(DebugMainThreadResposeTestRandomNumber));
-            await Task.Delay(15);
+            await Task.Delay(10);
         }
     }
 

@@ -25,7 +25,7 @@ public class ChunkRegionManager
     private readonly ViewportControlVM _viewport;
     private readonly AutoResetEvent _messageEvent = new(initialState: false);
 
-    // we communicate between chunk region manager thread and other threads using delegate message
+    // we communicate between chunk region manager thread and other threads using delegate message and such
     private readonly Thread _messageLoopThread;
     private readonly Queue<Action> _highPriorityMessageQueue = new(10);
     private readonly Queue<Action> _messageQueue = new(50);
@@ -40,11 +40,12 @@ public class ChunkRegionManager
     private readonly List<Coords2> _pendingRegionList = new(s_regionBufferSize);
     private Task _loadRegionTask;
     private Coords2? _workedRegion = null;
-    private readonly object _workedLoadedRegionLock = new(); // lock two objects simultaneously, this is to preventing deadlocks
+    private readonly object _workedLoadedRegionLock = new(); // lock two objects simultaneously, this is to prevent concurrency problem such as deadlocks
 
     private readonly Dictionary<Coords2, ChunkWrapper> _loadedChunks = new(s_regionBufferSize * Region.TotalChunkCount);
     private readonly HashSet<Coords2> _pendingChunkSet = new(s_chunkBufferSize);
-    private readonly List<Coords2> _pendingChunkList = new(s_chunkBufferSize);
+    private readonly List<Coords2> _pendingChunkList = new(s_chunkBufferSize); // lock pendingChunkList only and both the set and the list
+                                                                               // must be in locking scope to keep both synced
     private readonly List<Task> _loadChunkTasks = new(Environment.ProcessorCount);
     private readonly List<Coords2> _workedChunks = new(Environment.ProcessorCount);
 
@@ -103,6 +104,19 @@ public class ChunkRegionManager
                 RedrawRegionImages();
         }
 
+        void processMessageLoop()
+        {
+            if (getMessageCount() == 0)
+            {
+                _messageEvent.WaitOne(1);
+                return;
+            }
+            // process 3 high priority  and only one normal priority in single call
+            RemoveWorkedChunk();
+            ProcessMessage(3, _highPriorityMessageQueue);
+            ProcessMessage(1, _messageQueue);
+        }
+
         int getMessageCount()
         {
             lock (_messageLock)
@@ -147,6 +161,19 @@ public class ChunkRegionManager
         }
     }
 
+    private void RemoveWorkedChunk()
+    {
+        lock (_messageLock)
+        {
+            while (_removeWorkedChunkQueue.Count > 0)
+            {
+                Coords2 chunkCoordsAbs = _removeWorkedChunkQueue.Dequeue();
+                _workedChunks.Remove(chunkCoordsAbs);
+            }
+        }
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedChunkCount));
+    }
+
     public enum MessagePriority
     {
         Normal,
@@ -186,6 +213,12 @@ public class ChunkRegionManager
             }
         }
         _messageEvent.Set();
+    }
+
+    private void PostRemoveWorkedChunk(Coords2 workedChunkCoordsAbs)
+    {
+        lock (_messageLock)
+            _removeWorkedChunkQueue.Enqueue(workedChunkCoordsAbs);
     }
 
     public void Update()
@@ -573,18 +606,12 @@ public class ChunkRegionManager
         // this thread is working on in the list and let background loop know that we are done
         void postExitMessage()
         {
-            PostMessage(removeWorkedChunkMsg, MessagePriority.Normal);
+            PostRemoveWorkedChunk(chunkCoordsAbs);
             // Let chunk region manager thread know that it has to process/check for more pending chunks.
             // Post LoadChunkTaskSpawnerMethod if it doesnt exist yet in msg queue.
             // This is to prevent spamming it to the message queue and chunkregionmanager
-            // thread should invoke LoadChunkTaskSpawnerMethod just once
+            // can spawn multiple load chunk task in single call, avoiding unneccessary multiple calls
             PostMessage(LoadChunkTaskSpawnerMethod, MessagePriority.High, noDuplicate: true);
-        }
-
-        void removeWorkedChunkMsg()
-        {
-            _workedChunks.Remove(chunkCoordsAbs);
-            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedChunkCount));
         }
     }
 

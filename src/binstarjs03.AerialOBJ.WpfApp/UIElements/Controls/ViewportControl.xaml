@@ -190,122 +190,130 @@
                                               ZValue="{Binding Path=ExportArea2Z, Mode=TwoWay}"/>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Viewport Debug Info" 
-                          Visibility="{Binding Path=SidePanelDebugInfoVisible, 
-                                               Mode=OneWay,
-                                               Converter={StaticResource BoolToVisibility}}">
-                    <StackPanel>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Pixel-Per-Block: "/>
-                            <TextBlock Text="{Binding Path=PixelPerBlock, Mode=OneWay}"/>
+                <StackPanel Visibility="{Binding Path=SidePanelDebugInfoVisible, 
+                                                 Mode=OneWay,
+                                                 Converter={StaticResource BoolToVisibility}}">
+                    <GroupBox Header="Debug - Thread Responsivity">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Main/UI Thread Response Test: "/>
+                                <TextBlock Text="{Binding Path=DebugMainThreadResposeTestRandomNumber, Mode=OneWay}"/>
+                            </StackPanel>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Pixel-Per-Chunk: "/>
-                            <TextBlock Text="{Binding Path=PixelPerChunk, Mode=OneWay}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Pixel-Per-Region: "/>
-                            <TextBlock Text="{Binding Path=PixelPerRegion, Mode=OneWay}"/>
-                        </StackPanel>
+                    </GroupBox>
+                    
+                    <GroupBox Header="Debug - Viewport Info">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Origin Offset: "/>
+                                <TextBlock Text="{Binding Path=ViewportItemOffsetStringized, Mode=OneWay}"/>
+                            </StackPanel>
+                            
+                            <Separator/>
+                            
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pixel-Per-Block: "/>
+                                <TextBlock Text="{Binding Path=PixelPerBlock, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pixel-Per-Chunk: "/>
+                                <TextBlock Text="{Binding Path=PixelPerChunk, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pixel-Per-Region: "/>
+                                <TextBlock Text="{Binding Path=PixelPerRegion, Mode=OneWay}"/>
+                            </StackPanel>
 
-                        <Separator/>
+                            <Separator/>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Mouse Pos: "/>
-                            <TextBlock Text="{Binding Path=MousePos, Mode=OneWay}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Mouse Pos Delta: "/>
-                            <TextBlock Text="{Binding Path=MousePosDelta, Mode=OneWay}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Mouse Is Clicking: "/>
-                            <TextBlock Text="{Binding Path=MouseClickHolding, Mode=OneWay}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Mouse Is Outside: "/>
-                            <TextBlock Text="{Binding Path=MouseIsOutside, Mode=OneWay}"/>
-                        </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Pos: "/>
+                                <TextBlock Text="{Binding Path=MousePos, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Pos Delta: "/>
+                                <TextBlock Text="{Binding Path=MousePosDelta, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Is Clicking: "/>
+                                <TextBlock Text="{Binding Path=MouseClickHolding, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Is Outside: "/>
+                                <TextBlock Text="{Binding Path=MouseIsOutside, Mode=OneWay}"/>
+                            </StackPanel>
 
-                        <Separator/>
 
-                        <StackPanel Orientation="Vertical">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Chunk Pos Offset: "/>
-                                <TextBlock Text="{Binding Path=ChunkPosOffset, Mode=OneWay}"/>
-                            </StackPanel>
-                            <TextBlock Text="Visible Chunk Range: "/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="- X Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkRangeXStringized, Mode=OneWay}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="- Z Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkRangeZStringized, Mode=OneWay}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Visible Chunk Count: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkCount, Mode=OneWay}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Loaded Chunk Count: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedChunkCount, Mode=OneWay}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Pending Chunk Count: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerPendingChunkCount, Mode=OneWay}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Worked Chunk Count: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerWorkedChunkCount, Mode=OneWay}"/>
-                            </StackPanel>
                         </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Debug - Chunk Region Manager Info">
+                        <StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="Visible Chunk Range: "/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="- X Range: "/>
+                                        <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkRangeXStringized, Mode=OneWay}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="- Z Range: "/>
+                                        <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkRangeZStringized, Mode=OneWay}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Visible Chunk Count: "/>
+                                    <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleChunkCount, Mode=OneWay}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Loaded Chunk Count: "/>
+                                    <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedChunkCount, Mode=OneWay}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Pending Chunk Count: "/>
+                                    <TextBlock Text="{Binding Path=ChunkRegionManagerPendingChunkCount, Mode=OneWay}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Worked Chunk Count: "/>
+                                    <TextBlock Text="{Binding Path=ChunkRegionManagerWorkedChunkCount, Mode=OneWay}"/>
+                                </StackPanel>
+                            </StackPanel>
 
-                        <Separator/>
+                            <Separator/>
 
-                        <StackPanel Orientation="Vertical">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Region Pos Offset: "/>
-                                <TextBlock Text="{Binding Path=RegionPosOffset, Mode=OneWay}"/>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Visible Region Range: "/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="- X Range: "/>
+                                    <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionRangeXStringized, Mode=OneWay}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="- Z Range: "/>
+                                    <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionRangeZStringized, Mode=OneWay}"/>
+                                </StackPanel>
                             </StackPanel>
-                            <TextBlock Text="Visible Region Range: "/>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="- X Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionRangeXStringized, Mode=OneWay}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Visible Region Count: "/>
+                                    <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionCount, Mode=OneWay}"/>
+                                </StackPanel>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="- Z Range: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionRangeZStringized, Mode=OneWay}"/>
+                                <TextBlock Text="Loaded Region Count: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedRegionCount, Mode=OneWay}"/>
                             </StackPanel>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Visible Region Count: "/>
-                                <TextBlock Text="{Binding Path=ChunkRegionManagerVisibleRegionCount, Mode=OneWay}"/>
+                                <TextBlock Text="Pending Region Count: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerPendingRegionCount, Mode=OneWay}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Worked Region: "/>
+                                <TextBlock Text="{Binding Path=ChunkRegionManagerWorkedRegion, Mode=OneWay}"/>
                             </StackPanel>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Loaded Region Count: "/>
-                            <TextBlock Text="{Binding Path=ChunkRegionManagerLoadedRegionCount, Mode=OneWay}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Pending Region Count: "/>
-                            <TextBlock Text="{Binding Path=ChunkRegionManagerPendingRegionCount, Mode=OneWay}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Worked Region: "/>
-                            <TextBlock Text="{Binding Path=ChunkRegionManagerWorkedRegion, Mode=OneWay}"/>
-                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
 
-                        <Separator/>
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Main/UI Thread Response Test: "/>
-                            <TextBlock Text="{Binding Path=DebugMainThreadResposeTestRandomNumber, Mode=OneWay}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </GroupBox>
             </StackPanel>
         </ScrollViewer>
     </Grid>
