@@ -25,17 +25,12 @@ public class ChunkWrapper
         Update();
     }
 
-    public void Deallocate()
-    {
-        _chunkImage.Dispose();
-    }
-
     public void Update()
     {
         if (_chunkImage is null)
             return;
-        UpdatePosition(_chunkImage);
-        UpdateSize(_chunkImage);
+        updatePosition(_chunkImage);
+        updateSize(_chunkImage);
 
         void updatePosition(ChunkImage chunk)
         {

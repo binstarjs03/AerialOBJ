@@ -5,9 +5,9 @@ using System.Drawing.Imaging;
 using System.Threading;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
-using Region = binstarjs03.AerialOBJ.Core.WorldRegion.Region;
+using Region = binstarjs03.AerialOBJ.Core.MinecraftWorld.Region;
 
 namespace binstarjs03.AerialOBJ.ConsoleApp;
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.ConsoleApp;
 public class Program3

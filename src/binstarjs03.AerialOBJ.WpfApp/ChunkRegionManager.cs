@@ -3,20 +3,17 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.Converters;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
 
 using Range = binstarjs03.AerialOBJ.Core.Range;
-using Region = binstarjs03.AerialOBJ.Core.WorldRegion.Region;
+using Region = binstarjs03.AerialOBJ.Core.MinecraftWorld.Region;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
@@ -37,8 +34,8 @@ public class ChunkRegionManager
     private readonly List<Coords2> _pendingChunkList = new(s_chunkBufferSize);
     private readonly List<Coords2> _workedChunks = new(Environment.ProcessorCount);
 
-    private CoordsRange2 _visibleRegionRange = CoordsRange2.Zero;
-    private CoordsRange2 _visibleChunkRange = CoordsRange2.Zero;
+    private CoordsRange2 _visibleRegionRange = new();
+    private CoordsRange2 _visibleChunkRange = new();
     private int _runningChunkWorkerThreadCount = 0;
     private int _displayedHeightLimit;
 
@@ -188,15 +185,15 @@ public class ChunkRegionManager
     private void LoadRegion(Region region)
     {
         // cancel region loading if specified region is outside view screen
-        if (!_visibleRegionRange.IsInside(region.Coords))
+        if (!_visibleRegionRange.IsInside(region.RegionCoords))
             return;
 
         // cancel region loading if specified region already loaded (no duplicate).
         // Since nobody referencing that region, the GC will collect it eventually.
-        if (_loadedRegions.ContainsKey(region.Coords))
+        if (_loadedRegions.ContainsKey(region.RegionCoords))
             return;
         RegionWrapper regionWrapper = new(region);
-        _loadedRegions.Add(region.Coords, regionWrapper);
+        _loadedRegions.Add(region.RegionCoords, regionWrapper);
         OnRegionLoadChanged();
     }
     private void UnloadRegion(RegionWrapper regionWrapper)
@@ -267,7 +264,6 @@ public class ChunkRegionManager
         _loadedChunks.Remove(chunkWrapper.ChunkCoordsAbs);
         _viewport.Control.ChunkCanvas.Children.Remove(chunkWrapper.ChunkImage);
         OnChunkLoadChanged();
-        chunkWrapper.Deallocate();
     }
 
     private void OnChunkLoadChanged()

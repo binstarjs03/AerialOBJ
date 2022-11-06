@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.WorldRegion;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 public class RegionWrapper
@@ -17,8 +17,8 @@ public class RegionWrapper
     public RegionWrapper(Region region)
     {
         _region = region;
-        _regionCoords = region.Coords;
-        _generatedChunks = region.GetGeneratedChunksAsCoordsRelSet();
+        _regionCoords = region.RegionCoords;
+        (_, _generatedChunks) = region.GetGeneratedChunksAsCoordsRel();
     }
 
     public Coords2 RegionCoords => _regionCoords;
