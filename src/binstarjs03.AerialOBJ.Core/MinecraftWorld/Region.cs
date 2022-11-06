@@ -84,6 +84,26 @@ public class Region
             throw new RegionUnrecognizedFileException("Cannot automatically determine region position");
     }
 
+    public static bool IsValidFilename(string regionFilename, out Coords2? regionCoords)
+    {
+        string[] split = regionFilename.Split('.');
+        bool correctPrefix = split[0] == "r";
+        bool correctFileType = split[3] == "mca";
+        bool validX = int.TryParse(split[1], out int x);
+        bool validZ = int.TryParse(split[2], out int z);
+        bool validCoordinate = validX && validZ;
+        if (correctPrefix && correctFileType && validCoordinate)
+        {
+            regionCoords = new Coords2(x, z);
+            return true;
+        }
+        else
+        {
+            regionCoords = null;
+            return false;
+        }
+    }
+
     public static Coords2 ConvertChunkCoordsAbsToRel(Coords2 coords)
     {
         int chunkCoordsRelX = MathUtils.Mod(coords.X, ChunkCount);
