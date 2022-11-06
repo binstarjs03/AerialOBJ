@@ -38,6 +38,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private bool _sidePanelVisible = false;
     private bool _sidePanelDebugInfoVisible = false;
+    private int _debugMainThreadResposeTestRandomNumber;
 
     // Public accessor.
     // Yes, below is a very intricate setup of sea of properties
@@ -113,6 +114,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public int ChunkRegionManagerLoadedRegionCount => _chunkRegionManager.LoadedRegionCount;
     public int ChunkRegionManagerPendingRegionCount => _chunkRegionManager.PendingRegionCount;
     public string ChunkRegionManagerWorkedRegion => _chunkRegionManager.WorkedRegion;
+
+    public int DebugMainThreadResposeTestRandomNumber => _debugMainThreadResposeTestRandomNumber;
+
     // ChunkRegionManager group /\
 
     // Export Area 1 Group \/
@@ -260,6 +264,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseLeaveCommand = new RelayCommand(OnMouseLeave);
         MouseEnterCommand = new RelayCommand(OnMouseEnter);
         KeyUpCommand = new RelayCommand(OnKeyUp);
+
+        DebugMainThreadResposeTestGenerateRandomNumber();
     }
 
     #region Commands
@@ -384,6 +390,20 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
         SidePanelVisible = false;
         SidePanelDebugInfoVisible = false;
+    }
+
+    private async void DebugMainThreadResposeTestGenerateRandomNumber()
+    {
+        _debugMainThreadResposeTestRandomNumber = 0;
+
+        while (true)
+        {
+            _debugMainThreadResposeTestRandomNumber++;
+            if (_debugMainThreadResposeTestRandomNumber > 10000)
+                _debugMainThreadResposeTestRandomNumber = 0;
+            NotifyPropertyChanged(nameof(DebugMainThreadResposeTestRandomNumber));
+            await Task.Delay(15);
+        }
     }
 
     #endregion Methods

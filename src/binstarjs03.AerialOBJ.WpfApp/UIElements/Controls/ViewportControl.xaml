@@ -297,6 +297,13 @@
                             <TextBlock Text="Worked Region: "/>
                             <TextBlock Text="{Binding Path=ChunkRegionManagerWorkedRegion, Mode=OneWay}"/>
                         </StackPanel>
+
+                        <Separator/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Main/UI Thread Response Test: "/>
+                            <TextBlock Text="{Binding Path=DebugMainThreadResposeTestRandomNumber, Mode=OneWay}"/>
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
             </StackPanel>
