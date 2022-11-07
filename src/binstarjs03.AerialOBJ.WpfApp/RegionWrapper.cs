@@ -111,38 +111,12 @@ public class RegionWrapper
 
     private void UpdateImagePosition()
     {
-        // we floor all the floating-point number here
-        // so it snaps perfectly to the pixel and it removes
-        // "Jaggy-Moving" illusion.
-        // Try to not floor it and see yourself the illusion
-
-        // scaled unit is offset amount required to align the
-        // coordinate to zoomed coordinate measured from world origin.
-        // Here we are scaling the cartesian coordinate unit by zoom amount
-        // (which is pixel-per-chunk)
-
-        PointF2 scaledUnit = (PointF2)_region.RegionCoords * _viewport.PixelPerRegion;
-
-        // Push toward center is offset amount required to align the coordinate
-        // relative to the canvas center,
-        // so it creates "zoom toward center" effect
-
-        PointF2 pushTowardCenter = _viewport.ChunkCanvasCenter;
-
-        // Origin offset is offset amount requred to align the coordinate
-        // to keep it stays aligned with moved world origin
-        // when view is dragged around.
-        // The offset itself is from camera position.
-        // It is inverted because obviously, if camera is 1 meter to the right
-        // of origin, then everything else the camera sees must be 1 meter
-        // shifted to the left of the camera
-
-        PointF2 originOffset = -_viewport.ViewportItemOffset;
-
-        PointF2 finalPos = (originOffset + scaledUnit + pushTowardCenter).Floor;
-
-        Canvas.SetLeft(_regionImage.Image, finalPos.X);
-        Canvas.SetTop(_regionImage.Image, finalPos.Y);
+        // if region position is 2, then the world position for it is
+        // block count in region * position = 512 * 2 = 1024
+        PointF2 regionWorldPos = ((PointF2)_regionCoords) * Region.BlockCount;
+        PointF2 screenPos = _viewport.ConvertWorldPositionToScreenPosition(regionWorldPos);
+        Canvas.SetLeft(_regionImage.Image, screenPos.X);
+        Canvas.SetTop(_regionImage.Image, screenPos.Y);
     }
 
     private void UpdateImageSize()

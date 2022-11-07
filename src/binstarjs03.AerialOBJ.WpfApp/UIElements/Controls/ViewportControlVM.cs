@@ -62,7 +62,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     }
     // Camera Group /\
 
-    // Zooming group \/
+    // Miscellaneous of Viewport Variable Group \/
     public int ZoomLevel
     {
         get => _zoomLevel;
@@ -73,33 +73,51 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                 nameof(PixelPerBlock),
                 nameof(PixelPerChunk),
                 nameof(PixelPerRegion),
-                nameof(ViewportItemOffsetStringized),
+                nameof(UnitOffsetScaledStringized),
             };
             SetAndNotifyPropertyChanged(value, ref _zoomLevel, propNames, UpdateChunkRegionManager);
         }
     }
-    public int MaximumZoomLevel => s_blockPixelCount.Length - 1;
-    // Zooming group /\
-
+    public int MaximumZoomLevel => s_unitSequence.Length - 1;
     public int HeightLimit
     {
         get => _heightLimit;
         set => SetAndNotifyPropertyChanged(value, ref _heightLimit, UpdateChunkRegionManager);
     }
 
-    public PointF2 ChunkCanvasCenter => new(Control.ViewportPanel.ActualWidth / 2,
-                                            Control.ViewportPanel.ActualHeight / 2);
+    /// <summary>
+    /// Screen center is offset amount required to keep a point aligned to the screen center
+    /// (given example point is at (0,0)), so it creates "zoom toward center" effect
+    /// </summary>
+    public PointF2 ScreenCenter => new(Control.ViewportPanel.ActualWidth / 2,
+                                       Control.ViewportPanel.ActualHeight / 2);
+
+    /// <summary>
+    /// Unit scale is multiplier of the unit depending on zoom level. When zoom level says unit
+    /// scale is two, then every point is twice further each other. Example given a point from
+    /// world coordinate is at (1,2), when zoom level says unit scale is 3, then the point when being plotted
+    /// in screen coordinate is scaled to (3,6)
+    /// </summary>
+    public float UnitScale => s_unitSequence[ZoomLevel];
+
+    /// <summary>
+    /// Unit offset scaled is offset amount requred to align a given point from world coordinate 
+    /// when being plotted in screen coordinate to keep it stays aligned with the cartesian coordinate
+    /// being constantly transformed by dragged around the view and zoomed in and out.
+    /// The offset amout depends on where the camera is positioned in the world coordinate while the scaling
+    /// depends on zoom level. It is inverted because obviously, if camera is 1 meter to the right 
+    /// of the origin, then everything else the camera sees must be 1 meter shifted  to the left of the camera
+    /// </summary>
+    public PointF2 UnitOffsetScaled => -(CameraPos * UnitScale); 
+    public string UnitOffsetScaledStringized => UnitOffsetScaled.ToStringRounded();
+    // Miscellaneous of Viewport Variable Group /\
 
     // How many pixels per group \/
-    public float PixelPerBlock => s_blockPixelCount[ZoomLevel];
+    public float PixelPerBlock => UnitScale; // one block represent one meter/one unit.
+                                             // At zoom level zero, one pixel represent one block
     public float PixelPerChunk => PixelPerBlock * Section.BlockCount;
     public float PixelPerRegion => PixelPerChunk * Region.ChunkCount;
     // How many pixels per group /\
-
-    // Offsets group \/
-    public PointF2 ViewportItemOffset => _cameraPos * PixelPerBlock;
-    public string ViewportItemOffsetStringized => ViewportItemOffset.ToStringRounded();
-    // Offsets group /\
 
     // ChunkRegionManager group \/
     public string ChunkRegionManagerVisibleChunkRangeXStringized => _chunkRegionManager.VisibleChunkRange.XRange.ToString();
@@ -225,7 +243,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         {
             nameof(CameraPosX),
             nameof(CameraPosZ),
-            nameof(ViewportItemOffsetStringized),
+            nameof(UnitOffsetScaledStringized),
         });
         UpdateChunkRegionManager();
     }
@@ -369,6 +387,18 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     #region Methods
 
+    public PointF2 ConvertWorldPositionToScreenPosition(PointF2 worldPosition)
+    {
+        // we floor the final position here so it snaps perfectly to the pixel
+        // (or the unit) and it removes "Jaggy-Moving" illusion.
+        // Try to remove the floor and see yourself the illusion
+
+        // if world pos is 3 at unit scale 1, then it must be 12 at unit scale 4
+        PointF2 scaledPos = worldPosition * UnitScale;
+        PointF2 finalPos = (UnitOffsetScaled + ScreenCenter + scaledPos).Floor;
+        return finalPos;
+    }
+
     private void ClearFocus()
     {
         Control.HeightSlider.Focus();
@@ -379,7 +409,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         ClearFocus();
         CameraPos = PointF2.Zero;
-        ZoomLevel = 2;
+        ZoomLevel = 0;
         HeightLimit = 255;
 
         ExportArea1 = Coords3.Zero;
