@@ -28,11 +28,11 @@ public class NbtUnknownCompressionMethodException : NbtException
 /// The exception that is thrown when parsing nbt from data stream encountered 
 /// byte data that is unrecognized nbt type
 /// </summary>
-public class NbtUnknownTypeException : NbtException
+public class NbtIllegalTypeException : NbtException
 {
-    public NbtUnknownTypeException() { }
-    public NbtUnknownTypeException(string message) : base(message) { }
-    public NbtUnknownTypeException(string message, Exception inner) : base(message, inner) { }
+    public NbtIllegalTypeException() { }
+    public NbtIllegalTypeException(string message) : base(message) { }
+    public NbtIllegalTypeException(string message, Exception inner) : base(message, inner) { }
 }
 
 /// <summary>
