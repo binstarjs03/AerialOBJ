@@ -1,6 +1,4 @@
 ﻿/*
-Minecraft World Parser Library
-
 Copyright (c) 2022, Bintang Jakasurya
 All rights reserved. 
 
@@ -36,6 +34,7 @@ namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public class Region
 {
+    public const int BlockCount = Section.BlockCount * ChunkCount;
     public const int ChunkCount = 32;
     public const int TotalChunkCount = ChunkCount * ChunkCount;
     public const int ChunkRange = ChunkCount - 1;
@@ -52,7 +51,7 @@ public class Region
     private readonly byte[] _data;
     private readonly Coords2 _regionCoords;
     private readonly CoordsRange2 _chunkRangeAbs;
-
+    
     public Coords2 RegionCoords => _regionCoords;
     public CoordsRange2 ChunkRangeAbs => _chunkRangeAbs;
 
@@ -105,8 +104,26 @@ public class Region
             return new Region(path, coords);
         }
         else
-        {
             throw new RegionUnrecognizedFileException("Cannot automatically determine region position");
+    }
+
+    public static bool IsValidFilename(string regionFilename, out Coords2? regionCoords)
+    {
+        string[] split = regionFilename.Split('.');
+        bool correctPrefix = split[0] == "r";
+        bool correctFileType = split[3] == "mca";
+        bool validX = int.TryParse(split[1], out int x);
+        bool validZ = int.TryParse(split[2], out int z);
+        bool validCoordinate = validX && validZ;
+        if (correctPrefix && correctFileType && validCoordinate)
+        {
+            regionCoords = new Coords2(x, z);
+            return true;
+        }
+        else
+        {
+            regionCoords = null;
+            return false;
         }
     }
 

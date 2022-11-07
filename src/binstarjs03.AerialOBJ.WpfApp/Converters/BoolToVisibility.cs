@@ -22,8 +22,9 @@ public class BoolToVisibility : IValueConverter
         return visibility switch
         {
             Visibility.Visible => true,
+            Visibility.Hidden => false,
             Visibility.Collapsed => false,
-            _ => throw new Exception($"{nameof(BoolToVisibility)} convert back not set from visible or collapsed"),
+            _ => throw new Exception($"{nameof(BoolToVisibility)} convert back not set from visible, hidden, or collapsed"),
         };
     }
 }

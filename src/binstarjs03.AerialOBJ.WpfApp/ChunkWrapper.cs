@@ -1,78 +1,42 @@
-using System.IO;
-using System.Windows.Controls;
+/*
+Copyright (c) 2022, Bintang Jakasurya
+All rights reserved. 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
-using binstarjs03.AerialOBJ.WpfApp.UIElements.Controls;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
 public class ChunkWrapper
 {
-    private readonly ViewportControlVM _viewport;
-    private readonly Coords2 _chunkCoordsAbs;
-    private readonly ChunkImage _chunkImage;
+    private readonly Chunk _chunk;
+    private readonly string[,] _highestBlocks = Chunk.GenerateHighestBlocksBuffer();
 
-    public ChunkImage ChunkImage => _chunkImage;
-    public Coords2 ChunkCoordsAbs => _chunkCoordsAbs;
+    public Coords2 ChunkCoordsAbs => _chunk.ChunkCoordsAbs;
+    public Coords2 ChunkCoordsRel => _chunk.ChunkCoordsRel;
+    public string[,] HighestBlocks => _highestBlocks;
 
-    public ChunkWrapper(Coords2 chunkCoordsAbs, ChunkRegionManager chunkManager, MemoryStream chunkImageStream)
+    public ChunkWrapper(Chunk chunk)
     {
-        _chunkCoordsAbs = chunkCoordsAbs;
-        _viewport = chunkManager.Viewport;
-        _chunkImage = new(_chunkCoordsAbs);
-        _chunkImage.SetImageToChunkTerrain(chunkImageStream);
-        Update();
-    }
-
-    public void Update()
-    {
-        if (_chunkImage is null)
-            return;
-        updatePosition(_chunkImage);
-        updateSize(_chunkImage);
-
-        void updatePosition(ChunkImage chunk)
-        {
-            // we floor all the floating-point number here
-            // so it snaps perfectly to the pixel and it removes
-            // "Jaggy-Moving" illusion.
-            // Try to not floor it and see yourself the illusion
-
-            PointF2 chunkPosOffset = _viewport.ChunkPosOffset.Floor;
-
-            // scaled unit is offset amount required to align the
-            // coordinate to zoomed coordinate measured from world origin.
-            // Here we are scaling the cartesian coordinate unit by zoom amount
-            // (which is pixel-per-chunk)
-
-            PointInt2 scaledUnit = chunk.CanvasPos * _viewport.ViewportPixelPerChunk;
-
-            // Push toward center is offset amount required to align the coordinate
-            // relative to the chunk canvas center,
-            // so it creates "zoom toward center" effect
-
-            PointF2 pushTowardCenter = _viewport.ViewportChunkCanvasCenter.Floor;
-
-            // Origin offset is offset amount requred to align the coordinate
-            // to keep it stays aligned with moved world origin
-            // when view is dragged around.
-            // The offset itself is from camera position.
-            // It is inverted because obviously, if camera is 1 meter to the right
-            // of origin, then everything else the camera sees must be 1 meter
-            // shifted to the left of the camera
-
-            PointF2 originOffset = -chunkPosOffset;
-
-            PointF2 finalPos
-                = (originOffset + scaledUnit + pushTowardCenter).Floor;
-            Canvas.SetLeft(chunk, finalPos.X);
-            Canvas.SetTop(chunk, finalPos.Y);
-        }
-
-        void updateSize(ChunkImage chunk)
-        {
-            chunk.Width = _viewport.ViewportPixelPerChunk;
-        }
+        _chunk = chunk;
     }
 }

@@ -1,4 +1,29 @@
-﻿using System.IO;
+﻿/*
+Copyright (c) 2022, Bintang Jakasurya
+All rights reserved. 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+
+using System.IO;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -8,21 +33,19 @@ namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow>
 {
-    public string Title => $"{App.AppProperty.AppName} - Debug Log";
+    public string Title => $"{AppState.AppName} - Debug Log";
 
-    public bool UIDebugLogWindowVisible
+    public bool DebugLogWindowVisible
     {
-        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
-        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
+        get => App.Current.State.DebugLogWindowVisible;
+        set => App.Current.State.DebugLogWindowVisible = value;
     }
 
     public string LogContent => LogService.GetLogContent();
 
     public DebugLogWindowVM(DebugLogWindow window) : base(window)
     {
-        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
-
-        // listen to service events
+        App.Current.State.DebugLogWindowVisibleChanged += OnDebugLogWindowVisibleChanged;
         LogService.Logging += OnLogServiceLogging;
 
         // set commands to its corresponding implementations
@@ -98,9 +121,14 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         }
     }
 
-    #endregion
+    #endregion Commands
 
     #region Event Handlers
+
+    private void OnDebugLogWindowVisibleChanged(bool obj)
+    {
+        NotifyPropertyChanged(nameof(DebugLogWindowVisible));
+    }
 
     private void OnLogServiceLogging(string content)
     {
@@ -108,5 +136,5 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
         Window.LogTextBox.ScrollToEnd();
     }
 
-    #endregion
+    #endregion Event Handlers
 }

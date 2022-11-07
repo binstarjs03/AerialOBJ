@@ -1,6 +1,29 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿/*
+Copyright (c) 2022, Bintang Jakasurya
+All rights reserved. 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+
+using System;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -11,8 +34,8 @@ namespace binstarjs03.AerialOBJ.WpfApp;
 
 public partial class App : Application
 {
-    public static App CurrentCast => (App)Current;
-    public new AppProperty Properties { get; }
+    public new static App Current => (Application.Current as App)!;
+    public AppState State { get; }
 
     /// <summary>
     /// Invoked after all user interface are loaded
@@ -21,19 +44,51 @@ public partial class App : Application
 
     public App()
     {
-        Properties = new AppProperty(DateTime.Now);
+        State = new AppState();
+    }
+
+    public static void InvokeDispatcher(Action method, DispatcherPriority priority, DispatcherSynchronization synchronization)
+    {
+        switch (synchronization)
+        {
+            case DispatcherSynchronization.Synchronous:
+                Current?.Dispatcher.Invoke(method, priority);
+                break;
+            case DispatcherSynchronization.Asynchronous:
+                Current?.Dispatcher.BeginInvoke(method, priority);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public static T InvokeDispatcherSynchronous<T>(Func<T> method, DispatcherPriority priority)
+    {
+        return Current.Dispatcher.Invoke(method, priority);
+    }
+
+    public new static void VerifyAccess()
+    {
+        Current?.Dispatcher.VerifyAccess();
+    }
+
+    public new static bool CheckAccess()
+    {
+        if (Current is not null)
+            return Current.Dispatcher.CheckAccess();
+        return false;
     }
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        Current.DispatcherUnhandledException += OnUnhandledException;
+        //Current.DispatcherUnhandledException += OnUnhandledException;
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
         DebugLogWindow debugLogWindow = new();
         MainWindow = new MainWindow(debugLogWindow);
         MainWindow.Show();
         debugLogWindow.Owner = MainWindow;
-        Properties.UpdateUIDebugLogWindowVisible(true);
+
         LogService.LogRuntimeInfo();
         LogService.Log("Starting Initialization...");
         Initializing?.Invoke(this, e);
@@ -42,15 +97,15 @@ public partial class App : Application
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        string modalTitle = $"{AppProperty.AppName} Crashed";
+        string modalTitle = $"{AppState.AppName} Crashed";
         string msg = $"An unhandled exception occured: \n"
                    + $"{e.Exception}\n"
                    + $"{e.Exception.Message}\n\n";
         LogService.Log(msg);
         MessageBox.Show(msg, modalTitle, MessageBoxButton.OK, MessageBoxImage.Error);
 
-        string lauchTime = Properties.LaunchTime.ToString().Replace('/', '-').Replace(':', '-');
-        string path = $"{Environment.CurrentDirectory}/{AppProperty.AppName} Crash Log {lauchTime}.txt";
+        string lauchTime = State.LaunchTime.ToString().Replace('/', '-').Replace(':', '-');
+        string path = $"{Environment.CurrentDirectory}/{AppState.AppName} Crash Log {lauchTime}.txt";
 
         string logSaveMsg;
         MessageBoxImage messageBoxIcon;
@@ -66,93 +121,4 @@ public partial class App : Application
         }
         MessageBox.Show(logSaveMsg, modalTitle, MessageBoxButton.OK, messageBoxIcon);
     }
-
-    public class AppProperty
-    {
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private readonly static Type s_this = typeof(AppProperty);
-
-        public AppProperty(DateTime launchTime)
-        {
-            LaunchTime = launchTime;
-        }
-
-        #region Internal Logic
-
-        private void NotifyPropertyChanged<T>(T newValue, ref T oldValue, bool canNull = false, [CallerMemberName] string propertyName = "")
-        {
-            if (canNull)
-            {
-                if (newValue is null && oldValue is null)
-                    return;
-            }
-            else
-            {
-                if (newValue is null || oldValue is null)
-                    throw new ArgumentNullException
-                    (
-                        "newValue or oldValue",
-                        "Argument oldValue passed to ValueChanged of ViewModelBase is null"
-                    );
-                if (newValue.Equals(oldValue))
-                    return;
-            }
-            oldValue = newValue;
-            PropertyChanged?.Invoke(s_this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(s_this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
-
-        #region Property Backing Field
-
-        private bool _uiDebugLogWindowVisible = false;
-        private SessionInfo? _sessionInfo = null;
-
-        #endregion
-
-        #region Property
-
-        public DateTime LaunchTime { get; }
-        public static string AppName => "AerialOBJ";
-
-        public bool UIDebugLogWindowVisible
-        {
-            get => _uiDebugLogWindowVisible;
-            set => NotifyPropertyChanged(value, ref _uiDebugLogWindowVisible);
-        }
-
-        public SessionInfo? SessionInfo
-        {
-            get => _sessionInfo;
-            set
-            {
-                NotifyPropertyChanged(value, ref _sessionInfo, canNull: true);
-                NotifyPropertyChanged(nameof(HasSession));
-            }
-        }
-
-        public bool HasSession => SessionInfo is not null;
-
-        #endregion
-
-        #region Property Updater
-
-        public void UpdateUIDebugLogWindowVisible(bool value)
-        {
-            UIDebugLogWindowVisible = value;
-        }
-        public void UpdateSessionInfo(SessionInfo? value)
-        {
-            SessionInfo = value;
-        }
-
-        #endregion
-
-    }
-
 }

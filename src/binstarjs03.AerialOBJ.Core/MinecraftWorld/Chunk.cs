@@ -1,6 +1,4 @@
 ﻿/*
-Minecraft World Parser Library
-
 Copyright (c) 2022, Bintang Jakasurya
 All rights reserved. 
 
@@ -44,6 +42,7 @@ public class Chunk
         zRange: new Range(0, Section.BlockCount)
     );
 
+    private readonly Coords2 _chunkCoordsRel;
     private readonly Coords2 _chunkCoordsAbs;
     private readonly CoordsRange3 _blockRangeAbs;
 
@@ -54,12 +53,14 @@ public class Chunk
     // if we are not sure, we can just index any sectionsYPos element
     private readonly Dictionary<int, Section> _sections;
 
+    public Coords2 ChunkCoordsRel => _chunkCoordsRel;
     public Coords2 ChunkCoordsAbs => _chunkCoordsAbs;
     public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
 
     public Chunk(NbtCompound chunkNbt)
     {
         _chunkCoordsAbs = calculateChunkCoordsAbs(chunkNbt);
+        _chunkCoordsRel = Region.ConvertChunkCoordsAbsToRel(_chunkCoordsAbs);
         _blockRangeAbs = calculateBlockRangeAbs(_chunkCoordsAbs);
         (_sectionsYPos, _sections) = readSections(_chunkCoordsAbs, chunkNbt);
 
@@ -102,6 +103,7 @@ public class Chunk
                 sectionsYPos[i] = sectionYPos;
                 sections.Add(sectionYPos, section);
             }
+
             return (sectionsYPos, sections);
         }
     }

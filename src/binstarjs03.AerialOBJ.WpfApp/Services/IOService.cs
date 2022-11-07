@@ -1,8 +1,31 @@
-﻿using System;
+﻿/*
+Copyright (c) 2022, Bintang Jakasurya
+All rights reserved. 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+using System;
 using System.IO;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.NbtNew;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
@@ -32,7 +55,7 @@ public static class IOService
         writer.Write(content);
     }
 
-    public static SessionInfo? LoadSession(string path)
+    public static SavegameLoadInfo? LoadSavegame(string path)
     {
         DirectoryInfo di = new(path);
         LogService.Log($"Selected path: \"{di.FullName}\"");
@@ -41,15 +64,17 @@ public static class IOService
         string nbtLevelPath = $"{di.FullName}/level.dat";
         if (!File.Exists(nbtLevelPath))
         {
-            string msg = "Missing \"level.dat\" file in specified folder";
+            string msg = "Missing \"level.dat\" file in specified savegame folder";
             LogService.LogError($"{msg}.");
             ShowLoadSavegameErrorModal(path, msg);
             return null;
         }
         try
         {
-            NbtCompound nbtLevel = (NbtCompound)NbtBase.ReadDisk(nbtLevelPath);
-            SessionInfo ret = new(di, nbtLevel);
+            LogService.Log("Found \"level.dat\" file, reading NBT data...");
+            NbtCompound nbtLevel = (NbtCompound)NbtIO.ReadDisk(nbtLevelPath);
+            LogService.Log("Successfully parsed \"level.dat\" NBT data, savegame folder is valid");
+            SavegameLoadInfo ret = new(di, nbtLevel);
             LogService.Log($"Successfully loaded \"{di.Name}\" (\"{ret.WorldName}\")");
             return ret;
         }
@@ -67,6 +92,8 @@ public static class IOService
             return null;
         }
 
+        // TODO i guess services should not interact with UI elemets such as modal,
+        // maybe we should leave that job to the caller and its up to them
         static void ShowLoadSavegameErrorModal(string path, string errorMsg)
         {
             string msg = $"Cannot open \"{path}\" as Minecraft savegame folder: \n"
@@ -75,18 +102,27 @@ public static class IOService
         }
     }
 
+    public static bool HasRegionFile(Coords2 regionCoords)
+    {
+        if (App.Current.State.SavegameLoadInfo is null)
+            return false;
+        else if (App.Current.State.SavegameLoadInfo.RegionFiles.ContainsKey(regionCoords))
+            return true;
+        else
+            return false;
+    }
+
     public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
     {
         e = null;
-        if (App.CurrentCast.Properties.SessionInfo is null)
+        if (App.Current.State.SavegameLoadInfo is null)
             return null;
-        string savegameDir = App.CurrentCast.Properties.SessionInfo.SavegameDirectory.FullName;
-        string regionPath = $"{savegameDir}/region/r.{regionCoords.X}.{regionCoords.Z}.mca";
-        if (File.Exists(regionPath))
+        if (HasRegionFile(regionCoords))
         {
             try
             {
-                Region region = Region.Open(regionPath);
+                string regionFilePath = App.Current.State.SavegameLoadInfo.RegionFiles[regionCoords].FullName;
+                Region region = new(regionFilePath, regionCoords);
                 return region;
             }
             catch (Exception ex)

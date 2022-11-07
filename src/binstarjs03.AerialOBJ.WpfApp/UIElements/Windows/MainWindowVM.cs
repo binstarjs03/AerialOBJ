@@ -1,5 +1,29 @@
-﻿using System;
-using System.ComponentModel;
+﻿/*
+Copyright (c) 2022, Bintang Jakasurya
+All rights reserved. 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+
+using System;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -13,29 +37,34 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
 {
     #region States - Fields and Properties
 
-    private string _title = App.CurrentCast.Properties.SessionInfo is null ?
-        App.AppProperty.AppName : $"{App.AppProperty.AppName} - {App.CurrentCast.Properties.SessionInfo.WorldName}";
-    
-    public string Title => _title;
+    private string _title = App.Current.State.SavegameLoadInfo is null ?
+        AppState.AppName : $"{AppState.AppName} - {App.Current.State.SavegameLoadInfo!.WorldName}";
 
-    public bool HasSession => App.CurrentCast.Properties.HasSession;
+    public bool HasSavegameLoaded => App.Current.State.HasSavegameLoaded;
 
-    public bool UIDebugLogWindowVisible
+    public string Title
     {
-        get => App.CurrentCast.Properties.UIDebugLogWindowVisible;
-        set => App.CurrentCast.Properties.UpdateUIDebugLogWindowVisible(value);
+        get => _title;
+        set => SetAndNotifyPropertyChanged(value, ref _title);
     }
 
-    #endregion
+    public bool DebugLogWindowVisible
+    {
+        get => App.Current.State.DebugLogWindowVisible;
+        set => App.Current.State.DebugLogWindowVisible = value;
+    }
+
+    #endregion States - Fields and Properties
 
     public MainWindowVM(MainWindow window) : base(window)
     {
-        App.CurrentCast.Properties.PropertyChanged += OnSharedPropertyChanged;
+        App.Current.State.SavegameLoadChanged += OnSavegameLoadChanged;
+        App.Current.State.DebugLogWindowVisibleChanged += OnDebugLogWindowVisibleChanged;
 
         // set commands to its corresponding implementations
         AboutCommand = new RelayCommand(OnAbout);
         OpenCommand = new RelayCommand(OnOpen);
-        CloseCommand = new RelayCommand(OnClose, (arg) => HasSession);
+        CloseCommand = new RelayCommand(OnClose, (arg) => HasSavegameLoaded);
         SettingCommand = new RelayCommand(OnSetting);
         ForceGCCommand = new RelayCommand(OnForceGCCommand);
     }
@@ -69,23 +98,23 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
             return;
         }
 
-        SessionInfo? session = IOService.LoadSession(dialog.SelectedPath);
-        if (session is null)
+        SavegameLoadInfo? loadInfo = IOService.LoadSavegame(dialog.SelectedPath);
+        if (loadInfo is null)
         {
-            LogService.LogAborted("Failed changing session. Aborting...", useSeparator: true);
+            LogService.LogAborted("Failed changing savegame. Aborting...", useSeparator: true);
             return;
         }
 
         // close if session exist, this is to ensure
         // every components are reinitialized, such as ChunkManager, etc
-        if (App.CurrentCast.Properties.HasSession)
+        if (App.Current.State.HasSavegameLoaded)
         {
-            LogService.Log("Session exist, closing...");
+            LogService.Log("Savegame already opened, closing...");
             OnClose(null);
         }
 
-        App.CurrentCast.Properties.UpdateSessionInfo(session);
-        LogService.LogSuccess("Successfully changed session.", useSeparator: true);
+        App.Current.State.SavegameLoadInfo = loadInfo;
+        LogService.LogSuccess("Successfully changed savegame.", useSeparator: true);
     }
 
     private void OnClose(object? arg)
@@ -93,18 +122,18 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         string logSuccessMsg;
         LogService.Log("Attempting to closing savegame...");
 
-        if (App.CurrentCast.Properties.SessionInfo is null)
+        if (App.Current.State.SavegameLoadInfo is null)
         {
-            LogService.LogWarning($"{nameof(App.CurrentCast.Properties.SessionInfo)} is already null!");
-            logSuccessMsg = "Successfully closed session.";
+            LogService.LogWarning($"{nameof(App.Current.State.SavegameLoadInfo)} is already closed!");
+            logSuccessMsg = "Successfully closed savegame.";
         }
         else
         {
-            string worldName = App.CurrentCast.Properties.SessionInfo.WorldName;
-            logSuccessMsg = $"Successfully closed session \"{worldName}\".";
+            string worldName = App.Current.State.SavegameLoadInfo.WorldName;
+            logSuccessMsg = $"Successfully closed savegame \"{worldName}\".";
         }
 
-        App.CurrentCast.Properties.UpdateSessionInfo(null);
+        App.Current.State.SavegameLoadInfo = null;
         LogService.LogSuccess(logSuccessMsg, useSeparator: true);
     }
 
@@ -119,37 +148,26 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         LogService.LogWarning("Garbage collection was forced done by the user!", useSeparator: true);
     }
 
-    #endregion
-
-    #region Updaters
-
-    private void UpdateTitle(string title)
-    {
-        _title = title;
-        NotifyPropertyChanged(nameof(Title));
-    }
-
-    #endregion
+    #endregion Commands
 
     #region Event Handlers
 
-    // TODO we need to find a new way to automatically notify shared property change as
-    // data binders are all have "Binding" suffix
-    // solution: maybe on base implementation, add another
-    // NotifyPropertyChanged call with "Binding" suffix added
-    protected override void OnSharedPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnSavegameLoadChanged(SavegameLoadState state)
     {
-        base.OnSharedPropertyChanged(sender, e);
-        string propName = e.PropertyName!;
-
-        if (propName == nameof(App.CurrentCast.Properties.SessionInfo))
+        string title = state switch
         {
-            if (App.CurrentCast.Properties.SessionInfo is null)
-                UpdateTitle(App.AppProperty.AppName);
-            else
-                UpdateTitle($"{App.AppProperty.AppName} - {App.CurrentCast.Properties.SessionInfo.WorldName}");
-        }
+            SavegameLoadState.Opened => $"{AppState.AppName} - {App.Current.State.SavegameLoadInfo!.WorldName}",
+            SavegameLoadState.Closed => AppState.AppName,
+            _ => throw new NotImplementedException()
+        };
+        Title = title;
+        NotifyPropertyChanged(nameof(HasSavegameLoaded));
     }
 
-    #endregion
+    private void OnDebugLogWindowVisibleChanged(bool obj)
+    {
+        NotifyPropertyChanged(nameof(DebugLogWindowVisible));
+    }
+
+    #endregion Event Handlers
 }
