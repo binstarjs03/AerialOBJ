@@ -18,8 +18,8 @@ public enum NbtType
 
     // AerialOBJ specific enumeration
     InvalidOrUnknown = -1,
-    AnyNbtType = 100,
-    AnyNbtArrayType = 101,
-    AnyNbtCollectionType = 102,
-    AnyNbtValueType = 103,
+    AnyNbtType = -10,
+    AnyNbtArrayType = -11,
+    AnyNbtCollectionType = -12,
+    AnyNbtValueType = -13,
 }
