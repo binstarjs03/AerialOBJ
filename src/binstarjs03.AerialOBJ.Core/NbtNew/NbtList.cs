@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace binstarjs03.AerialOBJ.Core.NbtNew;
 
 [DebuggerDisplay("{this.ToString(),nq}")]
-public class NbtList<T> : List<T>, INbtCollection where T : class, INbt
+public class NbtList<T> : List<T>, INbtList where T : class, INbt
 {
     public string Name { get; }
     public NbtType Type => NbtType.NbtList;
@@ -36,5 +37,10 @@ public class NbtList<T> : List<T>, INbtCollection where T : class, INbt
     public override string ToString()
     {
         return $"{Type}<{(ListType == NbtType.InvalidOrUnknown ? "Unknown or Any Nbt Type" : ListType)}> - \"{Name}\": {Count} nbt(s)";
+    }
+
+    IEnumerator INbtList.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }
