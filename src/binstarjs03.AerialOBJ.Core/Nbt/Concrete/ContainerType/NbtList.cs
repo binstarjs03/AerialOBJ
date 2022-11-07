@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt;
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public class NbtList : NbtContainerType
 {
     private readonly List<NbtBase> _tags = new();

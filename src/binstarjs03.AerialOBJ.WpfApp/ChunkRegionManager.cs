@@ -29,7 +29,7 @@ public class ChunkRegionManager
     private readonly Thread _messageLoopThread;
     private readonly Queue<Action> _highPriorityMessageQueue = new(10);
     private readonly Queue<Action> _messageQueue = new(50);
-    //private readonly Queue<Action> _lowPriorityMessageQueue = new(10);
+    private readonly Queue<Coords2> _removeWorkedChunkQueue = new(20);
     private readonly object _messageLock = new(); // lock all messages simultaneously
 
     private readonly Random _rng = new();
@@ -131,18 +131,6 @@ public class ChunkRegionManager
                     if (regionWrapper.NeedRedraw)
                         needRedraws++;
             return needRedraws;
-        }
-
-        void processMessageLoop()
-        {
-            if (getMessageCount() == 0)
-            {
-                _messageEvent.WaitOne(1);
-                return;
-            }
-            // process 3 high priority  and only one normal priority in single call
-            ProcessMessage(3, _highPriorityMessageQueue);
-            ProcessMessage(1, _messageQueue);
         }
     }
 

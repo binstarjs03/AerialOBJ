@@ -1,10 +1,13 @@
-﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
+﻿using System;
+
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 /// <summary>
 /// Enumerations of different type of nbt. Instead of using reflection to
 /// determine the type, we can just reference property NbtType then it will 
 /// return enumeration instance of <see cref="NbtType"/>
 /// </summary>
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public enum NbtType
 {
     NbtEnd = 0,

@@ -1,5 +1,8 @@
-﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
+﻿using System;
 
+namespace binstarjs03.AerialOBJ.Core.Nbt;
+
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public class NbtShort : NbtSingleValueType<short>
 {
     public NbtShort() : base() { return; }

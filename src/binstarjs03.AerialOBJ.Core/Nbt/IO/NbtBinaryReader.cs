@@ -6,20 +6,21 @@ using System.Text;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt.IO;
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public class NbtBinaryReader : BinaryReaderEndian
 {
     public readonly Stack<NbtBase> NbtTagStack = new();
 
     public NbtBinaryReader(Stream input) : base(input) { }
 
-    /// <exception cref="NbtUnknownTypeException"></exception>
+    /// <exception cref="NbtIllegalTypeException"></exception>
     public NbtType ReadTagType()
     {
         int type = ReadByte();
         if (Enum.IsDefined(typeof(NbtType), type))
             return (NbtType)type;
         else
-            throw new NbtUnknownTypeException(
+            throw new NbtIllegalTypeException(
                 $"Unknown tag type '{type}' at stream position {_stream.Position}"
             );
     }

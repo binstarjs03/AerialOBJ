@@ -1,4 +1,6 @@
-﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
+﻿using System;
+
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 /// <summary>
 /// Enumerations of different type of nbt bases. Instead of using reflection to
@@ -6,6 +8,7 @@
 /// property NbtTypeBase then it will return enumeration instance of 
 /// <see cref="NbtTypeBase"/>
 /// </summary>
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public enum NbtTypeBase
 {
     NbtBase = 0,
