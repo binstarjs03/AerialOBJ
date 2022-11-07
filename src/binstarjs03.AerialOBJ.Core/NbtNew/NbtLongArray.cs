@@ -1,9 +1,12 @@
-﻿namespace binstarjs03.AerialOBJ.Core.NbtNew;
+﻿using System.Diagnostics;
 
+namespace binstarjs03.AerialOBJ.Core.NbtNew;
+
+[DebuggerDisplay("{this.ToString(),nq}")]
 public class NbtLongArray : INbtArray<long>
 {
     public string Name { get; set; }
-    public static NbtType Type => NbtType.NbtLongArray;
+    public NbtType Type => NbtType.NbtLongArray;
     public long[] Values { get; set; }
 
     public NbtLongArray(string name, long[] values)
@@ -14,6 +17,6 @@ public class NbtLongArray : INbtArray<long>
 
     public override string ToString()
     {
-        return $"<{Type}> {Name} - Values: {Values.Length} values";
+        return $"{Type} - \"{Name}\": {Values.Length} value(s)";
     }
 }

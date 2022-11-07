@@ -1,9 +1,12 @@
-﻿namespace binstarjs03.AerialOBJ.Core.NbtNew;
+﻿using System.Diagnostics;
 
+namespace binstarjs03.AerialOBJ.Core.NbtNew;
+
+[DebuggerDisplay("{this.ToString(),nq}")]
 public class NbtDouble : INbtValue<double>
 {
     public string Name { get; set; }
-    public static NbtType Type => NbtType.NbtDouble;
+    public NbtType Type => NbtType.NbtDouble;
     public double Value { get; set; }
 
     public NbtDouble(string name, double value)
@@ -14,6 +17,6 @@ public class NbtDouble : INbtValue<double>
 
     public override string ToString()
     {
-        return $"<{Type}> {Name} - Value: {Value}";
+        return $"{Type} - \"{Name}\": {Value}";
     }
 }

@@ -1,15 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace binstarjs03.AerialOBJ.Core.NbtNew;
 
+[DebuggerDisplay("{this.ToString(),nq}")]
 public class NbtCompound : Dictionary<string, INbt>, INbtCollection
 {
     public string Name { get; }
-	public static NbtType Type => NbtType.NbtCompound;
+	public NbtType Type => NbtType.NbtCompound;
 
 	public NbtCompound(string name)
 	{
 		Name = name;
+	}
+
+	public void Add(INbt nbt)
+	{
+		Add(nbt.Name, nbt);
 	}
 
 	public INbt Get(string nbtName)
@@ -26,6 +33,6 @@ public class NbtCompound : Dictionary<string, INbt>, INbtCollection
 
     public override string ToString()
     {
-        return $"<{Type}> {Name} - Nbts: {Count} nbts";
+        return $"{Type} - \"{Name}\": {Count} nbt(s)";
     }
 }

@@ -15,4 +15,11 @@ public enum NbtType
     NbtCompound = 10,
     NbtIntArray = 11,
     NbtLongArray = 12,
+
+    // AerialOBJ specific enumeration
+    InvalidOrUnknown = -1,
+    AnyNbtType = 100,
+    AnyNbtArrayType = 101,
+    AnyNbtCollectionType = 102,
+    AnyNbtValueType = 103,
 }

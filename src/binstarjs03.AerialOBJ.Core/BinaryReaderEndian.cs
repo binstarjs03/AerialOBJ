@@ -57,6 +57,15 @@ public class BinaryReaderEndian : IDisposable
         return BinaryPrimitives.ReadInt16BigEndian(buffer);
     }
 
+    public ushort ReadUShortBE()
+    {
+        int readLength = sizeof(short);
+        Span<byte> buffer = stackalloc byte[readLength];
+        if (_reader.Read(buffer) != readLength)
+            throw new EndOfStreamException();
+        return BinaryPrimitives.ReadUInt16BigEndian(buffer);
+    }
+
     public int ReadIntBE()
     {
         int readLength = sizeof(int);
@@ -95,7 +104,7 @@ public class BinaryReaderEndian : IDisposable
 
     public string ReadStringLengthPrefixed()
     {
-        int length = ReadShortBE();
+        ushort length = ReadUShortBE();
         Span<byte> bytes = stackalloc byte[length];
         if (_reader.Read(bytes) != length)
             throw new EndOfStreamException();

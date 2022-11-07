@@ -101,7 +101,7 @@ public static class NbtIO
 
     private static NbtByte ReadNbtByte(NbtBinaryReader reader, string name)
     {
-        byte value = reader.ReadByte();
+        sbyte value = reader.ReadSByte();
         return new NbtByte(name, value);
     }
 
