@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace binstarjs03.AerialOBJ.Core.NbtNew;
 
@@ -70,7 +66,9 @@ public static class NbtWriter
                 WriteNbtCompound(writer, (nbt as NbtCompound)!);
                 break;
             case NbtType.NbtList:
-                WriteNbtList(writer, (nbt as NbtList<INbt>)!);
+                // since we don't know exactly what argument type of the nbt list is,
+                // here we are using the silver bullet ultimate polymorphism interface
+                WriteNbtList(writer, (nbt as INbtList)!);
                 break;
             default:
                 throw new NotImplementedException();
@@ -123,27 +121,21 @@ public static class NbtWriter
     {
         writer.WriteIntBE(nbt.Values.Length);
         foreach (sbyte value in nbt.Values)
-        {
             writer.WriteSByte(value);
-        }
     }
 
     private static void WriteNbtIntArray(BinaryWriterEndian writer, NbtIntArray nbt)
     {
         writer.WriteIntBE(nbt.Values.Length);
         foreach (int value in nbt.Values)
-        {
             writer.WriteIntBE(value);
-        }
     }
 
     private static void WriteNbtLongArray(BinaryWriterEndian writer, NbtLongArray nbt)
     {
         writer.WriteIntBE(nbt.Values.Length);
         foreach (long value in nbt.Values)
-        {
             writer.WriteLongBE(value);
-        }
     }
 
     private static void WriteNbtCompound(BinaryWriterEndian writer, NbtCompound nbt)
@@ -153,7 +145,7 @@ public static class NbtWriter
         WriteNbtType(writer, NbtType.NbtEnd);
     }
 
-    private static void WriteNbtList<TNbt>(BinaryWriterEndian writer, NbtList<TNbt> nbt) where TNbt : class, INbt
+    private static void WriteNbtList(BinaryWriterEndian writer, INbtList nbt)
     {
         NbtType listType = nbt.ListType;
         if (listType == NbtType.InvalidOrUnknown)
@@ -162,12 +154,10 @@ public static class NbtWriter
             throw new NbtIllegalOperationException($"Cannot write mixed-type of {nameof(NbtList<INbt>)} nbt");
         else if (nbt.Count <= 0)
             // Notchian implementation use list type of end tag for zero-length list
-            listType = NbtType.NbtEnd; 
+            listType = NbtType.NbtEnd;
         WriteNbtType(writer, listType);
         writer.WriteIntBE(nbt.Count);
         foreach (INbt subNbt in nbt)
-        {
             WriteNbtSwitch(writer, subNbt, true);
-        }
     }
 }

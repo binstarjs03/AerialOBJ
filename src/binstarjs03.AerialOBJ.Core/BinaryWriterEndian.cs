@@ -36,6 +36,11 @@ public class BinaryWriterEndian : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    public MemoryStream? AsMemoryStream()
+    {
+        return _stream as MemoryStream;
+    }
+
     public void WriteByte(byte value)
     {
         _writer.Write(value);
@@ -93,7 +98,10 @@ public class BinaryWriterEndian : IDisposable
         int length = Encoding.UTF8.GetByteCount(value);
         if (length > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(value), "String length is too long to write");
-        Span<byte> buff = stackalloc byte[length];
+
+        // allocate buffer in stack if string size is less than 1KiB, else allocate in heap.
+        // This is to guard from stackoverflow exception
+        Span<byte> buff = length < 1024 ? stackalloc byte[length] : new byte[length];
         Encoding.UTF8.GetBytes(value, buff);
         WriteUShortBE((ushort)length);
         _writer.Write(buff);

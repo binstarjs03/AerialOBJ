@@ -15,4 +15,14 @@ public static class NbtIO
     {
         return NbtReader.ReadStream(inputStream);
     }
+
+    public static void WriteDisk(string path, INbt nbt)
+    {
+        NbtWriter.WriteDisk(path, nbt);
+    }
+
+    public static void WriteStream(Stream outputStream, INbt nbt)
+    {
+        NbtWriter.WriteStream(outputStream, nbt);
+    }
 }

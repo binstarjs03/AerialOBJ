@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO.Compression;
 using System.IO;
 
@@ -15,15 +15,15 @@ public static class NbtReader
 
     public static INbt ReadDisk(string path)
     {
-        MemoryStream ms = new(File.ReadAllBytes(path));
-        return ReadStream(ms);
+        using MemoryStream rawStream = new(File.ReadAllBytes(path));
+        return ReadStream(rawStream);
     }
 
     /// <exception cref="NbtDeserializationError"></exception>
-    public static INbt ReadStream(Stream inputStream)
+    public static INbt ReadStream(Stream rawStream)
     {
-        Stream stream = DecompressNbtStream(inputStream);
-        NbtBinaryReader reader = new(stream);
+        using MemoryStream decompressedStream = DecompressNbtStream(rawStream);
+        using NbtBinaryReader reader = new(decompressedStream);
         NbtType nbtType = ReadNbtType(reader);
         try
         {
@@ -38,23 +38,37 @@ public static class NbtReader
         }
     }
 
-    private static MemoryStream DecompressNbtStream(Stream inputStream)
+    private static MemoryStream DecompressNbtStream(Stream rawStream)
     {
-        MemoryStream decompressedStream = new();
-        int byteHeader = inputStream.ReadByte();
-        inputStream.Seek(-1, SeekOrigin.Current);
+        MemoryStream decompressedStream;
+        int byteHeader = rawStream.ReadByte();
+        rawStream.Seek(-1, SeekOrigin.Current);
         switch (byteHeader)
         {
             case (int)ByteHeader.Gzip:
-                using (GZipStream gZipStream = new(inputStream, CompressionMode.Decompress))
+                using (GZipStream gZipStream = new(rawStream, CompressionMode.Decompress))
+                {
+                    decompressedStream = new MemoryStream();
                     gZipStream.CopyTo(decompressedStream);
+                }
                 break;
             case (int)ByteHeader.Zlib:
-                using (ZLibStream zLibStream = new(inputStream, CompressionMode.Decompress))
+                using (ZLibStream zLibStream = new(rawStream, CompressionMode.Decompress))
+                {
+                    decompressedStream = new MemoryStream();
                     zLibStream.CopyTo(decompressedStream);
+                }
                 break;
-            case (int)ByteHeader.TagCompound:
-                inputStream.CopyTo(decompressedStream);
+            case (int)ByteHeader.TagCompound: // uncompressed nbt data
+                // stream may be any instance of stream type,
+                // if it's memory stream, just reuse that instance instead
+                if (rawStream is MemoryStream rawMemoryStream)
+                    decompressedStream = rawMemoryStream;
+                else
+                {
+                    decompressedStream = new MemoryStream();
+                    rawStream.CopyTo(decompressedStream);
+                }
                 break;
             default:
                 throw new NbtUnknownCompressionMethodException(
@@ -187,7 +201,13 @@ public static class NbtReader
         NbtType listType = ReadNbtType(reader);
         return listType switch
         {
-            NbtType.NbtEnd => ReadNbtList<NbtByte>(reader, name, listType), // NbtEnd does not exist
+            /* NbtEnd does not exist so we substitute it with NbtByte,
+             * and of course after instantiated, you cannot change
+             * the list type whatsoever since it is strongly typed...
+             * or we could just use INbt as the (type argument of the) list type,
+             * which will accept any kinds of nbt when added
+             */
+            NbtType.NbtEnd => ReadNbtList<NbtByte>(reader, name, listType), 
             NbtType.NbtByte => ReadNbtList<NbtByte>(reader, name, listType),
             NbtType.NbtShort => ReadNbtList<NbtShort>(reader, name, listType),
             NbtType.NbtInt => ReadNbtList<NbtInt>(reader, name, listType),
@@ -204,22 +224,19 @@ public static class NbtReader
         };
     }
 
-    private static INbt ReadNestedNbtList(NbtBinaryReader reader, string name)
+    private static INbtList ReadNestedNbtList(NbtBinaryReader reader, string name)
     {
         /* Reading nested NbtList is tricky because we can't determine what the
          * type of the NbtList is (can't instantiate, undefined type argument)
          * until we actually read what items that instance of NbtList is holding.
          *
-         * To solve this, we have to polymorph it to its top-level inheritance, 
-         * which is the interface of INbt in this case.
+         * To solve this, we have to polymorph the type argument to its top-level inheritance, 
+         * which is the interface of INbt in this case, and the return type as the nearest
+         * non-generic inheritance, which is INbtList.
          * 
          * Technically we can inline the call in ReadNbtListSwitch at switch NbtType.NbtList
          * with => ReadNbtList<INbt>, but else we cannot make a documentation comment like this :)
          */
-
-        // return ReadNbtList<???>(reader, name, NbtType.NbtList);
-        // Here the ??? of T is Polymorphed to INbt.
-        // OOP can be very powerful if done properly
         return ReadNbtList<INbt>(reader, name, NbtType.NbtList);
     }
 
