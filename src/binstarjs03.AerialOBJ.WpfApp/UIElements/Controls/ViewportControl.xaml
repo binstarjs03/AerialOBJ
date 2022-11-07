@@ -230,8 +230,8 @@ SOFTWARE.
                     <GroupBox Header="Debug - Viewport Info">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Origin Offset: "/>
-                                <TextBlock Text="{Binding Path=ViewportItemOffsetStringized, Mode=OneWay}"/>
+                                <TextBlock Text="Unit Offset Scaled: "/>
+                                <TextBlock Text="{Binding Path=UnitOffsetScaledStringized, Mode=OneWay}"/>
                             </StackPanel>
                             
                             <Separator/>
