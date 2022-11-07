@@ -9,6 +9,7 @@ namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 // TODO: current implementation of loading binary nbt
 // stability haven't proved yet, need unit testing
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public abstract class NbtBase
 {
     protected string _name = "";

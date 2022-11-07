@@ -6,6 +6,7 @@ using System.Text;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt.IO;
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public class NbtBinaryReader : BinaryReaderEndian
 {
     public readonly Stack<NbtBase> NbtTagStack = new();

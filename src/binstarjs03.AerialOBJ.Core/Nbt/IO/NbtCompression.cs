@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Compression;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt.IO;
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public static class NbtCompression
 {
     public enum ByteHeader

@@ -1,5 +1,8 @@
-﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
+﻿using System;
 
+namespace binstarjs03.AerialOBJ.Core.Nbt;
+
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public abstract class NbtContainerType : NbtMultipleValueType
 {
     public NbtContainerType() : base() { }

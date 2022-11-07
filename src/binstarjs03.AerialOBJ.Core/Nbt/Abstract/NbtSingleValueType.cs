@@ -1,5 +1,8 @@
-﻿namespace binstarjs03.AerialOBJ.Core.Nbt;
+﻿using System;
 
+namespace binstarjs03.AerialOBJ.Core.Nbt;
+
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public abstract class NbtSingleValueType : NbtBase
 {
     public NbtSingleValueType() : base() { }
@@ -9,6 +12,7 @@ public abstract class NbtSingleValueType : NbtBase
     public abstract string ValueStringized { get; }
 }
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public abstract class NbtSingleValueType<T> : NbtSingleValueType where T : struct
 {
     protected T _value;

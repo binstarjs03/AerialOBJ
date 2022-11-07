@@ -3,6 +3,7 @@ using System.Text;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt.Utils;
 
+// TODO integrate this class with NbtNew library
 // TODO: use stack based connectors that will be shared between all Compile call.
 // Current implementation is to return new List<string of Connector> each successive Compile call
 // Issue: this will cause excessive GC pressure and deallocation a lot, excessive heap allocation

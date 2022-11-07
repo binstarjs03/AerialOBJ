@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt;
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public abstract class NbtArrayType : NbtMultipleValueType
 {
     public NbtArrayType() : base() { }
@@ -11,6 +13,7 @@ public abstract class NbtArrayType : NbtMultipleValueType
     public abstract string[] ValuesStringized { get; }
 }
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public abstract class NbtArrayType<T> : NbtArrayType where T : struct
 {
     protected List<T> _values;

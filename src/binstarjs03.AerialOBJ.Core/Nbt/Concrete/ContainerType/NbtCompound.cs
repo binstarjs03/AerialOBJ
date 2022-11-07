@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt;
 
+[Obsolete($"Use {nameof(NbtNew)} library instead")]
 public class NbtCompound : NbtContainerType
 {
     private readonly Dictionary<string, NbtBase> _tags = new();
