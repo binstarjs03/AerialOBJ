@@ -1,6 +1,27 @@
+/*
+Copyright (c) 2022, Bintang Jakasurya
+All rights reserved. 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 using System;
-using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -16,10 +37,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     // Because our viewport VM has complex interaction with the view, for updating value,
     // DON'T modify field directly! use the updaters or set the properties instead
 
-    // Zoom table, array index represent how many pixels one block is.
+    // Unit multiplier sequence, index represent how big the multiplier at that zoom level.
     // We use fibonacci sequence to produce natural zoom behaviour
-    private static readonly float[] s_blockPixelCount = new float[] {
-        0.5f, 1f, 2f, 3f, 5f, 8f, 13f, 21f, 34f
+    private static readonly float[] s_unitSequence = new float[] {
+        1f, 2f, 3f, 5f, 8f, 13f, 21f, 34f
     };
 
     private readonly ChunkRegionManager _chunkRegionManager;
@@ -45,6 +66,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     // Yes, below is a very intricate setup of sea of properties
 
     // Camera Group \/
+    /// <summary>
+    /// Camera position is where the camera is currently positioned in world coordinate
+    /// </summary>
     public PointF2 CameraPos
     {
         get => _cameraPos;

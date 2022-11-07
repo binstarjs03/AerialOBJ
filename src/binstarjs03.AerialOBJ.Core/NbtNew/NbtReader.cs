@@ -1,6 +1,4 @@
 ﻿/*
-Nbt Library
-
 Copyright (c) 2022, Bintang Jakasurya
 All rights reserved. 
 
