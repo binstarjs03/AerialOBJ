@@ -28,112 +28,84 @@ using System.Text;
 
 namespace binstarjs03.AerialOBJ.Core;
 
-// TODO implement the ability to read either BE/LE by passing enum
-/// <summary>
-/// Wrapper around <see cref="BinaryReader"/> that takes endianness into account
-/// </summary>
-public class BinaryReaderEndian : IDisposable
+public class BinaryReaderEndian : BinaryReader
 {
-    protected Stream _stream;
-    protected BinaryReader _reader;
-    private bool _disposed = false;
+    public BinaryReaderEndian(Stream input) : base(input) { }
+    public BinaryReaderEndian(Stream input, Encoding encoding) : base(input, encoding) { }
+    public BinaryReaderEndian(Stream input, Encoding encoding, bool leaveOpen) : base(input, encoding, leaveOpen) { }
 
-    public long Position => _stream.Position;
-
-    public BinaryReaderEndian(Stream stream)
+    public short ReadShort(ByteOrder byteOrder)
     {
-        _stream = stream;
-        _reader = new BinaryReader(_stream);
+        int readLength = sizeof(short);
+        Span<byte> buffer = stackalloc byte[sizeof(short)];
+        if (Read(buffer) != readLength)
+            throw new EndOfStreamException();
+        if (byteOrder == ByteOrder.BigEndian)
+            return BinaryPrimitives.ReadInt16BigEndian(buffer);
+        return BinaryPrimitives.ReadInt16LittleEndian(buffer);
     }
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                _reader.Dispose();
-                _stream.Dispose();
-            }
-            _disposed = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    public byte ReadByte()
-    {
-        return _reader.ReadByte();
-    }
-
-    public sbyte ReadSByte()
-    {
-        return _reader.ReadSByte();
-    }
-
-    public short ReadShortBE()
+    public ushort ReadUShort(ByteOrder byteOrder)
     {
         int readLength = sizeof(short);
         Span<byte> buffer = stackalloc byte[readLength];
-        if (_reader.Read(buffer) != readLength)
+        if (Read(buffer) != readLength)
             throw new EndOfStreamException();
-        return BinaryPrimitives.ReadInt16BigEndian(buffer);
+        if (byteOrder == ByteOrder.BigEndian)
+            return BinaryPrimitives.ReadUInt16BigEndian(buffer);
+        return BinaryPrimitives.ReadUInt16LittleEndian(buffer);
     }
 
-    public ushort ReadUShortBE()
-    {
-        int readLength = sizeof(short);
-        Span<byte> buffer = stackalloc byte[readLength];
-        if (_reader.Read(buffer) != readLength)
-            throw new EndOfStreamException();
-        return BinaryPrimitives.ReadUInt16BigEndian(buffer);
-    }
-
-    public int ReadIntBE()
+    public int ReadInt(ByteOrder byteOrder)
     {
         int readLength = sizeof(int);
         Span<byte> buffer = stackalloc byte[readLength];
-        if (_reader.Read(buffer) != readLength)
+        if (Read(buffer) != readLength)
             throw new EndOfStreamException();
-        return BinaryPrimitives.ReadInt32BigEndian(buffer);
+        if (byteOrder == ByteOrder.BigEndian)
+            return BinaryPrimitives.ReadInt32BigEndian(buffer);
+        return BinaryPrimitives.ReadInt32LittleEndian(buffer);
     }
 
-    public long ReadLongBE()
+    public long ReadLong(ByteOrder byteOrder)
     {
         int readLength = sizeof(long);
         Span<byte> buffer = stackalloc byte[readLength];
-        if (_reader.Read(buffer) != readLength)
+        if (Read(buffer) != readLength)
             throw new EndOfStreamException();
-        return BinaryPrimitives.ReadInt64BigEndian(buffer);
+        if (byteOrder == ByteOrder.BigEndian)
+            return BinaryPrimitives.ReadInt64BigEndian(buffer);
+        return BinaryPrimitives.ReadInt64LittleEndian(buffer);
     }
 
-    public float ReadFloatBE()
+    public float ReadFloat(ByteOrder byteOrder)
     {
         int readLength = sizeof(float);
         Span<byte> buffer = stackalloc byte[readLength];
-        if (_reader.Read(buffer) != readLength)
+        if (Read(buffer) != readLength)
             throw new EndOfStreamException();
-        return BinaryPrimitives.ReadSingleBigEndian(buffer);
+        if (byteOrder == ByteOrder.BigEndian)
+            return BinaryPrimitives.ReadSingleBigEndian(buffer);
+        return BinaryPrimitives.ReadSingleLittleEndian(buffer);
+
     }
 
-    public double ReadDoubleBE()
+    public double ReadDouble(ByteOrder byteOrder)
     {
         int readLength = sizeof(double);
         Span<byte> buffer = stackalloc byte[readLength];
-        if (_reader.Read(buffer) != readLength)
+        if (Read(buffer) != readLength)
             throw new EndOfStreamException();
-        return BinaryPrimitives.ReadDoubleBigEndian(buffer);
+        if (byteOrder == ByteOrder.BigEndian)
+            return BinaryPrimitives.ReadDoubleBigEndian(buffer);
+        return BinaryPrimitives.ReadDoubleLittleEndian(buffer);
     }
 
-    public string ReadStringLengthPrefixed()
+    public string ReadStringLengthPrefixed(ByteOrder byteOrder)
     {
-        ushort length = ReadUShortBE();
-        Span<byte> bytes = stackalloc byte[length];
-        if (_reader.Read(bytes) != length)
+        ushort length = ReadUShort(byteOrder);
+        Span<byte> bytes = length < 1024 ? stackalloc byte[length] : new byte[length];
+        if (Read(bytes) != length)
             throw new EndOfStreamException();
         return Encoding.UTF8.GetString(bytes);
     }
