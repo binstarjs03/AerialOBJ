@@ -1,4 +1,13 @@
 .vs
 bin
 obj
+x64
+Debug
+Release
+
 *.csproj.user
+*.vcxproj.user
+*.exe
+*.pdb
+*.obj
+*.log
