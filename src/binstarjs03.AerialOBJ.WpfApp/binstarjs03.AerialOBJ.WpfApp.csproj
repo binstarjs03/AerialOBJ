@@ -7,11 +7,12 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+		<Platforms>AnyCPU;x64</Platforms>
+		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>True</UseWindowsForms>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<PlatformTarget>x64</PlatformTarget>
-		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

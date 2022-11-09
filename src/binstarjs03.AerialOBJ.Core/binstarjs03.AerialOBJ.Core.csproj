@@ -8,6 +8,8 @@
 		<LangVersion>10.0</LangVersion>
 		<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<Platforms>AnyCPU;x64</Platforms>
+		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
 </Project>

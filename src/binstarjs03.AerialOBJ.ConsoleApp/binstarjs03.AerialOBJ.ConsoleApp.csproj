@@ -5,15 +5,11 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<UseWPF>true</UseWPF>
-		<UseWindowsForms>true</UseWindowsForms>
-		<StartupObject>binstarjs03.AerialOBJ.ConsoleApp.ReadRegionChunkBenchmark</StartupObject>
+		<LangVersion>10.0</LangVersion>
+		<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<Platforms>AnyCPU;x64</Platforms>
+		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
-	</ItemGroup>
-
+	
 </Project>
