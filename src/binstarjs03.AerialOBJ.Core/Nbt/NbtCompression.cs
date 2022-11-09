@@ -1,7 +1,8 @@
 ﻿using System.IO.Compression;
 using System.IO;
 
-namespace binstarjs03.AerialOBJ.Core.NbtNew;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
+
 public static class NbtCompression
 {
     private enum ByteHeader

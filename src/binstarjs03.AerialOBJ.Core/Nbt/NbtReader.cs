@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace binstarjs03.AerialOBJ.Core.NbtNew;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 public class NbtReader : BinaryReaderEndian
 {

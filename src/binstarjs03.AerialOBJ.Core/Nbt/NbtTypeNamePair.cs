@@ -2,7 +2,7 @@
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 
-namespace binstarjs03.AerialOBJ.Core.NbtNew;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 public struct NbtTypeNamePair : IEquatable<NbtTypeNamePair>
 {

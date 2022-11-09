@@ -24,7 +24,7 @@ SOFTWARE.
 using System;
 using System.IO;
 
-namespace binstarjs03.AerialOBJ.Core.NbtNew;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 public static class NbtIO
 {

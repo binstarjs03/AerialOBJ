@@ -27,7 +27,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace binstarjs03.AerialOBJ.Core.NbtNew;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 [DebuggerDisplay("{this.ToString(),nq}")]
 public class NbtByte : INbtValue<sbyte>
