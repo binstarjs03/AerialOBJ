@@ -1,228 +1,149 @@
-﻿/*
-Copyright (c) 2022, Bintang Jakasurya
-All rights reserved. 
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
-using System;
-using System.IO.Compression;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace binstarjs03.AerialOBJ.Core.NbtNew;
 
-public static class NbtReader
+public class NbtReader : BinaryReaderEndian
 {
-    private enum ByteHeader
+    private readonly Stack<NbtTypeNamePair> _parsedNbts = new();
+
+    public NbtReader(Stream rawStream) : base(NbtCompression.DecompressStream(rawStream)) { }
+
+    public INbt Parse()
     {
-        Gzip = 0x1F,
-        Zlib = 0x78,
-        TagCompound = 0x0A,
+        ReadNbtType(out NbtType type);
+        return ReadNbtSwitch(type, insideList: false);
     }
 
-    public static INbt ReadDisk(string path)
+    private INbt ReadNbtSwitch(NbtType type, bool insideList)
     {
-        using MemoryStream rawStream = new(File.ReadAllBytes(path));
-        return ReadStream(rawStream);
-    }
+        string name = insideList ? "" : ReadStringLengthPrefixed(ByteOrder.BigEndian);
+        _parsedNbts.Push(new NbtTypeNamePair(type, name));
 
-    /// <exception cref="NbtDeserializationError"></exception>
-    public static INbt ReadStream(Stream rawStream)
-    {
-        using MemoryStream decompressedStream = DecompressNbtStream(rawStream);
-        using NbtBinaryReader reader = new(decompressedStream);
-        NbtType nbtType = ReadNbtType(reader);
-        try
-        {
-            return ReadNbtSwitch(reader, nbtType, insideList: false);
-        }
-        catch (Exception e)
-        {
-            throw new NbtDeserializationError(
-                $"Exception occured while parsing serialized nbt data.\n" +
-                $"Exception details: {e}\n" +
-                reader.GetNbtStackParseErrorAsString(), e);
-        }
-    }
-
-    private static MemoryStream DecompressNbtStream(Stream rawStream)
-    {
-        MemoryStream decompressedStream;
-        int byteHeader = rawStream.ReadByte();
-        rawStream.Seek(-1, SeekOrigin.Current);
-        switch (byteHeader)
-        {
-            case (int)ByteHeader.Gzip:
-                using (GZipStream gZipStream = new(rawStream, CompressionMode.Decompress))
-                {
-                    decompressedStream = new MemoryStream();
-                    gZipStream.CopyTo(decompressedStream);
-                }
-                break;
-            case (int)ByteHeader.Zlib:
-                using (ZLibStream zLibStream = new(rawStream, CompressionMode.Decompress))
-                {
-                    decompressedStream = new MemoryStream();
-                    zLibStream.CopyTo(decompressedStream);
-                }
-                break;
-            case (int)ByteHeader.TagCompound: // uncompressed nbt data
-                // stream may be any instance of stream type,
-                // if it's memory stream, just reuse that instance instead
-                if (rawStream is MemoryStream rawMemoryStream)
-                    decompressedStream = rawMemoryStream;
-                else
-                {
-                    decompressedStream = new MemoryStream();
-                    rawStream.CopyTo(decompressedStream);
-                }
-                break;
-            default:
-                throw new NbtUnknownCompressionMethodException(
-                $"Undefined compression byte header of {byteHeader}");
-        }
-        decompressedStream.Position = 0;
-        return decompressedStream;
-    }
-
-    private static INbt ReadNbtSwitch(NbtBinaryReader reader, NbtType nbtType, bool insideList)
-    {
-        string name = insideList ? "" : reader.ReadStringLengthPrefixed();
-        reader.Stack.Push((nbtType, name));
-        INbt nbt = nbtType switch
+        INbt nbt = type switch
         {
             NbtType.NbtEnd => throw new NbtIllegalOperationException($"Cannot instantiate {NbtType.NbtEnd}"),
-            NbtType.NbtByte => ReadNbtByte(reader, name),
-            NbtType.NbtShort => ReadNbtShort(reader, name),
-            NbtType.NbtInt => ReadNbtInt(reader, name),
-            NbtType.NbtLong => ReadNbtLong(reader, name),
-            NbtType.NbtFloat => ReadNbtFloat(reader, name),
-            NbtType.NbtDouble => ReadNbtDouble(reader, name),
-            NbtType.NbtString => ReadNbtString(reader, name),
-            NbtType.NbtByteArray => ReadNbtByteArray(reader, name),
-            NbtType.NbtIntArray => ReadNbtIntArray(reader, name),
-            NbtType.NbtLongArray => ReadNbtLongArray(reader, name),
-            NbtType.NbtCompound => ReadNbtCompound(reader, name),
-            NbtType.NbtList => ReadNbtListSwitch(reader, name),
-            _ => throw new NbtIllegalTypeException()
+            NbtType.NbtByte => ReadNbtByte(name),
+            NbtType.NbtShort => ReadNbtShort(name),
+            NbtType.NbtInt => ReadNbtInt(name),
+            NbtType.NbtLong => ReadNbtLong(name),
+            NbtType.NbtFloat => ReadNbtFloat(name),
+            NbtType.NbtDouble => ReadNbtDouble(name),
+            NbtType.NbtString => ReadNbtString(name),
+            NbtType.NbtByteArray => ReadNbtByteArray(name),
+            NbtType.NbtIntArray => ReadNbtIntArray(name),
+            NbtType.NbtLongArray => ReadNbtLongArray(name),
+            NbtType.NbtCompound => ReadNbtCompound(name),
+            NbtType.NbtList => ReadNbtListSwitch(name),
+            _ => throw new NotImplementedException()
+
         };
-        reader.Stack.Pop();
+
+        _parsedNbts.Pop();
         return nbt;
     }
 
-    private static NbtType ReadNbtType(NbtBinaryReader reader)
+    private NbtType ReadNbtType(out NbtType nbtType)
     {
-        int type = reader.ReadByte();
+        int type = ReadByte();
         if (Enum.IsDefined(typeof(NbtType), type))
-            return (NbtType)type;
+        {
+            nbtType = (NbtType)type;
+            return nbtType;
+        }
         else
             throw new NbtIllegalTypeException(
-                $"Illegal nbt type '{type}' at stream position {reader.Position}");
+                $"Illegal nbt type '{type}' at stream position {BaseStream.Position}");
     }
 
-    private static NbtByte ReadNbtByte(NbtBinaryReader reader, string name)
+    private NbtByte ReadNbtByte(string name)
     {
-        sbyte value = reader.ReadSByte();
+        sbyte value = ReadSByte();
         return new NbtByte(name, value);
     }
 
-    private static NbtShort ReadNbtShort(NbtBinaryReader reader, string name)
+    private NbtShort ReadNbtShort(string name)
     {
-        short value = reader.ReadShortBE();
+        short value = ReadShort(ByteOrder.BigEndian);
         return new NbtShort(name, value);
     }
 
-    private static NbtInt ReadNbtInt(NbtBinaryReader reader, string name)
+    private NbtInt ReadNbtInt(string name)
     {
-        int value = reader.ReadIntBE();
+        int value = ReadInt(ByteOrder.BigEndian);
         return new NbtInt(name, value);
     }
 
-    private static NbtLong ReadNbtLong(NbtBinaryReader reader, string name)
+    private NbtLong ReadNbtLong(string name)
     {
-        long value = reader.ReadLongBE();
+        long value = ReadLong(ByteOrder.BigEndian);
         return new NbtLong(name, value);
     }
 
-    private static NbtFloat ReadNbtFloat(NbtBinaryReader reader, string name)
+    private NbtFloat ReadNbtFloat(string name)
     {
-        float value = reader.ReadFloatBE();
+        float value = ReadFloat(ByteOrder.BigEndian);
         return new NbtFloat(name, value);
     }
 
-    private static NbtDouble ReadNbtDouble(NbtBinaryReader reader, string name)
+    private NbtDouble ReadNbtDouble(string name)
     {
-        double value = reader.ReadDoubleBE();
+        double value = ReadDouble(ByteOrder.BigEndian);
         return new NbtDouble(name, value);
     }
 
-    private static NbtString ReadNbtString(NbtBinaryReader reader, string name)
+    private NbtString ReadNbtString(string name)
     {
-        string value = reader.ReadStringLengthPrefixed();
+        string value = ReadStringLengthPrefixed(ByteOrder.BigEndian);
         return new NbtString(name, value);
     }
 
-    private static NbtByteArray ReadNbtByteArray(NbtBinaryReader reader, string name)
+    private NbtByteArray ReadNbtByteArray(string name)
     {
-        int arrayLength = reader.ReadIntBE();
+        int arrayLength = ReadInt(ByteOrder.BigEndian);
         sbyte[] array = new sbyte[arrayLength];
         for (int i = 0; i < array.Length; i++)
-            array[i] = reader.ReadSByte();
+            array[i] = ReadSByte();
         return new NbtByteArray(name, array);
     }
 
-    private static NbtIntArray ReadNbtIntArray(NbtBinaryReader reader, string name)
+    private NbtIntArray ReadNbtIntArray(string name)
     {
-        int arrayLength = reader.ReadIntBE();
+        int arrayLength = ReadInt(ByteOrder.BigEndian);
         int[] array = new int[arrayLength];
         for (int i = 0; i < array.Length; i++)
-            array[i] = reader.ReadIntBE();
+            array[i] = ReadInt(ByteOrder.BigEndian);
         return new NbtIntArray(name, array);
     }
 
-    private static NbtLongArray ReadNbtLongArray(NbtBinaryReader reader, string name)
+    private NbtLongArray ReadNbtLongArray(string name)
     {
-        int arrayLength = reader.ReadIntBE();
+        int arrayLength = ReadInt(ByteOrder.BigEndian);
         long[] array = new long[arrayLength];
         for (int i = 0; i < array.Length; i++)
-            array[i] = reader.ReadLongBE();
+            array[i] = ReadLong(ByteOrder.BigEndian);
         return new NbtLongArray(name, array);
     }
 
-    private static NbtCompound ReadNbtCompound(NbtBinaryReader reader, string name)
+    private NbtCompound ReadNbtCompound(string name)
     {
         NbtCompound nbtCompound = new(name);
-        while (true)
+        while (ReadNbtType(out NbtType type) != NbtType.NbtEnd)
         {
-            NbtType nbtType = ReadNbtType(reader);
-            if (nbtType == NbtType.NbtEnd)
-                break;
-            INbt nbt = ReadNbtSwitch(reader, nbtType, insideList: false);
+
+            INbt nbt = ReadNbtSwitch(type, insideList: false);
             nbtCompound.Add(nbt.Name, nbt);
         }
         return nbtCompound;
     }
 
-    private static INbt ReadNbtListSwitch(NbtBinaryReader reader, string name)
+    private INbt ReadNbtListSwitch(string name)
     {
-        NbtType listType = ReadNbtType(reader);
-        return listType switch
+        ReadNbtType(out NbtType type);
+        return type switch
         {
             /* NbtEnd does not exist so we substitute it with NbtByte,
              * and of course after instantiated, you cannot change
@@ -230,24 +151,24 @@ public static class NbtReader
              * or we could just use INbt as the (type argument of the) list type,
              * which will accept any kinds of nbt when added
              */
-            NbtType.NbtEnd => ReadNbtList<NbtByte>(reader, name, listType), 
-            NbtType.NbtByte => ReadNbtList<NbtByte>(reader, name, listType),
-            NbtType.NbtShort => ReadNbtList<NbtShort>(reader, name, listType),
-            NbtType.NbtInt => ReadNbtList<NbtInt>(reader, name, listType),
-            NbtType.NbtLong => ReadNbtList<NbtLong>(reader, name, listType),
-            NbtType.NbtFloat => ReadNbtList<NbtFloat>(reader, name, listType),
-            NbtType.NbtDouble => ReadNbtList<NbtDouble>(reader, name, listType),
-            NbtType.NbtString => ReadNbtList<NbtString>(reader, name, listType),
-            NbtType.NbtByteArray => ReadNbtList<NbtByteArray>(reader, name, listType),
-            NbtType.NbtIntArray => ReadNbtList<NbtIntArray>(reader, name, listType),
-            NbtType.NbtLongArray => ReadNbtList<NbtLongArray>(reader, name, listType),
-            NbtType.NbtList => ReadNestedNbtList(reader, name),
-            NbtType.NbtCompound => ReadNbtList<NbtCompound>(reader, name, listType),
+            NbtType.NbtEnd => ReadNbtList<NbtByte>(name, type),
+            NbtType.NbtByte => ReadNbtList<NbtByte>(name, type),
+            NbtType.NbtShort => ReadNbtList<NbtShort>(name, type),
+            NbtType.NbtInt => ReadNbtList<NbtInt>(name, type),
+            NbtType.NbtLong => ReadNbtList<NbtLong>(name, type),
+            NbtType.NbtFloat => ReadNbtList<NbtFloat>(name, type),
+            NbtType.NbtDouble => ReadNbtList<NbtDouble>(name, type),
+            NbtType.NbtString => ReadNbtList<NbtString>(name, type),
+            NbtType.NbtByteArray => ReadNbtList<NbtByteArray>(name, type),
+            NbtType.NbtIntArray => ReadNbtList<NbtIntArray>(name, type),
+            NbtType.NbtLongArray => ReadNbtList<NbtLongArray>(name, type),
+            NbtType.NbtList => ReadNestedNbtList(name),
+            NbtType.NbtCompound => ReadNbtList<NbtCompound>(name, type),
             _ => throw new NbtIllegalTypeException()
         };
     }
 
-    private static INbtList ReadNestedNbtList(NbtBinaryReader reader, string name)
+    private INbtList ReadNestedNbtList(string name)
     {
         /* Reading nested NbtList is tricky because we can't determine what the
          * type of the NbtList is (can't instantiate, undefined type argument)
@@ -260,18 +181,37 @@ public static class NbtReader
          * Technically we can inline the call in ReadNbtListSwitch at switch NbtType.NbtList
          * with => ReadNbtList<INbt>, but else we cannot make a documentation comment like this :)
          */
-        return ReadNbtList<INbt>(reader, name, NbtType.NbtList);
+        return ReadNbtList<INbt>(name, NbtType.NbtList);
     }
 
-    private static NbtList<T> ReadNbtList<T>(NbtBinaryReader reader, string name, NbtType listType) where T : class, INbt
+    private NbtList<T> ReadNbtList<T>(string name, NbtType listType) where T : class, INbt
     {
-        int listLength = reader.ReadIntBE();
+        int listLength = ReadInt(ByteOrder.BigEndian);
         NbtList<T> nbtList = new(name);
         for (int i = 0; i < listLength; i++)
         {
-            T nbt = (ReadNbtSwitch(reader, listType, insideList: true) as T)!;
+            T nbt = (ReadNbtSwitch(listType, insideList: true) as T)!;
             nbtList.Add(nbt);
         }
         return nbtList;
+    }
+
+    public string GetParseErrorAsString()
+    {
+        StringBuilder sb = new();
+        NbtTypeNamePair errorNbt = _parsedNbts.Pop();
+        IEnumerable<NbtTypeNamePair> reversedNbtStack = _parsedNbts.Reverse();
+
+        sb.AppendLine("Nbt Stack: ");
+        foreach (NbtTypeNamePair nbt in reversedNbtStack)
+        {
+            sb.Append("    ");
+            sb.Append(nbt.Type);
+            sb.Append(" - ");
+            sb.AppendLine(nbt.Name);
+        }
+        sb.Append($"An error occured while parsing nbt data of {errorNbt.Type} - {errorNbt.Name}");
+        _parsedNbts.Push(errorNbt);
+        return sb.ToString();
     }
 }

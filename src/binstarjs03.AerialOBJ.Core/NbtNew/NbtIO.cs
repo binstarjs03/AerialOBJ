@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System;
 using System.IO;
 
 namespace binstarjs03.AerialOBJ.Core.NbtNew;
@@ -29,12 +30,31 @@ public static class NbtIO
 {
     public static INbt ReadDisk(string path)
     {
-        return NbtReader.ReadDisk(path);
+        byte[] fileContent = File.ReadAllBytes(path);
+        MemoryStream ms = new(fileContent);
+        return ReadStream(ms);
+    }
+
+    public static TNbt ReadDisk<TNbt>(string path) where TNbt : class, INbt
+    {
+        INbt nbt = ReadDisk(path);
+        if (nbt is TNbt tNbt)
+            return tNbt;
+        throw new InvalidCastException();
     }
 
     public static INbt ReadStream(Stream inputStream)
     {
-        return NbtReader.ReadStream(inputStream);
+        NbtReader reader = new(inputStream);
+        return reader.Parse();
+    }
+
+    public static TNbt ReadStream<TNbt>(Stream inputStream) where TNbt : class, INbt
+    {
+        INbt nbt = ReadStream(inputStream);
+        if (nbt is TNbt tNbt)
+            return tNbt;
+        throw new InvalidCastException();
     }
 
     public static void WriteDisk(string path, INbt nbt)

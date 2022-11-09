@@ -216,7 +216,7 @@ public class Region
 
         using MemoryStream chunkSectorStream = new(_data, seekPos, dataLength, false);
         using BinaryReaderEndian reader = new(chunkSectorStream);
-        int chunkNbtLength = reader.ReadIntBE();
+        int chunkNbtLength = reader.ReadInt(ByteOrder.BigEndian);
         chunkNbtLength -= 1;
         int compressionMethod = reader.ReadByte();
         int chunkNbtDataPos = (int)(seekPos + chunkSectorStream.Position);

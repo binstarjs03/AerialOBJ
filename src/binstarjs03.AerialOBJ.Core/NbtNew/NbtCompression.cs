@@ -6,9 +6,9 @@ public static class NbtCompression
 {
     private enum ByteHeader
     {
-        Gzip = 0x1F,
-        Zlib = 0x78,
-        TagCompound = 0x0A,
+        Gzip = 0x1F, // 31
+        Zlib = 0x78, // 120
+        TagCompound = 0x0A, // 10
     }
 
     public static MemoryStream DecompressStream(Stream rawStream)
@@ -16,23 +16,23 @@ public static class NbtCompression
         MemoryStream decompressedStream;
         int byteHeader = rawStream.ReadByte();
         rawStream.Seek(-1, SeekOrigin.Current);
-        switch (byteHeader)
+        switch ((ByteHeader)byteHeader)
         {
-            case (int)ByteHeader.Gzip:
+            case ByteHeader.Gzip:
                 using (GZipStream gZipStream = new(rawStream, CompressionMode.Decompress))
                 {
                     decompressedStream = new MemoryStream();
                     gZipStream.CopyTo(decompressedStream);
                 }
                 break;
-            case (int)ByteHeader.Zlib:
+            case ByteHeader.Zlib:
                 using (ZLibStream zLibStream = new(rawStream, CompressionMode.Decompress))
                 {
                     decompressedStream = new MemoryStream();
                     zLibStream.CopyTo(decompressedStream);
                 }
                 break;
-            case (int)ByteHeader.TagCompound: // uncompressed nbt data
+            case ByteHeader.TagCompound: // uncompressed nbt data
                 // stream may be any instance of stream type,
                 // if it's memory stream, just reuse that instance instead
                 if (rawStream is MemoryStream rawMemoryStream)
@@ -45,7 +45,7 @@ public static class NbtCompression
                 break;
             default:
                 throw new NbtUnknownCompressionMethodException(
-                $"Undefined compression byte header of {byteHeader}");
+                $"Unknown compression byte header of {byteHeader}");
         }
         decompressedStream.Position = 0;
         return decompressedStream;
