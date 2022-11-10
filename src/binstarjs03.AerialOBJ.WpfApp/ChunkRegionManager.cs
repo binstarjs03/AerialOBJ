@@ -679,11 +679,16 @@ public class ChunkRegionManager
         }
     }
 
-    public void OnSessionClosed()
+    public void OnSavegameLoadClosed()
     {
+        List<ChunkWrapper> loadedChunks = new(_loadedChunks.Values);
+        foreach (ChunkWrapper chunkWrapper in loadedChunks)
+            UnloadChunk(chunkWrapper);
+
         List<RegionWrapper> loadedRegions = new(_loadedRegions.Values);
         foreach (RegionWrapper region in loadedRegions)
             UnloadRegion(region);
+
         _loadedRegions.Clear();
         _pendingRegionList.Clear();
         _regionCache.Clear();

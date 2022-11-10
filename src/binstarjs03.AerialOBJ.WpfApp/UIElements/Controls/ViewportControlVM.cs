@@ -470,7 +470,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private void OnSavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Closed)
-            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSessionClosed, ChunkRegionManager.MessagePriority.High);
+            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSavegameLoadClosed, ChunkRegionManager.MessagePriority.High);
         ReinitializeStates();
     }
 
