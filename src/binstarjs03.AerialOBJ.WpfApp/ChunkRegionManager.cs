@@ -130,6 +130,8 @@ public class ChunkRegionManager
 
         void processMessageLoop()
         {
+            if (_pendingChunkList.Count > 0)
+                LoadChunkTaskSpawnerMethod();
             if (getMessageCount() == 0)
             {
                 _messageEvent.WaitOne(1);
@@ -607,6 +609,7 @@ public class ChunkRegionManager
         }
         Chunk chunk = regionWrapper.GetChunk(chunkCoordsAbs, false);
         ChunkWrapper chunkWrapper = new(chunk);
+        Thread.Yield();
         int renderedHeightLimit = _viewport.HeightLimit;
         chunk.GetHighestBlock(chunkWrapper.HighestBlocks, heightLimit: renderedHeightLimit);
         regionWrapper.BlitChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);
