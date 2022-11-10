@@ -132,7 +132,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     /// depends on zoom level. It is inverted because obviously, if camera is 1 meter to the right 
     /// of the origin, then everything else the camera sees must be 1 meter shifted  to the left of the camera
     /// </summary>
-    public PointF2 UnitOffsetScaled => -(CameraPos * UnitScale); 
+    public PointF2 UnitOffsetScaled => -(CameraPos * UnitScale);
     public string UnitOffsetScaledStringized => UnitOffsetScaled.ToStringRounded();
     // Miscellaneous of Viewport Variable Group /\
 
@@ -445,8 +445,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseInitClickDrag = true;
         MouseIsOutside = true;
 
-        SidePanelVisible = false;
-        SidePanelDebugInfoVisible = false;
+        SidePanelVisible = true;
+        SidePanelDebugInfoVisible = true;
     }
 
     private async void DebugMainThreadResposeTestGenerateRandomNumber()

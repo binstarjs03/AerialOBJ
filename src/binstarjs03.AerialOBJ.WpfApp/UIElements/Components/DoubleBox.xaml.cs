@@ -42,7 +42,7 @@ public partial class DoubleBox : UserControl, INotifyPropertyChanged, INumericBo
     {
         if (e.Key == Key.Enter)
             UpdateValueBinding();
-        
+
     }
 
     private void OnLostFocus(object sender, RoutedEventArgs e)

@@ -50,7 +50,7 @@ public class ChunkRegionManager
     private readonly AutoResetEvent _messageEvent = new(initialState: false);
 
     // we communicate between chunk region manager thread and other threads using delegate message and such
-    private readonly Thread _messageLoopThread;
+    private readonly Thread _chunkRegionManagerThread;
     private readonly Queue<Action> _highPriorityMessageQueue = new(10);
     private readonly Queue<Action> _messageQueue = new(50);
     private readonly Queue<Coords2> _removeWorkedChunkQueue = new(20);
@@ -78,7 +78,6 @@ public class ChunkRegionManager
     private int _displayedHeightLimit;
 
     // public accessors
-    public ViewportControlVM Viewport => _viewport;
     public CoordsRange2 VisibleRegionRange => _visibleRegionRange;
     public CoordsRange2 VisibleChunkRange => _visibleChunkRange;
     public int VisibleRegionCount => _visibleRegionRange.Sum;
@@ -91,11 +90,10 @@ public class ChunkRegionManager
     public int PendingChunkCount => _pendingChunkList.Count;
     public int WorkedChunkCount => _workedChunks.Count;
 
-
     public ChunkRegionManager(ViewportControlVM viewport)
     {
         _viewport = viewport;
-        _messageLoopThread = new Thread(MainLoop)
+        _chunkRegionManagerThread = new Thread(ChunkRegionManagerLoop)
         {
             Name = $"{nameof(ChunkRegionManager)} Thread",
             IsBackground = true,
@@ -106,14 +104,14 @@ public class ChunkRegionManager
 
     private void OnAppInitializing(object sender, System.Windows.StartupEventArgs e)
     {
-        _messageLoopThread.Start();
+        _chunkRegionManagerThread.Start();
         LogService.Log($"{nameof(ChunkRegionManager)} Thread started");
     }
 
     /// <summary>
     /// <see cref="ChunkRegionManager"/> Thread Message Processing Loop procedure
     /// </summary>
-    private void MainLoop()
+    private void ChunkRegionManagerLoop()
     {
         TimeSpan redrawLatency = TimeSpan.FromMilliseconds(30);
         while (true)
@@ -165,6 +163,7 @@ public class ChunkRegionManager
         for (int i = 0; i < messageCount; i++)
         {
             Action msg;
+            // invoke delegate message outside lock to keep lock time as short as possible
             lock (_messageLock)
             {
                 if (messageQueue.Count == 0)
@@ -179,6 +178,7 @@ public class ChunkRegionManager
     {
         lock (_messageLock)
         {
+            // remove all worked chunks in single call
             while (_removeWorkedChunkQueue.Count > 0)
             {
                 Coords2 chunkCoordsAbs = _removeWorkedChunkQueue.Dequeue();
@@ -198,6 +198,14 @@ public class ChunkRegionManager
     /// Pass a delegate message for <see cref="ChunkRegionManager"/> Thread to execute
     /// </summary>
     /// <param name="msg">The message to be executed by Chunk Region Manager Thread</param>
+    /// <param name="priority">
+    /// Set the priority of delegate message. Three high priority messages will be processed at single
+    /// loop iteration than normal message, which is only one.
+    /// </param>
+    /// <param name="noDuplicate">
+    /// true to cancel posting if delegate message already exist in queue.
+    /// This is to avoid spams where only single delegate invocation is neccessary
+    /// </param>
     public void PostMessage(Action msg, MessagePriority priority, bool noDuplicate = false)
     {
         lock (_messageLock)
@@ -551,10 +559,11 @@ public class ChunkRegionManager
             Coords2 chunkCoordsAbs;
             if (_pendingChunkSet.Count == 0)
                 return;
-            int index = _rng.Next(0, _pendingChunkSet.Count);
-            chunkCoordsAbs = _pendingChunkList[index];
+            // get random pending chunk
+            int randomCoords = _rng.Next(0, _pendingChunkSet.Count);
+            chunkCoordsAbs = _pendingChunkList[randomCoords];
             _pendingChunkSet.Remove(chunkCoordsAbs);
-            _pendingChunkList.RemoveAt(index);
+            _pendingChunkList.RemoveAt(randomCoords);
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingChunkCount));
 
             // Check if region is loaded. It can be in 3 different states followed by its respective resolutions:
@@ -609,7 +618,6 @@ public class ChunkRegionManager
         }
         Chunk chunk = regionWrapper.GetChunk(chunkCoordsAbs, false);
         ChunkWrapper chunkWrapper = new(chunk);
-        Thread.Yield();
         int renderedHeightLimit = _viewport.HeightLimit;
         chunk.GetHighestBlock(chunkWrapper.HighestBlocks, heightLimit: renderedHeightLimit);
         regionWrapper.BlitChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);
@@ -618,14 +626,14 @@ public class ChunkRegionManager
         PostMessage(() => LoadChunk(chunkWrapper), MessagePriority.Normal);
 
         // if this method wants to return (or aborting), we have to remove the chunk coordinate
-        // this thread is working on in the list and let background loop know that we are done
+        // this thread is working on in the list and let chunk region manager loop know that we are done.
         void postExitMessage()
         {
             PostRemoveWorkedChunk(chunkCoordsAbs);
             // Let chunk region manager thread know that it has to process/check for more pending chunks.
             // Post LoadChunkTaskSpawnerMethod if it doesnt exist yet in msg queue.
             // This is to prevent spamming it to the message queue and chunkregionmanager
-            // can spawn multiple load chunk task in single call, avoiding unneccessary multiple calls
+            // can spawn multiple load chunk task in single call, avoiding redundant multiple calls
             PostMessage(LoadChunkTaskSpawnerMethod, MessagePriority.High, noDuplicate: true);
         }
     }

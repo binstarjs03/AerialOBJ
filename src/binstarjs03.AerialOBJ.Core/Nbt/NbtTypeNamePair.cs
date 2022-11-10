@@ -1,7 +1,5 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
-
 namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 public struct NbtTypeNamePair : IEquatable<NbtTypeNamePair>

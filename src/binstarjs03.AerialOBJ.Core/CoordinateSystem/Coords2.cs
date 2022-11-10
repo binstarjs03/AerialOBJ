@@ -73,7 +73,7 @@ public struct Coords2 : IEquatable<Coords2>
 
     public bool Equals(Coords2 other)
     {
-        return X == other.X 
+        return X == other.X
             && Z == other.Z;
     }
 

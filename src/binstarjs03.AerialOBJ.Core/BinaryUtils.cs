@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using System.Linq;
 using System;
 
 namespace binstarjs03.AerialOBJ.Core;
@@ -175,7 +174,7 @@ public static class BinaryUtils
         {
             int leftShiftAmount = emptyBitsCount + ((totalSubnumberCount - 1 - index) * bitLength);
             long numLeftShifted = num << leftShiftAmount;
-            
+
             int rightShiftAmount = (totalBits - bitLength) + emptyBitsCount;
             int numRightShifted = (int)((ulong)numLeftShifted >> rightShiftAmount);
             buffer[index] = numRightShifted;

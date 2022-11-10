@@ -55,7 +55,7 @@ public static class RangeExtension
         }
         catch (InvalidRangeException e)
         {
-            string msg = "Cannot contract any futher, either the range is already infinitely small " 
+            string msg = "Cannot contract any futher, either the range is already infinitely small "
                        + "or distance is too big to contract any further";
             throw new InvalidRangeException(msg, e);
         }

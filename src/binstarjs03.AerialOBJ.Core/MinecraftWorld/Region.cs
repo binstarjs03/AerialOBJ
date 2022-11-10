@@ -51,7 +51,7 @@ public class Region
     private readonly byte[] _data;
     private readonly Coords2 _regionCoords;
     private readonly CoordsRange2 _chunkRangeAbs;
-    
+
     public Coords2 RegionCoords => _regionCoords;
     public CoordsRange2 ChunkRangeAbs => _chunkRangeAbs;
 

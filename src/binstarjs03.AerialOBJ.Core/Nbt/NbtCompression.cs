@@ -1,5 +1,5 @@
-﻿using System.IO.Compression;
-using System.IO;
+﻿using System.IO;
+using System.IO.Compression;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt;
 
