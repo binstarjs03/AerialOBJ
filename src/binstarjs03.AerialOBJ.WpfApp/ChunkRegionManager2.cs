@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,20 +26,21 @@ public class ChunkRegionManager2
 
     private readonly AutoResetEvent _messageEvent = new(false);
     private readonly Queue<Action> _messageQueue = new(50);
+    private readonly Random _rng = new();
+    private readonly Dictionary<Coords2, Region> _regionCache = new(s_regionBufferSize);
 
     private readonly Dictionary<Coords2, RegionWrapper> _loadedRegions = new(s_regionBufferSize);
     private readonly List<Coords2> _pendingRegionList = new(s_regionBufferSize);
     private Coords2? _workedRegion = null;
+    private Task _workRegionTask;
 
     private readonly Dictionary<Coords2, ChunkWrapper> _loadedChunks = new(s_regionBufferSize * Region.TotalChunkCount);
     private readonly HashSet<Coords2> _pendingChunkSet = new(s_chunkBufferSize);
     private readonly List<Coords2> _pendingChunkList = new(s_chunkBufferSize);
     private readonly object _pendingChunkLock = new();
-    private Task _loadRegionTask;
 
     private CoordsRange2 _visibleRegionRange = new();
     private CoordsRange2 _visibleChunkRange = new();
-    private readonly Random _rng = new();
 
     // public accessors
     public CoordsRange2 VisibleRegionRange => _visibleRegionRange;
@@ -57,7 +58,7 @@ public class ChunkRegionManager2
     public ChunkRegionManager2(ViewportControlVM viewport)
     {
         _viewport = viewport;
-        _loadRegionTask = new Task(() => { });
+        _workRegionTask = new Task(() => { });
         new Task(MessageLoop, TaskCreationOptions.LongRunning).Start();
         new Task(RedrawLoop, TaskCreationOptions.LongRunning).Start();
     }
@@ -191,73 +192,80 @@ public class ChunkRegionManager2
     {
         // perform boundary range checking for regions outside display frame
         // unload them if outside
-        //lock (_loadedRegions)
-        //    foreach ((Coords2 regionCoords, RegionWrapper regionWrapper) in _loadedRegions)
-        //        if (_visibleRegionRange.IsOutside(regionCoords))
-        //            UnloadRegion(regionWrapper);
+        lock (_loadedRegions)
+            foreach ((Coords2 regionCoords, RegionWrapper regionWrapper) in _loadedRegions)
+                if (_visibleRegionRange.IsOutside(regionCoords))
+                    UnloadRegion(regionWrapper);
 
         // remove all pending region list that is no longer visible
-        _pendingRegionList.RemoveAll(regionCoords => _visibleRegionRange.IsOutside(regionCoords));
+        lock (_pendingRegionList)
+            _pendingRegionList.RemoveAll(regionCoords => _visibleRegionRange.IsOutside(regionCoords));
 
         // perform sweep checking from min to max range for visible regions
         // add them to pending list if not loaded yet, not in the list, and is not worked yet
         for (int x = _visibleRegionRange.XRange.Min; x <= _visibleRegionRange.XRange.Max; x++)
             for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
             {
-                // TODO IOService should cache which region coords has region file,
-                // so IO operation does not block execution
                 Coords2 regionCoords = new(x, z);
                 lock (_loadedRegions)
-                    if (_loadedRegions.ContainsKey(regionCoords)
-                        || _pendingRegionList.Contains(regionCoords)
-                        || !IOService.HasRegionFile(regionCoords)
-                        || _workedRegion == regionCoords)
-                        continue;
-                _pendingRegionList.Add(regionCoords);
+                    lock (_pendingRegionList)
+                        if (!_loadedRegions.ContainsKey(regionCoords)
+                            || !_pendingRegionList.Contains(regionCoords)
+                            || IOService.HasRegionFile(regionCoords)
+                            || _workedRegion != regionCoords)
+                            _pendingRegionList.Add(regionCoords);
             }
-        LoadRegionAsync();
+        if (_workRegionTask.Status != TaskStatus.Running)
+            _workRegionTask = Task.Run(LoadRegionTaskMethod);
     }
 
-    private async void LoadRegionAsync()
+    private void LoadRegionTaskMethod()
     {
-        while (_pendingRegionList.Count > 0)
+        while (true)
         {
-            int randomIndex = _rng.Next(0, _pendingRegionList.Count);
-            Coords2 regionCoords = _pendingRegionList[randomIndex];
-            _pendingRegionList.RemoveAt(randomIndex);
-
+            Coords2 regionCoords;
+            lock (_pendingRegionList)
+            {
+                if (_pendingRegionList.Count == 0)
+                    return;
+                int randomIndex = _rng.Next(0, _pendingRegionList.Count);
+                regionCoords = _pendingRegionList[randomIndex];
+                _pendingRegionList.RemoveAt(randomIndex);
+            }
             _workedRegion = regionCoords;
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingRegionCount));
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedRegion));
-            Task<RegionWrapper?> loadRegionTask = Task.Run(() => LoadRegionTaskMethod(regionCoords));
-            await loadRegionTask;
+
+            Region region;
+            // Try to fetch region from cache. If miss, load it from disk
+            if (_regionCache.ContainsKey(regionCoords))
+                region = _regionCache[regionCoords];
+            else
+            {
+                Region? regionDisk = IOService.ReadRegionFile(regionCoords, out Exception? e);
+                // cancel region loading if we can't get the region at specified coords
+                // (corrupted, file not exist or not generated yet etc)
+                if (regionDisk is null)
+                {
+                    if (e is not null)
+                    {
+                        // TODO display messagebox only once and never again
+                        LogService.LogError($"Region {regionCoords} was skipped.");
+                        LogService.LogError($"Cause of exception: {e.GetType()}");
+                        LogService.LogError($"Exception details: {e}", useSeparator: true);
+                    }
+                    continue;
+                }
+                region = regionDisk;
+                _regionCache.Add(regionCoords, region);
+            }
+
+            RegionWrapper regionWrapper = new(region, _viewport);
+            regionWrapper.SetRandomImage();
+            LoadRegion(regionWrapper);
             _workedRegion = null;
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedRegion));
-
-            RegionWrapper? regionWrapper = loadRegionTask.Result;
-            if (regionWrapper is null)
-                continue;
-            LoadRegion(regionWrapper);
         }
-    }
-
-    private RegionWrapper? LoadRegionTaskMethod(Coords2 regionCoords)
-    {
-        Region? region = IOService.ReadRegionFile(regionCoords, out Exception? e);
-        if (region is null)
-        {
-            if (e is not null)
-            {
-                // TODO display messagebox only once and never again
-                LogService.LogError($"Region {regionCoords} was skipped.");
-                LogService.LogError($"Cause of exception: {e.GetType()}");
-                LogService.LogError($"Exception details: {e}", useSeparator: true);
-            }
-            return null;
-        }
-        RegionWrapper regionWrapper = new(region, _viewport);
-        regionWrapper.SetRandomImage();
-        regionWrapper.RedrawImage();
-        return regionWrapper;
     }
 
     // TODO showing region image should be done at redraw cycle
@@ -317,11 +325,9 @@ public class ChunkRegionManager2
         {
             lock (_loadedRegions)
                 foreach ((Coords2 regionCoords, RegionWrapper regionWrapper) in _loadedRegions)
-                    //if (_visibleRegionRange.IsInside(regionCoords) && regionWrapper.NeedRedraw)
                     regionWrapper.RedrawImage();
         }
     }
-
 
     public void OnSavegameLoadClosed()
     {
@@ -331,6 +337,7 @@ public class ChunkRegionManager2
 
         _loadedRegions.Clear();
         _pendingRegionList.Clear();
+        _regionCache.Clear();
         _visibleRegionRange = new CoordsRange2();
         _visibleChunkRange = new CoordsRange2();
     }
