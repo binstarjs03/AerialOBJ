@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,7 +88,7 @@ public class ChunkRegionManager2
     {
         PeriodicTimer redrawTimer = new(TimeSpan.FromMilliseconds(s_redrawFrequency));
         while (await redrawTimer.WaitForNextTickAsync())
-            PostMessage(RedrawRegionImages);
+            PostMessage(RedrawRegionImages, noDuplicate: true);
     }
 
     private void ProcessMessage()
@@ -102,10 +102,15 @@ public class ChunkRegionManager2
         message.Invoke();
     }
 
-    public void PostMessage(Action message)
+    public void PostMessage(Action message, bool noDuplicate)
     {
         lock (_messageQueue)
+        {
+            if (noDuplicate)
+                if (!_messageQueue.Contains(message))
+                    _messageQueue.Enqueue(message);
             _messageQueue.Enqueue(message);
+        }
         _messageEvent.Set();
     }
 
@@ -469,7 +474,7 @@ public class ChunkRegionManager2
         chunk.GetHighestBlock(chunkWrapper.HighestBlocks, heightLimit: renderedHeightLimit);
         regionWrapper.BlitChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);
 
-        PostMessage(() => LoadChunk(chunkWrapper));
+        PostMessage(() => LoadChunk(chunkWrapper), false);
         onExit();
 
         // if this method wants to return (or aborting), we have to remove the chunk coordinate
