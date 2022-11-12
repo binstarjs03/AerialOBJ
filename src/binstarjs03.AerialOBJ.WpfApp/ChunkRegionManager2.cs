@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +19,7 @@ public class ChunkRegionManager2
 {
     private const int s_regionBufferSize = 15;
     private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
-    private const int s_framesPerSecond = 24;
+    private const int s_framesPerSecond = 60;
     private const int s_redrawFrequency = 1000 / s_framesPerSecond; // unit: miliseconds
 
     private readonly ViewportControlVM _viewport;
@@ -221,10 +221,12 @@ public class ChunkRegionManager2
                 Coords2 regionCoords = new(x, z);
                 lock (_loadedRegions)
                     lock (_pendingRegionList)
-                        if (!_loadedRegions.ContainsKey(regionCoords)
-                            || !_pendingRegionList.Contains(regionCoords)
-                            || IOService.HasRegionFile(regionCoords)
-                            || _workedRegion != regionCoords)
+                        if (_loadedRegions.ContainsKey(regionCoords)
+                            || _pendingRegionList.Contains(regionCoords)
+                            || !IOService.HasRegionFile(regionCoords)
+                            || _workedRegion == regionCoords)
+                            continue;
+                        else
                             _pendingRegionList.Add(regionCoords);
             }
         if (_workRegionTask.Status != TaskStatus.Running)
