@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -239,7 +239,7 @@ public class ChunkRegionManager2
             lock (_pendingRegionList)
             {
                 if (_pendingRegionList.Count == 0)
-                    return;
+                    break;
                 int randomIndex = _rng.Next(0, _pendingRegionList.Count);
                 regionCoords = _pendingRegionList[randomIndex];
                 _pendingRegionList.RemoveAt(randomIndex);
@@ -275,9 +275,9 @@ public class ChunkRegionManager2
             RegionWrapper regionWrapper = new(region, _viewport);
             regionWrapper.SetRandomImage();
             LoadRegion(regionWrapper);
-            _workedRegion = null;
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedRegion));
         }
+        _workedRegion = null;
     }
 
     // TODO showing region image should be done at redraw cycle
