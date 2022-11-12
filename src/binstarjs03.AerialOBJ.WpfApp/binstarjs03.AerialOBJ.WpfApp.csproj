@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -14,6 +14,14 @@
 		<UseWindowsForms>True</UseWindowsForms>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="ChunkRegionManager.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="ChunkRegionManager.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />

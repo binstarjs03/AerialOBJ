@@ -87,8 +87,6 @@ public abstract class ViewModelBase<TViewModel, TControl> : INotifyPropertyChang
     public void NotifyPropertyChanged(string[] propertyNames)
     {
         foreach (string propertyName in propertyNames)
-        {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

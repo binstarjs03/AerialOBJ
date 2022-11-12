@@ -43,7 +43,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         1f, 2f, 3f, 5f, 8f, 13f, 21f, 34f
     };
 
-    private readonly ChunkRegionManager _chunkRegionManager;
+    private readonly ChunkRegionManager2 _chunkRegionManager;
 
     private PointF2 _cameraPos = PointF2.Zero;
     private int _zoomLevel = 2;
@@ -256,9 +256,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void UpdateChunkRegionManager()
     {
-        _chunkRegionManager.PostMessage(_chunkRegionManager.Update,
-                                        ChunkRegionManager.MessagePriority.High,
-                                        noDuplicate: true);
+        _chunkRegionManager.PostMessage(_chunkRegionManager.Update);
     }
 
     private void UpdateCameraPos(PointF2 cameraPos)
@@ -298,7 +296,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         App.Current.State.SavegameLoadChanged += OnSavegameLoadChanged;
 
-        _chunkRegionManager = new ChunkRegionManager(this);
+        _chunkRegionManager = new ChunkRegionManager2(this);
 
         // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);
@@ -373,7 +371,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         if (e.LeftButton == MouseButtonState.Released)
         {
             MouseClickHolding = false;
-            MouseInitClickDrag = false;
+            MouseInitClickDrag = true;
         }
     }
 
@@ -459,7 +457,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             if (_debugMainThreadResposeTestRandomNumber > 1000)
                 _debugMainThreadResposeTestRandomNumber = 0;
             NotifyPropertyChanged(nameof(DebugMainThreadResposeTestRandomNumber));
-            await Task.Delay(10);
+            await Task.Delay(16);
         }
     }
 
@@ -470,7 +468,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private void OnSavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Closed)
-            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSavegameLoadClosed, ChunkRegionManager.MessagePriority.High);
+            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSavegameLoadClosed);
         ReinitializeStates();
     }
 

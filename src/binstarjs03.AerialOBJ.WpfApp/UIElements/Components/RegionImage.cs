@@ -76,7 +76,7 @@ public class RegionImage
 
     /// <summary>
     /// Makes change from <see cref="SetPixel"/> visible to the screen, 
-    /// can be invoked from any thread. Will invoke dispatcher if the calling
+    /// can be invoked from any thread. Will executed on dispatcher if the calling
     /// thread isn't UI Thread.
     /// </summary>
     public void Redraw()
