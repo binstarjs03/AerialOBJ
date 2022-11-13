@@ -256,9 +256,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void UpdateChunkRegionManager()
     {
-        _chunkRegionManager.PostMessage(_chunkRegionManager.Update,
-                                        ChunkRegionManager.MessagePriority.High,
-                                        noDuplicate: true);
+        _chunkRegionManager.PostMessage(_chunkRegionManager.Update, noDuplicate: true);
     }
 
     private void UpdateCameraPos(PointF2 cameraPos)
@@ -373,7 +371,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         if (e.LeftButton == MouseButtonState.Released)
         {
             MouseClickHolding = false;
-            MouseInitClickDrag = false;
+            MouseInitClickDrag = true;
         }
     }
 
@@ -459,7 +457,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
             if (_debugMainThreadResposeTestRandomNumber > 1000)
                 _debugMainThreadResposeTestRandomNumber = 0;
             NotifyPropertyChanged(nameof(DebugMainThreadResposeTestRandomNumber));
-            await Task.Delay(10);
+            await Task.Delay(16);
         }
     }
 
@@ -470,7 +468,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private void OnSavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Closed)
-            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSavegameLoadClosed, ChunkRegionManager.MessagePriority.High);
+            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSavegameLoadClosed, noDuplicate: true);
         ReinitializeStates();
     }
 

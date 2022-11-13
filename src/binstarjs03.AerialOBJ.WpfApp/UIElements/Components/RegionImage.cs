@@ -32,6 +32,12 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
 
+/// <summary>
+/// Wrapper around <see cref="System.Windows.Controls.Image"/> and
+/// <see cref="System.Windows.Media.Imaging.WriteableBitmap"/> combo.
+/// This class allows you to set pixel color from any thread but updating the
+/// change to make it visible to the screen still must be done from UI Thread
+/// </summary>
 public class RegionImage
 {
     private const int s_blockCount = Region.ChunkCount * Section.BlockCount;
@@ -45,9 +51,19 @@ public class RegionImage
     public Image Image => _image;
     public WriteableBitmap WriteableBitmap => _writeableBitmap;
 
+    /// <summary>
+    /// Instantiation must be done from UI thread else <see cref="InvalidOperationException"/>
+    /// will be thrown
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
     public RegionImage()
     {
-        _writeableBitmap = new WriteableBitmap(s_blockCount, s_blockCount, 96, 96, s_pixelFormat, null);
+        if (!App.CheckAccess())
+            throw new InvalidOperationException("Instantiation must be done from UI thread");
+        _writeableBitmap = new WriteableBitmap(s_pixelLength, s_pixelLength,
+                                               96, 96,
+                                               s_pixelFormat,
+                                               null);
         _backBufferPtr = _writeableBitmap.BackBuffer;
         _image = new Image
         {
@@ -58,28 +74,38 @@ public class RegionImage
         RenderOptions.SetEdgeMode(_image, EdgeMode.Aliased);
     }
 
+    /// <summary>
+    /// Makes change from <see cref="SetPixel"/> visible to the screen, 
+    /// can be invoked from any thread. Will executed on dispatcher if the calling
+    /// thread isn't UI Thread.
+    /// </summary>
     public void Redraw()
     {
         if (App.CheckAccess())
             method();
         else
-            App.InvokeDispatcher(method, DispatcherPriority.Render, DispatcherSynchronization.Synchronous);
+            App.InvokeDispatcher(method,
+                                 DispatcherPriority.Render,
+                                 DispatcherSynchronization.Synchronous);
         void method()
         {
             _writeableBitmap.Lock();
-            AddRegionDirtyRect();
+            AddFullDirtyRect();
             _writeableBitmap.Unlock();
         }
     }
 
-    private void AddRegionDirtyRect()
+    private void AddFullDirtyRect()
     {
         Int32Rect dirtyRect = new(x: 0, y: 0,
-                                  width: Region.BlockCount,
-                                  height: Region.BlockCount);
+                                  width: s_pixelLength,
+                                  height: s_pixelLength);
         _writeableBitmap.AddDirtyRect(dirtyRect);
     }
 
+    /// <summary>
+    /// Set pixel color at XY, can be invoked from any thread
+    /// </summary>
     public void SetPixel(int x, int y, Color color)
     {
         /* Data format for Bgra32:

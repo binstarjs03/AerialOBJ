@@ -25,7 +25,8 @@ public class NbtReader : BinaryReaderEndian
 
         INbt nbt = type switch
         {
-            NbtType.NbtEnd => throw new NbtIllegalOperationException($"Cannot instantiate {NbtType.NbtEnd}"),
+            NbtType.NbtList => ReadNbtListSwitch(name),
+            NbtType.NbtCompound => ReadNbtCompound(name),
             NbtType.NbtByte => ReadNbtByte(name),
             NbtType.NbtShort => ReadNbtShort(name),
             NbtType.NbtInt => ReadNbtInt(name),
@@ -36,8 +37,7 @@ public class NbtReader : BinaryReaderEndian
             NbtType.NbtByteArray => ReadNbtByteArray(name),
             NbtType.NbtIntArray => ReadNbtIntArray(name),
             NbtType.NbtLongArray => ReadNbtLongArray(name),
-            NbtType.NbtCompound => ReadNbtCompound(name),
-            NbtType.NbtList => ReadNbtListSwitch(name),
+            NbtType.NbtEnd => throw new NbtIllegalOperationException($"Cannot instantiate {NbtType.NbtEnd}"),
             _ => throw new NotImplementedException()
 
         };
@@ -151,6 +151,8 @@ public class NbtReader : BinaryReaderEndian
              * or we could just use INbt as the (type argument of the) list type,
              * which will accept any kinds of nbt when added
              */
+            NbtType.NbtCompound => ReadNbtList<NbtCompound>(name, type),
+            NbtType.NbtList => ReadNestedNbtList(name),
             NbtType.NbtEnd => ReadNbtList<NbtByte>(name, type),
             NbtType.NbtByte => ReadNbtList<NbtByte>(name, type),
             NbtType.NbtShort => ReadNbtList<NbtShort>(name, type),
@@ -162,8 +164,6 @@ public class NbtReader : BinaryReaderEndian
             NbtType.NbtByteArray => ReadNbtList<NbtByteArray>(name, type),
             NbtType.NbtIntArray => ReadNbtList<NbtIntArray>(name, type),
             NbtType.NbtLongArray => ReadNbtList<NbtLongArray>(name, type),
-            NbtType.NbtList => ReadNestedNbtList(name),
-            NbtType.NbtCompound => ReadNbtList<NbtCompound>(name, type),
             _ => throw new NbtIllegalTypeException()
         };
     }

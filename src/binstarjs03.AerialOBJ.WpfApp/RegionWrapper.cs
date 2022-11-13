@@ -25,6 +25,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -57,7 +58,7 @@ public class RegionWrapper
         _region = region;
         _regionImage = App.InvokeDispatcherSynchronous(
             () => new RegionImage(),
-            DispatcherPriority.Render);
+            DispatcherPriority.Background);
         _viewport = viewport;
         _regionCoords = region.RegionCoords;
         (_, _generatedChunks) = region.GetGeneratedChunksAsCoordsRel();
@@ -73,6 +74,8 @@ public class RegionWrapper
         return _generatedChunks.Contains(chunkCoordsRel);
     }
 
+    // This method was added for debugging purpose whether Region is loaded or not
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void SetRandomImage()
     {
         Color color;
@@ -88,6 +91,7 @@ public class RegionWrapper
         for (int x = 0; x < Region.BlockCount; x++)
             for (int z = 0; z < Region.BlockCount; z++)
                 _regionImage.SetPixel(x, z, color);
+        NeedRedraw = true;
     }
 
     public void BlitChunkImage(Coords2 chunkCoordsRel, string[,] highestBlocks)
@@ -117,18 +121,17 @@ public class RegionWrapper
 
     public void RedrawImage()
     {
-        _regionImage.Redraw();
-        NeedRedraw = false;
-    }
-
-    public void UpdateImageTransformation()
-    {
         if (App.CheckAccess())
             method();
         else
             App.InvokeDispatcher(method, DispatcherPriority.Render, DispatcherSynchronization.Synchronous);
         void method()
         {
+            if (NeedRedraw)
+            {
+                _regionImage.Redraw();
+                NeedRedraw = false;
+            }
             UpdateImagePosition();
             UpdateImageSize();
         }

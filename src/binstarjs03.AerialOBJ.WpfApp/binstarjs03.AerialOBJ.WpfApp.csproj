@@ -13,6 +13,8 @@
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>True</UseWindowsForms>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	
+		<DefineConstants></DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
