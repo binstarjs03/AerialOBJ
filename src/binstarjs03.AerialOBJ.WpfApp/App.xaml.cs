@@ -21,8 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 using System;
 using System.Windows;
 using System.Windows.Threading;
@@ -81,7 +79,10 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        //Current.DispatcherUnhandledException += OnUnhandledException;
+#if RELEASEVERSION // don't handle exception on debug version, instead 
+                   // inspect it in the IDE if we want to debug it
+        Current.DispatcherUnhandledException += OnUnhandledException;
+#endif
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
         DebugLogWindow debugLogWindow = new();

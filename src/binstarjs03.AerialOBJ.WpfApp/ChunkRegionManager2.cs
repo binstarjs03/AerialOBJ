@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,10 +76,11 @@ public class ChunkRegionManager2
                 needRespawnChunkTasks = _needRespawnChunkTasks;
             lock (_messageQueue)
                 messageCount = _messageQueue.Count;
+
             if (messageCount == 0)
                 _messageEvent.WaitOne();
             if (needRespawnChunkTasks)
-                LoadChunkTaskMethodSpawner();
+                ChunkWorkerTaskSpawner();
             ProcessMessage();
         }
     }
@@ -99,7 +100,21 @@ public class ChunkRegionManager2
                 message = _messageQueue.Dequeue();
             else
                 return;
+#if RELEASEVERSION
+        try
+        {
+            message.Invoke();
+        }
+        // propagate exception to Main Thread and let that thread handle it
+        catch (Exception e)
+        {
+            Exception exception = new($"Unhandled exception at {nameof(ChunkRegionManager2)} Thread", e);
+            App.InvokeDispatcher(() => throw exception, DispatcherPriority.Send, DispatcherSynchronization.Asynchronous);
+            throw;
+        }
+#else // don't handle exception on debug version, instead inspect it in the IDE if we want to debug it
         message.Invoke();
+#endif
     }
 
     public void PostMessage(Action message, bool noDuplicate)
@@ -275,7 +290,6 @@ public class ChunkRegionManager2
             }
 
             RegionWrapper regionWrapper = new(region, _viewport);
-            regionWrapper.SetRandomImage();
             LoadRegion(regionWrapper);
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedRegion));
         }
@@ -400,13 +414,14 @@ public class ChunkRegionManager2
                 _pendingChunkList.Add(chunkCoordsAbs);
             }
         _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingChunkCount));
-        LoadChunkTaskMethodSpawner();
+        ChunkWorkerTaskSpawner();
     }
 
-    private void LoadChunkTaskMethodSpawner()
+    private void ChunkWorkerTaskSpawner()
     {
         lock (_needRespawnChunkTasksLock)
             _needRespawnChunkTasks = false;
+
         _workedChunkTasks.RemoveAll(task => task.IsCompleted);
         // TODO set max chunk worker thread count according to user setting chunk threads!
         while (_workedChunkTasks.Count < Environment.ProcessorCount)
@@ -487,9 +502,6 @@ public class ChunkRegionManager2
                 _workedChunks.Remove(chunkCoordsAbs);
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedChunkCount));
             // Let chunk region manager thread know that it has to process/check for more pending chunks.
-            // Post LoadChunkTaskSpawnerMethod if it doesnt exist yet in msg queue.
-            // This is to prevent spamming it to the message queue and chunkregionmanager
-            // can spawn multiple load chunk task in single call, avoiding redundant multiple calls
             lock (_needRespawnChunkTasksLock)
                 _needRespawnChunkTasks = true;
             _messageEvent.Set();
