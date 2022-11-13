@@ -409,16 +409,52 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     #region Methods
 
-    public PointF2 ConvertWorldPositionToScreenPosition(PointF2 worldPosition)
+    public PointF2 ConvertWorldPositionToScreenPosition(PointF2 worldPos)
     {
         // we floor the final position here so it snaps perfectly to the pixel
         // (or the unit) and it removes "Jaggy-Moving" illusion.
         // Try to remove the floor and see yourself the illusion
 
         // if world pos is 3 at unit scale 1, then it must be 12 at unit scale 4
-        PointF2 scaledPos = worldPosition * UnitScale;
-        PointF2 finalPos = (UnitOffsetScaled + ScreenCenter + scaledPos).Floor;
-        return finalPos;
+        PointF2 scaledPos = worldPos * UnitScale;
+        PointF2 screenPos = (UnitOffsetScaled + ScreenCenter + scaledPos).Floor;
+        return screenPos;
+    }
+
+    public PointF2 ConvertScreenPositionToWorldPosition(PointF2 screenPosition)
+    {
+        /* Derivation for finding the inverse of conversion from screen pos to world pos:
+         * 
+         * start from screenPos formula and expand it
+         * screenPos = unitOffsetScaled + screenCenter + scaledPos -> expand up to the bare variables
+         *           = (unitOffset * unitScale) + screenCenter + scaledPos
+         *           = (-cameraPos * zoomLevel) + screenCenter + scaledPos
+         *           = (-cameraPos * zoomLevel) + (screenSize / 2) + scaledPos
+         *           = (-cameraPos * zoomLevel) + (screenSize / 2) + (worldPos * unitScale)
+         *           = (-cameraPos * zoomLevel) + (screenSize / 2) + (worldPos * zoomLevel)
+         * 
+         * To find the formula for worldPos, first we start from the expanded formula of converting world pos to screen pos
+         * screenPos = (-cameraPos * zoomLevel) + (screenSize / 2) + (worldPos * zoomLevel)                                                     -> subtract both by (worldPos * zoomLevel)
+         * screenPos - (worldPos * zoomLevel) = (-cameraPos * zoomLevel) + (screenSize / 2) + (worldPos * zoomLevel) - (worldPos * zoomLevel)   -> eliminate same variable
+         * screenPos - (worldPos * zoomLevel) = (-cameraPos * zoomLevel) + (screenSize / 2)                                                     -> subtract both by screenPos
+         * screenPos - screenPos - (worldPos * zoomLevel) = (-cameraPos * zoomLevel) + (screenSize / 2) - screenPos                             -> eliminate same variable
+         * -(worldPos * zoomLevel) = (-cameraPos * zoomLevel) + (screenSize / 2) - screenPos                                                    -> divide both by zoomLevel
+         * -(worldPos * zoomLevel) / zoomLevel = ((-cameraPos * zoomLevel) + (screenSize / 2) - screenPos) / zoomLevel                          -> simplify fraction
+         * -worldPos = ((-cameraPos * zoomLevel) + (screenSize / 2) - screenPos) / zoomLevel                                                    -> multiply both by negative one
+         * -worldPos * -1 = ((-cameraPos * zoomLevel) + (screenSize / 2) - screenPos) / zoomLevel * -1                                          -> simplify multiplication
+         * worldPos = -((-cameraPos * zoomLevel) + (screenSize / 2) - screenPos) / zoomLevel                                                    -> substitute back variables
+         * worldPos = -((unitOffset * unitScale) + (screenSize / 2) - screenPos) / zoomLevel                                                    -> substitute back variables
+         * worldPos = -(unitOffsetScaled + (screenSize / 2) - screenPos) / zoomLevel
+         * worldPos = -(unitOffsetScaled + screenCenter - screenPos) / zoomLevel
+         */
+
+        PointF2 worldPos = -(UnitOffsetScaled + ScreenCenter - screenPosition) / ZoomLevel;
+        return worldPos;
+    }
+
+    private void UpdateStatusBar()
+    {
+
     }
 
     private void ClearFocus()
