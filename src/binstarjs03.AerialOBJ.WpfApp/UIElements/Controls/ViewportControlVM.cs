@@ -343,8 +343,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         MouseEventArgs e = (arg as MouseEventArgs)!;
         PointInt2 oldMousePos = MousePos;
-        PointInt2 newMousePos = new((int)e.GetPosition(Control).X,
-                                    (int)e.GetPosition(Control).Y);
+        PointInt2 newMousePos = new((int)e.GetPosition(Control.ViewportPanel).X,
+                                    (int)e.GetPosition(Control.ViewportPanel).Y);
         MousePos = newMousePos;
 
         // Set delta to 0 if this call is initial click and dragging.
