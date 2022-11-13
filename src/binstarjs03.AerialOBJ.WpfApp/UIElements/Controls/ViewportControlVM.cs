@@ -43,7 +43,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         1f, 2f, 3f, 5f, 8f, 13f, 21f, 34f
     };
 
-    private readonly ChunkRegionManager2 _chunkRegionManager;
+    private readonly ChunkRegionManager _chunkRegionManager;
 
     private PointF2 _cameraPos = PointF2.Zero;
     private int _zoomLevel = 2;
@@ -296,7 +296,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         App.Current.State.SavegameLoadChanged += OnSavegameLoadChanged;
 
-        _chunkRegionManager = new ChunkRegionManager2(this);
+        _chunkRegionManager = new ChunkRegionManager(this);
 
         // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);
