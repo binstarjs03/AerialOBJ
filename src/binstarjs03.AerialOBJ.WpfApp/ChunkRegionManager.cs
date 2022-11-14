@@ -160,6 +160,7 @@ public class ChunkRegionManager
         if (RecalculateVisibleChunkRange())
         {
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerVisibleChunkCount));
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerVisibleChunkRangeXStringized));
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerVisibleChunkRangeZStringized));
             if (RecalculateVisibleRegionRange())
@@ -434,6 +435,7 @@ public class ChunkRegionManager
                 _pendingChunkList.Add(chunkCoordsAbs);
             }
         _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingChunkCount));
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
         ChunkWorkerTaskSpawner();
     }
 
@@ -455,6 +457,7 @@ public class ChunkRegionManager
             _pendingChunkSet.Remove(chunkCoordsAbs);
             _pendingChunkList.RemoveAt(randomCoords);
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingChunkCount));
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
 
             // Check if region is loaded. It can be in 3 different states followed by its respective resolutions:
             // - found and loaded -> proceed to process that chunk
@@ -476,6 +479,7 @@ public class ChunkRegionManager
                     _pendingChunkList.Add(chunkCoordsAbs);
                     _pendingChunkSet.Add(chunkCoordsAbs);
                     _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerPendingChunkCount));
+                    _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
                     continue;
                 }
                 else
@@ -493,6 +497,7 @@ public class ChunkRegionManager
             Task task = Task.Run(() => LoadChunkTaskMethod(chunkCoordsAbs, regionWrapper));
             _workedChunkTasks.Add(task);
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedChunkCount));
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
         }
     }
 
@@ -521,6 +526,7 @@ public class ChunkRegionManager
             lock (_workedChunks)
                 _workedChunks.Remove(chunkCoordsAbs);
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerWorkedChunkCount));
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
             // Let chunk region manager thread know that it has to process/check for more pending chunks.
             lock (_needRespawnChunkTasksLock)
                 _needRespawnChunkTasks = true;
@@ -629,5 +635,6 @@ public class ChunkRegionManager
         _regionCache.Clear();
         _visibleRegionRange = new CoordsRange2();
         _visibleChunkRange = new CoordsRange2();
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
     }
 }

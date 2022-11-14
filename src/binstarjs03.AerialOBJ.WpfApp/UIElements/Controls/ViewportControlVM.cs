@@ -150,6 +150,19 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public int ChunkRegionManagerLoadedChunkCount => _crm.LoadedChunkCount;
     public int ChunkRegionManagerPendingChunkCount => _crm.PendingChunkCount;
     public int ChunkRegionManagerWorkedChunkCount => _crm.WorkedChunkCount;
+    public double ChunkRegionManagerLoadChunkProgress
+    {
+        get
+        {
+            if (!App.Current.State.HasSavegameLoaded)
+                return 0;
+            else if (_crm.PendingChunkCount == 0 || _crm.WorkedChunkCount == 0)
+                return 100;
+            else
+                return (_crm.VisibleChunkCount - _crm.PendingChunkCount) / (double)_crm.VisibleChunkCount;
+        }
+    }
+        
 
     public string ChunkRegionManagerVisibleRegionRangeXStringized => _crm.VisibleRegionRange.XRange.ToString();
     public string ChunkRegionManagerVisibleRegionRangeZStringized => _crm.VisibleRegionRange.ZRange.ToString();
