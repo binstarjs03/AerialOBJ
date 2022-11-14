@@ -68,7 +68,7 @@ public class DebugLogWindowVM : ViewModelWindow<DebugLogWindowVM, DebugLogWindow
     {
         using SaveFileDialog dialog = new()
         {
-            FileName = $"MineSharpOBJ Log",
+            FileName = $"{AppState.AppName} Log",
             DefaultExt = ".txt",
             Filter = "Text Document (.txt)|*.txt"
         };

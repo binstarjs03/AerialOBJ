@@ -83,7 +83,7 @@ public static class IOService
             string modalMsg = "Failed when reading \"level.dat\" file "
                             + "in specified folder, "
                             + "may be corrupted or not supported "
-                            + "by this version of MineSharpOBJ.";
+                            + $"by this version of {AppState.AppName}.";
             string logMsg = $"{modalMsg}\n\n"
                           + "Exception details:\n"
                           + $"{ex.GetType()}: {ex.Message}";

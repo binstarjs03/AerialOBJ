@@ -132,7 +132,7 @@ public class ChunkRegionManager
         // propagate exception to Main Thread and let that thread handle it
         catch (Exception e)
         {
-            Exception exception = new($"Unhandled exception at {nameof(ChunkRegionManager2)} Thread", e);
+            Exception exception = new($"Unhandled exception at {nameof(ChunkRegionManager)} Thread", e);
             App.InvokeDispatcher(() => throw exception, DispatcherPriority.Send, DispatcherSynchronization.Asynchronous);
             throw;
         }

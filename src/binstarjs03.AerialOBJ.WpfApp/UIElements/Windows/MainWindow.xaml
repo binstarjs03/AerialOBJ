@@ -33,7 +33,7 @@ SOFTWARE.
         
         Title="{Binding Path=Title,
                         Mode=OneWay}"
-        d:Title="MineSharpOBJ"
+        d:Title="AerialOBJ"
         Width="800" Height="600"
         MinWidth="450" MinHeight="300"
         d:Width="600" d:Height="400"

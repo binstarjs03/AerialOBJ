@@ -90,6 +90,11 @@ public partial class App : Application
         MainWindow.Show();
         debugLogWindow.Owner = MainWindow;
 
+#if RELEASEVERSION
+#else
+        State.DebugLogWindowVisible = true;
+#endif
+
         LogService.LogRuntimeInfo();
         LogService.Log("Starting Initialization...");
         Initializing?.Invoke(this, e);

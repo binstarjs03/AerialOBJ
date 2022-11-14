@@ -331,11 +331,13 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseLeaveCommand = new RelayCommand(OnMouseLeave);
         MouseEnterCommand = new RelayCommand(OnMouseEnter);
         KeyUpCommand = new RelayCommand(OnKeyUp);
-
+#if RELEASEVERSION
+#else
         DebugMainThreadResposeTestGenerateRandomNumber();
+#endif
     }
 
-    #region Commands
+#region Commands
 
     public ICommand SizeChangedCommand { get; }
     public ICommand MouseWheelCommand { get; }
@@ -429,9 +431,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         }
     }
 
-    #endregion Commands
+#endregion Commands
 
-    #region Methods
+#region Methods
 
     public PointF2 ConvertWorldPositionToScreenPosition(PointF2 worldPos)
     {
@@ -504,8 +506,13 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseInitClickDrag = true;
         MouseIsOutside = true;
 
+#if RELEASEVERSION
+        SidePanelVisible = false;
+        SidePanelDebugInfoVisible = false;
+#else
         SidePanelVisible = true;
         SidePanelDebugInfoVisible = true;
+#endif
     }
 
     private async void DebugMainThreadResposeTestGenerateRandomNumber()
@@ -522,9 +529,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         }
     }
 
-    #endregion Methods
+#endregion Methods
 
-    #region Event Handlers
+#region Event Handlers
 
     private void OnSavegameLoadChanged(SavegameLoadState state)
     {
@@ -533,5 +540,5 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         ReinitializeStates();
     }
 
-    #endregion Event Handlers
+#endregion Event Handlers
 }
