@@ -87,18 +87,25 @@ public class MainWindowVM : ViewModelWindow<MainWindowVM, MainWindow>
         ModalService.ShowAboutModal();
     }
 
-    private void OnOpen(object? arg)
+    public void OnOpen(object? arg)
     {
-        LogService.Log("Attempting to loading savegame...");
-        using FolderBrowserDialog dialog = new();
-        DialogResult dialogResult = dialog.ShowDialog();
-        if (dialogResult != DialogResult.OK)
+        string path;
+        if (arg is null)
         {
-            LogService.LogAborted("Dialog cancelled. Aborting...", useSeparator: true);
-            return;
+            LogService.Log("Attempting to loading savegame...");
+            using FolderBrowserDialog dialog = new();
+            DialogResult dialogResult = dialog.ShowDialog();
+            if (dialogResult != DialogResult.OK)
+            {
+                LogService.LogAborted("Dialog cancelled. Aborting...", useSeparator: true);
+                return;
+            }
+            path = dialog.SelectedPath;
         }
+        else
+            path = (arg as string)!;
 
-        SavegameLoadInfo? loadInfo = IOService.LoadSavegame(dialog.SelectedPath);
+        SavegameLoadInfo? loadInfo = IOService.LoadSavegame(path);
         if (loadInfo is null)
         {
             LogService.LogAborted("Failed changing savegame. Aborting...", useSeparator: true);

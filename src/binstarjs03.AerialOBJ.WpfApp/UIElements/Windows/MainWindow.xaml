@@ -44,15 +44,18 @@ SOFTWARE.
     <Grid>
         <DockPanel>
             <Menu IsMainMenu="True" DockPanel.Dock="Top">
-                <MenuItem Header="File">
+                <MenuItem Header="File" Name="MenuFile">
+                    <!--OpenRegistered may get removed when minecraft savegame folder do not exist-->
                     <MenuItem Header="Open" 
+                        Name="OpenRegistered"/>
+                    <MenuItem Header="Open Folder..." 
                               Command="{Binding OpenCommand}"/>
                     <MenuItem Header="Close"
                               IsEnabled="{Binding Path=HasSavegameLoaded,
                                                   Mode=OneWay}"
                               Command="{Binding CloseCommand}"/>
                     <Separator/>
-                    <MenuItem Header="Setting"
+                    <MenuItem Header="Setting..."
                               Command="{Binding SettingCommand}"/>
                     <MenuItem Header="Exit" 
                               Command="{Binding WindowCloseCommand}"/>

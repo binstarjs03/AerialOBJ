@@ -23,26 +23,65 @@ SOFTWARE.
 
 using System;
 using System.IO;
+using System.Windows;
+using System.Windows.Controls;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.WpfApp.UIElements.Windows;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
 public static class IOService
 {
-    public static DirectoryInfo[] GetSavegameDirectories()
+    public static void RegisterSavegamePath(MainWindow mainWindow)
     {
+        MainWindowVM vm = (mainWindow.DataContext as MainWindowVM)!;
+        LogService.Log("Registering savegame paths from Minecraft folder of current user account...");
         string userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         string minecraftSaveRootPath = $"{userPath}/AppData/Roaming/.minecraft/saves";
         if (!Directory.Exists(minecraftSaveRootPath))
         {
-            throw new DirectoryNotFoundException("Minecraft savefolders not found");
+            LogService.LogError("Minecraft savegame folder not found");
+            MessageBox.Show("Cannot find savegame folder of Minecraft from current user account. " 
+                            + "Your Minecraft savegames will not show from Open Menu but you can " 
+                            + "still open it manually and locate the folder to your savegame.", 
+                            caption: "Missing Minecraft Savegame folder",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+            vm.Control.MenuFile.Items.Remove(vm.Control.OpenRegistered);
+            return;
         }
-        DirectoryInfo di = new(minecraftSaveRootPath);
-        DirectoryInfo[] savePaths = di.GetDirectories();
-        return savePaths;
+        DirectoryInfo[] savegameDirectories = new DirectoryInfo(minecraftSaveRootPath).GetDirectories();
+        LogService.Log($"Found {savegameDirectories.Length} savegame(s) in Minecraft folder of current user account");
+        foreach (DirectoryInfo savegameDir in savegameDirectories)
+        {
+            string savegamePath = savegameDir.FullName;
+            string levelNbtPath = $"{savegamePath}/level.dat";
+            if (!File.Exists(levelNbtPath))
+            {
+                LogService.Log($"Skipping {savegameDir.Name}, file \"level.dat not\" exist");
+                continue;
+            }
+            try
+            {
+                NbtCompound levelNbt = (NbtCompound)NbtIO.ReadDisk(levelNbtPath);
+                string levelName = levelNbt.Get<NbtCompound>("Data").Get<NbtString>("LevelName").Value;
+                MenuItem savegameMenuItem = new()
+                {
+                    Header = $"{levelName} (/{savegameDir.Name})",
+                    Command = new RelayCommand(vm.OnOpen, arg: savegamePath)
+                };
+                mainWindow.OpenRegistered.Items.Add(savegameMenuItem);
+                LogService.Log($"Registered {levelName} ({savegameDir.Name}) to Open menu");
+            }
+            catch (Exception e)
+            {
+                LogService.LogError($"Cannot register {savegameDir.Name} into menu open:\n{e}");
+                continue;
+            }
+        }
     }
 
     /// <exception cref="IOException"/>

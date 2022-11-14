@@ -86,7 +86,8 @@ public partial class App : Application
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
         DebugLogWindow debugLogWindow = new();
-        MainWindow = new MainWindow(debugLogWindow);
+        MainWindow mainWindow = new(debugLogWindow);
+        MainWindow = mainWindow;
         MainWindow.Show();
         debugLogWindow.Owner = MainWindow;
 
@@ -98,6 +99,7 @@ public partial class App : Application
         LogService.LogRuntimeInfo();
         LogService.Log("Starting Initialization...");
         Initializing?.Invoke(this, e);
+        IOService.RegisterSavegamePath(mainWindow);
         LogService.Log("Initialization complete", useSeparator: true);
     }
 

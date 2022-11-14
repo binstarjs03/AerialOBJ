@@ -86,8 +86,14 @@ public class ChunkRegionManager
     {
         _viewport = viewport;
         _workRegionTask = new Task(() => { });
+        App.Current.Initializing += OnAppInitializing;
+    }
+
+    private void OnAppInitializing(object sender, System.Windows.StartupEventArgs e)
+    {
         new Task(MessageLoop, TaskCreationOptions.LongRunning).Start();
         new Task(RedrawLoop, TaskCreationOptions.LongRunning).Start();
+        LogService.Log($"Started {nameof(ChunkRegionManager)} and {nameof(RedrawLoop)} threads");
     }
 
     private void MessageLoop()
