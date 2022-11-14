@@ -25,7 +25,6 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
@@ -240,7 +239,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     // Mouse Hover Group \/
     public bool MouseHoverHasBlock { get; set; } = false;
-    public bool MouseHoverHasBlockInverse => !MouseHoverHasBlock;
     public Coords2 MouseHoverRegionCoords { get; set; }
     public Coords2 MouseHoverChunkCoordsAbs { get; set; }
     public Coords2 MouseHoverChunkCoordsRel { get; set; }
