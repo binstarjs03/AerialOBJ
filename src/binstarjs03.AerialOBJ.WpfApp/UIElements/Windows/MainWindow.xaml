@@ -90,7 +90,92 @@ SOFTWARE.
                 </MenuItem>
             </Menu>
             <StatusBar DockPanel.Dock="Bottom">
-                <StatusBarItem Content="Ready"/>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Region "/>
+                        <TextBlock d:Text="(0, 0)"
+                                   Text="{Binding ElementName=Viewport,
+                                                  Path=DataContext.MouseHoverRegionCoords,
+                                                  Mode=OneWay}"
+                                   Visibility="{Binding ElementName=Viewport,
+                                                        Path=DataContext.MouseHoverHasBlock,
+                                                        Mode=OneWay,
+                                                        Converter={StaticResource BoolToVisibility}}"/>
+                    </StackPanel>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Chunk "/>
+                        <TextBlock d:Text="a"/>
+                        <TextBlock d:Text="(0, 0)"
+                                   Text="{Binding ElementName=Viewport,
+                                                  Path=DataContext.MouseHoverChunkCoordsAbs,
+                                                  Mode=OneWay}"
+                                   Visibility="{Binding ElementName=Viewport,
+                                                        Path=DataContext.MouseHoverHasBlock,
+                                                        Mode=OneWay,
+                                                        Converter={StaticResource BoolToVisibility}}"/>
+                        <TextBlock d:Text=" r"/>
+                        <TextBlock d:Text="(0, 0)"
+                                   Text="{Binding ElementName=Viewport,
+                                                  Path=DataContext.MouseHoverChunkCoordsRel,
+                                                  Mode=OneWay}"
+                                   Visibility="{Binding ElementName=Viewport,
+                                                        Path=DataContext.MouseHoverHasBlock,
+                                                        Mode=OneWay,
+                                                        Converter={StaticResource BoolToVisibility}}"/>
+                    </StackPanel>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Section "/>
+                        <TextBlock d:Text="0" 
+                                   Text="{Binding ElementName=Viewport,
+                                                  Path=DataContext.MouseHoverSectionY,
+                                                  Mode=OneWay}" 
+                                   Visibility="{Binding ElementName=Viewport,
+                                                        Path=DataContext.MouseHoverHasBlock,
+                                                        Mode=OneWay,
+                                                        Converter={StaticResource BoolToVisibility}}"/>
+                    </StackPanel>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Block "/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock d:Text="a"/>
+                            <TextBlock d:Text="(0, 0, 0)"
+                                       Text="{Binding ElementName=Viewport,
+                                                      Path=DataContext.MouseHoverBlockCoordsAbs,
+                                                      Mode=OneWay}" 
+                                       Visibility="{Binding ElementName=Viewport,
+                                                            Path=DataContext.MouseHoverHasBlock,
+                                                            Mode=OneWay,
+                                                            Converter={StaticResource BoolToVisibility}}"/>
+                            <TextBlock d:Text=" r"/>
+                            <TextBlock d:Text="(0, 0, 0)"
+                                       Text="{Binding ElementName=Viewport,
+                                                      Path=DataContext.MouseHoverBlockCoordsRel,
+                                                      Mode=OneWay}" 
+                                       Visibility="{Binding ElementName=Viewport,
+                                                            Path=DataContext.MouseHoverHasBlock,
+                                                            Mode=OneWay,
+                                                            Converter={StaticResource BoolToVisibility}}"/>
+                            <TextBlock d:Text=" - "/>
+                            <TextBlock d:Text="minecraft:air"
+                                       Text="{Binding ElementName=Viewport,
+                                                      Path=DataContext.MouseHoverBlockName,
+                                                      Mode=OneWay}" 
+                                       Visibility="{Binding ElementName=Viewport,
+                                                            Path=DataContext.MouseHoverHasBlock,
+                                                            Mode=OneWay,
+                                                            Converter={StaticResource BoolToVisibility}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StatusBarItem>
             </StatusBar>
             <controls:ViewportControl x:Name="Viewport" IsEnabled="{Binding ElementName=Root, 
                                                                             Path=DataContext.HasSavegameLoaded,

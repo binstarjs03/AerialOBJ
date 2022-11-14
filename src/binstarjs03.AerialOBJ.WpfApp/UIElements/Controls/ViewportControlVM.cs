@@ -25,6 +25,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.UIElements.Components;
@@ -43,7 +44,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         1f, 2f, 3f, 5f, 8f, 13f, 21f, 34f
     };
 
-    private readonly ChunkRegionManager _chunkRegionManager;
+    private readonly ChunkRegionManager _crm;
 
     private PointF2 _cameraPos = PointF2.Zero;
     private int _zoomLevel = 2;
@@ -144,19 +145,19 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     // How many pixels per group /\
 
     // ChunkRegionManager group \/
-    public string ChunkRegionManagerVisibleChunkRangeXStringized => _chunkRegionManager.VisibleChunkRange.XRange.ToString();
-    public string ChunkRegionManagerVisibleChunkRangeZStringized => _chunkRegionManager.VisibleChunkRange.ZRange.ToString();
-    public int ChunkRegionManagerVisibleChunkCount => _chunkRegionManager.VisibleChunkCount;
-    public int ChunkRegionManagerLoadedChunkCount => _chunkRegionManager.LoadedChunkCount;
-    public int ChunkRegionManagerPendingChunkCount => _chunkRegionManager.PendingChunkCount;
-    public int ChunkRegionManagerWorkedChunkCount => _chunkRegionManager.WorkedChunkCount;
+    public string ChunkRegionManagerVisibleChunkRangeXStringized => _crm.VisibleChunkRange.XRange.ToString();
+    public string ChunkRegionManagerVisibleChunkRangeZStringized => _crm.VisibleChunkRange.ZRange.ToString();
+    public int ChunkRegionManagerVisibleChunkCount => _crm.VisibleChunkCount;
+    public int ChunkRegionManagerLoadedChunkCount => _crm.LoadedChunkCount;
+    public int ChunkRegionManagerPendingChunkCount => _crm.PendingChunkCount;
+    public int ChunkRegionManagerWorkedChunkCount => _crm.WorkedChunkCount;
 
-    public string ChunkRegionManagerVisibleRegionRangeXStringized => _chunkRegionManager.VisibleRegionRange.XRange.ToString();
-    public string ChunkRegionManagerVisibleRegionRangeZStringized => _chunkRegionManager.VisibleRegionRange.ZRange.ToString();
-    public int ChunkRegionManagerVisibleRegionCount => _chunkRegionManager.VisibleRegionCount;
-    public int ChunkRegionManagerLoadedRegionCount => _chunkRegionManager.LoadedRegionCount;
-    public int ChunkRegionManagerPendingRegionCount => _chunkRegionManager.PendingRegionCount;
-    public string ChunkRegionManagerWorkedRegion => _chunkRegionManager.WorkedRegion;
+    public string ChunkRegionManagerVisibleRegionRangeXStringized => _crm.VisibleRegionRange.XRange.ToString();
+    public string ChunkRegionManagerVisibleRegionRangeZStringized => _crm.VisibleRegionRange.ZRange.ToString();
+    public int ChunkRegionManagerVisibleRegionCount => _crm.VisibleRegionCount;
+    public int ChunkRegionManagerLoadedRegionCount => _crm.LoadedRegionCount;
+    public int ChunkRegionManagerPendingRegionCount => _crm.PendingRegionCount;
+    public string ChunkRegionManagerWorkedRegion => _crm.WorkedRegion;
 
     public int DebugMainThreadResposeTestRandomNumber => _debugMainThreadResposeTestRandomNumber;
 
@@ -213,7 +214,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     public PointInt2 MousePos
     {
         get => _mousePos;
-        set => SetAndNotifyPropertyChanged(value, ref _mousePos);
+        set => SetAndNotifyPropertyChanged(value, ref _mousePos, UpdateMouseHoverBlock);
     }
     public PointInt2 MousePosDelta
     {
@@ -237,6 +238,18 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     }
     // Mouse Group /\
 
+    // Mouse Hover Group \/
+    public bool MouseHoverHasBlock { get; set; } = false;
+    public bool MouseHoverHasBlockInverse => !MouseHoverHasBlock;
+    public Coords2 MouseHoverRegionCoords { get; set; }
+    public Coords2 MouseHoverChunkCoordsAbs { get; set; }
+    public Coords2 MouseHoverChunkCoordsRel { get; set; }
+    public int MouseHoverSectionY { get; set; }
+    public Coords3 MouseHoverBlockCoordsAbs { get; set; }
+    public Coords3 MouseHoverBlockCoordsRel { get; set; }
+    public string MouseHoverBlockName { get; set; } = "";
+    // Mouse Hover Group /\
+
     // Side Panel Group \/
     public bool SidePanelVisible
     {
@@ -256,7 +269,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void UpdateChunkRegionManager()
     {
-        _chunkRegionManager.PostMessage(_chunkRegionManager.Update, noDuplicate: true);
+        _crm.PostMessage(_crm.Update, noDuplicate: true);
     }
 
     private void UpdateCameraPos(PointF2 cameraPos)
@@ -296,7 +309,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     {
         App.Current.State.SavegameLoadChanged += OnSavegameLoadChanged;
 
-        _chunkRegionManager = new ChunkRegionManager(this);
+        _crm = new ChunkRegionManager(this);
 
         // set commands to its corresponding implementations
         SizeChangedCommand = new RelayCommand(OnSizeChanged);
@@ -448,13 +461,14 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
          * worldPos = -(unitOffsetScaled + screenCenter - screenPos) / zoomLevel
          */
 
-        PointF2 worldPos = -(UnitOffsetScaled + ScreenCenter - screenPosition) / ZoomLevel;
+        PointF2 worldPos = -(UnitOffsetScaled + ScreenCenter - screenPosition) / UnitScale;
         return worldPos;
     }
 
-    private void UpdateStatusBar()
+    private void UpdateMouseHoverBlock()
     {
-
+        _crm.PostMessage(_crm.UpdateMouseHoveredBlock,
+                         noDuplicate: true);
     }
 
     private void ClearFocus()
@@ -504,7 +518,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     private void OnSavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Closed)
-            _chunkRegionManager.PostMessage(_chunkRegionManager.OnSavegameLoadClosed, noDuplicate: true);
+            _crm.PostMessage(_crm.OnSavegameLoadClosed, noDuplicate: true);
         ReinitializeStates();
     }
 

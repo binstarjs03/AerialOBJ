@@ -116,6 +116,12 @@ public class Chunk
         return new Coords3(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
     }
 
+    public static Coords2 GetChunkCoordsAbsFromBlockCoordsAbs(Coords2 blockCoordsAbs)
+    {
+        return new Coords2(MathUtils.DivFloor(blockCoordsAbs.X, Section.BlockCount),
+                           MathUtils.DivFloor(blockCoordsAbs.Z, Section.BlockCount));
+    }
+
     public int[] SectionsYPos => _sectionsYPos;
 
     public bool HasSection(int sectionYPos)

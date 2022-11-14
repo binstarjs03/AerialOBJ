@@ -103,7 +103,7 @@ public struct Coords2 : IEquatable<Coords2>
 
     public static explicit operator Coords2(PointF2 pointf2)
     {
-        return new Coords2((int)pointf2.X, (int)pointf2.Y);
+        return new Coords2(MathUtils.Floor(pointf2.X), MathUtils.Floor(pointf2.Y));
     }
 
     #endregion

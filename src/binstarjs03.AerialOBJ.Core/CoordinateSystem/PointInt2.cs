@@ -99,7 +99,7 @@ public struct PointInt2
 
     public static explicit operator PointInt2(PointF2 point2)
     {
-        return new PointInt2((int)point2.X, (int)point2.Y);
+        return new PointInt2(MathUtils.Floor(point2.X), MathUtils.Floor(point2.Y));
     }
 
     #endregion

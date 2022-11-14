@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
+using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.Services;
@@ -62,7 +63,7 @@ public class ChunkRegionManager
     private readonly List<Coords2> _pendingChunkList = new(s_chunkBufferSize);
     private readonly List<Coords2> _workedChunks = new(Environment.ProcessorCount);
     private readonly List<Task> _workedChunkTasks = new(Environment.ProcessorCount);
-    private object _needRespawnChunkTasksLock = new();
+    private readonly object _needRespawnChunkTasksLock = new();
     private bool _needRespawnChunkTasks;
 
     private CoordsRange2 _visibleRegionRange = new();
@@ -406,7 +407,6 @@ public class ChunkRegionManager
         return null;
     }
 
-
     private void LoadUnloadChunks()
     {
         // perform boundary range checking for chunks outside display frame
@@ -555,6 +555,45 @@ public class ChunkRegionManager
     private void OnChunkLoadChanged()
     {
         _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadedChunkCount));
+    }
+
+    public void UpdateMouseHoveredBlock()
+    {
+        ViewportControlVM v = _viewport;
+        // cache value
+        PointF2 mouseScreenPos = v.MousePos;
+        PointF2 mouseWorldPos = v.ConvertScreenPositionToWorldPosition(mouseScreenPos);
+
+        v.MouseHoverBlockCoordsAbs = (Coords3)mouseWorldPos;
+        v.MouseHoverSectionY = MathUtils.DivFloor(v.MouseHoverBlockCoordsAbs.Y, Section.BlockCount);
+        v.MouseHoverChunkCoordsAbs = Chunk.GetChunkCoordsAbsFromBlockCoordsAbs((Coords2)v.MouseHoverBlockCoordsAbs);
+        v.MouseHoverRegionCoords = Region.GetRegionCoordsFromChunkCoordsAbs(v.MouseHoverChunkCoordsAbs);
+
+        // stops here if chunk is not loaded yet or outside screen
+        if (!_loadedChunks.ContainsKey(v.MouseHoverChunkCoordsAbs)
+            ||_visibleChunkRange.IsOutside(v.MouseHoverChunkCoordsAbs))
+        {
+            v.MouseHoverHasBlock = false;
+            _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverHasBlock));
+            return;
+        }
+
+        // get the chunk for this block
+        ChunkWrapper chunkWrapper = _loadedChunks[v.MouseHoverChunkCoordsAbs];
+
+        // get the relative block coords to the chunk
+        v.MouseHoverBlockCoordsRel = Chunk.ConvertBlockCoordsAbsToRel(v.MouseHoverBlockCoordsAbs);
+
+        v.MouseHoverBlockName = chunkWrapper.HighestBlocks[v.MouseHoverBlockCoordsRel.X, 
+                                                           v.MouseHoverBlockCoordsRel.Z];
+        v.MouseHoverHasBlock = true;
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverHasBlock));
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverBlockName));
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverBlockCoordsAbs));
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverBlockCoordsRel));
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverSectionY));
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverChunkCoordsAbs));
+        _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.MouseHoverRegionCoords));
     }
 
     public void OnSavegameLoadClosed()
