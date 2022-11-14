@@ -196,14 +196,7 @@ public class Chunk
                 highestBlocks[x, z] = Block.AirBlockName;
     }
 
-    public static string[,] GenerateHighestBlocksBuffer()
-    {
-        string[,] highestBlocks = new string[Section.BlockCount, Section.BlockCount];
-        ReinitializeHighestBlocksBuffer(highestBlocks);
-        return highestBlocks;
-    }
-
-    public void GetHighestBlock(string[,] highestBlocks, string[]? exclusions = null, int? heightLimit = null)
+    public void GetHighestBlock(ChunkHighestBlockInfo highestBlock, string[]? exclusions = null, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
 
@@ -247,7 +240,8 @@ public class Chunk
                         // also SetBlock return true if setting is successful, 
                         // we want to break early if so since that is the highest block
                         breaking = section.SetBlock(out string blockName, blockCoordsRel, exclusions);
-                        highestBlocks[x, z] = blockName;
+                        highestBlock.Names[x, z] = blockName;
+                        highestBlock.Heights[x, z] = height;
                     }
                 }
             }

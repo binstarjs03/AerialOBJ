@@ -94,12 +94,12 @@ public class RegionWrapper
         NeedRedraw = true;
     }
 
-    public void BlitChunkImage(Coords2 chunkCoordsRel, string[,] highestBlocks)
+    public void BlitChunkImage(Coords2 chunkCoordsRel, ChunkHighestBlockInfo highestBlock)
     {
         for (int x = 0; x < Section.BlockCount; x++)
             for (int z = 0; z < Section.BlockCount; z++)
             {
-                Color color = BlockToColor.Convert(highestBlocks[x, z]);
+                Color color = BlockToColor.Convert(highestBlock.Names[x, z]);
                 _regionImage.SetPixel(chunkCoordsRel.X * Section.BlockCount + x,
                                       chunkCoordsRel.Z * Section.BlockCount + z,
                                       color);

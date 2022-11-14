@@ -29,11 +29,11 @@ namespace binstarjs03.AerialOBJ.WpfApp;
 public class ChunkWrapper
 {
     private readonly Chunk _chunk;
-    private readonly string[,] _highestBlocks = Chunk.GenerateHighestBlocksBuffer();
+    private readonly ChunkHighestBlockInfo _highestBlocks = new();
 
     public Coords2 ChunkCoordsAbs => _chunk.ChunkCoordsAbs;
     public Coords2 ChunkCoordsRel => _chunk.ChunkCoordsRel;
-    public string[,] HighestBlocks => _highestBlocks;
+    public ChunkHighestBlockInfo HighestBlocks => _highestBlocks;
 
     public ChunkWrapper(Chunk chunk)
     {
