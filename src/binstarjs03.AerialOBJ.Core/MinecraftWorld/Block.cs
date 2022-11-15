@@ -31,6 +31,7 @@ namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public class Block
 {
     public const string AirBlockName = "minecraft:air";
+    public const string AirCaveBlockName = "minecraft:cave_air";
     private string _name;
     private Coords3 _blockCoordsAbs;
     private Dictionary<string, string>? _properties;
@@ -94,12 +95,12 @@ public class Block
 
     public static bool IsAir(Block block)
     {
-        return block.Name == AirBlockName;
+        return block.Name == AirBlockName || block.Name == AirCaveBlockName;
     }
 
     public static bool IsAir(string blockName)
     {
-        return blockName == AirBlockName;
+        return blockName == AirBlockName || blockName == AirCaveBlockName;
     }
 
     public override string ToString()

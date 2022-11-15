@@ -208,7 +208,8 @@ public class Section
             int blockTableIndex = _blockPaletteIndexTable[blockCoordsRel.X, blockCoordsRel.Y, blockCoordsRel.Z];
             Block blockTemplate = _blockPalette![blockTableIndex];
             // short circuit if air block encountered
-            if (blockTemplate.Name == Block.AirBlockName
+            if (blockTemplate.Name == Block.AirBlockName 
+                || blockTemplate.Name == Block.AirCaveBlockName
                 || exclusions is not null
                 && exclusions.Contains(blockTemplate.Name))
                 return false;

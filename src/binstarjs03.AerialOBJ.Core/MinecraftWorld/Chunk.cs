@@ -203,9 +203,6 @@ public class Chunk
         // We expect the buffer is already initialized (should always do
         // if generated from GenerateHighestBlocksBuffer)
 
-        // reinitialize to air
-        //ReinitializeHighestBlocksBuffer(highestBlocks);
-
         for (int z = 0; z < Section.BlockCount; z++)
             for (int x = 0; x < Section.BlockCount; x++)
             {

@@ -32,6 +32,7 @@ public static class BlockToColor
     {
         {"aerialobj:unknown", FromHex("#FFFF00CC")},
         {"minecraft:air", FromHex("#00000000")},
+        {"minecraft:cave_air", FromHex("#00000000")},
 
         {"minecraft:water", FromHex("#22417f")},
         {"minecraft:lava", FromHex("#cc4600")},
