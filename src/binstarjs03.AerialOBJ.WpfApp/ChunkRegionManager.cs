@@ -68,6 +68,7 @@ public class ChunkRegionManager
 
     private CoordsRange2 _visibleRegionRange = new();
     private CoordsRange2 _visibleChunkRange = new();
+    private int _displayedHeightLimit;
 
     // public accessors
     public CoordsRange2 VisibleRegionRange => _visibleRegionRange;
@@ -163,7 +164,19 @@ public class ChunkRegionManager
     {
         if (!App.Current.State.HasSavegameLoaded)
             return;
-        if (RecalculateVisibleChunkRange())
+        bool needChunkReload = false;
+        if (_displayedHeightLimit != _viewport.HeightLimit)
+        {
+            List<ChunkWrapper> loadedChunks = new(_loadedChunks.Values);
+            foreach (ChunkWrapper chunkWrapper in loadedChunks)
+                UnloadChunk(chunkWrapper);
+            _displayedHeightLimit = _viewport.HeightLimit;
+            needChunkReload = true;
+        }
+
+        bool visibleChunkRangeChanged = RecalculateVisibleChunkRange();
+
+        if (visibleChunkRangeChanged)
         {
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerVisibleChunkCount));
             _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
@@ -176,8 +189,9 @@ public class ChunkRegionManager
                 _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerVisibleRegionRangeZStringized));
                 LoadUnloadRegions();
             }
-            LoadUnloadChunks();
         }
+        if (visibleChunkRangeChanged || needChunkReload)
+            LoadUnloadChunks();
     }
 
     /// <returns>true if chunk range changed</returns>
