@@ -72,4 +72,16 @@ public class AppState
     }
 
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
+
+    public AppStateEnums.PerformanceProfile PerformanceProfile 
+        => AppStateEnums.PerformanceProfile.MaximumPerformance;
+}
+
+public static class AppStateEnums
+{
+    public enum PerformanceProfile
+    {
+        MinimalMemory,
+        MaximumPerformance,
+    }
 }

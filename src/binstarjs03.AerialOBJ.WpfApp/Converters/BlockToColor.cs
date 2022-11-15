@@ -37,6 +37,8 @@ public static class BlockToColor
         {"minecraft:water", FromHex("#22417f")},
         {"minecraft:lava", FromHex("#cc4600")},
 
+        {"minecraft:dirt", FromHex("#6c4d36")},
+        {"minecraft:coarse_dirt", FromHex("#4e3826")},
         {"minecraft:grass_block", FromHex("#5d923a")},
         {"minecraft:mycelium", FromHex("#595155")},
         {"minecraft:podzol", FromHex("#FF3b2913")},
@@ -44,8 +46,7 @@ public static class BlockToColor
         {"minecraft:sand", FromHex("#FFd7ce9c")},
         {"minecraft:sandstone", FromHex("#FFd7ce9c")},
 
-        {"minecraft:dirt", FromHex("#6c4d36")},
-        {"minecraft:coarse_dirt", FromHex("#4e3826")},
+        {"minecraft:bedrock", FromHex("#3e3e3e")},
         {"minecraft:stone", FromHex("#6a6a6a")},
         {"minecraft:deepslate", FromHex("#464648")},
         {"minecraft:tuff", FromHex("#575853")},

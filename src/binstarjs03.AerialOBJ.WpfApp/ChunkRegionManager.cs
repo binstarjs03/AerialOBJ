@@ -153,9 +153,12 @@ public class ChunkRegionManager
         lock (_messageQueue)
         {
             if (noDuplicate)
+            {
                 if (!_messageQueue.Contains(message))
                     _messageQueue.Enqueue(message);
-            _messageQueue.Enqueue(message);
+            }
+            else
+                _messageQueue.Enqueue(message);
         }
         _messageEvent.Set();
     }
@@ -166,13 +169,7 @@ public class ChunkRegionManager
             return;
         bool needChunkReload = false;
         if (_displayedHeightLimit != _viewport.HeightLimit)
-        {
-            List<ChunkWrapper> loadedChunks = new(_loadedChunks.Values);
-            foreach (ChunkWrapper chunkWrapper in loadedChunks)
-                UnloadChunk(chunkWrapper);
-            _displayedHeightLimit = _viewport.HeightLimit;
-            needChunkReload = true;
-        }
+            UpdateChunkHighestBlock();
 
         bool visibleChunkRangeChanged = RecalculateVisibleChunkRange();
 
@@ -201,6 +198,9 @@ public class ChunkRegionManager
         PointF2 viewportCameraPos;
         PointF2 viewportChunkCanvasCenter;
         float viewportPixelPerChunk;
+
+        //_visibleChunkRange = new CoordsRange2(32, 32, 32, 32);
+        //return true;
 
         lock (_viewport)
         {
@@ -408,7 +408,8 @@ public class ChunkRegionManager
         if (_loadedRegions.ContainsKey(regionCoords))
         {
             pending = false;
-            return _loadedRegions[regionCoords];
+            lock (_loadedRegions)
+                return _loadedRegions[regionCoords];
         }
         else if (_workedRegion == regionCoords)
         {
@@ -531,9 +532,7 @@ public class ChunkRegionManager
             return;
         }
         Chunk chunk = regionWrapper.GetChunk(chunkCoordsAbs, false);
-        ChunkWrapper chunkWrapper = new(chunk);
-        int renderedHeightLimit = _viewport.HeightLimit;
-        chunk.GetHighestBlock(chunkWrapper.HighestBlocks, heightLimit: renderedHeightLimit);
+        ChunkWrapper chunkWrapper = new(chunk, _viewport.HeightLimit);
         regionWrapper.BlitChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);
 
         PostMessage(() => LoadChunk(chunkWrapper), false);
@@ -578,6 +577,45 @@ public class ChunkRegionManager
     private void OnChunkLoadChanged()
     {
         _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadedChunkCount));
+    }
+
+    private void UpdateChunkHighestBlock()
+    {
+        // TODO block both UI and CRM thread until this method execution finished.
+        // This is to prevent race condition when highest block is currently executed,
+        // the UI may makes change to the height limit and the CRM thread may
+        // load more chunks but the queue is not updated with the new chunk
+        Queue<ChunkWrapper> queue = new(_loadedChunks.Values);
+        if (queue.Count == 0)
+            return;
+        Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount, 0, queue.Count)];
+        for (int i = 0; i < tasks.Length; i++)
+            tasks[i] = new Task(method);
+        App.InvokeDispatcher(wait,
+                             DispatcherPriority.Send,
+                             DispatcherSynchronization.Asynchronous);
+        _displayedHeightLimit = _viewport.HeightLimit;
+        for (int i = 0; i < tasks.Length; i++)
+            tasks[i].Start();
+        wait();
+
+        void method()
+        {
+            while (true)
+            {
+                ChunkWrapper chunkWrapper;
+                lock (queue)
+                    // stop when all chunks are updated (empty queue)
+                    if (!queue.TryDequeue(out chunkWrapper!))
+                        return;
+                chunkWrapper.GetHighestBlock(_displayedHeightLimit);
+                RegionWrapper? regionWrapper = GetRegionWrapper(chunkWrapper.ChunkCoordsAbs, out _);
+                if (regionWrapper is null)
+                    continue;
+                regionWrapper.BlitChunkImage(chunkWrapper.ChunkCoordsRel, chunkWrapper.HighestBlocks);
+            }
+        }
+        void wait() => Task.WaitAll(tasks);
     }
 
     public void UpdateMouseHoveredBlock()
@@ -642,19 +680,25 @@ public class ChunkRegionManager
 
     public void OnSavegameLoadClosed()
     {
+        // TODO terminate all tasks (region and chunk loader)
+        _visibleRegionRange = new CoordsRange2();
+        _visibleChunkRange = new CoordsRange2();
+
         List<ChunkWrapper> loadedChunks = new(_loadedChunks.Values);
         foreach (ChunkWrapper chunkWrapper in loadedChunks)
             UnloadChunk(chunkWrapper);
 
-        List<RegionWrapper> loadedRegions = new(_loadedRegions.Values);
+        List<RegionWrapper> loadedRegions;
+        lock (_loadedRegions)
+            loadedRegions = new(_loadedRegions.Values);
         foreach (RegionWrapper region in loadedRegions)
             UnloadRegion(region);
 
-        _loadedRegions.Clear();
+        lock (_loadedRegions)
+            _loadedRegions.Clear();
         _pendingRegionList.Clear();
         _regionCache.Clear();
-        _visibleRegionRange = new CoordsRange2();
-        _visibleChunkRange = new CoordsRange2();
         _viewport.NotifyPropertyChanged(nameof(ViewportControlVM.ChunkRegionManagerLoadChunkProgress));
+        GC.Collect();
     }
 }

@@ -77,14 +77,14 @@ SOFTWARE.
                             all chunks will render the new height limit instantly.
                         </RadioButton.ToolTip>
                     </RadioButton>
-                    <RadioButton Content="Prefer Maximum Responsiveness">
+                    <!--RadioButton Content="Prefer Maximum Responsiveness">
                         <RadioButton.ToolTip>
                             This setting is the slowest setting as AerialOBJ will operate
                             on single thread mode (for the viewport) and it uses Minimal RAM usage,
                             however AerialOBJ will be very resposive as it doesn't need to communicate
                             with other thread.
                         </RadioButton.ToolTip>
-                    </RadioButton>
+                    </RadioButton-->
                 </StackPanel>
             </GroupBox>
 

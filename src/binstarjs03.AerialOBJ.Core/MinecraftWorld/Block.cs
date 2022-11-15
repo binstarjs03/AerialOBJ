@@ -84,15 +84,6 @@ public class Block
         _blockCoordsAbs = coordsAbs;
     }
 
-    // private constructor for clone method
-    private Block(string name, Coords3 coordsAbs, Dictionary<string, string>? properties)
-    {
-        _name = name;
-        _blockCoordsAbs = coordsAbs;
-        if (properties is not null)
-            _properties = new Dictionary<string, string>(properties);
-    }
-
     public static bool IsAir(Block block)
     {
         return block.Name == AirBlockName || block.Name == AirCaveBlockName;

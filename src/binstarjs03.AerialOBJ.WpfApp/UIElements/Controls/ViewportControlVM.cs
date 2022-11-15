@@ -44,6 +44,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
     };
 
     private readonly ChunkRegionManager _crm;
+    private bool _crmCanUpdate = false;
 
     private PointF2 _cameraPos = PointF2.Zero;
     private int _zoomLevel = 2;
@@ -162,7 +163,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
                 return (_crm.VisibleChunkCount - _crm.PendingChunkCount) / (double)_crm.VisibleChunkCount;
         }
     }
-        
+
 
     public string ChunkRegionManagerVisibleRegionRangeXStringized => _crm.VisibleRegionRange.XRange.ToString();
     public string ChunkRegionManagerVisibleRegionRangeZStringized => _crm.VisibleRegionRange.ZRange.ToString();
@@ -278,11 +279,6 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     #region Property Updater Helper
 
-    private void UpdateChunkRegionManager()
-    {
-        _crm.PostMessage(_crm.Update, noDuplicate: true);
-    }
-
     private void UpdateCameraPos(PointF2 cameraPos)
     {
         SetAndNotifyPropertyChanged(cameraPos, ref _cameraPos, new string[]
@@ -337,7 +333,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 #endif
     }
 
-#region Commands
+    #region Commands
 
     public ICommand SizeChangedCommand { get; }
     public ICommand MouseWheelCommand { get; }
@@ -431,9 +427,15 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         }
     }
 
-#endregion Commands
+    #endregion Commands
 
-#region Methods
+    #region Methods
+
+    private void UpdateChunkRegionManager()
+    {
+        if (_crmCanUpdate)
+            _crm.PostMessage(_crm.Update, noDuplicate: true);
+    }
 
     public PointF2 ConvertWorldPositionToScreenPosition(PointF2 worldPos)
     {
@@ -492,6 +494,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
 
     private void ReinitializeStates()
     {
+        _crmCanUpdate = false;
         ClearFocus();
         CameraPos = PointF2.Zero;
         ZoomLevel = 0;
@@ -505,6 +508,8 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseClickHolding = false;
         MouseInitClickDrag = true;
         MouseIsOutside = true;
+        _crmCanUpdate = true;
+        UpdateChunkRegionManager();
 
 #if RELEASEVERSION
         SidePanelVisible = false;
@@ -529,9 +534,9 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         }
     }
 
-#endregion Methods
+    #endregion Methods
 
-#region Event Handlers
+    #region Event Handlers
 
     private void OnSavegameLoadChanged(SavegameLoadState state)
     {
@@ -540,5 +545,5 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         ReinitializeStates();
     }
 
-#endregion Event Handlers
+    #endregion Event Handlers
 }

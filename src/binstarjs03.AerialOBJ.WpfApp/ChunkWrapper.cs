@@ -30,13 +30,34 @@ public class ChunkWrapper
 {
     private readonly Chunk _chunk;
     private readonly ChunkHighestBlockInfo _highestBlocks = new();
+    private readonly ChunkCache? _cache;
+    private int _highestBlockHeightLimit;
 
     public Coords2 ChunkCoordsAbs => _chunk.ChunkCoordsAbs;
     public Coords2 ChunkCoordsRel => _chunk.ChunkCoordsRel;
     public ChunkHighestBlockInfo HighestBlocks => _highestBlocks;
+    public int HighestBlockHeightLimit => _highestBlockHeightLimit;
 
-    public ChunkWrapper(Chunk chunk)
+    public ChunkWrapper(Chunk chunk, int heightLimit)
     {
         _chunk = chunk;
+        if (App.Current.State.PerformanceProfile == AppStateEnums.PerformanceProfile.MaximumPerformance)
+            _cache = new ChunkCache(chunk);
+
+        // guard ourself from same value, will not invoke
+        // the method if both are the same value
+        _highestBlockHeightLimit = heightLimit + 1; 
+        GetHighestBlock(heightLimit);
+    }
+
+    public void GetHighestBlock(int heightLimit)
+    {
+        if (_highestBlockHeightLimit == heightLimit)
+            return;
+        if (_cache is not null)
+            _cache.GetHighestBlock(_highestBlocks, heightLimit);
+        else
+            _chunk.GetHighestBlock(_highestBlocks, heightLimit: heightLimit);
+        _highestBlockHeightLimit = heightLimit;
     }
 }
