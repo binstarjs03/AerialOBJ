@@ -656,7 +656,7 @@ public class ChunkRegionManager
         blockCoordsAbs = blockCoords2Abs;
         blockCoordsAbs.Y = blockHeight;
         blockCoordsRel = blockCoords2Rel;
-        blockCoordsRel.Y = MathUtils.DivFloor(blockHeight, Section.BlockCount);
+        blockCoordsRel.Y = MathUtils.Mod(blockHeight, Section.BlockCount);
         sectionY = MathUtils.DivFloor(blockHeight, Section.BlockCount);
 
         // assign variables to viewport

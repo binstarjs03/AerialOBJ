@@ -31,6 +31,7 @@ namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public class ChunkCache
 {
     private readonly List<int>[,] _highestBlockHeights = new List<int>[Section.BlockCount, Section.BlockCount];
+    private readonly List<int>[,] _highestBlockHeightDelimit = new List<int>[Section.BlockCount, Section.BlockCount];
     private readonly List<string>[,] _highestBlockNames = new List<string>[Section.BlockCount, Section.BlockCount];
 
     public ChunkCache(Chunk chunk)
@@ -54,6 +55,7 @@ public class ChunkCache
                 */
 
                 List<int> highestBlockHeights = new();
+                List<int> highestBlockHeightsDelimit = new();
                 List<string> highestBlockNames = new();
 
 
@@ -61,15 +63,15 @@ public class ChunkCache
                 Section lowestSection = chunk.GetSectionAt(0);
                 Block lowestBlock = lowestSection.GetBlockPalette(new Coords3(x, 0, z));
                 string lastBlockName = lowestBlock.Name;
-                
+
                 int highestHeight = chunk.GetSectionAt(chunk.SectionsYPos.Length - 1).SectionCoordsAbs.Y * Section.BlockCount + Section.BlockCount - 1;
+                int? heightDelimit = null;
 
                 // iterate through all sections from bottom to top
                 for (int index = 0; index < chunk.SectionsYPos.Length; index++)
                 {
                     int sectionPos = chunk.SectionsYPos[index];
                     Section section = chunk.GetSection(sectionPos);
-
                     // iterate through all section height levels from bottom to top
                     // (which has 16 height levels)
                     for (int y = 0; y < Section.BlockCount; y++)
@@ -78,7 +80,7 @@ public class ChunkCache
                         Block block = section.GetBlockPalette(blockCoordsRel);
 
                         int currentHeightLevel = section.SectionCoordsAbs.Y * Section.BlockCount + y;
-
+                        int lastHeightLevel = currentHeightLevel - 1;
 
                         // if we don't do this statement, the highest-most block will not be added
                         // as mostly above it is an air. if it was plains biome, most likely the last
@@ -86,20 +88,30 @@ public class ChunkCache
                         if (currentHeightLevel == highestHeight)
                         {
                             highestBlockHeights.Add(highestHeight);
+                            highestBlockHeightsDelimit.Add(
+                            (int)(heightDelimit is not null ? heightDelimit : lastHeightLevel));
                             highestBlockNames.Add(lastBlockName);
+                            heightDelimit = null; // reset delimit
                             break;
                         }
                         else if (block.Name == lastBlockName || Block.IsAir(block))
+                        {
+                            if (Block.IsAir(block))
+                                heightDelimit ??= lastHeightLevel;
                             continue;
+                        }
 
-                        int lastHeightLevel = currentHeightLevel - 1;
                         // block is different, make new cache entry
                         highestBlockHeights.Add(lastHeightLevel);
+                        highestBlockHeightsDelimit.Add(
+                            (int)(heightDelimit is not null ? heightDelimit : lastHeightLevel));
                         highestBlockNames.Add(lastBlockName);
                         lastBlockName = block.Name;
+                        heightDelimit = null; // reset delimit
                     }
                 }
                 _highestBlockHeights[x, z] = highestBlockHeights;
+                _highestBlockHeightDelimit[x, z] = highestBlockHeightsDelimit;
                 _highestBlockNames[x, z] = highestBlockNames;
             }
     }
@@ -110,8 +122,9 @@ public class ChunkCache
         for (int x = 0; x < Section.BlockCount; x++)
             for (int z = 0; z < Section.BlockCount; z++)
             {
-                List<int> highestBlockHeights = _highestBlockHeights[x,z];
-                List<string> highestBlockNames = _highestBlockNames[x,z];
+                List<int> highestBlockHeights = _highestBlockHeights[x, z];
+                List<int> highestBlockHeightsDelimit = _highestBlockHeightDelimit[x, z];
+                List<string> highestBlockNames = _highestBlockNames[x, z];
 
                 // iterate through all index, get the height level at that index,
                 // and compare if it is higher than limit (or exhausted).
@@ -130,8 +143,11 @@ public class ChunkCache
                 }
 
                 // set the highest block at height limit to whatever block is at index
+                int delimit = highestBlockHeightsDelimit[index];
                 highestBlock.Names[x, z] = highestBlockNames[index];
-                highestBlock.Heights[x, z] = highestBlockHeights[index];
+                // deciding height: if limit above delimit, then that block height is at delimit
+                // else that block height is at limit if still below delimit
+                highestBlock.Heights[x, z] = limit > delimit ? delimit : limit;
             }
     }
 }
