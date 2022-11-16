@@ -11,5 +11,9 @@
 		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
+	</ItemGroup>
 	
 </Project>
