@@ -69,17 +69,6 @@ public class NbtDeserializationError : NbtException
     public NbtDeserializationError(string message, Exception inner) : base(message, inner) { }
 }
 
-/// <summary>
-/// The exception that is thrown when parsing nbt from data stream has no data 
-/// (zero-length stream data)
-/// </summary>
-public class NbtNoDataException : NbtException
-{
-    public NbtNoDataException() { }
-    public NbtNoDataException(string message) : base(message) { }
-    public NbtNoDataException(string message, Exception inner) : base(message, inner) { }
-}
-
 public class NbtIllegalOperationException : Exception
 {
     public NbtIllegalOperationException() { }
