@@ -22,6 +22,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -212,18 +213,11 @@ public class Region
         }
 
         int seekPos = sectorPos * SectorDataSize;
-        int dataLength = sectorLength * SectorDataSize;
+        int chunkNbtLength = BinaryPrimitives.ReadInt32BigEndian(_data.AsSpan(seekPos, 4)) - 1;
+        int chunkNbtDataStart = seekPos + 5;
 
-        using MemoryStream chunkSectorStream = new(_data, seekPos, dataLength, false);
-        using BinaryReaderEndian reader = new(chunkSectorStream);
-        int chunkNbtLength = reader.ReadInt(ByteOrder.BigEndian);
-        chunkNbtLength -= 1;
-        int compressionMethod = reader.ReadByte();
-        int chunkNbtDataPos = (int)(seekPos + chunkSectorStream.Position);
-        int chunkNbtDataLength = (int)(dataLength - chunkSectorStream.Position);
-
-        using MemoryStream chunkNbtStream = new(_data, chunkNbtDataPos, chunkNbtDataLength, false);
-        NbtCompound chunkNbt = (NbtCompound)NbtIO.ReadStream(chunkNbtStream);
+        using MemoryStream chunkNbtStream = new(_data, chunkNbtDataStart, chunkNbtLength, false);
+        NbtCompound chunkNbt = (NbtIO.ReadStream(chunkNbtStream) as NbtCompound)!;
         return chunkNbt;
     }
 
