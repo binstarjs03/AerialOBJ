@@ -155,6 +155,7 @@ public class Chunk
         return sections.ToArray();
     }
 
+    // avoid calling GetBlock on tight-loops, GC intensive!
     public Block GetBlock(Coords3 coords, bool relative)
     {
         Coords3 coordsAbs;

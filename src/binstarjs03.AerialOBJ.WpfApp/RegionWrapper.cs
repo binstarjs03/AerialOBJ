@@ -61,7 +61,7 @@ public class RegionWrapper
             DispatcherPriority.Background);
         _viewport = viewport;
         _regionCoords = region.RegionCoords;
-        (_, _generatedChunks) = region.GetGeneratedChunksAsCoordsRel();
+        _generatedChunks = region.GetGeneratedChunksAsCoordsRelSet();
     }
 
     public Chunk GetChunk(Coords2 chunkCoords, bool relative)
@@ -84,9 +84,9 @@ public class RegionWrapper
         else
         {
             Random random = new();
-            byte[] bytes = new byte[3];
-            random.NextBytes(bytes);
-            color = Color.FromArgb(255, bytes[0], bytes[1], bytes[2]);
+            Span<byte> buff = stackalloc byte[3];
+            random.NextBytes(buff);
+            color = Color.FromArgb(255, buff[0], buff[1], buff[2]);
         }
         for (int x = 0; x < Region.BlockCount; x++)
             for (int z = 0; z < Region.BlockCount; z++)

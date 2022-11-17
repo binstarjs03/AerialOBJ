@@ -157,6 +157,20 @@ public class Region
         return (new ReadOnlyCollection<Coords2>(generatedChunksSet.ToList()), generatedChunksSet);
     }
 
+    public HashSet<Coords2> GetGeneratedChunksAsCoordsRelSet()
+    {
+        HashSet<Coords2> generatedChunksSet = new(TotalChunkCount);
+        for (int x = 0; x < ChunkCount; x++)
+            for (int z = 0; z < ChunkCount; z++)
+            {
+                Coords2 coordsChunk = new(x, z);
+                if (HasChunkGenerated(coordsChunk))
+                    generatedChunksSet.Add(coordsChunk);
+            }
+        generatedChunksSet.TrimExcess();
+        return generatedChunksSet;
+    }
+
     public bool HasChunkGenerated(Coords2 chunkCoordsRel)
     {
         (int sectorPos, int sectorLength) = GetChunkHeaderData(chunkCoordsRel);

@@ -22,6 +22,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Buffers;
 using System.Linq;
 
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
@@ -67,7 +68,7 @@ public class Section
         for (int i = 0; i < paletteBlockNbt.Count; i++)
         {
             NbtCompound blockPropertyNbt = paletteBlockNbt[i];
-            // block template in block table coordinate doesn't matter
+            // coordinate in block template of block table doesn't matter
             // so we set it to zero
             _blockPalette[i] = new Block(Coords3.Zero, blockPropertyNbt);
         }

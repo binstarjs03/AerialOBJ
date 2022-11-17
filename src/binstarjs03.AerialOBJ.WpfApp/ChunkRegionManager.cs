@@ -199,9 +199,6 @@ public class ChunkRegionManager
         PointF2 viewportChunkCanvasCenter;
         float viewportPixelPerChunk;
 
-        //_visibleChunkRange = new CoordsRange2(32, 32, 32, 32);
-        //return true;
-
         lock (_viewport)
         {
             viewportCameraPos = v.CameraPos;

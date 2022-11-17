@@ -11,6 +11,6 @@ public class ChunkHighestBlockInfo
 
         for (int x = 0; x < Section.BlockCount; x++)
             for (int z = 0; z < Section.BlockCount; z++)
-                Names[x, z] = Block.AirBlockName;
+                Names[x, z] = Block.AirBlockName; // de-nulling to some value
     }
 }
