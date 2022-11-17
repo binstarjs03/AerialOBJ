@@ -10,6 +10,8 @@
 		<Platforms>AnyCPU;x64</Platforms>
 		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+		<DefineConstants>DANGEROUS_OPTIMIZATION</DefineConstants>
 	</PropertyGroup>
 
 </Project>

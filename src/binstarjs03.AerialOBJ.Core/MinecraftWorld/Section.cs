@@ -263,7 +263,11 @@ public class Section
         {
             if (breaking)
                 break;
+#if DANGEROUS_OPTIMIZATION
             BinaryUtils.SplitSubnumberFastNoCheck(longValue, buffer, blockBitLength);
+#else
+            BinaryUtils.SplitSubnumberFast(longValue, buffer, blockBitLength);
+#endif
             foreach (int value in buffer)
             {
                 if (breaking)

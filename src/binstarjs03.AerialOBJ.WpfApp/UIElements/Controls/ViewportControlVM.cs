@@ -327,8 +327,7 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         MouseLeaveCommand = new RelayCommand(OnMouseLeave);
         MouseEnterCommand = new RelayCommand(OnMouseEnter);
         KeyUpCommand = new RelayCommand(OnKeyUp);
-#if RELEASEVERSION
-#else
+#if DEBUG
         DebugMainThreadResposeTestGenerateRandomNumber();
 #endif
     }
@@ -511,10 +510,10 @@ public class ViewportControlVM : ViewModelBase<ViewportControlVM, ViewportContro
         _crmCanUpdate = true;
         UpdateChunkRegionManager();
 
-#if RELEASEVERSION
+#if RELEASE
         SidePanelVisible = false;
         SidePanelDebugInfoVisible = false;
-#else
+#elif DEBUG
         SidePanelVisible = true;
         SidePanelDebugInfoVisible = true;
 #endif

@@ -131,7 +131,7 @@ public class ChunkRegionManager
                 message = _messageQueue.Dequeue();
             else
                 return;
-#if RELEASEVERSION
+#if RELEASE
         try
         {
             message.Invoke();
@@ -143,7 +143,7 @@ public class ChunkRegionManager
             App.InvokeDispatcher(() => throw exception, DispatcherPriority.Send, DispatcherSynchronization.Asynchronous);
             throw;
         }
-#else // don't handle exception on debug version, instead inspect it in the IDE if we want to debug it
+#elif DEBUG // don't handle exception on debug version, instead inspect it in the IDE if we want to debug it
         message.Invoke();
 #endif
     }
@@ -588,9 +588,13 @@ public class ChunkRegionManager
         Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount, 0, queue.Count)];
         for (int i = 0; i < tasks.Length; i++)
             tasks[i] = new Task(method);
+#if DANGEROUS_OPTIMIZATION
+        // disable blocking, may suffer from RACE CONDITION!
+#else
         App.InvokeDispatcher(wait,
                              DispatcherPriority.Send,
                              DispatcherSynchronization.Asynchronous);
+#endif
         _displayedHeightLimit = _viewport.HeightLimit;
         for (int i = 0; i < tasks.Length; i++)
             tasks[i].Start();

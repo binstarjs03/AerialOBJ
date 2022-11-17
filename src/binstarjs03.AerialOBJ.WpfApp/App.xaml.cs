@@ -79,7 +79,7 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-#if RELEASEVERSION // don't handle exception on debug version, instead 
+#if RELEASE // don't handle exception on debug version, instead 
                    // inspect it in the IDE if we want to debug it
         Current.DispatcherUnhandledException += OnUnhandledException;
 #endif
@@ -91,8 +91,7 @@ public partial class App : Application
         MainWindow.Show();
         debugLogWindow.Owner = MainWindow;
 
-#if RELEASEVERSION
-#else
+#if DEBUG
         State.DebugLogWindowVisible = true;
 #endif
 

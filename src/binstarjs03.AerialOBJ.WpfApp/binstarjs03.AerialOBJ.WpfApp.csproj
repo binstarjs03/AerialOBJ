@@ -10,11 +10,14 @@
 		<Platforms>AnyCPU;x64</Platforms>
 		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>True</UseWindowsForms>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	
-		<DefineConstants></DefineConstants>
+		<DefineConstants>DANGEROUS_OPTIMIZATION</DefineConstants>
+		<ServerGarbageCollection>true</ServerGarbageCollection>
+		<RetainVMGarbageCollection>true</RetainVMGarbageCollection>
 	</PropertyGroup>
 
 	<ItemGroup>
