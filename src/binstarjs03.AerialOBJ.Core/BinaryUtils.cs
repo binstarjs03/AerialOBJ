@@ -39,7 +39,7 @@ public static class BinaryUtils
 
     // here buffer is int, means each element may be 32 bits, so bit length can be 32 at most
     // Splitting is done in big-endian (from rightmost side to the left)
-    public static void SplitSubnumberFast(this long num, int[] buffer, int bitLength)
+    public static void SplitSubnumberFast(this long num, Span<int> buffer, int bitLength)
     {
         int bitsInByte = 8;
 
@@ -164,7 +164,7 @@ public static class BinaryUtils
     // Invoking this method have greater risk of generating bugs
     // unless if your arguments are pre-checked before and calling this will be done
     // thousand times, check is only done once so speed is improved greatly
-    public static void SplitSubnumberFastNoCheck(this long num, int[] buffer, int bitLength)
+    public static void SplitSubnumberFastNoCheck(this long num, Span<int> buffer, int bitLength)
     {
         int totalSubnumberCount = 64 / bitLength;
         int totalBits = totalSubnumberCount * bitLength;

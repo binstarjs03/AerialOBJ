@@ -253,9 +253,10 @@ public class Section
 
         // pos is filling position to which index is to fill
         Coords3 fillPos = Coords3.Zero;
-        // int longIndex = 0; this was added before for easier debugging
-
-        int[] buffer = new int[blockCount];
+#if DEBUG
+        int longIndex = 0; // for easier debugging
+#endif
+        Span<int> buffer = stackalloc int[blockCount];
 
         bool breaking = false;
         foreach (long longValue in dataNbt.Values)
@@ -287,7 +288,9 @@ public class Section
                     }
                 }
             }
-            // longIndex++;
+#if DEBUG
+            longIndex++;
+#endif
         }
         return paletteIndexTable3D;
     }

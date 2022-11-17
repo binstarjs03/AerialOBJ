@@ -227,7 +227,7 @@ public class Region
         }
 
         int seekPos = sectorPos * SectorDataSize;
-        int chunkNbtLength = BinaryPrimitives.ReadInt32BigEndian(_data.AsSpan(seekPos, 4)) - 1;
+        int chunkNbtLength = BinaryPrimitives.ReadInt32BigEndian(Read(seekPos, 4)) - 1;
         int chunkNbtDataStart = seekPos + 5;
 
         using MemoryStream chunkNbtStream = new(_data, chunkNbtDataStart, chunkNbtLength, false);
