@@ -45,7 +45,7 @@ public static class NbtIO
 
     public static INbt ReadStream(Stream inputStream)
     {
-        NbtReader reader = new(inputStream);
+        using NbtReader reader = new(inputStream);
         return reader.Parse();
     }
 

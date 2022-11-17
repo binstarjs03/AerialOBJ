@@ -283,6 +283,11 @@ public class NbtList<T> : List<T>, INbtList where T : class, INbt
         Name = name;
     }
 
+    public NbtList(string name, int capacity) : base(capacity)
+    {
+        Name = name;
+    }
+
     public override string ToString()
     {
         return $"{Type}<{(ListType == NbtType.InvalidOrUnknown ? "Unknown or Any Nbt Type" : ListType)}> - \"{Name}\": {Count} nbt(s)";

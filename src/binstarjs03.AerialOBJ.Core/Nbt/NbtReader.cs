@@ -15,7 +15,7 @@ public class NbtReader : BinaryReaderEndian
     public INbt Parse()
     {
         ReadNbtType(out NbtType type);
-        return ReadNbtSwitch(type, insideList: false);
+            return ReadNbtSwitch(type, insideList: false);
     }
 
     private INbt ReadNbtSwitch(NbtType type, bool insideList)
@@ -25,8 +25,8 @@ public class NbtReader : BinaryReaderEndian
 
         INbt nbt = type switch
         {
-            NbtType.NbtList => ReadNbtListSwitch(name),
             NbtType.NbtCompound => ReadNbtCompound(name),
+            NbtType.NbtList => ReadNbtListSwitch(name),
             NbtType.NbtByte => ReadNbtByte(name),
             NbtType.NbtShort => ReadNbtShort(name),
             NbtType.NbtInt => ReadNbtInt(name),
@@ -39,7 +39,6 @@ public class NbtReader : BinaryReaderEndian
             NbtType.NbtLongArray => ReadNbtLongArray(name),
             NbtType.NbtEnd => throw new NbtIllegalOperationException($"Cannot instantiate {NbtType.NbtEnd}"),
             _ => throw new NotImplementedException()
-
         };
 
         _parsedNbts.Pop();
@@ -49,7 +48,7 @@ public class NbtReader : BinaryReaderEndian
     private NbtType ReadNbtType(out NbtType nbtType)
     {
         int type = ReadByte();
-        if (Enum.IsDefined(typeof(NbtType), type))
+        if (type >= 0 && type <= 12)
         {
             nbtType = (NbtType)type;
             return nbtType;
@@ -133,7 +132,6 @@ public class NbtReader : BinaryReaderEndian
         NbtCompound nbtCompound = new(name);
         while (ReadNbtType(out NbtType type) != NbtType.NbtEnd)
         {
-
             INbt nbt = ReadNbtSwitch(type, insideList: false);
             nbtCompound.Add(nbt.Name, nbt);
         }
@@ -187,7 +185,7 @@ public class NbtReader : BinaryReaderEndian
     private NbtList<T> ReadNbtList<T>(string name, NbtType listType) where T : class, INbt
     {
         int listLength = ReadInt(ByteOrder.BigEndian);
-        NbtList<T> nbtList = new(name);
+        NbtList<T> nbtList = new(name, listLength);
         for (int i = 0; i < listLength; i++)
         {
             T nbt = (ReadNbtSwitch(listType, insideList: true) as T)!;
