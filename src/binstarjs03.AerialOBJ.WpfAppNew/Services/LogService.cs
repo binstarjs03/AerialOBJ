@@ -37,7 +37,11 @@ public static class LogService
 
     public static string NotificationContent => s_notificationContent;
 
-    public static void ClearLogContent() => s_logContent = "";
+    public static void ClearLogContent()
+    {
+        s_logContent = "";
+        LogRuntimeInfo();
+    }
 
     public static void ClearNotificationContent() => s_notificationContent = "";
 

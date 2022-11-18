@@ -6,7 +6,7 @@ using binstarjs03.AerialOBJ.WpfAppNew.Models;
 namespace binstarjs03.AerialOBJ.WpfAppNew.Services;
 public static class StateService
 {
-    public static event Action<bool>? DebugLogWindowVisibleChanged;
+    public static event Action<bool>? DebugLogWindowVisibilityChanged;
     public static event SavegameLoadStateHandler? SavegameLoadChanged;
 
     private static bool s_debugLogWindowVisible = false;
@@ -15,7 +15,7 @@ public static class StateService
     public static DateTime LaunchTime { get; } = DateTime.Now;
     public static string AppName => "AerialOBJ";
     public static string AppVersion { get; } = "InDev";
-    public static bool DebugLogWindowVisible
+    public static bool IsDebugLogWindowVisible
     {
         get => s_debugLogWindowVisible;
         set
@@ -23,7 +23,7 @@ public static class StateService
             if (value != s_debugLogWindowVisible)
             {
                 s_debugLogWindowVisible = value;
-                DebugLogWindowVisibleChanged?.Invoke(value);
+                DebugLogWindowVisibilityChanged?.Invoke(value);
             }
         }
     }

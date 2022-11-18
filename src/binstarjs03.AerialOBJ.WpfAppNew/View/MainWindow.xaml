@@ -8,7 +8,7 @@
         xmlns:viewmodel="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.ViewModel"
         mc:Ignorable="d"
         
-        Title="AerialOBJ" 
+        Title="{Binding Title}" 
         Width="600" Height="400"
         MinWidth="450" MinHeight="300">
     <Window.DataContext>
@@ -28,13 +28,18 @@
                               CommandParameter="{Binding ElementName=Root}"/>
                 </MenuItem>
                 <MenuItem Header="View">
-                    <MenuItem Header="Side Panel" IsCheckable="True"/>
+                    <MenuItem Header="Side Panel" 
+                              IsCheckable="True"/>
                     <MenuItem Header="Overlays">
-                        <MenuItem Header="Chunk Grid Overlay" IsCheckable="True"/>
+                        <MenuItem Header="Chunk Grid Overlay" 
+                                  IsCheckable="True"/>
                     </MenuItem>
                     <MenuItem Header="Debug">
-                        <MenuItem Header="Viewport Debug Info" IsCheckable="True"/>
-                        <MenuItem Header="Debug Log" IsCheckable="True"/>
+                        <MenuItem Header="Viewport Debug Info" 
+                                  IsCheckable="True"/>
+                        <MenuItem Header="Debug Log" 
+                                  IsCheckable="True"
+                                  IsChecked="{Binding IsDebugLogWindowVisible, Mode=TwoWay}"/>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="Help">
