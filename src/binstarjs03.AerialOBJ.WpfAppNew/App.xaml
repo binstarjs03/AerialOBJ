@@ -5,6 +5,8 @@
              StartupUri="View/MainWindow.xaml"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
-         
+        <SolidColorBrush x:Key="DarkBackground" Color="#303030"/>
+        <SolidColorBrush x:Key="DarkForeground" Color="#A0A0A0"/>
+        <SolidColorBrush x:Key="DarkForegroundLighter" Color="#D0D0D0"/>
     </Application.Resources>
 </Application>

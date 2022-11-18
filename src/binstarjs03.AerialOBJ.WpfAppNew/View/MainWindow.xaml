@@ -38,13 +38,15 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="Help">
-                    <MenuItem Header="About..."/>
+                    <MenuItem Header="About..."
+                              Command="{Binding ShowAboutModalCommand}"/>
                 </MenuItem>
             </Menu>
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <Grid Background="#2a2a2a"/>
+            <Grid Background="{StaticResource DarkBackground}"/>
         </DockPanel>
     </Grid>
 </Window>
+
