@@ -10,7 +10,7 @@ public partial class DebugLogWindow : Window, IClosable
     public DebugLogWindow()
     {
         InitializeComponent();
-        (DataContext as IScroller)!.ScrollToEndRequested += OnScrollToEndRequested;
+        (DataContext as IScroller)!.RequestScrollToEnd += OnScrollToEndRequested;
     }
 
     public void OnScrollToEndRequested()
@@ -22,5 +22,11 @@ public partial class DebugLogWindow : Window, IClosable
     {
         e.Cancel = true;
         Hide();
+    }
+
+    public void OnSynchronizeWindowPositionRequested(double top, double left)
+    {
+        Top = top;
+        Left = left;
     }
 }

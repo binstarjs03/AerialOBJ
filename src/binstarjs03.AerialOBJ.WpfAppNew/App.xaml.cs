@@ -14,6 +14,9 @@ public partial class App : Application
         MainWindow = new MainWindow();
         MainWindow.Show();
         debugLogWindow.Owner = MainWindow;
+        (MainWindow as MainWindow)!.RequestSynchronizeWindowPosition += 
+            debugLogWindow.OnSynchronizeWindowPositionRequested;
+        (MainWindow as MainWindow)!.SynchronizeWindowPosition();
 
         LogService.LogRuntimeInfo();
     }

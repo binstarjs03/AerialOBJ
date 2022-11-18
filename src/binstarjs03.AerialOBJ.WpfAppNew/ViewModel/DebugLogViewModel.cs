@@ -13,7 +13,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew.ViewModel;
 #pragma warning disable CA1822 // Mark members as static
 public partial class DebugLogViewModel : BaseViewModel, IScroller
 {
-    public event Action? ScrollToEndRequested;
+    public event Action? RequestScrollToEnd;
 
     public bool IsVisible
     {
@@ -34,7 +34,7 @@ public partial class DebugLogViewModel : BaseViewModel, IScroller
     private void OnLogServiceLogging(string content)
     {
         OnPropertyChanged(nameof(LogContent));
-        ScrollToEndRequested?.Invoke();
+        RequestScrollToEnd?.Invoke();
     }
 
     [RelayCommand]
