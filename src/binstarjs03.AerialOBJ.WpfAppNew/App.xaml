@@ -5,6 +5,7 @@
              xmlns:converters="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.Components.Converters">
     <Application.Resources>
         <converters:BoolToVisibility x:Key="BoolToVisibility"/>
+        <converters:DoublePairToFString x:Key="DoublePairToFString"/>
         <SolidColorBrush x:Key="DarkBackground" Color="#303030"/>
         <SolidColorBrush x:Key="DarkForeground" Color="#A0A0A0"/>
         <SolidColorBrush x:Key="DarkForegroundLighter" Color="#D0D0D0"/>

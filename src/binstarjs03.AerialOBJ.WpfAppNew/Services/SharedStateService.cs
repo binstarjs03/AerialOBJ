@@ -4,6 +4,7 @@ using binstarjs03.AerialOBJ.WpfAppNew.Components;
 using binstarjs03.AerialOBJ.WpfAppNew.Models;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Services;
+
 public static class SharedStateService
 {
     public static event Action<bool>? DebugLogWindowVisibilityChanged;
