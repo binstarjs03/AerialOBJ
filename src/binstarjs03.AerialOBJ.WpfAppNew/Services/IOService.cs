@@ -91,14 +91,14 @@ public static class IOService
     public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
     {
         e = null;
-        if (StateService.SavegameLoadInfo is null 
-            || !StateService.SavegameLoadInfo.RegionFiles.ContainsKey(regionCoords))
+        if (SharedStateService.SavegameLoadInfo is null 
+            || !SharedStateService.SavegameLoadInfo.RegionFiles.ContainsKey(regionCoords))
             return null;
         try
         {
             // TODO file may be inaccessible already, e.g deliberately deleted by the user,
             // locked by other process, etc
-            string regionFilePath = StateService.SavegameLoadInfo.RegionFiles[regionCoords].FullName;
+            string regionFilePath = SharedStateService.SavegameLoadInfo.RegionFiles[regionCoords].FullName;
             Region region = new(regionFilePath, regionCoords);
             return region;
         }

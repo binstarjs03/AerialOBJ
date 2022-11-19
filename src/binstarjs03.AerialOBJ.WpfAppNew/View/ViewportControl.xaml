@@ -1,0 +1,199 @@
+﻿<UserControl x:Class="binstarjs03.AerialOBJ.WpfAppNew.View.ViewportControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.View" 
+             xmlns:viewmodel="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.ViewModel"
+             mc:Ignorable="d" 
+             
+             d:DesignWidth="800" d:DesignHeight="650"
+             Background="White">
+    <UserControl.DataContext>
+        <viewmodel:ViewportViewModel/>
+    </UserControl.DataContext>
+    <!--Collapsible column for side panel-->
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="{x:Type ColumnDefinition}" x:Key="CollapsibleColumn">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsSidePanelVisible}" Value="False">
+                        <DataTrigger.Setters>
+                            <Setter Property="Width" Value="0"/>
+                            <Setter Property="MaxWidth" Value="0"/>
+                        </DataTrigger.Setters>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="3" Style="{StaticResource CollapsibleColumn}"/>
+            <ColumnDefinition Width="230" Style="{StaticResource CollapsibleColumn}" Name="SidePanelColumn"/>
+        </Grid.ColumnDefinitions>
+        <Rectangle Grid.Column="1" Fill="#F0F0F0"/>
+        <!--Layout for main panel-->
+        <DockPanel Grid.Column="0">
+            <!--Grid for Height slider-->
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" 
+                            Margin="10,5"
+                            Orientation="Vertical"
+                            HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Text="Height"/>
+                    <TextBlock Text="0" d:Text="255"/>
+                </StackPanel>
+                <Slider Grid.Column="1"
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Name="HeightSlider"
+                        SmallChange="1" 
+                        Value="0"
+                        d:Value="255"
+                        IsSnapToTickEnabled="True" 
+                        Minimum="-64"
+                        Maximum="320"/>
+            </Grid>
+            <!--Grid for Viewport Panel, its job is to send events-->
+            <Grid Name="ViewportPanel" 
+                  Background="{StaticResource DarkBackground}"
+                  Focusable="True"
+                  RenderOptions.EdgeMode="Aliased"
+                  RenderOptions.BitmapScalingMode="NearestNeighbor"
+                  ClipToBounds="True">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SizeChanged">
+                        <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseMove">
+                        <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseWheel">
+                        <i:InvokeCommandAction Command="{Binding MouseWheelCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseUp">
+                        <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <!--Put what viewport need to draw in this canvas, its job is to display whatever controls the canvas has-->
+                <Canvas Name="ViewportCanvas"/>
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <Rectangle Grid.Column="1" Grid.RowSpan="3" 
+                               Fill="DimGray"
+                               Height="15"/>
+                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
+                               Fill="DimGray"
+                               Width="15"/>
+                    <Rectangle Grid.Row="1" Grid.Column="1"
+                               Fill="White"/>
+                </Grid>
+            </Grid>
+        </DockPanel>
+        <!--Layout for Side Panel-->
+        <ScrollViewer Grid.Column="2" 
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Auto"
+                      Visibility="{Binding IsSidePanelVisible, Converter={StaticResource BoolToVisibility}}">
+            <!--Root stack panel of side panel-->
+            <StackPanel MaxWidth="{Binding ElementName=SidePanelColumn, Path=Width.Value}">
+                <!--Root stack panel of viewport debug info-->
+                <StackPanel Visibility="{Binding IsSidePanelDebugInfoVisible, Converter={StaticResource BoolToVisibility}}">
+                    <GroupBox Header="Debug - Viewport Info">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Camera Pos: "/>
+                                <TextBlock Text="{Binding CameraPos}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Zoom Level: "/>
+                                <TextBlock Text="{Binding ZoomLevel, StringFormat=0.00}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Height Limit: "/>
+                                <TextBlock Text="{Binding HeightLimit}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Screen Size: "/>
+                                <TextBlock Text="{Binding ScreenSize}"/>
+                            </StackPanel>
+                            <Separator/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pixel-Per-Block: "/>
+                                <TextBlock Text="{Binding PixelPerBlock, StringFormat=0.00}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pixel-Per-Chunk: "/>
+                                <TextBlock Text="{Binding PixelPerChunk, StringFormat=0.00}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pixel-Per-Region: "/>
+                                <TextBlock Text="{Binding PixelPerRegion, StringFormat=0.00}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Debug - Mouse Info">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Pos: "/>
+                                <TextBlock Text="{Binding MousePos}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Pos Delta: "/>
+                                <TextBlock Text="{Binding MousePosDelta}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Click Holding: "/>
+                                <TextBlock Text="{Binding MouseClickHolding}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Init Click Drag: "/>
+                                <TextBlock Text="{Binding MouseInitClickDrag}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Mouse Is Outside: "/>
+                                <TextBlock Text="{Binding MouseIsOutside}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

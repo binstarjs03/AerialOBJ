@@ -12,21 +12,37 @@ namespace binstarjs03.AerialOBJ.WpfAppNew.ViewModel;
 public partial class MainViewModel : BaseViewModel
 {
     [ObservableProperty]
-    private string _title = StateService.AppName;
+    private string _title = SharedStateService.AppName;
 
-    public bool HasSavegameLoaded => StateService.HasSavegameLoaded;
+    public bool HasSavegameLoaded => SharedStateService.HasSavegameLoaded;
 
     public bool IsDebugLogWindowVisible
     {
-        get => StateService.IsDebugLogWindowVisible;
-        set => StateService.IsDebugLogWindowVisible = value;
+        get => SharedStateService.IsDebugLogWindowVisible;
+        set => SharedStateService.IsDebugLogWindowVisible = value;
+    }
+    public bool IsViewportSidePanelVisible
+    {
+        get => SharedStateService.IsViewportSidePanelVisible;
+        set => SharedStateService.IsViewportSidePanelVisible = value;
+    }
+    public bool IsViewportSidePanelDebugInfoVisible
+    {
+        get => SharedStateService.IsViewportSidePanelDebugInfoVisible;
+        set => SharedStateService.IsViewportSidePanelDebugInfoVisible = value;
     }
 
     public MainViewModel()
     {
-        StateService.SavegameLoadChanged += OnSavegameLoadChanged;
-        StateService.DebugLogWindowVisibilityChanged += OnDebugLogWindowVisibilityChanged;
+        SharedStateService.SavegameLoadChanged += OnSavegameLoadChanged;
+        SharedStateService.ViewportSidePanelVisibilityChanged += OnViewportSidePanelVisibilityChanged;
+        SharedStateService.ViewportSidePanelDebugInfoVisibilityChanged += OnViewportSidePanelDebugInfoVisibilityChanged;
+        SharedStateService.DebugLogWindowVisibilityChanged += OnDebugLogWindowVisibilityChanged;
     }
+
+    private void OnDebugLogWindowVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsDebugLogWindowVisible));
+    private void OnViewportSidePanelVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsViewportSidePanelVisible));
+    private void OnViewportSidePanelDebugInfoVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsViewportSidePanelDebugInfoVisible));
 
     [RelayCommand]
     private void OnShowAboutModal() => ModalService.ShowAboutModal();
@@ -35,16 +51,11 @@ public partial class MainViewModel : BaseViewModel
     {
         Title = state switch
         {
-            SavegameLoadState.Opened => $"{StateService.AppName} - {StateService.SavegameLoadInfo!.WorldName}",
-            SavegameLoadState.Closed => StateService.AppName,
+            SavegameLoadState.Opened => $"{SharedStateService.AppName} - {SharedStateService.SavegameLoadInfo!.WorldName}",
+            SavegameLoadState.Closed => SharedStateService.AppName,
             _ => throw new NotImplementedException()
         };
         OnPropertyChanged(nameof(HasSavegameLoaded));
-    }
-
-    private void OnDebugLogWindowVisibilityChanged(bool obj)
-    {
-        OnPropertyChanged(nameof(IsDebugLogWindowVisible));
     }
 }
 #pragma warning restore CA1822 // Mark members as static

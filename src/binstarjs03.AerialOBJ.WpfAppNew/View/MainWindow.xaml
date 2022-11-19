@@ -9,8 +9,8 @@
         mc:Ignorable="d"
         
         Title="{Binding Title}" 
-        Width="600" Height="400"
-        MinWidth="450" MinHeight="300">
+        Width="800" Height="600"
+        MinWidth="450" MinHeight="400">
     <Window.DataContext>
         <viewmodel:MainViewModel/>
     </Window.DataContext>
@@ -29,14 +29,16 @@
                 </MenuItem>
                 <MenuItem Header="View">
                     <MenuItem Header="Side Panel" 
-                              IsCheckable="True"/>
+                              IsCheckable="True"
+                              IsChecked="{Binding IsViewportSidePanelVisible}"/>
                     <MenuItem Header="Overlays">
                         <MenuItem Header="Chunk Grid Overlay" 
                                   IsCheckable="True"/>
                     </MenuItem>
                     <MenuItem Header="Debug">
                         <MenuItem Header="Viewport Debug Info" 
-                                  IsCheckable="True"/>
+                                  IsCheckable="True"
+                                  IsChecked="{Binding IsViewportSidePanelDebugInfoVisible}"/>
                         <MenuItem Header="Debug Log" 
                                   IsCheckable="True"
                                   IsChecked="{Binding IsDebugLogWindowVisible, Mode=TwoWay}"/>
@@ -50,7 +52,7 @@
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <Grid Background="{StaticResource DarkBackground}"/>
+            <local:ViewportControl/>
         </DockPanel>
     </Grid>
 </Window>

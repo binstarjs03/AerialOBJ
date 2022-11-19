@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Interop;
 
 using binstarjs03.AerialOBJ.WpfAppNew.Components.Interfaces;
 using binstarjs03.AerialOBJ.WpfAppNew.Services;
@@ -17,15 +16,15 @@ public partial class DebugLogViewModel : BaseViewModel, IScroller
 
     public bool IsVisible
     {
-        get => StateService.IsDebugLogWindowVisible;
-        set => StateService.IsDebugLogWindowVisible = value;
+        get => SharedStateService.IsDebugLogWindowVisible;
+        set => SharedStateService.IsDebugLogWindowVisible = value;
     }
 
     public string LogContent => LogService.LogContent;
 
     public DebugLogViewModel()
     {
-        StateService.DebugLogWindowVisibilityChanged += OnVisibilityChanged;
+        SharedStateService.DebugLogWindowVisibilityChanged += OnVisibilityChanged;
         LogService.Logging += OnLogServiceLogging;
     }
 
@@ -42,7 +41,7 @@ public partial class DebugLogViewModel : BaseViewModel, IScroller
     {
         SaveFileDialog dialog = new()
         {
-            FileName = $"{StateService.AppName} Log",
+            FileName = $"{SharedStateService.AppName} Log",
             DefaultExt = ".txt",
             Filter = "Text Document (.txt)|*.txt"
         };
@@ -66,4 +65,3 @@ public partial class DebugLogViewModel : BaseViewModel, IScroller
 
     private void OnClearLog() => LogService.ClearLogContent();
 }
-#pragma warning restore CA1822 // Mark members as static

@@ -97,8 +97,8 @@ public static class LogService
 
     public static void LogRuntimeInfo()
     {
-        Log($"Launch time: {StateService.LaunchTime}");
-        Log($"{StateService.AppName} Version: ...");
+        Log($"Launch time: {SharedStateService.LaunchTime}");
+        Log($"{SharedStateService.AppName} Version: ...");
         Log("Commit Hash: ...", useSeparator: true);
 
         Log($"Host OS: {Environment.OSVersion}");
