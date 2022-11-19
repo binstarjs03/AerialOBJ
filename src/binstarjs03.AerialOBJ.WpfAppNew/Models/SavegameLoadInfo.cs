@@ -34,14 +34,30 @@ public class SavegameLoadInfo
 {
     public string WorldName { get; }
     public DirectoryInfo SavegameDirectory { get; }
-    public Dictionary<Coords2, FileInfo> RegionFiles { get; }
+    public Dictionary<Coords2, FileInfo>? RegionFiles { get; }
 
-    public SavegameLoadInfo(DirectoryInfo savegameDirectory, NbtCompound nbtLevel)
+    public SavegameLoadInfo(string worldName, DirectoryInfo savegameDirectory, Dictionary<Coords2, FileInfo>? regionFiles)
     {
-        WorldName = nbtLevel.Get<NbtCompound>("Data")
-                            .Get<NbtString>("LevelName")
-                            .Value;
+        WorldName = worldName;
         SavegameDirectory = savegameDirectory;
-        RegionFiles = IOService.GetRegionFileInfo(savegameDirectory.FullName);
+        RegionFiles = regionFiles;
+    }
+
+    public static SavegameLoadInfo LoadSavegame(DirectoryInfo savegameDirectory, NbtCompound levelNbt, out bool foundRegionFolder)
+    {
+        string worldName = levelNbt.Get<NbtCompound>("Data")
+                                   .Get<NbtString>("LevelName")
+                                   .Value;
+        Dictionary<Coords2, FileInfo>? regionFiles = null;
+        try
+        {
+            regionFiles = IOService.GetRegionFileInfo(savegameDirectory.FullName);
+            foundRegionFolder = true;
+        }
+        catch (RegionFolderNotFoundException)
+        {
+            foundRegionFolder = false;
+        }
+        return new SavegameLoadInfo(worldName, savegameDirectory, regionFiles);
     }
 }

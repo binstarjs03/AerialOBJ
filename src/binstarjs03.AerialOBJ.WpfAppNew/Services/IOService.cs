@@ -40,41 +40,34 @@ public static class IOService
         writer.Write(content);
     }
 
-    public static SavegameLoadInfo? LoadSavegame(string path, out Exception? e)
+    /// <exception cref="LevelDatNotFoundException"></exception>
+    public static SavegameLoadInfo LoadSavegame(string path, out bool foundRegionFolder)
     {
-        e = null;
         DirectoryInfo di = new(path);
-        LogService.Log($"Selected path: \"{di.FullName}\"");
-        LogService.Log($"Loading \"{di.Name}\" as Minecraft savegame folder...");
-
         string nbtLevelPath = $"{di.FullName}/level.dat";
         if (!File.Exists(nbtLevelPath))
-        {
-            string msg = "Missing \"level.dat\" file in specified savegame folder";
-            e = new FileNotFoundException(msg);
-            return null;
-        }
-        try
-        {
-            NbtCompound nbtLevel = (NbtCompound)NbtIO.ReadDisk(nbtLevelPath);
-            SavegameLoadInfo ret = new(di, nbtLevel);
-            return ret;
-        }
-        catch (Exception ex)
-        {
-            e = ex;
-            return null;
-        }
+            throw new LevelDatNotFoundException();
+        NbtCompound nbtLevel = (NbtCompound)NbtIO.ReadDisk(nbtLevelPath);
+        return SavegameLoadInfo.LoadSavegame(di, nbtLevel, out foundRegionFolder);
     }
 
+    /// <exception cref="RegionFolderNotFoundException"></exception>
     public static Dictionary<Coords2, FileInfo> GetRegionFileInfo(string savegameDir)
     {
         Dictionary<Coords2, FileInfo> regionFileInfos = new();
 
         string regionDirPath = $"{savegameDir}/region";
         DirectoryInfo regionDir = new(regionDirPath);
-        FileInfo[] regionFiles = regionDir.GetFiles();
-
+        FileInfo[] regionFiles;
+        try
+        {
+            regionFiles = regionDir.GetFiles();
+        }
+        catch (DirectoryNotFoundException e)
+        {
+            string msg = $"Folder \"region\" does not exist in {savegameDir}";
+            throw new RegionFolderNotFoundException(msg, e);
+        }
         foreach (FileInfo regionFile in regionFiles)
         {
             string regionFilename = regionFile.Name;
@@ -88,10 +81,12 @@ public static class IOService
         return regionFileInfos;
     }
 
+    // TODO maybe we should disable caching region file existence
     public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
     {
         e = null;
-        if (SharedStateService.SavegameLoadInfo is null 
+        if (SharedStateService.SavegameLoadInfo is null
+            || SharedStateService.SavegameLoadInfo.RegionFiles is null
             || !SharedStateService.SavegameLoadInfo.RegionFiles.ContainsKey(regionCoords))
             return null;
         try

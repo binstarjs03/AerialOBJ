@@ -10,7 +10,7 @@ using Microsoft.Win32;
 namespace binstarjs03.AerialOBJ.WpfAppNew.ViewModel;
 
 #pragma warning disable CA1822 // Mark members as static
-public partial class DebugLogViewModel : BaseViewModel, IScroller
+public partial class DebugLogWindowVM : BaseViewModel, IScroller
 {
     public event Action? RequestScrollToEnd;
 
@@ -22,7 +22,7 @@ public partial class DebugLogViewModel : BaseViewModel, IScroller
 
     public string LogContent => LogService.LogContent;
 
-    public DebugLogViewModel()
+    public DebugLogWindowVM()
     {
         SharedStateService.DebugLogWindowVisibilityChanged += OnVisibilityChanged;
         LogService.Logging += OnLogServiceLogging;

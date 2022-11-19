@@ -14,7 +14,7 @@
         d:Width="400" d:Height="300"
         Visibility="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibility}}">
     <Window.DataContext>
-        <viewmodel:DebugLogViewModel/>
+        <viewmodel:DebugLogWindowVM/>
     </Window.DataContext>
     <Grid Background="{StaticResource DarkBackground}">
         <DockPanel>

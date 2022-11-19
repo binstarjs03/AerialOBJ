@@ -13,7 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace binstarjs03.AerialOBJ.WpfAppNew.ViewModel;
 
 #pragma warning disable CA1822 // Mark members as static
-public partial class ViewportViewModel : BaseViewModel
+public partial class ViewportControlVM : BaseViewModel
 {
     private const double s_zoomRatio = 1.5;
 
@@ -45,7 +45,7 @@ public partial class ViewportViewModel : BaseViewModel
     }
 
 
-    public ViewportViewModel()
+    public ViewportControlVM()
     {
         SharedStateService.ViewportSidePanelVisibilityChanged += OnSidePanelVisibilityChanged;
         SharedStateService.ViewportSidePanelDebugInfoVisibilityChanged += OnSidePanelDebugInfoVisibilityChanged;

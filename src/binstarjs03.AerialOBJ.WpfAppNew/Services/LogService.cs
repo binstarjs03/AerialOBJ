@@ -73,7 +73,7 @@ public static class LogService
 
     public static void LogNewline() => Log("");
 
-    public static void LogEmphasis(string content, Emphasis emphasis, bool pushNotification = false, bool useSeparator = true)
+    public static void LogEmphasis(string content, Emphasis emphasis, bool pushNotification = false, bool useSeparator = false)
     {
         Log($"[{emphasis}] {content}", useSeparator);
         if (pushNotification)
