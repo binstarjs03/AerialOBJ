@@ -1,7 +1,6 @@
 ﻿using System;
 
 using binstarjs03.AerialOBJ.WpfAppNew.Components;
-using binstarjs03.AerialOBJ.WpfAppNew.Models;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Services;
 
@@ -20,6 +19,7 @@ public static class SharedStateService
     public static DateTime LaunchTime { get; } = DateTime.Now;
     public static string AppName => "AerialOBJ";
     public static string AppVersion { get; } = "InDev";
+
     public static bool IsDebugLogWindowVisible
     {
         get => s_isDebugLogWindowVisible;

@@ -3,7 +3,6 @@ using System.IO;
 using System.Windows.Forms;
 
 using binstarjs03.AerialOBJ.WpfAppNew.Components;
-using binstarjs03.AerialOBJ.WpfAppNew.Models;
 using binstarjs03.AerialOBJ.WpfAppNew.Services;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -43,6 +42,16 @@ public partial class MainWindowVM : BaseViewModel
         SharedStateService.DebugLogWindowVisibilityChanged += OnDebugLogWindowVisibilityChanged;
     }
 
+    private void OnSavegameLoadChanged(SavegameLoadState state)
+    {
+        Title = state switch
+        {
+            SavegameLoadState.Opened => $"{SharedStateService.AppName} - {SharedStateService.SavegameLoadInfo!.WorldName}",
+            SavegameLoadState.Closed => SharedStateService.AppName,
+            _ => throw new NotImplementedException()
+        };
+        OnPropertyChanged(nameof(HasSavegameLoaded));
+    }
     private void OnDebugLogWindowVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsDebugLogWindowVisible));
     private void OnViewportSidePanelVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsViewportSidePanelVisible));
     private void OnViewportSidePanelDebugInfoVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsViewportSidePanelDebugInfoVisible));
@@ -134,15 +143,4 @@ public partial class MainWindowVM : BaseViewModel
 
     [RelayCommand]
     private void OnShowAboutModal() => ModalService.ShowAboutModal();
-
-    private void OnSavegameLoadChanged(SavegameLoadState state)
-    {
-        Title = state switch
-        {
-            SavegameLoadState.Opened => $"{SharedStateService.AppName} - {SharedStateService.SavegameLoadInfo!.WorldName}",
-            SavegameLoadState.Closed => SharedStateService.AppName,
-            _ => throw new NotImplementedException()
-        };
-        OnPropertyChanged(nameof(HasSavegameLoaded));
-    }
 }

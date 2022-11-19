@@ -5,7 +5,11 @@
              xmlns:converters="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.Components.Converters">
     <Application.Resources>
         <converters:BoolToVisibility x:Key="BoolToVisibility"/>
-        <converters:DoublePairToFString x:Key="DoublePairToFString"/>
+        <converters:PairToFString x:Key="PairToFString"/>
+        <converters:DoubleToString x:Key="DoubleToString"/>
+        <converters:DoubleToFString x:Key="DoubleToFString"/>
+        <converters:IntToString x:Key="IntToString"/>
+
         <SolidColorBrush x:Key="DarkBackground" Color="#303030"/>
         <SolidColorBrush x:Key="DarkForeground" Color="#A0A0A0"/>
         <SolidColorBrush x:Key="DarkForegroundLighter" Color="#D0D0D0"/>

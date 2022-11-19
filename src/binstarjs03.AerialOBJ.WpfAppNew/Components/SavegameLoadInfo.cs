@@ -28,7 +28,7 @@ using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.WpfAppNew.Services;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew.Models;
+namespace binstarjs03.AerialOBJ.WpfAppNew.Components;
 
 public class SavegameLoadInfo
 {

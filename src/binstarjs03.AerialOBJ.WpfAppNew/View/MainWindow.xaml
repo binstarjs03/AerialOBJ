@@ -22,7 +22,8 @@
                     <MenuItem Header="Open Folder..."
                               Command="{Binding OpenSavegameCommand}"/>
                     <MenuItem Header="Close"
-                              Command="{Binding CloseSavegameCommand}"/>
+                              Command="{Binding CloseSavegameCommand}"
+                              IsEnabled="{Binding HasSavegameLoaded}"/>
                     <Separator/>
                     <MenuItem Header="Setting..."/>
                     <MenuItem Header="Exit" 

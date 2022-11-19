@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Components.Converters;
 
-public class DoublePairToFString : IValueConverter
+public class PairToFString : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

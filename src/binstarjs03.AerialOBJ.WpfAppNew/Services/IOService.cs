@@ -28,7 +28,7 @@ using System.IO;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Nbt;
-using binstarjs03.AerialOBJ.WpfAppNew.Models;
+using binstarjs03.AerialOBJ.WpfAppNew.Components;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Services;
 
