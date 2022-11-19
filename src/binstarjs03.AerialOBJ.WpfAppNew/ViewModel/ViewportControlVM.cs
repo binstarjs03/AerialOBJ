@@ -2,9 +2,9 @@
 using System.Windows;
 using System.Windows.Input;
 
-using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfAppNew.Components;
+using binstarjs03.AerialOBJ.WpfAppNew.Components.Interfaces;
 using binstarjs03.AerialOBJ.WpfAppNew.Services;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,7 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace binstarjs03.AerialOBJ.WpfAppNew.ViewModel;
 
 #pragma warning disable CA1822 // Mark members as static
-public partial class ViewportControlVM : BaseViewModel
+public partial class ViewportControlVM : BaseViewModel, IViewport
 {
     private const double s_zoomRatio = 1.5;
 
@@ -27,6 +27,8 @@ public partial class ViewportControlVM : BaseViewModel
     [ObservableProperty] private bool _mouseClickHolding = false;
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsOutside = true;
+
+    public event Action? RequestFocusToViewport;
 
     public double UnitScale => _zoomLevel;
     public double PixelPerBlock => UnitScale;
@@ -108,13 +110,23 @@ public partial class ViewportControlVM : BaseViewModel
     }
 
     [RelayCommand]
-    private void OnMouseEnter() => MouseIsOutside = false;
+    private void OnMouseEnter()
+    {
+        MouseIsOutside = false;
+        RequestFocusToViewport?.Invoke();
+    }
 
     [RelayCommand]
     private void OnMouseLeave()
     {
         MouseIsOutside = true;
         MouseClickHolding = false;
+    }
+
+    [RelayCommand]
+    private void OnKey(KeyEventArgs e)
+    {
+        MessageBox.Show("Key Up!");
     }
 
     partial void OnZoomLevelChanged(double value)
