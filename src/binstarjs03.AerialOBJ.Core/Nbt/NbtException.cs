@@ -23,7 +23,7 @@ SOFTWARE.
 
 using System;
 
-namespace binstarjs03.AerialOBJ.Core;
+namespace binstarjs03.AerialOBJ.Core.Nbt;
 
 /// <summary>
 /// Root exception for nbt-related exceptions. instead catching <see cref="Exception"/> , 
