@@ -9,11 +9,9 @@
              xmlns:reusableControls="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.Components.ReusableControls"
              mc:Ignorable="d" 
              
+             d:DataContext="{d:DesignInstance Type=viewmodel:ViewportControlVM}"
              d:DesignWidth="800" d:DesignHeight="650"
              Background="White">
-    <UserControl.DataContext>
-        <viewmodel:ViewportControlVM/>
-    </UserControl.DataContext>
     <!--Collapsible column for side panel-->
     <Grid>
         <Grid.Resources>
@@ -110,14 +108,14 @@
                     <Canvas Name="ViewportCanvas"/>
                     <Grid IsHitTestVisible="False"> <!--Disable mouse events-->
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition/>
                             <ColumnDefinition Width="1"/>
-                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
+                            <RowDefinition/>
                             <RowDefinition Height="1"/>
-                            <RowDefinition Height="1*"/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
 
                         <Rectangle Grid.Column="1" Grid.RowSpan="3" 
