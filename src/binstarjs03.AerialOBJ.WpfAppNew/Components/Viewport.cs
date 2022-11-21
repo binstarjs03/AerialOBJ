@@ -5,6 +5,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew.Components;
 
 public abstract class Viewport
 {
+    public event Action? Update;
     public event Action? CameraPosChanged;
     public event Action? ZoomLevelChanged;
     public event Action? ScreenSizeChanged;
@@ -21,7 +22,7 @@ public abstract class Viewport
             if (value != _cameraPos)
             {
                 _cameraPos = value;
-                Update();
+                Update?.Invoke();
                 CameraPosChanged?.Invoke();
             }
         }
@@ -36,7 +37,7 @@ public abstract class Viewport
                 if (value == 0)
                     throw new ArgumentException("Zoom level cannot be zero", nameof(ZoomLevel));
                 _zoomLevel = value;
-                Update();
+                Update?.Invoke();
                 ZoomLevelChanged?.Invoke();
             }
         }
@@ -51,13 +52,16 @@ public abstract class Viewport
                 if (value.Width == 0 || value.Height == 0)
                     throw new ArgumentException("Screen size cannot be zero", nameof(ScreenSize));
                 _screenSize = value;
-                Update();
+                Update?.Invoke();
                 ScreenSizeChanged?.Invoke();
             }
         }
     }
 
-    public Viewport() { }
+    public Viewport()
+    {
+        Update += OnUpdate;
+    }
 
-    protected abstract void Update();
+    protected abstract void OnUpdate();
 }

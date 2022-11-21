@@ -181,6 +181,29 @@
                                 <TextBlock Text="Pixel-Per-Region: "/>
                                 <TextBlock Text="{Binding PixelPerRegion, StringFormat=0.00}"/>
                             </StackPanel>
+                            <Separator/>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Visible Region Range: "/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="- X Range: "/>
+                                    <TextBlock Text="{Binding VisibleRegionXRange}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="- Z Range: "/>
+                                    <TextBlock Text="{Binding VisibleRegionZRange}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Visible Chunk Range: "/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="- X Range: "/>
+                                    <TextBlock Text="{Binding VisibleChunkXRange}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="- Z Range: "/>
+                                    <TextBlock Text="{Binding VisibleChunkZRange}"/>
+                                </StackPanel>
+                            </StackPanel>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Debug - Mouse Info">
