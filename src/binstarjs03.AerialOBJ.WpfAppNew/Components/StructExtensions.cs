@@ -15,4 +15,14 @@ public static class StructExtensions
     {
         return new Size(MathUtils.Floor(size.Width), MathUtils.Floor(size.Height));
     }
+
+    public static Vector GetFloor(this Vector vector)
+    {
+        return new Vector(MathUtils.Floor(vector.X), MathUtils.Floor(vector.Y));
+    }
+
+    public static Point Add(this Point left, Point right)
+    {
+        return new Point(left.X + right.X, left.Y + right.Y);
+    }
 }
