@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using binstarjs03.AerialOBJ.Core.IO;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt;
 

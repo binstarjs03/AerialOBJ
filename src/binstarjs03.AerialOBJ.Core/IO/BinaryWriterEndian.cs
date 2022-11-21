@@ -26,7 +26,7 @@ using System.Buffers.Binary;
 using System.IO;
 using System.Text;
 
-namespace binstarjs03.AerialOBJ.Core;
+namespace binstarjs03.AerialOBJ.Core.IO;
 
 // TODO implement the ability to read either BE/LE by passing enum
 /// <summary>
