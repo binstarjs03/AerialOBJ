@@ -5,7 +5,6 @@ using System.Windows;
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.CoordinateSystem;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
-using binstarjs03.AerialOBJ.WpfAppNew.Models;
 
 using Range = binstarjs03.AerialOBJ.Core.Range;
 using Region = binstarjs03.AerialOBJ.Core.MinecraftWorld.Region;
@@ -20,11 +19,20 @@ public class ChunkRegionViewport : Viewport
     public event Action? HeightLimitChanged;
     public event Action? VisibleRegionRangeChanged;
     public event Action? VisibleChunkRangeChanged;
+    public event Action? PendingRegionCountChanged;
+    public event Action? PendingChunkCountChanged;
+
+    private const int s_regionBufferSize = 15;
+    private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
+
+    private readonly List<Coords2> _pendingRegionList = new(s_regionBufferSize);
+
+    private readonly List<Coords2> _pendingChunkList = new(s_chunkBufferSize);
+    private readonly HashSet<Coords2> _pendingChunkSet = new(s_chunkBufferSize);
 
     private int _heightLimit = 319;
     private CoordsRange2 _visibleRegionRange = new();
     private CoordsRange2 _visibleChunkRange = new();
-    private List<RegionModel> _regionModels = new();
 
     #region Properties
     public Point ScreenCenter => new(ScreenSize.Width / 2, ScreenSize.Height / 2);
@@ -43,7 +51,6 @@ public class ChunkRegionViewport : Viewport
             }
         }
     }
-
     public CoordsRange2 VisibleRegionRange
     {
         get => _visibleRegionRange;
@@ -58,7 +65,7 @@ public class ChunkRegionViewport : Viewport
     }
     public CoordsRange2 VisibleChunkRange
     {
-        get => _visibleChunkRange;
+        get=>_visibleChunkRange;
         set
         {
             if (value != _visibleChunkRange)
@@ -68,11 +75,14 @@ public class ChunkRegionViewport : Viewport
             }
         }
     }
+
+    public int PendingRegionCount => _pendingRegionList.Count;
+    public int PendingChunkCount => _pendingChunkList.Count;
     #endregion Properties
 
     public ChunkRegionViewport() : base()
     {
-        ScreenSizeChanged += OnScreenCenterChanged;
+        ScreenSizeChanged += OnScreenSizeChanged;
         ZoomLevelChanged += OnZoomLevelChanged;
     }
 
@@ -83,18 +93,17 @@ public class ChunkRegionViewport : Viewport
         PixelPerRegionChanged?.Invoke();
     }
 
-    private void OnScreenCenterChanged() => ScreenCenterChanged?.Invoke();
+    private void OnScreenSizeChanged() => ScreenCenterChanged?.Invoke();
 
     protected override void OnUpdate()
     {
         if (RecalculateVisibleChunkRange())
         {
             if (RecalculateVisibleRegionRange())
-            {
-
-            }
+                LoadUnloadRegions();
+            LoadUnloadChunks();
         }
-    } 
+    }
 
     private bool RecalculateVisibleChunkRange()
     {
@@ -146,5 +155,44 @@ public class ChunkRegionViewport : Viewport
             return false;
         VisibleRegionRange = newVisibleRegionRange;
         return true;
+    }
+
+    private void LoadUnloadRegions()
+    {
+        // remove all pending region that is no longer visible
+        _pendingRegionList.RemoveAll(regionCoords => VisibleRegionRange.IsOutside(regionCoords));
+
+        // perform sweep checking from min to max range for visible regions
+        // add them to pending list if not loaded yet, not in the list, and is not worked yet
+        for (int x = VisibleRegionRange.XRange.Min; x <= VisibleRegionRange.XRange.Max; x++)
+            for (int z = VisibleRegionRange.ZRange.Min; z <= VisibleRegionRange.ZRange.Max; z++)
+            {
+                Coords2 regionCoords = new(x, z);
+                if (!_pendingRegionList.Contains(regionCoords))
+                    _pendingRegionList.Add(regionCoords);
+            }
+        PendingRegionCountChanged?.Invoke();
+    }
+
+    private void LoadUnloadChunks()
+    {
+        // remove all pending chunk that is no longer visible
+        _pendingChunkList.RemoveAll(chunkCoordsAbs => !_visibleChunkRange.IsInside(chunkCoordsAbs));
+        _pendingChunkSet.RemoveWhere(chunkCoordsAbs => !_visibleChunkRange.IsInside(chunkCoordsAbs));
+
+        // perform sweep-checking from min range to max range for chunks inside display frame
+        for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
+            for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
+            {
+                Coords2 chunkCoordsAbs = new(x, z);
+                // set is a whole lot faster to check for item existence
+                // if the content has hundreds of items, especially for
+                // tight-loop like this (approx. millions of comparison performed)
+                if (_pendingChunkSet.Contains(chunkCoordsAbs))
+                    continue;
+                _pendingChunkSet.Add(chunkCoordsAbs);
+                _pendingChunkList.Add(chunkCoordsAbs);
+            }
+        PendingChunkCountChanged?.Invoke();
     }
 }

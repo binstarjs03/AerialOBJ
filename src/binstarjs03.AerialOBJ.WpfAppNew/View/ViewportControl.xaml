@@ -193,6 +193,10 @@
                                     <TextBlock Text="{Binding VisibleRegionZRange}"/>
                                 </StackPanel>
                             </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pending Region Count: "/>
+                                <TextBlock Text="{Binding PendingRegionCount}"/>
+                            </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <TextBlock Text="Visible Chunk Range: "/>
                                 <StackPanel Orientation="Horizontal">
@@ -203,6 +207,10 @@
                                     <TextBlock Text="- Z Range: "/>
                                     <TextBlock Text="{Binding VisibleChunkZRange}"/>
                                 </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Pending Chunk Count: "/>
+                                <TextBlock Text="{Binding PendingChunkCount}"/>
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>

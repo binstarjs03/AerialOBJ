@@ -29,16 +29,22 @@ public partial class ViewportControlVM : BaseViewModel
     #region Properties
     public Point CameraPos => _viewport.CameraPos;
     public double ZoomLevel => _viewport.ZoomLevel;
+    public int HeightLimit => _viewport.HeightLimit;
     public Size ScreenSize => _viewport.ScreenSize;
     public Point ScreenCenter => _viewport.ScreenCenter;
+    
     public double PixelPerBlock => _viewport.PixelPerBlock;
     public double PixelPerChunk => _viewport.PixelPerChunk;
     public double PixelPerRegion => _viewport.PixelPerRegion;
-    public int HeightLimit => _viewport.HeightLimit;
+    
     public Range VisibleRegionXRange => _viewport.VisibleRegionRange.XRange;
     public Range VisibleRegionZRange => _viewport.VisibleRegionRange.ZRange;
+    public int PendingRegionCount => _viewport.PendingRegionCount;
+
     public Range VisibleChunkXRange => _viewport.VisibleChunkRange.XRange;
     public Range VisibleChunkZRange => _viewport.VisibleChunkRange.ZRange;
+    public int PendingChunkCount => _viewport.PendingChunkCount;
+    
     public bool IsSidePanelVisible
     {
         get => SharedStateService.IsViewportSidePanelVisible;
@@ -65,8 +71,11 @@ public partial class ViewportControlVM : BaseViewModel
         _viewport.HeightLimitChanged += OnViewportHeightLimitChanged;
         _viewport.VisibleRegionRangeChanged += OnViewportVisibleRegionRangeChanged;
         _viewport.VisibleChunkRangeChanged += OnViewportVisibleChunkRangeChanged;
+        _viewport.PendingRegionCountChanged += OnViewportPendingRegionCountChanged;
+        _viewport.PendingChunkCountChanged += OnViewportPendingChunkCountChanged;
         _viewportView = viewportView;
     }
+
 
     #region Event Handlers
     private void OnSidePanelVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsSidePanelVisible));
@@ -89,6 +98,8 @@ public partial class ViewportControlVM : BaseViewModel
         OnPropertyChanged(nameof(VisibleChunkXRange));
         OnPropertyChanged(nameof(VisibleChunkZRange));
     }
+    private void OnViewportPendingRegionCountChanged() => OnPropertyChanged(nameof(PendingRegionCount));
+    private void OnViewportPendingChunkCountChanged() => OnPropertyChanged(nameof(PendingChunkCount));
     #endregion Event Handlers
 
     #region Relay Commands
