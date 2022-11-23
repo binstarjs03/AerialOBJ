@@ -3,7 +3,10 @@ using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
 
-public struct Point2Z<TNumber> : IEquatable<Point2Z<TNumber>>, IEqualityOperators<Point2Z<TNumber>, Point2Z<TNumber>, bool> where TNumber : struct, INumber<TNumber>
+public struct Point2Z<TNumber> : 
+    IEquatable<Point2Z<TNumber>>, 
+    IEqualityOperators<Point2Z<TNumber>, Point2Z<TNumber>, bool> 
+    where TNumber : struct, INumber<TNumber>
 {
     public static Point2Z<TNumber> Zero => new();
     public TNumber X { get; set; }

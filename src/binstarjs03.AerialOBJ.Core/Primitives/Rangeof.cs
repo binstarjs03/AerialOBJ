@@ -26,10 +26,10 @@ public struct Rangeof<TNumber> :
 
     public TNumber Max
     {
-        get => _min;
+        get => _max;
         set
         {
-            if (value > _max)
+            if (value < _min)
                 throw new InvalidRangeException($"{nameof(Max)} cannot be set lower than {nameof(Min)}");
             _max = value;
         }
@@ -37,14 +37,16 @@ public struct Rangeof<TNumber> :
 
     public Rangeof()
     {
-        Min = TNumber.Zero;
-        Max = TNumber.One;
+        _min = TNumber.Zero;
+        _max = TNumber.One;
     }
 
     public Rangeof(TNumber min, TNumber max)
     {
-        Min = min;
-        Max = max;
+        if (max < min)
+            throw new InvalidRangeException($"{nameof(max)} cannot be set lower than {nameof(min)} or vice versa");
+        _min = min;
+        _max = max;
     }
 
     public bool IsInside(TNumber num)

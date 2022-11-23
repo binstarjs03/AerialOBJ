@@ -22,7 +22,6 @@ SOFTWARE.
 */
 
 using System;
-using System.Buffers;
 using System.Linq;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
