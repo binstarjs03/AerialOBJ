@@ -26,6 +26,13 @@ public struct Point3Range<TNumber> :
         ZRange = zRange;
     }
 
+    public Point3Range(Point3<TNumber> min, Point3<TNumber> max)
+    {
+        XRange = new Rangeof<TNumber>(min.X, max.X);
+        YRange = new Rangeof<TNumber>(min.Y, max.Y);
+        ZRange = new Rangeof<TNumber>(min.Z, max.Z);
+    }
+
     public Point3Range(TNumber minX, TNumber maxX, TNumber minY, TNumber maxY, TNumber minZ, TNumber maxZ)
     {
         XRange = new Rangeof<TNumber>(minX, maxX);

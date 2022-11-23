@@ -22,12 +22,11 @@ SOFTWARE.
 */
 
 using System;
+using System.Numerics;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+namespace binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.Core;
-
-public static class RangeExtension
+public static class RangeofExtension
 {
     public enum Direction
     {
@@ -38,13 +37,13 @@ public static class RangeExtension
         All
     }
 
-    private static void CheckDistance(int distance, bool expanding)
+    private static void CheckDistance<TNumber>(TNumber distance, bool expanding) where TNumber : struct, INumber<TNumber>
     {
-        if (distance < 0 && expanding || distance > 0 && !expanding)
+        if (distance < TNumber.Zero && expanding || distance > TNumber.Zero && !expanding)
             throw new ArgumentOutOfRangeException(nameof(distance), "Distance cannot be negative");
     }
 
-    private static Range ExpandContract(this Range range, int distance, bool expanding)
+    private static Rangeof<TNumber> ExpandContract<TNumber>(this Rangeof<TNumber> range, TNumber distance, bool expanding) where TNumber : struct, INumber<TNumber>
     {
         CheckDistance(distance, expanding);
         try
@@ -61,21 +60,21 @@ public static class RangeExtension
         }
     }
 
-    public static Range Expand(this Range range, int distance)
+    public static Rangeof<TNumber> Expand<TNumber>(this Rangeof<TNumber> range, TNumber distance) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(range, distance, true);
     }
 
-    public static Range Contract(this Range range, int distance)
+    public static Rangeof<TNumber> Contract<TNumber>(this Rangeof<TNumber> range, TNumber distance) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(range, -distance, false);
     }
 
-    private static CoordsRange2 ExpandContract(this CoordsRange2 coordsRange, int distance, bool positiveDistance, Direction direction)
+    private static Point2ZRange<TNumber> ExpandContract<TNumber>(this Point2ZRange<TNumber> coordsRange, TNumber distance, bool positiveDistance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         CheckDistance(distance, positiveDistance);
         if (direction == Direction.Vertical)
-            throw new ArgumentException($"{nameof(CoordsRange2)} is two dimensional horizontal plane so it doesn't have vertical axis");
+            throw new ArgumentException($"{nameof(Point2ZRange<TNumber>)} is two dimensional horizontal plane so it doesn't have vertical axis");
         switch (direction)
         {
             case Direction.NorthSouth:
@@ -93,17 +92,17 @@ public static class RangeExtension
         return coordsRange;
     }
 
-    public static CoordsRange2 Expand(this CoordsRange2 coordsRange, int distance, Direction direction)
+    public static Point2ZRange<TNumber> Expand<TNumber>(this Point2ZRange<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(coordsRange, distance, true, direction);
     }
 
-    public static CoordsRange2 Contract(this CoordsRange2 coordsRange, int distance, Direction direction)
+    public static Point2ZRange<TNumber> Contract<TNumber>(this Point2ZRange<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(coordsRange, -distance, false, direction);
     }
 
-    private static CoordsRange3 ExpandContract(this CoordsRange3 coordsRange, int distance, bool expanding, Direction direction)
+    private static Point3Range<TNumber> ExpandContract<TNumber>(this Point3Range<TNumber> coordsRange, TNumber distance, bool expanding, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         CheckDistance(distance, expanding);
         switch (direction)
@@ -130,12 +129,12 @@ public static class RangeExtension
         return coordsRange;
     }
 
-    public static CoordsRange3 Expand(this CoordsRange3 coordsRange, int distance, Direction direction)
+    public static Point3Range<TNumber> Expand<TNumber>(this Point3Range<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(coordsRange, distance, true, direction);
     }
 
-    public static CoordsRange3 Contract(this CoordsRange3 coordsRange, int distance, Direction direction)
+    public static Point3Range<TNumber> Contract<TNumber>(this Point3Range<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(coordsRange, -distance, false, direction);
     }
