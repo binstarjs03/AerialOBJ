@@ -25,7 +25,7 @@ using System;
 using System.Buffers;
 using System.Linq;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
@@ -35,22 +35,22 @@ public class Section
     public const int BlockCount = 16;
     public const int TotalBlockCount = BlockCount * BlockCount * BlockCount;
     public const int BlockRange = BlockCount - 1;
-    public static readonly CoordsRange3 BlockRangeRel = new(
-        min: Coords3.Zero,
-        max: new Coords3(BlockRange, BlockRange, BlockRange)
+    public static readonly Point3Range<int> BlockRangeRel = new(
+        min: Point3<int>.Zero,
+        max: new Point3<int>(BlockRange, BlockRange, BlockRange)
     );
 
     private readonly int _sectionYPos;
-    private readonly Coords3 _sectionCoordsAbs;
-    private readonly CoordsRange3 _blockRangeAbs;
+    private readonly Point3<int> _sectionCoordsAbs;
+    private readonly Point3Range<int> _blockRangeAbs;
 
     private readonly int[,,]? _blockPaletteIndexTable;
     private readonly Block[]? _blockPalette;
 
-    public Coords3 SectionCoordsAbs => _sectionCoordsAbs;
-    public CoordsRange3 BlockRangeAbs => _blockRangeAbs;
+    public Point3<int> SectionCoordsAbs => _sectionCoordsAbs;
+    public Point3Range<int> BlockRangeAbs => _blockRangeAbs;
 
-    public Section(Coords2 chunkCoordsAbs, NbtCompound sectionNbt)
+    public Section(Point2Z<int> chunkCoordsAbs, NbtCompound sectionNbt)
     {
         _sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
         _sectionCoordsAbs = calculateCoordsAbs(chunkCoordsAbs, _sectionYPos);
@@ -70,33 +70,33 @@ public class Section
             NbtCompound blockPropertyNbt = paletteBlockNbt[i];
             // coordinate in block template of block table doesn't matter
             // so we set it to zero
-            _blockPalette[i] = new Block(Coords3.Zero, blockPropertyNbt);
+            _blockPalette[i] = new Block(Point3<int>.Zero, blockPropertyNbt);
         }
 
         NbtLongArray? dataNbt = readDataNbt(blockStatesNbt);
         if (dataNbt is not null)
             _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteBlockNbt.Count);
 
-        static Coords3 calculateCoordsAbs(Coords2 chunkCoordsAbs, int yPos)
+        static Point3<int> calculateCoordsAbs(Point2Z<int> chunkCoordsAbs, int yPos)
         {
             int x = chunkCoordsAbs.X;
             int y = yPos;
             int z = chunkCoordsAbs.Z;
-            return new Coords3(x, y, z);
+            return new Point3<int>(x, y, z);
         }
-        static CoordsRange3 calculateBlockRangeAbs(Coords3 coordsAbs)
+        static Point3Range<int> calculateBlockRangeAbs(Point3<int> coordsAbs)
         {
             int minAbsBx = coordsAbs.X * BlockCount;
             int minAbsBy = coordsAbs.Y * BlockCount;
             int minAbsBz = coordsAbs.Z * BlockCount;
-            Coords3 minAbsB = new(minAbsBx, minAbsBy, minAbsBz);
+            Point3<int> minAbsB = new(minAbsBx, minAbsBy, minAbsBz);
 
             int maxAbsBx = minAbsBx + BlockRange;
             int maxAbsBy = minAbsBy + BlockRange;
             int maxAbsBz = minAbsBz + BlockRange;
-            Coords3 maxAbsB = new(maxAbsBx, maxAbsBy, maxAbsBz);
+            Point3<int> maxAbsB = new(maxAbsBx, maxAbsBy, maxAbsBz);
 
-            return new CoordsRange3(minAbsB, maxAbsB);
+            return new Point3Range<int>(minAbsB, maxAbsB);
         }
         static NbtList<NbtCompound>? readPaletteNbt(NbtCompound nbtBlockStates)
         {
@@ -112,24 +112,24 @@ public class Section
         }
     }
 
-    public static Coords3 ConvertBlockCoordsAbsToRel(Coords3 coords)
+    public static Point3<int> ConvertBlockCoordsAbsToRel(Point3<int> coords)
     {
         int blockCoordsAbsX = MathUtils.Mod(coords.X, BlockCount);
         int blockCoordsAbsY = MathUtils.Mod(coords.Y, BlockCount);
         int blockCoordsAbsZ = MathUtils.Mod(coords.Z, BlockCount);
-        return new Coords3(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
+        return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
     }
 
-    public (Coords3 blockCoordsRel, Coords3 blockCoordsAbs) CalculateBlockCoords(Coords3 blockCoords, bool relative, bool skipTest = false)
+    public (Point3<int> blockCoordsRel, Point3<int> blockCoordsAbs) CalculateBlockCoords(Point3<int> blockCoords, bool relative, bool skipTest = false)
     {
-        Coords3 blockCoordsRel;
-        Coords3 blockCoordsAbs;
+        Point3<int> blockCoordsRel;
+        Point3<int> blockCoordsAbs;
         if (relative)
         {
             if (!skipTest)
                 BlockRangeRel.ThrowIfOutside(blockCoords);
             blockCoordsRel = blockCoords;
-            blockCoordsAbs = new Coords3(_sectionCoordsAbs.X * BlockCount + blockCoords.X,
+            blockCoordsAbs = new Point3<int>(_sectionCoordsAbs.X * BlockCount + blockCoords.X,
                                          _sectionCoordsAbs.Y * BlockCount + blockCoords.Y,
                                          _sectionCoordsAbs.Z * BlockCount + blockCoords.Z);
         }
@@ -145,9 +145,9 @@ public class Section
 
     // get what block the block table returned from given input.
     // This method does generate heap so avoid calling this method at tight-loops
-    public Block GetBlock(Coords3 coords, bool relative)
+    public Block GetBlock(Point3<int> coords, bool relative)
     {
-        (Coords3 coordsRel, Coords3 coordsAbs) = CalculateBlockCoords(coords, relative);
+        (Point3<int> coordsRel, Point3<int> coordsAbs) = CalculateBlockCoords(coords, relative);
         if (_blockPaletteIndexTable is null)
         {
             Block block = Block.Air;
@@ -165,7 +165,7 @@ public class Section
 
     // peek what the block table returned from given input.
     // does not generate heap since it just referencing palette block
-    public Block GetBlockPalette(Coords3 blockCoordsRel)
+    public Block GetBlockPalette(Point3<int> blockCoordsRel)
     {
         if (_blockPaletteIndexTable is null)
             return Block.Air;
@@ -178,7 +178,7 @@ public class Section
 
     // set all input block properties to block table block properties, if inequal.
     // does not generate heap, return true if setting is succeed
-    public bool SetBlock(Block block, Coords3 coordsRel, string[]? exclusions = null)
+    public bool SetBlock(Block block, Point3<int> coordsRel, string[]? exclusions = null)
     {
         if (_blockPaletteIndexTable is null) // set to air block
             return false;
@@ -191,7 +191,7 @@ public class Section
             if (exclusions is not null && exclusions.Contains(blockTemplate.Name))
                 return false;
             block.Name = blockTemplate.Name;
-            block.BlockCoordsAbs = new Coords3(SectionCoordsAbs.X * BlockCount + coordsRel.X,
+            block.BlockCoordsAbs = new Point3<int>(SectionCoordsAbs.X * BlockCount + coordsRel.X,
                                           SectionCoordsAbs.Y * BlockCount + coordsRel.Y,
                                           SectionCoordsAbs.Z * BlockCount + coordsRel.Z);
             block.Properties = blockTemplate.Properties;
@@ -199,7 +199,7 @@ public class Section
         }
     }
 
-    public bool SetBlock(out string blockName, Coords3 blockCoordsRel, string[]? exclusions = null)
+    public bool SetBlock(out string blockName, Point3<int> blockCoordsRel, string[]? exclusions = null)
     {
         blockName = Block.AirBlockName;
         if (_blockPaletteIndexTable is null)
@@ -252,7 +252,7 @@ public class Section
         int[,,] paletteIndexTable3D = new int[BlockCount, BlockCount, BlockCount];
 
         // pos is filling position to which index is to fill
-        Coords3 fillPos = Coords3.Zero;
+        Point3<int> fillPos = Point3<int>.Zero;
 #if DEBUG
         int longIndex = 0; // for easier debugging
 #endif

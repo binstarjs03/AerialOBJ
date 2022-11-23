@@ -23,7 +23,7 @@ SOFTWARE.
 
 using System.Collections.Generic;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
@@ -33,7 +33,7 @@ public class Block
     public const string AirBlockName = "minecraft:air";
     public const string AirCaveBlockName = "minecraft:cave_air";
     private string _name;
-    private Coords3 _blockCoordsAbs;
+    private Point3<int> _blockCoordsAbs;
     private Dictionary<string, string>? _properties;
 
     public static Block Air => new();
@@ -44,7 +44,7 @@ public class Block
         set => _name = value;
     }
 
-    public Coords3 BlockCoordsAbs
+    public Point3<int> BlockCoordsAbs
     {
         get => _blockCoordsAbs;
         set => _blockCoordsAbs = value;
@@ -59,18 +59,18 @@ public class Block
     public Block()
     {
         _name = AirBlockName;
-        _blockCoordsAbs = Coords3.Zero;
+        _blockCoordsAbs = Point3<int>.Zero;
     }
 
     // propertiesless and nameless constructor
-    public Block(Coords3 coordsAbs)
+    public Block(Point3<int> coordsAbs)
     {
         _name = AirBlockName;
         _blockCoordsAbs = coordsAbs;
     }
 
     // propertiesless constructor
-    public Block(string name, Coords3 coordsAbs)
+    public Block(string name, Point3<int> coordsAbs)
     {
         _name = name;
         _blockCoordsAbs = coordsAbs;
@@ -78,7 +78,7 @@ public class Block
 
     // TODO properties parser isn't implemented yet. Any properties from nbt
     // compound will be ignored and not stored inside properties dictionary
-    public Block(Coords3 coordsAbs, NbtCompound properties)
+    public Block(Point3<int> coordsAbs, NbtCompound properties)
     {
         _name = properties.Get<NbtString>("Name").Value;
         _blockCoordsAbs = coordsAbs;

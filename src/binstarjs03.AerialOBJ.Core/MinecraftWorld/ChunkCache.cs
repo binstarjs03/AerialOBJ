@@ -24,7 +24,7 @@ SOFTWARE.
 using System.Collections.Generic;
 using System.Linq;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
@@ -61,7 +61,7 @@ public class ChunkCache
 
                 // initialize last block to whatever block is at lowest section at lowest Y level
                 Section lowestSection = chunk.GetSectionAt(0);
-                Block lowestBlock = lowestSection.GetBlockPalette(new Coords3(x, 0, z));
+                Block lowestBlock = lowestSection.GetBlockPalette(new Point3<int>(x, 0, z));
                 string lastBlockName = lowestBlock.Name;
 
                 int highestHeight = chunk.GetSectionAt(chunk.SectionsYPos.Length - 1).SectionCoordsAbs.Y * Section.BlockCount + Section.BlockCount - 1;
@@ -76,7 +76,7 @@ public class ChunkCache
                     // (which has 16 height levels)
                     for (int y = 0; y < Section.BlockCount; y++)
                     {
-                        Coords3 blockCoordsRel = new(x, y, z);
+                        Point3<int> blockCoordsRel = new(x, y, z);
                         Block block = section.GetBlockPalette(blockCoordsRel);
 
                         int currentHeightLevel = section.SectionCoordsAbs.Y * Section.BlockCount + y;
