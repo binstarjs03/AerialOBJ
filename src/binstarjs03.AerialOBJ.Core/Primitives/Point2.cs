@@ -54,4 +54,9 @@ public struct Point2<TNumber> :
     {
         return !(left == right);
     }
+
+    public static explicit operator Point2<TNumber>(Size<TNumber> size)
+    {
+        return new Point2<TNumber>(size.Width, size.Height);
+    }
 }
