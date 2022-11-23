@@ -5,7 +5,7 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.Visualization.TwoDimension;
-//#pragma warning disable
+
 public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImage : class, IRegionImage, new()
 {
     public event RegionImageEventHandler? RegionImageAdded;
@@ -23,6 +23,8 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
     private Point2Z<int>? _workedRegion = null;
 
     private Point2ZRange<int> _visibleChunkRange;
+    private readonly List<Point2Z<int>> _pendingChunkList = new(s_chunkBufferSize);
+    private readonly HashSet<Point2Z<int>> _pendingChunkSet = new(s_chunkBufferSize);
 
     public Point2<int> ScreenCenter => (Point2<int>)(ScreenSize / 2);
     public float PixelPerBlock => ZoomLevel;
@@ -31,7 +33,7 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
 
     public ChunkViewport2(Size<int> screenSize) : base(screenSize)
     {
-
+        
     }
 
     protected override void OnUpdate()
@@ -167,5 +169,26 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
     {
         _loadedRegions.Remove(regionModel.RegionCoords);
         RegionImageRemoved?.Invoke(regionModel.RegionImage);
+    }
+
+    protected virtual void LoadUnloadChunks()
+    {
+        // remove all pending chunk that is no longer visible
+        _pendingChunkList.RemoveAll(_visibleChunkRange.IsOutside);
+        _pendingChunkSet.RemoveWhere(_visibleChunkRange.IsOutside);
+
+        // perform sweep-checking from min range to max range for chunks inside display frame
+        for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
+            for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
+            {
+                Point2Z<int> chunkCoordsAbs = new(x, z);
+                // set is a whole lot faster to check for item existence
+                // if the content has hundreds of items, especially for
+                // tight-loop like this (approx. millions of comparison performed)
+                if (_pendingChunkSet.Contains(chunkCoordsAbs))
+                    continue;
+                _pendingChunkSet.Add(chunkCoordsAbs);
+                _pendingChunkList.Add(chunkCoordsAbs);
+            }
     }
 }
