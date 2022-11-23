@@ -1,11 +1,14 @@
-﻿using System;
-
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+﻿using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.Visualization.TwoDimension;
-public class ChunkViewport2 : Viewport2
+
+public class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImage : class, IRegionImage, new()
 {
+    public event RegionImageEventHandler? RegionImageAdded;
+    public event RegionImageEventHandler? RegionImageRemoved;
+    public delegate void RegionImageEventHandler(TRegionImage regionImage);
+
     private Point2ZRange<int> _visibleRegionRange;
     private Point2ZRange<int> _visibleChunkRange;
 
