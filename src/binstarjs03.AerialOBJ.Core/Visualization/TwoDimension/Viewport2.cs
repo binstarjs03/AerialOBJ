@@ -1,12 +1,13 @@
-﻿using System.Drawing;
-using System;
+﻿using System;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
+using System.Runtime.CompilerServices;
 
 namespace binstarjs03.AerialOBJ.Core.Visualization.TwoDimension;
 
 public abstract class Viewport2
 {
+    public event Action<string>? PropertyChanged;
     protected event Action? Update;
 
     private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
@@ -22,6 +23,7 @@ public abstract class Viewport2
             {
                 _cameraPos = value;
                 Update?.Invoke();
+                OnPropertyChanged();
             }
         }
     }
@@ -36,6 +38,7 @@ public abstract class Viewport2
                     throw new ArgumentException("Zoom level cannot be zero", nameof(ZoomLevel));
                 _zoomLevel = value;
                 Update?.Invoke();
+                OnPropertyChanged();
             }
         }
     }
@@ -50,6 +53,7 @@ public abstract class Viewport2
                     throw new ArgumentException("Screen size cannot be zero or less than", nameof(ScreenSize));
                 _screenSize = value;
                 Update?.Invoke();
+                OnPropertyChanged();
             }
         }
     }
@@ -61,4 +65,8 @@ public abstract class Viewport2
     }
 
     protected abstract void OnUpdate();
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName ="")
+    {
+        PropertyChanged?.Invoke(propertyName);
+    }
 }

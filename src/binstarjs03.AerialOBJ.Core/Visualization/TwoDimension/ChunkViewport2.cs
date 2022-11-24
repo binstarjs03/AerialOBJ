@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
@@ -15,25 +15,45 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
     private const int s_regionBufferSize = 20;
     private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
 
-    private readonly Random _rng = new();
-
     private Point2ZRange<int> _visibleRegionRange;
-    private readonly Dictionary<Point2Z<int>, RegionModel<TRegionImage>> _loadedRegions = new(s_regionBufferSize);
-    private readonly List<Point2Z<int>> _pendingRegionList = new(s_regionBufferSize);
-    private Point2Z<int>? _workedRegion = null;
+    protected readonly Dictionary<Point2Z<int>, RegionModel<TRegionImage>> _loadedRegions = new(s_regionBufferSize);
+    protected readonly List<Point2Z<int>> _pendingRegionList = new(s_regionBufferSize);
 
     private Point2ZRange<int> _visibleChunkRange;
-    private readonly List<Point2Z<int>> _pendingChunkList = new(s_chunkBufferSize);
-    private readonly HashSet<Point2Z<int>> _pendingChunkSet = new(s_chunkBufferSize);
+    protected readonly Dictionary<Point2Z<int>, ChunkModel> _loadedChunks = new(s_chunkBufferSize);
+    protected readonly List<Point2Z<int>> _pendingChunkList = new(s_chunkBufferSize);
+    protected readonly HashSet<Point2Z<int>> _pendingChunkSet = new(s_chunkBufferSize);
 
+    // Public readonly accessors for internal use and for UI display.
+    // For properties that has its underlying fields, use field instead for consistency
     public Point2<int> ScreenCenter => (Point2<int>)(ScreenSize / 2);
     public float PixelPerBlock => ZoomLevel;
     public float PixelPerChunk => PixelPerBlock * Section.BlockCount;
     public float PixelPerRegion => PixelPerChunk * Region.ChunkCount;
 
+    public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange;
+    public int LoadedRegionCount => _loadedRegions.Count;
+    public int PendingRegionCount => _pendingRegionList.Count;
+
+    public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange;
+    public int LoadedChunkCount => _loadedChunks.Count;
+    public int PendingChunkCount => _pendingChunkList.Count;
+
     public ChunkViewport2(Size<int> screenSize) : base(screenSize)
     {
-        
+
+    }
+
+    protected override void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        base.OnPropertyChanged(propertyName);
+        if (propertyName == nameof(ScreenSize))
+        {
+            base.OnPropertyChanged(nameof(ScreenCenter));
+            base.OnPropertyChanged(nameof(PixelPerBlock));
+            base.OnPropertyChanged(nameof(PixelPerChunk));
+            base.OnPropertyChanged(nameof(PixelPerRegion));
+        }
     }
 
     protected override void OnUpdate()
@@ -71,6 +91,7 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
         if (newVisibleChunkRange == oldVisibleChunkRange)
             return false;
         _visibleChunkRange = newVisibleChunkRange;
+        OnPropertyChanged(nameof(VisibleChunkRange));
         return true;
     }
 
@@ -94,6 +115,7 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
         if (newVisibleRegionRange == oldVisibleRegionRange)
             return false;
         _visibleRegionRange = newVisibleRegionRange;
+        OnPropertyChanged(nameof(VisibleRegionRange));
         return true;
     }
 
@@ -104,6 +126,7 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
         foreach ((Point2Z<int> regionCoords, RegionModel<TRegionImage> regionModel) in _loadedRegions)
             if (_visibleRegionRange.IsOutside(regionCoords))
                 UnloadRegionModel(regionModel);
+        OnPropertyChanged(nameof(LoadedRegionCount));
 
         // remove all pending region that is no longer visible
         _pendingRegionList.RemoveAll(_visibleRegionRange.IsOutside);
@@ -117,55 +140,20 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
                 if (!_pendingRegionList.Contains(regionCoords))
                     _pendingRegionList.Add(regionCoords);
             }
+        OnPropertyChanged(nameof(PendingRegionCount));
         // base implementation goes here, may call LoadRegion(), must call base implementation()
     }
 
-    protected void LoadRegion()
+    protected void LoadRegionModel(RegionModel<TRegionImage> regionModel)
     {
-        if (_pendingRegionList.Count == 0)
+        if (_visibleRegionRange.IsOutside(regionModel.RegionCoords)
+            || _loadedRegions.ContainsKey(regionModel.RegionCoords))
             return;
-        int randomIndex = _rng.Next(0, _pendingRegionList.Count);
-        Point2Z<int> regionCoords = _pendingRegionList[randomIndex];
-        _pendingRegionList.RemoveAt(randomIndex);
-        _workedRegion = regionCoords;
-
-        Region? region = GetRegionFromCache(regionCoords);
-        if (region is null)
-            return;
-        RegionModel<TRegionImage> regionModel = new(region);
-        _loadedRegions.Add(regionCoords, regionModel);
+        _loadedRegions.Add(regionModel.RegionCoords, regionModel);
         RegionImageAdded?.Invoke(regionModel.RegionImage);
     }
 
-    protected abstract Region? GetRegionFromCache(Point2Z<int> regionCoords);
-    /* Implementation of GetRegionFromCache for current implementation of WPF App
-     *
-     * Region region;
-     * // Try to fetch region from cache. If miss, load it from disk
-     * if (RegionCacheService.HasRegion(regionCoords))
-     *     region = RegionCacheService.Get(regionCoords);
-     * else
-     * {
-     *     Region? regionDisk = IOService.ReadRegionFile(regionCoords, out Exception? e);
-     *     // cancel region loading if we can't get the region at specified coords
-     *     // (corrupted, file not exist or not generated yet etc)
-     *     if (regionDisk is null)
-     *     {
-     *         if (e is not null)
-     *         {
-     *             // TODO display messagebox only once and never again
-     *             LogService.LogEmphasis($"Region {regionCoords} was skipped.", LogService.Emphasis.Error);
-     *             LogService.Log($"Cause of exception: {e.GetType()}");
-     *             LogService.Log($"Exception details: {e}", useSeparator: true);
-     *         }
-     *         return;
-     *     }
-     *     region = regionDisk;
-     *     RegionCacheService.Store(region);
-     * }
-     */
-
-    private void UnloadRegionModel(RegionModel<TRegionImage> regionModel)
+    protected void UnloadRegionModel(RegionModel<TRegionImage> regionModel)
     {
         _loadedRegions.Remove(regionModel.RegionCoords);
         RegionImageRemoved?.Invoke(regionModel.RegionImage);
@@ -190,5 +178,6 @@ public abstract class ChunkViewport2<TRegionImage> : Viewport2 where TRegionImag
                 _pendingChunkSet.Add(chunkCoordsAbs);
                 _pendingChunkList.Add(chunkCoordsAbs);
             }
+        OnPropertyChanged(nameof(PendingChunkCount));
     }
 }
