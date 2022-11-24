@@ -218,11 +218,11 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Mouse Pos: "/>
-                                <TextBlock Text="{Binding MousePos, Converter={StaticResource PairToFString}}"/>
+                                <TextBlock Text="{Binding MousePos}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Mouse Pos Delta: "/>
-                                <TextBlock Text="{Binding MousePosDelta, Converter={StaticResource PairToFString}}"/>
+                                <TextBlock Text="{Binding MousePosDelta}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Mouse Click Holding: "/>

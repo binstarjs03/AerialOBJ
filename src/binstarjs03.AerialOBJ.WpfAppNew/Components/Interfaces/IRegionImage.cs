@@ -1,6 +1,6 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.Core.Visualization.TwoDimension;
+namespace binstarjs03.AerialOBJ.WpfAppNew.Components.Interfaces;
 
 public interface IRegionImage
 {

@@ -39,6 +39,12 @@ public struct Size<TNumber> :
         Height = height;
     }
 
+    public Point2<TNumber> GetMidPoint()
+    {
+        TNumber two = TNumber.One + TNumber.One;
+        return new Point2<TNumber>(Width / two, Height / two);
+    }
+
     public override string ToString()
     {
         return $"({Width}, {Height})";

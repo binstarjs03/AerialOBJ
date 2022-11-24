@@ -21,8 +21,8 @@ public partial class ViewportControlVM : BaseViewModel
 
     // Here we are using native WPF primitives for better WPF integration
     // (less type casting around WPF types, cast only once when passing to the viewport)
-    [ObservableProperty] private Point _mousePos = new(0, 0);
-    [ObservableProperty] private Vector _mousePosDelta = new(0, 0);
+    [ObservableProperty] private Point2<int> _mousePos = Point2<int>.Zero;
+    [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsOutside = true;
@@ -62,12 +62,13 @@ public partial class ViewportControlVM : BaseViewModel
         SharedStateService.ViewportSidePanelVisibilityChanged += OnSidePanelVisibilityChanged;
         SharedStateService.ViewportSidePanelDebugInfoVisibilityChanged += OnSidePanelDebugInfoVisibilityChanged;
         _viewportView = viewportView;
-        _viewport = new ChunkRegionViewport(_viewportView.GetScreenSize().ToCoreSize());
+        _viewport = new ChunkRegionViewport();
         _viewport.PropertyChanged += OnViewportPropertyChanged;
     }
 
     private void OnViewportPropertyChanged(string obj)
     {
+        OnPropertyChanged(obj);
         if (obj == nameof(ChunkRegionViewport.VisibleRegionRange))
         {
             OnPropertyChanged(nameof(VisibleRegionXRange));
@@ -78,8 +79,6 @@ public partial class ViewportControlVM : BaseViewModel
             OnPropertyChanged(nameof(VisibleChunkXRange));
             OnPropertyChanged(nameof(VisibleChunkZRange));
         }
-        else
-            OnPropertyChanged(obj);
     }
 
     #region Event Handlers
@@ -91,22 +90,24 @@ public partial class ViewportControlVM : BaseViewModel
     [RelayCommand]
     private void OnScreenSizeChanged(SizeChangedEventArgs e)
     {
-        Size newSize = e.NewSize.GetFloor();
-        _viewport.ScreenSize = newSize.ToCoreSize();
+        Size<int> newSize = e.NewSize.GetFloor().ToCoreSize();
+        //_viewport.PostMessage(() => _viewport.ScreenSize = newSize, MessageOption.NoDuplicate);
+        _viewport.ScreenSize = newSize;
     }
 
     [RelayCommand]
     private void OnMouseMove(MouseEventArgs e)
     {
-        Point oldMousePos = MousePos;
-        Point newMousePos = e.GetPosition(e.Source as IInputElement).GetFloor();
-        Vector newMousePosDelta = (newMousePos - oldMousePos).GetFloor();
+        Point2<int> oldMousePos = MousePos;
+        Point2<int> newMousePos = e.GetPosition(e.Source as IInputElement).GetFloor().ToCorePoint2();
+        Vector2<int> newMousePosDelta = newMousePos - oldMousePos;
         MousePos = newMousePos;
-        MousePosDelta = MouseInitClickDrag && MouseClickHolding ? new Vector(0, 0) : newMousePosDelta;
+        MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : newMousePosDelta;
         if (MouseClickHolding)
         {
-            Vector cameraPosDelta = MousePosDelta / _viewport.ZoomLevel;
-            _viewport.CameraPos += cameraPosDelta.ToCoreVectorZ();
+            Vector2Z<float> cameraPosDelta = new(MousePosDelta.X / _viewport.ZoomLevel, MousePosDelta.Y / _viewport.ZoomLevel);
+            //_viewport.PostMessage(() => _viewport.CameraPos += cameraPosDelta, MessageOption.NoDuplicate);
+            _viewport.CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
         }
     }
@@ -120,9 +121,8 @@ public partial class ViewportControlVM : BaseViewModel
         else
             newZoomLevel = _viewport.ZoomLevel / s_zoomRatio;
         // limit zoom scrollability by 8 for zoom in, 2 for zoom out
-        newZoomLevel = float.Clamp(newZoomLevel,
-                                   1 / MathF.Pow(s_zoomRatio, 2),
-                                   1 * MathF.Pow(s_zoomRatio, 8));
+        newZoomLevel = float.Clamp(newZoomLevel, 1, 1 * MathF.Pow(s_zoomRatio, 8));
+        //_viewport.PostMessage(() => _viewport.ZoomLevel = newZoomLevel, MessageOption.NoDuplicate);
         _viewport.ZoomLevel = newZoomLevel;
     }
 

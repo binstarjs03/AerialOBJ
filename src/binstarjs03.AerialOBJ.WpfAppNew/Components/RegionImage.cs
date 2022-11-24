@@ -1,5 +1,5 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.Core.Visualization.TwoDimension;
+using binstarjs03.AerialOBJ.WpfAppNew.Components.Interfaces;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Components;
 

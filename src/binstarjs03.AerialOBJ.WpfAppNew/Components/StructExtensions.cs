@@ -27,6 +27,11 @@ public static class StructExtensions
         return new Point(left.X + right.X, left.Y + right.Y);
     }
 
+    public static Point2<int> ToCorePoint2(this Point point)
+    {
+        return new Point2<int>(MathUtils.Floor(point.X), MathUtils.Floor(point.Y));
+    }
+
     public static Size<int> ToCoreSize(this Size wpfSize)
     {
         return new Size<int>(MathUtils.Floor(wpfSize.Width), 
