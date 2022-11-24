@@ -1,33 +1,33 @@
 ﻿using System.Collections.Generic;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Services;
 public static class RegionCacheService
 {
-    private static Dictionary<Coords2, Region> _regionCache = new();
+    private static readonly Dictionary<Point2Z<int>, Region> s_regionCache = new();
 
-    public static bool HasRegion(Coords2 regionCoords)
+    public static bool HasRegion(Point2Z<int> regionCoords)
     {
-        return _regionCache.ContainsKey(regionCoords);
+        return s_regionCache.ContainsKey(regionCoords);
     }
 
     public static void Store(Region region)
     {
         if (HasRegion(region.RegionCoords))
             return;
-        _regionCache.Add(region.RegionCoords, region);
+        s_regionCache.Add(region.RegionCoords, region);
     }
 
-    public static void Delete(Coords2 regionCoords)
+    public static void Delete(Point2Z<int> regionCoords)
     {
         if (HasRegion(regionCoords))
-            _regionCache.Remove(regionCoords);
+            s_regionCache.Remove(regionCoords);
     }
 
     public static void Clear()
     {
-        _regionCache.Clear();
+        s_regionCache.Clear();
     }
 }

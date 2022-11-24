@@ -9,4 +9,5 @@ public interface IViewportView
     void RemoveFromCanvas(UIElement uiElement);
     bool HasCanvasItem(UIElement uiElement);
     void UpdateCanvasItemPosition(UIElement uiElement, Point newPosition);
+    Size GetScreenSize();
 }

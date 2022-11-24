@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -37,9 +36,14 @@ public partial class ViewportControl : UserControl, IViewportView
         ViewportCanvas.Children.Remove(uiElement);
     }
 
-    public void UpdateCanvasItemPosition(UIElement uiElement, System.Windows.Point newPosition)
+    public void UpdateCanvasItemPosition(UIElement uiElement, Point newPosition)
     {
         Canvas.SetLeft(uiElement, newPosition.X);
         Canvas.SetTop(uiElement, newPosition.Y);
+    }
+
+    public Size GetScreenSize()
+    {
+        return new Size(ViewportPanel.ActualWidth, ViewportPanel.ActualHeight);
     }
 }

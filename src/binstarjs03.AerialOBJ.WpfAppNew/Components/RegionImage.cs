@@ -3,9 +3,10 @@ using binstarjs03.AerialOBJ.Core.Visualization.TwoDimension;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Components;
 
-public class ChunkRegionViewport : ChunkViewport2<RegionImage>
+public class RegionImage : IRegionImage
 {
-    public ChunkRegionViewport(Size<int> screenSize) : base(screenSize)
+    public void SetPixel(Point2<int> pixel, IColor color)
     {
+        throw new System.NotImplementedException();
     }
 }

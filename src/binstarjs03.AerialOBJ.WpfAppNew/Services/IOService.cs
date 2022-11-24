@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.WpfAppNew.Components;
@@ -52,9 +52,9 @@ public static class IOService
     }
 
     /// <exception cref="RegionFolderNotFoundException"></exception>
-    public static Dictionary<Coords2, FileInfo> GetRegionFileInfo(string savegameDir)
+    public static Dictionary<Point2Z<int>, FileInfo> GetRegionFileInfo(string savegameDir)
     {
-        Dictionary<Coords2, FileInfo> regionFileInfos = new();
+        Dictionary<Point2Z<int>, FileInfo> regionFileInfos = new();
 
         string regionDirPath = $"{savegameDir}/region";
         DirectoryInfo regionDir = new(regionDirPath);
@@ -71,18 +71,18 @@ public static class IOService
         foreach (FileInfo regionFile in regionFiles)
         {
             string regionFilename = regionFile.Name;
-            if (!Region.IsValidFilename(regionFilename, out Coords2? regionCoords))
+            if (!Region.IsValidFilename(regionFilename, out Point2Z<int>? regionCoords))
                 continue;
             // region file exceed a single sector of 4KiB (chunk header table),
             // we can assume that is a valid region file
-            if (regionFile.Length > Region.SectorDataSize)
-                regionFileInfos.Add((Coords2)regionCoords!, regionFile);
+            if (regionFile.Length > Region.SectorDataLength)
+                regionFileInfos.Add((Point2Z<int>)regionCoords!, regionFile);
         }
         return regionFileInfos;
     }
 
     // TODO maybe we should disable caching region file existence
-    public static Region? ReadRegionFile(Coords2 regionCoords, out Exception? e)
+    public static Region? ReadRegionFile(Point2Z<int> regionCoords, out Exception? e)
     {
         e = null;
         if (SharedStateService.SavegameLoadInfo is null

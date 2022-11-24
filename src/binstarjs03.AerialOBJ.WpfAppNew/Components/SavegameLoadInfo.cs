@@ -24,7 +24,7 @@ SOFTWARE.
 using System.Collections.Generic;
 using System.IO;
 
-using binstarjs03.AerialOBJ.Core.CoordinateSystem;
+using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.WpfAppNew.Services;
 
@@ -34,9 +34,9 @@ public class SavegameLoadInfo
 {
     public string WorldName { get; }
     public DirectoryInfo SavegameDirectory { get; }
-    public Dictionary<Coords2, FileInfo>? RegionFiles { get; }
+    public Dictionary<Point2Z<int>, FileInfo>? RegionFiles { get; }
 
-    public SavegameLoadInfo(string worldName, DirectoryInfo savegameDirectory, Dictionary<Coords2, FileInfo>? regionFiles)
+    public SavegameLoadInfo(string worldName, DirectoryInfo savegameDirectory, Dictionary<Point2Z<int>, FileInfo>? regionFiles)
     {
         WorldName = worldName;
         SavegameDirectory = savegameDirectory;
@@ -48,7 +48,7 @@ public class SavegameLoadInfo
         string worldName = levelNbt.Get<NbtCompound>("Data")
                                    .Get<NbtString>("LevelName")
                                    .Value;
-        Dictionary<Coords2, FileInfo>? regionFiles = null;
+        Dictionary<Point2Z<int>, FileInfo>? regionFiles = null;
         try
         {
             regionFiles = IOService.GetRegionFileInfo(savegameDirectory.FullName);

@@ -154,7 +154,7 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Camera Pos: "/>
-                                <TextBlock Text="{Binding CameraPos, Converter={StaticResource PairToFString}}"/>
+                                <TextBlock Text="{Binding CameraPos}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Zoom Level: "/>
@@ -166,7 +166,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Screen Size: "/>
-                                <TextBlock Text="{Binding ScreenSize, Converter={StaticResource PairToFString}}"/>
+                                <TextBlock Text="{Binding ScreenSize}"/>
                             </StackPanel>
                             <Separator/>
                             <StackPanel Orientation="Horizontal">
