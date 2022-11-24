@@ -17,8 +17,8 @@ public struct Size<TNumber> :
         get => _width;
         set
         {
-            if (value <= TNumber.Zero)
-                throw new ArgumentException($"{nameof(Width)} must be higher than zero");
+            if (value < TNumber.Zero)
+                throw new ArgumentException($"{nameof(Width)} cannot be negative");
             _width = value;
         }
     }
@@ -27,8 +27,8 @@ public struct Size<TNumber> :
         get => _height;
         set
         {
-            if (value <= TNumber.Zero)
-                throw new ArgumentException($"{nameof(Height)} must be higher than zero");
+            if (value < TNumber.Zero)
+                throw new ArgumentException($"{nameof(Height)} cannot be negative");
             _height = value;
         }
     }

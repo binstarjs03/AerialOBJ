@@ -49,8 +49,8 @@ public abstract class Viewport2
         {
             if (value != _screenSize)
             {
-                if (value.Width <= 0 || value.Height <= 0)
-                    throw new ArgumentException("Screen size cannot be zero or less than", nameof(ScreenSize));
+                if (value.Width < 0 || value.Height < 0)
+                    throw new ArgumentException("Screen size cannot be negative", nameof(ScreenSize));
                 _screenSize = value;
                 Update?.Invoke();
                 OnPropertyChanged();
