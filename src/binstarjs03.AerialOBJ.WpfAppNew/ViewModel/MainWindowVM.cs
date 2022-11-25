@@ -66,7 +66,9 @@ public partial class MainWindowVM : BaseViewModel
             DialogResult result = dialog.ShowDialog();
             if (result != DialogResult.OK)
             {
-                LogService.LogEmphasis("Dialog cancelled. Aborting...", LogService.Emphasis.Aborted);
+                LogService.LogEmphasis("Dialog cancelled. Aborting...",
+                                       LogService.Emphasis.Aborted,
+                                       useSeparator: true);
                 return;
             }
             path = dialog.SelectedPath;
@@ -138,6 +140,7 @@ public partial class MainWindowVM : BaseViewModel
 
         SharedStateService.SavegameLoadInfo = null;
         bool useSeparator = requestedFromOpen is null || !requestedFromOpen.Value;
+        // TODO wait for ChunkRegionViewport threads to finish performing cleanup action
         LogService.LogEmphasis(logSuccessMsg, LogService.Emphasis.Success, useSeparator:useSeparator);
     }
 

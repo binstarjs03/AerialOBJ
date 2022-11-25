@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.WpfAppNew.Components.Interfaces;
 
@@ -15,7 +16,12 @@ public partial class DebugLogWindow : Window, IClosable
 
     public void OnScrollToEndRequested()
     {
-        LogTextBox.ScrollToEnd();
+        if (App.CheckAccess())
+            LogTextBox.ScrollToEnd();
+        else
+            App.InvokeDispatcher(LogTextBox.ScrollToEnd,
+                                 DispatcherPriority.Background,
+                                 DispatcherSynchronization.Asynchronous);
     }
 
     protected override void OnClosing(CancelEventArgs e)

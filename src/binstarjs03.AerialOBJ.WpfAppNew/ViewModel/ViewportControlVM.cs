@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -62,31 +63,48 @@ public partial class ViewportControlVM : BaseViewModel
 
     public ViewportControlVM(IViewportView viewportView)
     {
-        App.Current.Initializing += OnAppInitializing;
+        //App.Current.Initializing += OnAppInitializing;
         SharedStateService.SavegameLoadChanged += OnSavegameLoadChanged;
         SharedStateService.ViewportSidePanelVisibilityChanged += OnSidePanelVisibilityChanged;
         SharedStateService.ViewportSidePanelDebugInfoVisibilityChanged += OnSidePanelDebugInfoVisibilityChanged;
         _viewportView = viewportView;
         _viewport = new ChunkRegionViewport();
+        _viewport.Logging += OnViewportLogging;
         _viewport.RegionImageLoaded += OnViewportRegionImageLoaded;
         _viewport.RegionImageUnloaded += OnViewportRegionImageUnloaded;
         _viewport.PropertyChanged += OnViewportPropertyChanged;
     }
 
-    private void OnSavegameLoadChanged(SavegameLoadState state)
-    {
-        _viewport.PostMessage(_viewport.Reinitialize, MessageOption.NoDuplicate);
-        _viewport.PostMessage(()=>_viewport.Update(true), MessageOption.NoDuplicate);
-    }
-
+    #region Event Handlers
     private void OnAppInitializing(object sender, StartupEventArgs e)
     {
         _viewport.PostMessage(() => _viewport.ScreenSize = _viewportView.GetScreenSize().ToCoreSize(),
                               MessageOption.NoDuplicate);
     }
 
+    private void OnSavegameLoadChanged(SavegameLoadState state)
+    {
+        switch (state)
+        {
+            case SavegameLoadState.Opened:
+                _viewport.Start();
+                _viewport.PostMessage(() => _viewport.ScreenSize = _viewportView.GetScreenSize().ToCoreSize(),
+                                      MessageOption.NoDuplicate);
+                break;
+            case SavegameLoadState.Closed:
+                /* if we stop the viewport from this (Main/UI) thread, deadlock will certainly
+                 * occur because in the Stop method, the calling thread will wait for viewport
+                 * messageLoop to finished, but it can be blocked, e.g waiting for App.Dispatcher
+                 * to complete while at the same time, the UI thread is also waiting for messageLoop
+                 * to terminate
+                 */
+                Task.Run(_viewport.Stop);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+    }
 
-    #region Event Handlers
     private void OnSidePanelVisibilityChanged(bool obj)
     {
         OnPropertyChanged(nameof(IsSidePanelVisible));
@@ -95,6 +113,11 @@ public partial class ViewportControlVM : BaseViewModel
     private void OnSidePanelDebugInfoVisibilityChanged(bool obj)
     {
         OnPropertyChanged(nameof(IsSidePanelDebugInfoVisible));
+    }
+
+    private void OnViewportLogging(string content)
+    {
+        LogService.Log(content);
     }
 
     private void OnViewportRegionImageUnloaded(Image regionImage)
