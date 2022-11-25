@@ -4,7 +4,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.View" 
         xmlns:viewmodel="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew.ViewModel"
         mc:Ignorable="d"
         
@@ -12,7 +11,8 @@
         Width="600" Height="400"
         MinWidth="300" MinHeight="300"
         d:Width="400" d:Height="300"
-        Visibility="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibility}}">
+        Visibility="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibility}}"
+        d:Visibility="Visible">
     <Window.DataContext>
         <viewmodel:DebugLogWindowVM/>
     </Window.DataContext>
@@ -27,6 +27,17 @@
                     <MenuItem Header="Close"
                               Command="{Binding CloseCommand}"
                               CommandParameter="{Binding ElementName=Root}"/>
+                </MenuItem>
+                <MenuItem Header="Source">
+                    <MenuItem Header="Verbose" IsCheckable="True"/>
+                    <Separator/>
+                    <MenuItem Header="Services">
+                        <MenuItem Header="IO Service" IsCheckable="True"/>
+                        <MenuItem Header="Shared State Service" IsCheckable="True"/>
+                        <MenuItem Header="Other Services" IsCheckable="True"/>
+                    </MenuItem>
+                    <MenuItem Header="View Models" IsCheckable="True"/>
+                    <MenuItem Header="Viewport Threads" IsCheckable="True"/>
                 </MenuItem>
             </Menu>
             <TextBox x:Name="LogTextBox" 
