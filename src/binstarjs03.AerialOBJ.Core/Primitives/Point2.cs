@@ -5,9 +5,9 @@ namespace binstarjs03.AerialOBJ.Core.Primitives;
 
 public struct Point2<TNumber> : 
     IEquatable<Point2<TNumber>>, 
-    IEqualityOperators<Point2<TNumber>, Point2<TNumber>, bool> ,
-    IAdditionOperators<Point2<TNumber>, Point2<TNumber>, Vector2<TNumber>>,
-    ISubtractionOperators<Point2<TNumber>, Point2<TNumber>, Vector2<TNumber>>
+    IEqualityOperators<Point2<TNumber>, Point2<TNumber>, bool>,
+    IAdditionOperators<Point2<TNumber>, Point2<TNumber>, Point2<TNumber>>,
+    ISubtractionOperators<Point2<TNumber>, Point2<TNumber>, Point2<TNumber>>
     where TNumber : struct, INumber<TNumber>
 {
     public static Point2<TNumber> Zero => new();
@@ -58,18 +58,13 @@ public struct Point2<TNumber> :
         return !(left == right);
     }
 
-    public static explicit operator Point2<TNumber>(Size<TNumber> size)
+    public static Point2<TNumber> operator +(Point2<TNumber> left, Point2<TNumber> right)
     {
-        return new Point2<TNumber>(size.Width, size.Height);
+        return new Point2<TNumber>(left.X + right.X, left.Y + right.Y);
     }
 
-    public static Vector2<TNumber> operator +(Point2<TNumber> left, Point2<TNumber> right)
+    public static Point2<TNumber> operator -(Point2<TNumber> left, Point2<TNumber> right)
     {
-        return new Vector2<TNumber>(TNumber.Abs(left.X - right.X), TNumber.Abs(left.Y - right.Y));
-    }
-
-    public static Vector2<TNumber> operator -(Point2<TNumber> left, Point2<TNumber> right)
-    {
-        return new Vector2<TNumber>(left.X - right.X, left.Y - right.Y);
+        return new Point2<TNumber>(left.X - right.X, left.Y - right.Y);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
@@ -39,7 +40,9 @@ public partial class ViewportControlVM : BaseViewModel
 
     public Rangeof<int> VisibleRegionXRange => _viewport.VisibleRegionRange.XRange;
     public Rangeof<int> VisibleRegionZRange => _viewport.VisibleRegionRange.ZRange;
+    public int LoadedRegionCount => _viewport.LoadedRegionCount;
     public int PendingRegionCount => _viewport.PendingRegionCount;
+    public string WorkedRegion => _viewport.WorkedRegion is null ? "None" : _viewport.WorkedRegion.Value.ToString();
 
     public Rangeof<int> VisibleChunkXRange => _viewport.VisibleChunkRange.XRange;
     public Rangeof<int> VisibleChunkZRange => _viewport.VisibleChunkRange.ZRange;
@@ -59,11 +62,49 @@ public partial class ViewportControlVM : BaseViewModel
 
     public ViewportControlVM(IViewportView viewportView)
     {
+        App.Current.Initializing += OnAppInitializing;
+        SharedStateService.SavegameLoadChanged += OnSavegameLoadChanged;
         SharedStateService.ViewportSidePanelVisibilityChanged += OnSidePanelVisibilityChanged;
         SharedStateService.ViewportSidePanelDebugInfoVisibilityChanged += OnSidePanelDebugInfoVisibilityChanged;
         _viewportView = viewportView;
         _viewport = new ChunkRegionViewport();
+        _viewport.RegionImageLoaded += OnViewportRegionImageLoaded;
+        _viewport.RegionImageUnloaded += OnViewportRegionImageUnloaded;
         _viewport.PropertyChanged += OnViewportPropertyChanged;
+    }
+
+    private void OnSavegameLoadChanged(SavegameLoadState state)
+    {
+        _viewport.PostMessage(_viewport.Reinitialize, MessageOption.NoDuplicate);
+        _viewport.PostMessage(()=>_viewport.Update(true), MessageOption.NoDuplicate);
+    }
+
+    private void OnAppInitializing(object sender, StartupEventArgs e)
+    {
+        _viewport.PostMessage(() => _viewport.ScreenSize = _viewportView.GetScreenSize().ToCoreSize(),
+                              MessageOption.NoDuplicate);
+    }
+
+
+    #region Event Handlers
+    private void OnSidePanelVisibilityChanged(bool obj)
+    {
+        OnPropertyChanged(nameof(IsSidePanelVisible));
+    }
+
+    private void OnSidePanelDebugInfoVisibilityChanged(bool obj)
+    {
+        OnPropertyChanged(nameof(IsSidePanelDebugInfoVisible));
+    }
+
+    private void OnViewportRegionImageUnloaded(Image regionImage)
+    {
+        _viewportView.RemoveFromCanvas(regionImage);
+    }
+
+    private void OnViewportRegionImageLoaded(Image regionImage)
+    {
+        _viewportView.AddToCanvas(regionImage);
     }
 
     private void OnViewportPropertyChanged(string obj)
@@ -80,10 +121,6 @@ public partial class ViewportControlVM : BaseViewModel
             OnPropertyChanged(nameof(VisibleChunkZRange));
         }
     }
-
-    #region Event Handlers
-    private void OnSidePanelVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsSidePanelVisible));
-    private void OnSidePanelDebugInfoVisibilityChanged(bool obj) => OnPropertyChanged(nameof(IsSidePanelDebugInfoVisible));
     #endregion Event Handlers
 
     #region Relay Commands
@@ -91,8 +128,7 @@ public partial class ViewportControlVM : BaseViewModel
     private void OnScreenSizeChanged(SizeChangedEventArgs e)
     {
         Size<int> newSize = e.NewSize.GetFloor().ToCoreSize();
-        //_viewport.PostMessage(() => _viewport.ScreenSize = newSize, MessageOption.NoDuplicate);
-        _viewport.ScreenSize = newSize;
+        _viewport.PostMessage(() => _viewport.ScreenSize = newSize, MessageOption.NoDuplicate);
     }
 
     [RelayCommand]
@@ -105,9 +141,8 @@ public partial class ViewportControlVM : BaseViewModel
         MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : newMousePosDelta;
         if (MouseClickHolding)
         {
-            Vector2Z<float> cameraPosDelta = new(MousePosDelta.X / _viewport.ZoomLevel, MousePosDelta.Y / _viewport.ZoomLevel);
-            //_viewport.PostMessage(() => _viewport.CameraPos += cameraPosDelta, MessageOption.NoDuplicate);
-            _viewport.CameraPos += cameraPosDelta;
+            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / _viewport.ZoomLevel, -MousePosDelta.Y / _viewport.ZoomLevel);
+            _viewport.PostMessage(() => _viewport.CameraPos += cameraPosDelta, MessageOption.NoDuplicate);
             MouseInitClickDrag = false;
         }
     }
@@ -122,8 +157,7 @@ public partial class ViewportControlVM : BaseViewModel
             newZoomLevel = _viewport.ZoomLevel / s_zoomRatio;
         // limit zoom scrollability by 8 for zoom in, 2 for zoom out
         newZoomLevel = float.Clamp(newZoomLevel, 1, 1 * MathF.Pow(s_zoomRatio, 8));
-        //_viewport.PostMessage(() => _viewport.ZoomLevel = newZoomLevel, MessageOption.NoDuplicate);
-        _viewport.ZoomLevel = newZoomLevel;
+        _viewport.PostMessage(() => _viewport.ZoomLevel = newZoomLevel, MessageOption.NoDuplicate);
     }
 
     [RelayCommand]

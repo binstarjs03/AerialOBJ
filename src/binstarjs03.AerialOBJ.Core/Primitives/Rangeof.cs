@@ -5,9 +5,7 @@ namespace binstarjs03.AerialOBJ.Core.Primitives;
 
 public struct Rangeof<TNumber> : 
     IEquatable<Rangeof<TNumber>>, 
-    IEqualityOperators<Rangeof<TNumber>, Rangeof<TNumber>, bool>, 
-    IAdditionOperators<Rangeof<TNumber>, TNumber, Rangeof<TNumber>>, 
-    ISubtractionOperators<Rangeof<TNumber>, TNumber, Rangeof<TNumber>> 
+    IEqualityOperators<Rangeof<TNumber>, Rangeof<TNumber>, bool>
     where TNumber : struct, INumber<TNumber>
 {
     private TNumber _min;
@@ -96,16 +94,6 @@ public struct Rangeof<TNumber> :
     public static bool operator !=(Rangeof<TNumber> left, Rangeof<TNumber> right)
     {
         return !(left == right);
-    }
-
-    public static Rangeof<TNumber> operator +(Rangeof<TNumber> left, TNumber right)
-    {
-        return new Rangeof<TNumber>(left.Min + right, left.Max + right);
-    }
-
-    public static Rangeof<TNumber> operator -(Rangeof<TNumber> left, TNumber right)
-    {
-        return new Rangeof<TNumber>(left.Min - right, left.Max - right);
     }
 }
 

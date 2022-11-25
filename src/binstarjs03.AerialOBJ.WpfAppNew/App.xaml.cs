@@ -9,6 +9,9 @@ namespace binstarjs03.AerialOBJ.WpfAppNew;
 
 public partial class App : Application
 {
+    public event StartupEventHandler? Initializing;
+    public new static App Current => (Application.Current as App)!;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -21,6 +24,9 @@ public partial class App : Application
         (MainWindow as MainWindow)!.SynchronizeWindowPosition();
 
         LogService.LogRuntimeInfo();
+        LogService.Log("Starting Initialization...");
+        Initializing?.Invoke(this, e);
+        LogService.Log("Initialization complete", useSeparator: true);
     }
 
     public static void InvokeDispatcher(Action method, DispatcherPriority priority, DispatcherSynchronization synchronization)

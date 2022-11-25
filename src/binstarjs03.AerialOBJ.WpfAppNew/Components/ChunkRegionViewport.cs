@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew.Components.Interfaces;
 using binstarjs03.AerialOBJ.WpfAppNew.Models;
+using binstarjs03.AerialOBJ.WpfAppNew.Services;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew.Components;
 
@@ -17,10 +20,12 @@ public class ChunkRegionViewport : IThreadMessageReceiver
     public event Action<string>? PropertyChanged;
     public event RegionImageEventHandler? RegionImageLoaded;
     public event RegionImageEventHandler? RegionImageUnloaded;
-    public delegate void RegionImageEventHandler(RegionImage regionImage);
+    public delegate void RegionImageEventHandler(Image regionImage);
 
     private const int s_regionBufferSize = 20;
     private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
+    private const int s_framesPerSecond = 60;
+    private const int s_redrawFrequency = 1000 / s_framesPerSecond; // unit: miliseconds
 
     // thread messaging fields
     private readonly AutoResetEvent _messageEvent = new(false);
@@ -30,15 +35,19 @@ public class ChunkRegionViewport : IThreadMessageReceiver
     private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
     private float _zoomLevel = 1f;
     private Size<int> _screenSize;
+    private readonly Random _rng = new();
 
     private Point2ZRange<int> _visibleRegionRange;
-    protected readonly Dictionary<Point2Z<int>, RegionModel> _loadedRegions = new(s_regionBufferSize);
-    protected readonly List<Point2Z<int>> _pendingRegionList = new(s_regionBufferSize);
+    private readonly Dictionary<Point2Z<int>, RegionModel> _loadedRegions = new(s_regionBufferSize);
+    private readonly List<Point2Z<int>> _pendingRegionList = new(s_regionBufferSize);
+    private Point2Z<int>? _workedRegion = null;
+    private readonly object _workedRegionLock = new();
+    private Task _workedRegionTask = new(() => { });
 
     private Point2ZRange<int> _visibleChunkRange;
-    protected readonly Dictionary<Point2Z<int>, ChunkModel> _loadedChunks = new(s_chunkBufferSize);
-    protected readonly List<Point2Z<int>> _pendingChunkList = new(s_chunkBufferSize);
-    protected readonly HashSet<Point2Z<int>> _pendingChunkSet = new(s_chunkBufferSize);
+    private readonly Dictionary<Point2Z<int>, ChunkModel> _loadedChunks = new(s_chunkBufferSize);
+    private readonly List<Point2Z<int>> _pendingChunkList = new(s_chunkBufferSize);
+    private readonly HashSet<Point2Z<int>> _pendingChunkSet = new(s_chunkBufferSize);
 
     #region Properties
     // Public readonly accessors for internal use and for UI update.
@@ -106,6 +115,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
     public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange;
     public int LoadedRegionCount => _loadedRegions.Count;
     public int PendingRegionCount => _pendingRegionList.Count;
+    public Point2Z<int>? WorkedRegion => _workedRegion;
 
     public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange;
     public int LoadedChunkCount => _loadedChunks.Count;
@@ -115,6 +125,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
     public ChunkRegionViewport()
     {
         new Task(MessageLoop, TaskCreationOptions.LongRunning).Start();
+        new Task(RedrawLoop, TaskCreationOptions.LongRunning).Start();
     }
 
     private void MessageLoop()
@@ -128,6 +139,13 @@ public class ChunkRegionViewport : IThreadMessageReceiver
                 _messageEvent.WaitOne();
             ProcessMessage();
         }
+    }
+
+    private async void RedrawLoop()
+    {
+        PeriodicTimer redrawTimer = new(TimeSpan.FromMilliseconds(s_redrawFrequency));
+        while (await redrawTimer.WaitForNextTickAsync())
+            PostMessage(RedrawRegionImages, MessageOption.NoDuplicate);
     }
 
     private void ProcessMessage()
@@ -156,16 +174,16 @@ public class ChunkRegionViewport : IThreadMessageReceiver
         _messageEvent.Set();
     }
 
-    protected void Update()
+    public void Update(bool forced = false)
     {
-        if (RecalculateVisibleChunkRange())
+        if (RecalculateVisibleChunkRange() || forced)
         {
-            if (RecalculateVisibleRegionRange())
+            if (RecalculateVisibleRegionRange() || forced)
                 LoadUnloadRegions();
         }
     }
 
-    protected bool RecalculateVisibleChunkRange()
+    private bool RecalculateVisibleChunkRange()
     {
         // Camera chunk in here means which chunk the camera is pointing to.
         // Here we dont use int because floating point accuracy is crucial
@@ -195,7 +213,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
         return true;
     }
 
-    protected bool RecalculateVisibleRegionRange()
+    private bool RecalculateVisibleRegionRange()
     {
         Point2ZRange<int> vcr = _visibleChunkRange;
 
@@ -223,13 +241,15 @@ public class ChunkRegionViewport : IThreadMessageReceiver
     {
         // perform boundary range checking for regions outside display frame
         // unload them if outside
-        foreach ((Point2Z<int> regionCoords, RegionModel regionModel) in _loadedRegions)
-            if (_visibleRegionRange.IsOutside(regionCoords))
-                UnloadRegionModel(regionModel);
+        lock (_loadedRegions)
+            foreach ((Point2Z<int> regionCoords, RegionModel regionModel) in _loadedRegions)
+                if (_visibleRegionRange.IsOutside(regionCoords))
+                    UnloadRegionModel(regionModel);
         OnPropertyChanged(nameof(LoadedRegionCount));
 
         // remove all pending region that is no longer visible
-        _pendingRegionList.RemoveAll(_visibleRegionRange.IsOutside);
+        lock (_pendingRegionList)
+            _pendingRegionList.RemoveAll(_visibleRegionRange.IsOutside);
 
         // perform sweep checking from min to max range for visible regions
         // add them to pending list if not loaded yet, not in the list, and is not worked yet
@@ -237,30 +257,154 @@ public class ChunkRegionViewport : IThreadMessageReceiver
             for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
             {
                 Point2Z<int> regionCoords = new(x, z);
-                if (!_pendingRegionList.Contains(regionCoords))
-                    _pendingRegionList.Add(regionCoords);
+                lock (_loadedRegions)
+                    lock (_workedRegionLock)
+                        if (_loadedRegions.ContainsKey(regionCoords)
+                            || _pendingRegionList.Contains(regionCoords)
+                            || !IOService.HasRegionFile(regionCoords)
+                            || _workedRegion == regionCoords)
+                            continue;
+                _pendingRegionList.Add(regionCoords);
             }
         OnPropertyChanged(nameof(PendingRegionCount));
-        // base implementation goes here, may call LoadRegion(), must call base implementation()
+        if (_workedRegionTask.Status != TaskStatus.Running)
+            _workedRegionTask = Task.Run(LoadRegionTask);
+    }
+
+    private void LoadRegionTask()
+    {
+        while (true)
+        {
+            Point2Z<int> regionCoords;
+            lock (_pendingRegionList)
+            {
+                if (_pendingRegionList.Count == 0)
+                    break;
+                int randomIndex = _rng.Next(0, _pendingRegionList.Count);
+                regionCoords = _pendingRegionList[randomIndex];
+                _pendingRegionList.RemoveAt(randomIndex);
+            }
+            lock (_workedRegionLock)
+                _workedRegion = regionCoords;
+            OnPropertyChanged(nameof(PendingRegionCount));
+            OnPropertyChanged(nameof(WorkedRegion));
+            Region region;
+            // Try to fetch region from cache. If miss, load it from disk
+            if (RegionCacheService.HasRegion(regionCoords))
+                region = RegionCacheService.Get(regionCoords);
+            else
+            {
+                Region? diskRegion = IOService.ReadRegionFile(regionCoords, out Exception? e);
+                if (diskRegion is null)
+                {
+                    if (e is not null)
+                    {
+                        // TODO display messagebox only once and never again
+                        LogService.LogEmphasis($"Region {regionCoords} was skipped.",
+                                               LogService.Emphasis.Error);
+                        LogService.Log($"Cause of exception: {e.GetType()}");
+                        LogService.Log($"Exception details: {e}", useSeparator: true);
+                    }
+                    continue;
+                }
+                region = diskRegion;
+                RegionCacheService.Store(region);
+            }
+            RegionModel regionModel = App.InvokeDispatcherSynchronous(
+                () => new RegionModel(region), DispatcherPriority.Background);
+            regionModel.SetRandomImage();
+            LoadRegionModel(regionModel);
+        }
+        lock (_workedRegionLock)
+            _workedRegion = null;
+        OnPropertyChanged(nameof(WorkedRegion));
     }
 
     private void LoadRegionModel(RegionModel regionModel)
     {
-        if (_visibleRegionRange.IsOutside(regionModel.RegionCoords)
-            || _loadedRegions.ContainsKey(regionModel.RegionCoords))
-            return;
-        _loadedRegions.Add(regionModel.RegionCoords, regionModel);
-        RegionImageLoaded?.Invoke(regionModel.RegionImage);
+        lock (_loadedRegions)
+        {
+            if (_visibleRegionRange.IsOutside(regionModel.RegionCoords)
+                || _loadedRegions.ContainsKey(regionModel.RegionCoords)
+                || SharedStateService.SavegameLoadInfo is null)
+                return;
+            _loadedRegions.Add(regionModel.RegionCoords, regionModel);
+        }
+        App.InvokeDispatcher(
+            method,
+            DispatcherPriority.Render,
+            DispatcherSynchronization.Asynchronous);
+        OnPropertyChanged(nameof(LoadedRegionCount));
+        void method() => RegionImageLoaded?.Invoke(regionModel.Image);
     }
 
     private void UnloadRegionModel(RegionModel regionModel)
     {
-        _loadedRegions.Remove(regionModel.RegionCoords);
-        RegionImageUnloaded?.Invoke(regionModel.RegionImage);
+        lock (_loadedRegions)
+            _loadedRegions.Remove(regionModel.RegionCoords);
+        App.InvokeDispatcher(() => RegionImageUnloaded?.Invoke(regionModel.Image),
+                             DispatcherPriority.Render,
+                             DispatcherSynchronization.Asynchronous);
+        OnPropertyChanged(nameof(LoadedRegionCount));
+    }
+
+    private void RedrawRegionImages()
+    {
+        App.InvokeDispatcher(method,
+                             DispatcherPriority.Render,
+                             DispatcherSynchronization.Synchronous);
+        void method()
+        {
+            lock (_loadedRegions)
+                foreach (RegionModel regionModel in _loadedRegions.Values)
+                {
+                    Point2<int> imageScreenPos = CalculateRegionImageScreenPosition(regionModel.RegionCoords);
+                    regionModel.RedrawImage(imageScreenPos, PixelPerRegion);
+                }
+        }
+    }
+
+    private Point2<int> CalculateRegionImageScreenPosition(Point2Z<int> regionCoords)
+    {
+        int xWorldPos = regionCoords.X * Region.BlockCount;
+        float xScaledWorldPos = xWorldPos * ZoomLevel;
+        float xScaledCameraPos = -(CameraPos.X * ZoomLevel);
+        int xScreenPos = MathUtils.Floor(xScaledCameraPos + xScaledWorldPos) + ScreenCenter.X;
+
+        int zWorldPos = regionCoords.Z * Region.BlockCount;
+        float zScaledWorldPos = zWorldPos * ZoomLevel;
+        float zScaledCameraPos = -(CameraPos.Z * ZoomLevel);
+        int yScreenPos = MathUtils.Floor(zScaledCameraPos + zScaledWorldPos) + ScreenCenter.Y;
+
+        return new Point2<int>(xScreenPos, yScreenPos);
     }
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {
-        PropertyChanged?.Invoke(propertyName);
+        App.InvokeDispatcher(() => PropertyChanged?.Invoke(propertyName),
+                             DispatcherPriority.Normal,
+                             DispatcherSynchronization.Asynchronous);
+    }
+
+    public void Reinitialize()
+    {
+        lock (_pendingRegionList)
+            _pendingRegionList.Clear();
+        _pendingChunkList.Clear();
+
+        lock (_loadedRegions)
+            foreach (RegionModel regionModel in _loadedRegions.Values)
+                UnloadRegionModel(regionModel);
+
+        //foreach (ChunkModel chunkModel in _loadedChunks)
+        //{
+
+        //}
+
+        _cameraPos = Point2Z<float>.Zero;
+        _zoomLevel = 1f;
+        _visibleRegionRange = new Point2ZRange<int>();
+        _visibleChunkRange = new Point2ZRange<int>();
+
     }
 }

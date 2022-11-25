@@ -105,7 +105,7 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <!--Put what viewport need to draw in this canvas, its job is to display whatever controls the canvas has-->
-                    <Canvas Name="ViewportCanvas"/>
+                    <Canvas Name="ViewportCanvas"  IsHitTestVisible="False"/>
                     <Grid IsHitTestVisible="False"> <!--Disable mouse events-->
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -194,9 +194,18 @@
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Loaded Region Count: "/>
+                                <TextBlock Text="{Binding LoadedRegionCount}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Pending Region Count: "/>
                                 <TextBlock Text="{Binding PendingRegionCount}"/>
                             </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Worked Region: "/>
+                                <TextBlock Text="{Binding WorkedRegion}"/>
+                            </StackPanel>
+                            <Separator/>
                             <StackPanel Orientation="Vertical">
                                 <TextBlock Text="Visible Chunk Range: "/>
                                 <StackPanel Orientation="Horizontal">

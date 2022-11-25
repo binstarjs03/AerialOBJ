@@ -81,6 +81,17 @@ public static class IOService
         return regionFileInfos;
     }
 
+    public static bool HasRegionFile(Point2Z<int> regionCoords)
+    {
+        SavegameLoadInfo? loadInfo = SharedStateService.SavegameLoadInfo;
+        if (loadInfo is not null 
+            && loadInfo.RegionFiles is not null 
+            && loadInfo.RegionFiles.ContainsKey(regionCoords))
+            return true;
+        else
+            return false;
+    }
+
     // TODO maybe we should disable caching region file existence
     public static Region? ReadRegionFile(Point2Z<int> regionCoords, out Exception? e)
     {

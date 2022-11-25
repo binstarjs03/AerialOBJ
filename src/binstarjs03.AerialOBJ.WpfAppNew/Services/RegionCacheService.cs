@@ -13,6 +13,11 @@ public static class RegionCacheService
         return s_regionCache.ContainsKey(regionCoords);
     }
 
+    public static Region Get(Point2Z<int> regionCoords)
+    {
+        return s_regionCache[regionCoords];
+    }
+
     public static void Store(Region region)
     {
         if (HasRegion(region.RegionCoords))

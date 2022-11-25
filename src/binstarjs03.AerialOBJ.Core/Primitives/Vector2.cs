@@ -5,9 +5,7 @@ namespace binstarjs03.AerialOBJ.Core.Primitives;
 
 public struct Vector2<TNumber> :
     IEquatable<Vector2<TNumber>>,
-    IEqualityOperators<Vector2<TNumber>, Vector2<TNumber>, bool>,
-    IMultiplyOperators<Vector2<TNumber>, TNumber, Vector2<TNumber>>,
-    IDivisionOperators<Vector2<TNumber>, TNumber, Vector2<TNumber>>
+    IEqualityOperators<Vector2<TNumber>, Vector2<TNumber>, bool>
     where TNumber : struct, INumber<TNumber>
 {
     public static Vector2<TNumber> Zero => new();
@@ -58,13 +56,8 @@ public struct Vector2<TNumber> :
         return !(left == right);
     }
 
-    public static Vector2<TNumber> operator *(Vector2<TNumber> left, TNumber right)
+    public static implicit operator Vector2<TNumber>(Point2<TNumber> point)
     {
-        return new Vector2<TNumber>(left.X * right, left.Y * right);
-    }
-
-    public static Vector2<TNumber> operator /(Vector2<TNumber> left, TNumber right)
-    {
-        return new Vector2<TNumber>(left.X / right, left.Y / right);
+        return new Vector2<TNumber>(point.X, point.Y);
     }
 }
