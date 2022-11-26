@@ -92,13 +92,7 @@ public partial class ViewportControlVM : BaseViewModel
                                       MessageOption.NoDuplicate);
                 break;
             case SavegameLoadState.Closed:
-                /* if we stop the viewport from this (Main/UI) thread, deadlock will certainly
-                 * occur because in the Stop method, the calling thread will wait for viewport
-                 * messageLoop to finished, but it can be blocked, e.g waiting for App.Dispatcher
-                 * to complete while at the same time, the UI thread is also waiting for messageLoop
-                 * to terminate
-                 */
-                Task.Run(_viewport.Stop);
+                _viewport.Stop();
                 break;
             default:
                 throw new NotImplementedException();

@@ -31,19 +31,15 @@ public static class LogService
     public static event StringAction? NotificationPushed;
     public delegate void StringAction(string content);
     private static string s_logContent = "";
-    private static string s_notificationContent = "";
+    private static readonly object s_lock = new();
 
     public static string LogContent => s_logContent;
-
-    public static string NotificationContent => s_notificationContent;
 
     public static void ClearLogContent()
     {
         s_logContent = "";
         LogRuntimeInfo();
     }
-
-    public static void ClearNotificationContent() => s_notificationContent = "";
 
     /// <summary>
     /// Write log content to disk upon crashed (should not be called manually)
@@ -65,7 +61,8 @@ public static class LogService
 
     public static void Log(string content, bool useSeparator = false)
     {
-        s_logContent += $"{content}{Environment.NewLine}";
+        lock (s_lock)
+            s_logContent += $"{content}{Environment.NewLine}";
         if (useSeparator)
             LogNewline();
         Logging?.Invoke(content);
@@ -73,11 +70,9 @@ public static class LogService
 
     public static void LogNewline() => Log("");
 
-    public static void LogEmphasis(string content, Emphasis emphasis, bool pushNotification = false, bool useSeparator = false)
+    public static void LogEmphasis(string content, Emphasis emphasis, bool useSeparator = false)
     {
         Log($"[{emphasis}] {content}", useSeparator);
-        if (pushNotification)
-            PushNotification(content);
     }
 
     public enum Emphasis
@@ -87,12 +82,6 @@ public static class LogService
         Error,
         Success,
         Aborted,
-    }
-
-    public static void PushNotification(string message)
-    {
-        s_notificationContent = message;
-        NotificationPushed?.Invoke(message);
     }
 
     public static void LogRuntimeInfo()

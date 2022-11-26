@@ -57,7 +57,7 @@ public partial class DebugLogWindowVM : BaseViewModel, IScroller
         {
             string msg = $"Canot save log content to {path}:\n{ex}";
             ModalService.ShowErrorOKModal($"Canot save log", msg);
-            LogService.LogEmphasis(msg, LogService.Emphasis.Error, useSeparator:true);
+            LogService.LogEmphasis(msg, LogService.Emphasis.Error, useSeparator: true);
         }
     }
 

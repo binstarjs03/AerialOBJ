@@ -38,6 +38,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
     private Task _messageLoop = new(s_noop);
     private Task _redrawLoop = new(s_noop);
     private readonly AutoResetEvent _messageEvent = new(false);
+    private readonly AutoResetEvent _redrawCompletedEvent = new(false);
     private readonly Queue<Action> _messageQueue = new(50);
 
     // viewport fields
@@ -146,7 +147,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
         _redrawLoop = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
         _messageLoop.Start();
         _redrawLoop.Start();
-        Logging?.Invoke($"Started {nameof(MessageLoop)} and {nameof(RedrawLoop)} background threads");
+        Logging?.Invoke($"Started viewport background threads");
     }
 
     /// <summary>
@@ -160,12 +161,13 @@ public class ChunkRegionViewport : IThreadMessageReceiver
         _cts.Cancel();
         // Wait for all tasks to complete. Only then we can safely
         // reinitialize all fields since no thread accessing them.
+        _redrawCompletedEvent.Set();
         _messageEvent.Set();
         _messageLoop.Wait();
         _redrawLoop.Wait();
         _workedRegionTask.Wait();
+        Logging?.Invoke($"Stopped viewport background threads");
         Reinitialize();
-        Logging?.Invoke($"Stopped {nameof(MessageLoop)} and {nameof(RedrawLoop)} background threads");
     }
 
     private void Reinitialize()
@@ -177,7 +179,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
         ZoomLevel = 1f;
         ScreenSize = new Size<int>(0, 0);
 
-        _visibleRegionRange = new Point2ZRange<int>(0,0,0,0);
+        _visibleRegionRange = new Point2ZRange<int>(0, 0, 0, 0);
         foreach (RegionModel regionModel in _loadedRegions.Values)
             UnloadRegionModel(regionModel);
         _pendingRegionList.Clear();
@@ -194,7 +196,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
         OnPropertyChanged(nameof(LoadedChunkCount));
         OnPropertyChanged(nameof(PendingChunkCount));
 
-        Logging?.Invoke($"Successfully reinitialized all states");
+        Logging?.Invoke($"Successfully reinitialized all viewport states");
     }
 
     private void MessageLoop()
@@ -212,7 +214,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
 
     private async void RedrawLoop()
     {
-        PeriodicTimer redrawTimer = new(TimeSpan.FromMilliseconds(s_redrawFrequency));
+        using PeriodicTimer redrawTimer = new(TimeSpan.FromMilliseconds(s_redrawFrequency));
         while (!_cts.IsCancellationRequested && await redrawTimer.WaitForNextTickAsync())
             PostMessage(RedrawRegionImages, MessageOption.NoDuplicate);
     }
@@ -334,13 +336,16 @@ public class ChunkRegionViewport : IThreadMessageReceiver
             {
                 Point2Z<int> regionCoords = new(x, z);
                 lock (_loadedRegions)
-                    lock (_workedRegionLock)
-                        if (_loadedRegions.ContainsKey(regionCoords)
-                            || _pendingRegionList.Contains(regionCoords)
-                            || !IOService.HasRegionFile(regionCoords)
-                            || _workedRegion == regionCoords)
-                            continue;
-                _pendingRegionList.Add(regionCoords);
+                    lock (_pendingRegionList)
+                        lock (_workedRegionLock)
+                        {
+                            if (_loadedRegions.ContainsKey(regionCoords)
+                                || _pendingRegionList.Contains(regionCoords)
+                                || !IOService.HasRegionFile(regionCoords)
+                                || _workedRegion == regionCoords)
+                                continue;
+                            _pendingRegionList.Add(regionCoords);
+                        }
             }
         OnPropertyChanged(nameof(PendingRegionCount));
         if (_workedRegionTask.Status != TaskStatus.Running)
@@ -428,7 +433,9 @@ public class ChunkRegionViewport : IThreadMessageReceiver
     {
         App.InvokeDispatcher(method,
                              DispatcherPriority.Render,
-                             DispatcherSynchronization.Synchronous);
+                             DispatcherSynchronization.Asynchronous);
+        // wait for main thread signal. If stopping requested, main thread will unblock 
+        _redrawCompletedEvent.WaitOne(); 
         void method()
         {
             lock (_loadedRegions)
@@ -437,6 +444,7 @@ public class ChunkRegionViewport : IThreadMessageReceiver
                     Point2<int> imageScreenPos = CalculateRegionImageScreenPosition(regionModel.RegionCoords);
                     regionModel.RedrawImage(imageScreenPos, PixelPerRegion);
                 }
+            _redrawCompletedEvent.Set();
         }
     }
 

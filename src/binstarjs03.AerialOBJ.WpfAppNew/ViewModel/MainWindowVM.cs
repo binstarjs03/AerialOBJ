@@ -137,11 +137,9 @@ public partial class MainWindowVM : BaseViewModel
             string worldName = SharedStateService.SavegameLoadInfo.WorldName;
             logSuccessMsg = $"Successfully closed savegame \"{worldName}\".";
         }
-
         SharedStateService.SavegameLoadInfo = null;
         bool useSeparator = requestedFromOpen is null || !requestedFromOpen.Value;
-        // TODO wait for ChunkRegionViewport threads to finish performing cleanup action
-        LogService.LogEmphasis(logSuccessMsg, LogService.Emphasis.Success, useSeparator:useSeparator);
+        LogService.LogEmphasis(logSuccessMsg, LogService.Emphasis.Success, useSeparator: useSeparator);
     }
 
     [RelayCommand]
