@@ -10,10 +10,10 @@ public interface IRegionModel
     Region Region { get; }
     HashSet<Point2Z<int>> GeneratedChunks { get; }
     Point2Z<int> RegionCoords { get; }
-    IImage RegionImage { get; }
+    IImage Image { get; }
     bool NeedRedrawBitmap { get; set; }
 
     void SetRandomImage();
-    void SetPixel(int x, int y, Span<byte> colorArgb);
+    void SetPixel(int x, int y, byte a, byte r, byte g, byte b);
     void RedrawImage(Point2<int> imageScreenPos, float size);
 }

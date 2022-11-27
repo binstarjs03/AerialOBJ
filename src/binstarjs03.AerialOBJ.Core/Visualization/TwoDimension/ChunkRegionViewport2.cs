@@ -129,22 +129,29 @@ public class ChunkRegionViewport2 : IChunkRegionViewport2, ILogging, IDispatcher
     {
         Dispatcher = dispatcher;
         dispatcher.Started += OnDispatcherStarted;
+        dispatcher.Stopping += OnDispatcherStopping;
         dispatcher.Stopped += OnDispatcherStopped;
-        dispatcher.Reinitialized += OnDispatcherReinitialized;
+        dispatcher.Reinitialized += OnReinitializing;
     }
 
-    private void OnDispatcherStarted()
+    private void OnDispatcherStarted(CancellationToken ct)
     {
-        Task.Run(RedrawLoop);
+        Task.Run(() => RedrawLoop(ct), ct);
         LogHandler("Started CRV dispatcher and redrawer loop thread");
+    }
+
+    private void OnDispatcherStopping()
+    {
+        _redrawCompletedEvent.Set();
     }
 
     private void OnDispatcherStopped()
     {
         LogHandler("Stopped CRV dispatcher and redrawer loop thread");
+        OnReinitializing();
     }
 
-    private void OnDispatcherReinitialized()
+    private void OnReinitializing()
     {
         CameraPos = Point2Z<float>.Zero;
         ZoomLevel = 1;
@@ -181,13 +188,14 @@ public class ChunkRegionViewport2 : IChunkRegionViewport2, ILogging, IDispatcher
             LoadUnloadRegions();
     }
 
-    private async void RedrawLoop()
+    private async void RedrawLoop(CancellationToken ct)
     {
         using PeriodicTimer redrawTimer = new(TimeSpan.FromMilliseconds(s_redrawFrequency));
-        while (await redrawTimer.WaitForNextTickAsync())
-            if (_cts.IsCancellationRequested || !Dispatcher.IsRunning)
+        while (await redrawTimer.WaitForNextTickAsync(CancellationToken.None))
+            if (ct.IsCancellationRequested)
                 return;
-        Dispatcher.InvokeAsynchronous(RedrawRegionImages);
+            else
+                Dispatcher.InvokeAsynchronousNoDuplicate(RedrawRegionImages);
     }
 
     private bool RecalculateVisibleChunkRange()
@@ -340,7 +348,7 @@ public class ChunkRegionViewport2 : IChunkRegionViewport2, ILogging, IDispatcher
                 return;
             _loadedRegions.Add(regionModel.RegionCoords, regionModel);
         }
-        InvokeUIThreadAsynchronousHandler(() => LoadRegionImageHandler(regionModel.RegionImage));
+        InvokeUIThreadAsynchronousHandler(() => LoadRegionImageHandler(regionModel.Image));
         OnPropertyChanged(nameof(LoadedRegionCount));
     }
 
@@ -348,7 +356,7 @@ public class ChunkRegionViewport2 : IChunkRegionViewport2, ILogging, IDispatcher
     {
         lock (_loadedRegions)
             _loadedRegions.Remove(regionModel.RegionCoords);
-        InvokeUIThreadAsynchronousHandler(() => UnloadRegionImageHandler(regionModel.RegionImage));
+        InvokeUIThreadAsynchronousHandler(() => UnloadRegionImageHandler(regionModel.Image));
         OnPropertyChanged(nameof(LoadedRegionCount));
     }
 
@@ -366,7 +374,7 @@ public class ChunkRegionViewport2 : IChunkRegionViewport2, ILogging, IDispatcher
                 Point2<int> imageScreenPos = CalculateRegionImageScreenPosition(regionModel.RegionCoords);
                 regionModel.RedrawImage(imageScreenPos, PixelPerRegion);
             }
-        _redrawCompletedEvent.WaitOne();
+        _redrawCompletedEvent.Set();
     }
 
     private Point2<int> CalculateRegionImageScreenPosition(Point2Z<int> regionCoords)
