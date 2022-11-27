@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 
 namespace binstarjs03.AerialOBJ.Core.Threading.MessageDispatching;
-internal class MessageDispatcher : IMessageDispatcher
+public class MessageDispatcher : IMessageDispatcher
 {
     private Thread _dispatcher = new(() => { });
     private CancellationTokenSource _cts = new();
@@ -17,6 +17,9 @@ internal class MessageDispatcher : IMessageDispatcher
     public ExceptionBehaviour ExceptionBehaviour { get; set; }
 
     public event Action<Exception>? DispatchingException;
+    public event Action? Reinitialized;
+    public event Action? Started;
+    public event Action? Stopped;
 
     public MessageDispatcher(string name, ExceptionBehaviour exceptionBehaviour)
     {
@@ -37,6 +40,7 @@ internal class MessageDispatcher : IMessageDispatcher
             IsBackground = true
         };
         _dispatcher.Start();
+        Started?.Invoke();
     }
 
     public void Stop()
@@ -47,6 +51,18 @@ internal class MessageDispatcher : IMessageDispatcher
         _messageEvent.Set();
         _dispatcher.Join();
         _cts.Dispose();
+        Stopped?.Invoke();
+    }
+
+    public bool CheckAccess()
+    {
+        return Thread.CurrentThread == _dispatcher;
+    }
+
+    public void VerifyAccess()
+    {
+        if (!CheckAccess())
+            throw new MemberAccessException("The calling thread is not dispatcher thread");
     }
 
     #region Invoke methods
@@ -98,6 +114,7 @@ internal class MessageDispatcher : IMessageDispatcher
             message.Dispose();
         _messageQueue.Clear();
         _messageEvent.Reset();
+        Reinitialized?.Invoke();
     }
 
     private void PostMessage(IMessage message, MessageDuplication duplication)
@@ -155,7 +172,7 @@ internal class MessageDispatcher : IMessageDispatcher
                     case ExceptionBehaviour.Ignore:
                         break;
                     case ExceptionBehaviour.Terminate:
-                        breakLoop= true;
+                        breakLoop = true;
                         break;
                     default:
                         throw new NotImplementedException();
@@ -191,7 +208,6 @@ internal class MessageDispatcher : IMessageDispatcher
         // we have to let all remaining messages know that they are abandoned
         foreach (IMessage remainingMessage in _messageQueue)
             remainingMessage.Abandon();
-        return;
     }
     #endregion Internal methods (implementation details)
 }

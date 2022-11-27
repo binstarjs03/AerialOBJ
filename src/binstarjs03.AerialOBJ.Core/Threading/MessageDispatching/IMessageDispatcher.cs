@@ -3,7 +3,10 @@
 namespace binstarjs03.AerialOBJ.Core.Threading.MessageDispatching;
 public interface IMessageDispatcher
 {
-    event Action<Exception>? DispatchingException;
+    event Action<Exception> DispatchingException;
+    event Action Reinitialized;
+    event Action Started;
+    event Action Stopped;
 
     string Name { get; }
     bool IsRunning { get; }
@@ -16,4 +19,7 @@ public interface IMessageDispatcher
     T InvokeSynchronous<T>(Func<T> message);
     MessageOperation InvokeAsynchronous(Action message);
     MessageOperation<T> InvokeAsynchronous<T>(Func<T> message);
+
+    bool CheckAccess();
+    void VerifyAccess();
 }

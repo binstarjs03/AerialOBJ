@@ -3,5 +3,5 @@
 namespace binstarjs03.AerialOBJ.Core;
 public interface ILogging
 {
-    event Action<string> Logging;
+    Action<string> LogHandler { get; init; }
 }
