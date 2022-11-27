@@ -3,10 +3,10 @@
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.Visualization.TwoDimension;
-public interface IChunkRegionViewport<T> : IViewport where T: class, IImage, new()
+public interface IChunkRegionViewport
 {
-    event Action<T>? RegionImageLoaded;
-    event Action<T>? RegionImageUnloaded;
+    event Action<IImage> RegionImageLoaded;
+    event Action<IImage> RegionImageUnloaded;
 
     float PixelPerBlock { get; }
     float PixelPerChunk { get; }
