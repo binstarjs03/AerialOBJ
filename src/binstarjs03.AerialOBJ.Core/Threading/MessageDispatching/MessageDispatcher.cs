@@ -8,24 +8,21 @@ public class MessageDispatcher : IMessageDispatcher
     private Thread _dispatcher = new(() => { });
     private CancellationTokenSource _cts = new();
 
-    private readonly string _name;
     private readonly Queue<IMessage> _messageQueue = new(50);
     private readonly AutoResetEvent _messageEvent = new(false);
 
-    public string Name => _name;
+    public required string Name { get; init; }
     public bool IsRunning => _dispatcher.IsAlive;
-    public ExceptionBehaviour ExceptionBehaviour { get; set; }
+    public required ExceptionBehaviour ExceptionBehaviour { get; set; }
+    public CancellationToken CancellationToken => _cts.Token;
 
     public event Action<Exception>? DispatchingException;
     public event Action? Reinitialized;
-    public event Action? Started;
+    public event Action<CancellationToken>? Started;
+    public event Action? Stopping;
     public event Action? Stopped;
 
-    public MessageDispatcher(string name, ExceptionBehaviour exceptionBehaviour)
-    {
-        _name = name;
-        ExceptionBehaviour = exceptionBehaviour;
-    }
+    public MessageDispatcher() { }
 
     public void Start()
     {
@@ -36,11 +33,11 @@ public class MessageDispatcher : IMessageDispatcher
         _cts = new CancellationTokenSource();
         _dispatcher = new Thread(ProcessMessage)
         {
-            Name = _name,
+            Name = Name,
             IsBackground = true
         };
         _dispatcher.Start();
-        Started?.Invoke();
+        Started?.Invoke(CancellationToken);
     }
 
     public void Stop()
@@ -49,6 +46,7 @@ public class MessageDispatcher : IMessageDispatcher
             return;
         _cts.Cancel();
         _messageEvent.Set();
+        Stopping?.Invoke();
         _dispatcher.Join();
         _cts.Dispose();
         Stopped?.Invoke();
@@ -105,6 +103,14 @@ public class MessageDispatcher : IMessageDispatcher
         PostMessage(msg, MessageDuplication.AllowDuplicate);
         return new MessageOperation<T>(msg, ThrowIfExceptionNotNullOnPoster);
     }
+
+    public void InvokeAsynchronousNoDuplicate(Action message)
+    {
+        ValidateThreadState();
+        Message msg = new(message);
+        PostMessage(msg, MessageDuplication.NoDuplicate);
+    }
+
     #endregion Invoke methods
 
     #region Internal methods (implementation details)

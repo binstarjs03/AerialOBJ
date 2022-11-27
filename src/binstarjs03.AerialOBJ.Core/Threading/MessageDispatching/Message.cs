@@ -2,7 +2,7 @@
 using System;
 
 namespace binstarjs03.AerialOBJ.Core.Threading.MessageDispatching;
-public class Message : IMessage
+public class Message : IMessage, IEquatable<Message>
 {
     protected readonly Action _message;
     private bool _disposedValue;
@@ -58,9 +58,39 @@ public class Message : IMessage
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    public override int GetHashCode()
+    {
+        return _message.GetHashCode();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is Message msg)
+            return Equals(msg);
+        return false;
+    }
+
+    public bool Equals(Message? other)
+    {
+        return other is not null
+            && other._message == _message;
+    }
+
+    public static bool operator ==(Message? left, Message? right)
+    {
+        if (left is not null)
+            return left.Equals(right);
+        return false;
+    }
+
+    public static bool operator !=(Message? left, Message? right)
+    {
+        return !(left == right);
+    }
 }
 
-public class Message<T> : Message
+public class Message<T> : Message, IEquatable<Message<T>>
 {
     protected new readonly Func<T> _message;
     private T? _result;
@@ -76,6 +106,36 @@ public class Message<T> : Message
     protected override void InvokeMessage()
     {
         _result = _message();
+    }
+
+    public override int GetHashCode()
+    {
+        return _message.GetHashCode();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is Message<T> msg)
+            return Equals(msg);
+        return false;
+    }
+
+    public bool Equals(Message<T>? other)
+    {
+        return other is not null
+            && other._message == _message;
+    }
+
+    public static bool operator ==(Message<T>? left, Message<T>? right)
+    {
+        if (left is not null)
+            return left.Equals(right);
+        return false;
+    }
+
+    public static bool operator !=(Message<T>? left, Message<T>? right)
+    {
+        return !(left == right);
     }
 }
 
