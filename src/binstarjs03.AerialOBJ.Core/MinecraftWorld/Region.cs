@@ -120,19 +120,6 @@ public class Region
             return false;
     }
 
-    public static Point2Z<int> ConvertChunkCoordsAbsToRel(Point2Z<int> coords)
-    {
-        int chunkCoordsRelX = MathUtils.Mod(coords.X, ChunkCount);
-        int chunkCoordsRelZ = MathUtils.Mod(coords.Z, ChunkCount);
-        return new Point2Z<int>(chunkCoordsRelX, chunkCoordsRelZ);
-    }
-
-    public static Point2Z<int> GetRegionCoordsFromChunkCoordsAbs(Point2Z<int> chunkCoordsAbs)
-    {
-        return new(MathUtils.DivFloor(chunkCoordsAbs.X, ChunkCount),
-                   MathUtils.DivFloor(chunkCoordsAbs.Z, ChunkCount));
-    }
-
     public (ReadOnlyCollection<Point2Z<int>> generatedChunksList, HashSet<Point2Z<int>> generatedChunksSet) GetGeneratedChunksAsCoordsRel()
     {
         HashSet<Point2Z<int>> generatedChunksSet = new(TotalChunkCount);
@@ -207,7 +194,7 @@ public class Region
         else
         {
             ChunkRangeAbs.ThrowIfOutside(chunkCoords);
-            chunkCoordsRel = ConvertChunkCoordsAbsToRel(chunkCoords);
+            chunkCoordsRel = CoordsUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
         }
 
         ChunkSectorTableEntryData chunkSectorTableEntryData = GetChunkSectorTableEntryData(chunkCoordsRel);

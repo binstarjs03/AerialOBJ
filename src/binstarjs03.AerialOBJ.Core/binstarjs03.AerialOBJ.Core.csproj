@@ -11,7 +11,7 @@
 		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
-		<DefineConstants>DANGEROUS_OPTIMIZATION</DefineConstants>
+		<DefineConstants>UNSAFE_OPTIMIZATION</DefineConstants>
 	</PropertyGroup>
 
 </Project>

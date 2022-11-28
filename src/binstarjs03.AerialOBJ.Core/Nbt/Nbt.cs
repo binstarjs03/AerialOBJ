@@ -248,6 +248,13 @@ public class NbtCompound : Dictionary<string, INbt>, INbtCollection
         return ret;
     }
 
+    public bool TryGet<T>(string nbtName, out T? value) where T : class, INbt
+    {
+        bool success = TryGetValue(nbtName, out INbt? uncasted);
+        value = uncasted as T;
+        return success;
+    }
+
     public override string ToString()
     {
         return $"{Type} - \"{Name}\": {Count} nbt(s)";

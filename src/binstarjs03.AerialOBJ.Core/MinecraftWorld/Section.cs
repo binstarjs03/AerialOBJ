@@ -52,14 +52,13 @@ public class Section
     public Section(Point2Z<int> chunkCoordsAbs, NbtCompound sectionNbt)
     {
         _sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
-        _sectionCoordsAbs = calculateCoordsAbs(chunkCoordsAbs, _sectionYPos);
-        _blockRangeAbs = calculateBlockRangeAbs(_sectionCoordsAbs);
+        _sectionCoordsAbs = new Point3<int>(chunkCoordsAbs.X, _sectionYPos, chunkCoordsAbs.Z);
+        _blockRangeAbs = CoordsUtils.CalculateSectionBlockRangeAbs(_sectionCoordsAbs);
 
-        if (!sectionNbt.ContainsKey("block_states"))
+        sectionNbt.TryGet("block_states", out NbtCompound? blockStatesNbt);
+        if (blockStatesNbt is null)
             return;
-        NbtCompound blockStatesNbt = sectionNbt.Get<NbtCompound>("block_states");
-        NbtList<NbtCompound>? paletteBlockNbt = readPaletteNbt(blockStatesNbt);
-
+        blockStatesNbt.TryGet("palette", out NbtList<NbtCompound>? paletteBlockNbt);
         if (paletteBlockNbt is null)
             return;
 
@@ -72,53 +71,13 @@ public class Section
             _blockPalette[i] = new Block(Point3<int>.Zero, blockPropertyNbt);
         }
 
-        NbtLongArray? dataNbt = readDataNbt(blockStatesNbt);
-        if (dataNbt is not null)
-            _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteBlockNbt.Count);
-
-        static Point3<int> calculateCoordsAbs(Point2Z<int> chunkCoordsAbs, int yPos)
-        {
-            int x = chunkCoordsAbs.X;
-            int y = yPos;
-            int z = chunkCoordsAbs.Z;
-            return new Point3<int>(x, y, z);
-        }
-        static Point3Range<int> calculateBlockRangeAbs(Point3<int> coordsAbs)
-        {
-            int minAbsBx = coordsAbs.X * BlockCount;
-            int minAbsBy = coordsAbs.Y * BlockCount;
-            int minAbsBz = coordsAbs.Z * BlockCount;
-            Point3<int> minAbsB = new(minAbsBx, minAbsBy, minAbsBz);
-
-            int maxAbsBx = minAbsBx + BlockRange;
-            int maxAbsBy = minAbsBy + BlockRange;
-            int maxAbsBz = minAbsBz + BlockRange;
-            Point3<int> maxAbsB = new(maxAbsBx, maxAbsBy, maxAbsBz);
-
-            return new Point3Range<int>(minAbsB, maxAbsB);
-        }
-        static NbtList<NbtCompound>? readPaletteNbt(NbtCompound nbtBlockStates)
-        {
-            if (nbtBlockStates.ContainsKey("palette"))
-                return nbtBlockStates.Get<NbtList<NbtCompound>>("palette");
-            return null;
-        }
-        static NbtLongArray? readDataNbt(NbtCompound nbtBlockStates)
-        {
-            if (nbtBlockStates.ContainsKey("data"))
-                return nbtBlockStates.Get<NbtLongArray>("data");
-            return null;
-        }
+        blockStatesNbt.TryGet("data", out NbtLongArray? dataNbt);
+        if (dataNbt is null)
+            return;
+        _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteBlockNbt.Count);
     }
 
-    public static Point3<int> ConvertBlockCoordsAbsToRel(Point3<int> coords)
-    {
-        int blockCoordsAbsX = MathUtils.Mod(coords.X, BlockCount);
-        int blockCoordsAbsY = MathUtils.Mod(coords.Y, BlockCount);
-        int blockCoordsAbsZ = MathUtils.Mod(coords.Z, BlockCount);
-        return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
-    }
-
+    // TODO move this method out to CoordsUtils
     public (Point3<int> blockCoordsRel, Point3<int> blockCoordsAbs) CalculateBlockCoords(Point3<int> blockCoords, bool relative, bool skipTest = false)
     {
         Point3<int> blockCoordsRel;
@@ -136,7 +95,7 @@ public class Section
         {
             if (!skipTest)
                 BlockRangeAbs.ThrowIfOutside(blockCoords);
-            blockCoordsRel = ConvertBlockCoordsAbsToRel(blockCoords);
+            blockCoordsRel = CoordsUtils.ConvertChunkBlockCoordsAbsToRel(blockCoords);
             blockCoordsAbs = blockCoords;
         }
         return (blockCoordsRel, blockCoordsAbs);
@@ -157,7 +116,7 @@ public class Section
         {
             int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
             Block blockPalette = _blockPalette![blockTableIndex];
-            Block block = new(blockPalette.Name, blockPalette.BlockCoordsAbs);
+            Block block = new(blockPalette.BlockCoordsAbs, blockPalette.Name);
             return block;
         }
     }
@@ -193,7 +152,6 @@ public class Section
             block.BlockCoordsAbs = new Point3<int>(SectionCoordsAbs.X * BlockCount + coordsRel.X,
                                           SectionCoordsAbs.Y * BlockCount + coordsRel.Y,
                                           SectionCoordsAbs.Z * BlockCount + coordsRel.Z);
-            block.Properties = blockTemplate.Properties;
             return true;
         }
     }
@@ -208,7 +166,7 @@ public class Section
             int blockTableIndex = _blockPaletteIndexTable[blockCoordsRel.X, blockCoordsRel.Y, blockCoordsRel.Z];
             Block blockTemplate = _blockPalette![blockTableIndex];
             // short circuit if air block encountered
-            if (blockTemplate.Name == Block.AirBlockName 
+            if (blockTemplate.Name == Block.AirBlockName
                 || blockTemplate.Name == Block.AirCaveBlockName
                 || exclusions is not null
                 && exclusions.Contains(blockTemplate.Name))
@@ -262,7 +220,7 @@ public class Section
         {
             if (breaking)
                 break;
-#if DANGEROUS_OPTIMIZATION
+#if UNSAFE_OPTIMIZATION
             BinaryUtils.SplitSubnumberFastNoCheck(longValue, buffer, blockBitLength);
 #else
             BinaryUtils.SplitSubnumberFast(longValue, buffer, blockBitLength);
