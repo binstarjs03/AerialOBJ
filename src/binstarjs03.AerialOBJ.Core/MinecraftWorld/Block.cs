@@ -21,67 +21,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using System.Collections.Generic;
-
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
+// TODO consider changing it to struct instead
 public class Block
 {
     public const string AirBlockName = "minecraft:air";
     public const string AirCaveBlockName = "minecraft:cave_air";
-    private string _name;
-    private Point3<int> _blockCoordsAbs;
-    private Dictionary<string, string>? _properties;
 
     public static Block Air => new();
-
-    public string Name
-    {
-        get => _name;
-        set => _name = value;
-    }
-
-    public Point3<int> BlockCoordsAbs
-    {
-        get => _blockCoordsAbs;
-        set => _blockCoordsAbs = value;
-    }
-
-    public Dictionary<string, string>? Properties
-    {
-        get => _properties;
-        set => _properties = value;
-    }
+    public string Name { get; set; }
+    public Point3<int> BlockCoordsAbs { get; set; }
 
     public Block()
     {
-        _name = AirBlockName;
-        _blockCoordsAbs = Point3<int>.Zero;
-    }
-
-    // propertiesless and nameless constructor
-    public Block(Point3<int> coordsAbs)
-    {
-        _name = AirBlockName;
-        _blockCoordsAbs = coordsAbs;
+        Name = AirBlockName;
+        BlockCoordsAbs = Point3<int>.Zero;
     }
 
     // propertiesless constructor
-    public Block(string name, Point3<int> coordsAbs)
+    public Block(Point3<int> coordsAbs, string name = AirBlockName)
     {
-        _name = name;
-        _blockCoordsAbs = coordsAbs;
+        Name = name;
+        BlockCoordsAbs = coordsAbs;
     }
 
     // TODO properties parser isn't implemented yet. Any properties from nbt
     // compound will be ignored and not stored inside properties dictionary
     public Block(Point3<int> coordsAbs, NbtCompound properties)
     {
-        _name = properties.Get<NbtString>("Name").Value;
-        _blockCoordsAbs = coordsAbs;
+        Name = properties.Get<NbtString>("Name").Value;
+        BlockCoordsAbs = coordsAbs;
     }
 
     public static bool IsAir(Block block)
@@ -96,6 +69,6 @@ public class Block
 
     public override string ToString()
     {
-        return $"Block {_name} at {_blockCoordsAbs}";
+        return $"Block {Name} at {BlockCoordsAbs}";
     }
 }
