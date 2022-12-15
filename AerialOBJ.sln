@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Conso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.WpfAppNew", "src\binstarjs03.AerialOBJ.WpfAppNew\binstarjs03.AerialOBJ.WpfAppNew.csproj", "{D43701FA-FC95-4324-A8B8-4A1624EC66FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "binstarjs03.AerialOBJ.WpfAppNew2", "src\binstarjs03.AerialOBJ.WpfAppNew2\binstarjs03.AerialOBJ.WpfAppNew2.csproj", "{270B589C-591B-4AC3-8687-402D635F09B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{D43701FA-FC95-4324-A8B8-4A1624EC66FF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D43701FA-FC95-4324-A8B8-4A1624EC66FF}.Release|x64.ActiveCfg = Release|x64
 		{D43701FA-FC95-4324-A8B8-4A1624EC66FF}.Release|x64.Build.0 = Release|x64
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Debug|x64.Build.0 = Debug|Any CPU
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Release|x64.ActiveCfg = Release|Any CPU
+		{270B589C-591B-4AC3-8687-402D635F09B7}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
