@@ -1,5 +1,6 @@
 ﻿using Autofac;
 
+using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 using binstarjs03.AerialOBJ.WpfAppNew2.Views;
 
@@ -12,7 +13,7 @@ public static class ContainerConfig
 
         builder.RegisterType<GlobalState>().AsSelf().SingleInstance();
         builder.RegisterType<MainWindow>().AsSelf();
-        builder.RegisterType<MainWindowVM>().As<IMainWindowVM>();
+        builder.RegisterType<MainViewModel>().AsSelf();
 
         return builder.Build();
     }

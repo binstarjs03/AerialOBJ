@@ -6,8 +6,26 @@
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:IMainWindowVM}}"
+        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MainViewModel}}"
         Title="{Binding GlobalState.AppName}"
         Width="600" Height="400">
-    <Button Content="Close" Command="{Binding CloseCommand}"/>
+    <Grid>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open..."
+                              Command="{Binding OpenSavegameCommand}"/>
+                    <MenuItem Header="Close"
+                              Command="{Binding CloseSavegameCommand}"
+                              CommandParameter="{x:Static viewmodels:CloseSavegameSender.MenuCloseButton}"/>
+                    <MenuItem Header="Exit"
+                              Command="{Binding CloseCommand}"/>
+                </MenuItem>
+            </Menu>
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBarItem Content="Ready"/>
+            </StatusBar>
+            <Canvas Background="#303030"/>
+        </DockPanel>
+    </Grid>
 </Window>

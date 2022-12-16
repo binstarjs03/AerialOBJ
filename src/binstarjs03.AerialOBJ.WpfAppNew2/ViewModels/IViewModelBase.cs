@@ -1,8 +1,7 @@
-﻿using System;
+﻿using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
-
 public interface IViewModelBase
 {
-    event Action CloseRequested;
+    GlobalState GlobalState { get; }
 }
