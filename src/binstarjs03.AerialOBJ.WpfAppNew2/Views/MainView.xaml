@@ -28,7 +28,8 @@
                               IsCheckable="True"/>
                 </MenuItem>
                 <MenuItem Header="Help">
-                    <MenuItem Header="About..."/>
+                    <MenuItem Header="About..."
+                              Command="{Binding ShowAboutModalCommand}"/>
                 </MenuItem>
             </Menu>
             <StatusBar DockPanel.Dock="Bottom">

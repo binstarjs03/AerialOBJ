@@ -3,6 +3,7 @@
 using Autofac;
 
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 using binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 using binstarjs03.AerialOBJ.WpfAppNew2.Views;
@@ -24,9 +25,9 @@ public static class ContainerConfig
         builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
 
         // register MVVMs
+        builder.RegisterAbstractFactory<IAboutView, AboutView>();
         builder.RegisterType<MainViewModel>().AsSelf();
         builder.RegisterType<MainView>().AsSelf();
-        builder.RegisterType<AboutView>().AsSelf();
 
         return builder.Build();
     }

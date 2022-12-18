@@ -37,6 +37,12 @@ public partial class MainViewModel
     {
         CloseRequested?.Invoke();
     }
+
+    [RelayCommand]
+    private void ShowAboutModal()
+    {
+        _modalService.ShowAbout();
+    }
 }
 
 public enum CloseSavegameSender

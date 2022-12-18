@@ -3,4 +3,5 @@
 public interface IModalService
 {
     void ShowMessageBox(string message);
+    void ShowAbout();
 }

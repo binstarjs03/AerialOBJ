@@ -4,10 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
-             mc:Ignorable="d" d:DataContext="{d:DesignInstance {x:Type local:AboutView}}"
-             x:Name="Root" Background="{StaticResource Background}">
+             mc:Ignorable="d" 
+             Background="{StaticResource Background}">
     <Grid Width="Auto" Height="Auto" Margin="20">
-        <StackPanel Grid.Row="1" 
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" 
                     HorizontalAlignment="Center">
             <StackPanel.Resources>
                 <Style TargetType="Separator">
@@ -62,5 +67,8 @@
                 </TextBlock>
             </StackPanel>
         </StackPanel>
+        <Button Content="Close" 
+                Grid.Row="2"
+                Width="90"/>
     </Grid>
 </Window>
