@@ -11,7 +11,7 @@ public partial class App : Application
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         IContainer container = ContainerConfig.Configure();
-        MainWindow = container.Resolve<MainWindow>();
+        MainWindow = container.Resolve<MainView>();
         MainWindow.Show();
     }
 }

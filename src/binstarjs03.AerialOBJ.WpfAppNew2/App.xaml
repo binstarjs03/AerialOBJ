@@ -3,9 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2">
     <Application.Resources>
-
-        <SolidColorBrush x:Key="BW20" Color="#303030"/>
-        <SolidColorBrush x:Key="BW60" Color="#A0A0A0"/>
-        <SolidColorBrush x:Key="BW80" Color="#D0D0D0"/>
+        <ResourceDictionary x:Uid="Colors">
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <SolidColorBrush x:Key="Background" Color="#303030"/>
+                    <SolidColorBrush x:Key="TextNormal" Color="#A0A0A0"/>
+                    <SolidColorBrush x:Key="TextHighlighted" Color="#D0D0D0"/>
+                    <SolidColorBrush x:Key="TextHyperlink" Color="#759eff"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
