@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 public class AbstractFactory<T> : IAbstractFactory<T>
@@ -20,14 +20,12 @@ public class AbstractFactory<T> : IAbstractFactory<T>
 
 public static class AbstractFactoryExtension
 {
-    public static void RegisterAbstractFactory<TInterface, TImplementation>(this ContainerBuilder builder)
+    public static void AddAbstractFactory<TInterface, TImplementation>(this IServiceCollection services)
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        builder.RegisterType<TImplementation>().As<TInterface>().InstancePerDependency();
-        builder.Register<Func<TInterface>>(c => () => c.Resolve<TInterface>())
-               .As<Func<TInterface>>()
-               .SingleInstance();
-        //builder.RegisterType<AbstractFactory<TInterface>>().As<IAbstractFactory<TInterface>>().SingleInstance();
+        services.AddTransient<TInterface, TImplementation>();
+        services.AddSingleton<Func<TInterface>>(x => () => x.GetRequiredService<TInterface>());
+        services.AddSingleton<IAbstractFactory<TInterface>, AbstractFactory<TInterface>>();
     }
 }
