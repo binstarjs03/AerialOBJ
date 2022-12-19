@@ -4,11 +4,11 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
 public class SavegameLoadInfo
 {
     public string WorldName { get; }
-    public DirectoryInfo SavegameDirectory { get; }
+    public string SavegameDirectoryPath { get; }
     
-    public SavegameLoadInfo(string worldName, DirectoryInfo savegameDirectory)
+    public SavegameLoadInfo(string worldName, string savegameDirectoryPath)
     {
         WorldName = worldName;
-        SavegameDirectory = savegameDirectory;
+        SavegameDirectoryPath = savegameDirectoryPath;
     }
 }

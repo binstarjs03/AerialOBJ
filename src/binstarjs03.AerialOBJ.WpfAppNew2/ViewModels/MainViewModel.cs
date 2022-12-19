@@ -2,6 +2,7 @@
 
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -43,7 +44,7 @@ public partial class MainViewModel : ObservableObject
         if (path is null)
         {
             _logService.Log("Attempting to load savegame...");
-            FolderBrowserDialogResult result = _modalService.ShowFolderBrowserDialog();
+            FolderDialogResult result = _modalService.ShowFolderBrowserDialog();
             if (!result.Result)
             {
                 _logService.Log("Dialog cancelled. Loading savegame aborted",
@@ -55,24 +56,25 @@ public partial class MainViewModel : ObservableObject
         }
         _logService.Log($"Selected path: \"{path}\"");
         _logService.Log($"Loading selected path as Minecraft savegame folder...");
-        SavegameLoadInfo? loadInfo = _savegameLoaderService.LoadSavegame(path, out Exception? e);
-        if (e is not null)
+        try
+        {
+            SavegameLoadInfo? loadInfo = _savegameLoaderService.LoadSavegame(path);
+        }
+        catch (Exception e)
         {
             _logService.Log(e.Message, LogStatus.Error);
             _logService.Log("Exception Details:");
-            _logService.Log(e.GetType().ToString());
-            if (e.StackTrace is not null)
-                _logService.Log(e.StackTrace);
+            _logService.Log(e.ToString());
             _logService.Log("Loading savegame aborted",
                             LogStatus.Aborted,
                             useSeparator: true);
+
             _modalService.ShowErrorMessageBox(new MessageBoxArg()
             {
                 Caption = "Error Opening Minecraft Savegame",
                 Message = e.Message,
             });
         }
-
     }
 
     [RelayCommand]

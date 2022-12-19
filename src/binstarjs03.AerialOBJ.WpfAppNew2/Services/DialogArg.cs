@@ -6,7 +6,7 @@ public readonly struct MessageBoxArg
     public required string Caption { get; init; }
 }
 
-public readonly struct SaveFileDialogArg
+public readonly struct FileDialogArg
 {
     public required string FileName { get; init; }
     public required string FileExtension { get; init; }

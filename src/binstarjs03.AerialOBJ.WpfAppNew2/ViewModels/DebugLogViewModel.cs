@@ -56,7 +56,7 @@ public partial class DebugLogViewModel : ObservableObject
     [RelayCommand]
     private void SaveLog()
     {
-        SaveFileDialogResult dialogResult = _modalService.ShowSaveFileDialog(new SaveFileDialogArg()
+        FileDialogResult dialogResult = _modalService.ShowSaveFileDialog(new FileDialogArg()
         {
             FileName = $"{GlobalState.AppName} Log",
             FileExtension = ".txt",

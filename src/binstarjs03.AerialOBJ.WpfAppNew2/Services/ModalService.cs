@@ -8,7 +8,7 @@ using Ookii.Dialogs.Wpf;
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
 public delegate void ShowMessageBoxHandler(MessageBoxArg dialogArg);
-public delegate SaveFileDialogResult ShowSaveFileDialogHandler(SaveFileDialogArg dialogArg);
+public delegate FileDialogResult ShowSaveFileDialogHandler(FileDialogArg dialogArg);
 
 public class ModalService : IModalService
 {
@@ -35,7 +35,7 @@ public class ModalService : IModalService
                          .ShowDialog();
     }
 
-    public SaveFileDialogResult ShowSaveFileDialog(SaveFileDialogArg dialogArg)
+    public FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg)
     {
         VistaSaveFileDialog dialog = new()
         {
@@ -44,18 +44,18 @@ public class ModalService : IModalService
             Filter = dialogArg.FileExtensionFilter
         };
         bool? result = dialog.ShowDialog();
-        return new SaveFileDialogResult()
+        return new FileDialogResult()
         {
             SelectedFilePath = dialog.FileName,
             Result = result == true,
         };
     }
 
-    public FolderBrowserDialogResult ShowFolderBrowserDialog()
+    public FolderDialogResult ShowFolderBrowserDialog()
     {
         VistaFolderBrowserDialog dialog = new();
         bool? result = dialog.ShowDialog();
-        return new FolderBrowserDialogResult()
+        return new FolderDialogResult()
         {
             Result = result == true,
             SelectedDirectoryPath = dialog.SelectedPath,
