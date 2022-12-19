@@ -1,5 +1,9 @@
-﻿using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
+﻿using System.Windows;
+
+using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Views;
+
+using Microsoft.Win32;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
@@ -9,30 +13,20 @@ public delegate SaveFileDialogResult ShowSaveFileDialogHandler(SaveFileDialogArg
 public class ModalService : IModalService
 {
     private readonly IAbstractFactory<IAboutView> _aboutViewFactory;
-    private readonly ShowMessageBoxHandler _showMessageBoxHandler;
-    private readonly ShowMessageBoxHandler _showErrorMessageBoxHandler;
-    private readonly ShowSaveFileDialogHandler _showSaveFileDialogHandler;
 
-    public ModalService(
-        IAbstractFactory<IAboutView> aboutViewFactory,
-        ShowMessageBoxHandler showMessageBoxHandler,
-        ShowMessageBoxHandler showErrorMessageBoxHandler,
-        ShowSaveFileDialogHandler showSaveFileDialogHandler)
+    public ModalService(IAbstractFactory<IAboutView> aboutViewFactory)
     {
         _aboutViewFactory = aboutViewFactory;
-        _showMessageBoxHandler = showMessageBoxHandler;
-        _showErrorMessageBoxHandler = showErrorMessageBoxHandler;
-        _showSaveFileDialogHandler = showSaveFileDialogHandler;
     }
 
     public void ShowMessageBox(MessageBoxArg dialogArg)
     {
-        _showMessageBoxHandler(dialogArg);
+        MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OK);
     }
 
     public void ShowErrorMessageBox(MessageBoxArg dialogArg)
     {
-        _showErrorMessageBoxHandler(dialogArg);
+        MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
     public void ShowAbout()
@@ -43,6 +37,17 @@ public class ModalService : IModalService
 
     public SaveFileDialogResult ShowSaveFileDialog(SaveFileDialogArg dialogArg)
     {
-        return _showSaveFileDialogHandler(dialogArg);
+        SaveFileDialog dialog = new()
+        {
+            FileName = dialogArg.FileName,
+            DefaultExt = dialogArg.FileExtension,
+            Filter = dialogArg.FileExtensionFilter
+        };
+        bool? result = dialog.ShowDialog();
+        return new SaveFileDialogResult()
+        {
+            Path = dialog.FileName,
+            Result = result == true,
+        };
     }
 }

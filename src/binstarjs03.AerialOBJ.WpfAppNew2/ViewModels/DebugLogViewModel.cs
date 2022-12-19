@@ -20,6 +20,7 @@ public partial class DebugLogViewModel : ObservableObject
         _logService = logService;
         _modalService = modalService;
         _iOService = iOService;
+
         _globalState.DebugLogViewVisibilityChanged += OnVisibilityChanged;
         _logService.Logging += OnLogServiceLogging;
     }
@@ -66,11 +67,19 @@ public partial class DebugLogViewModel : ObservableObject
             return;
         _iOService.WriteText(dialogResult.Path, _logService.LogContent, out Exception? e);
         if (e is not null)
+        {
+            string msg = $"Canot save log content to {dialogResult.Path}:\n{e}";
+            _logService.Log(msg, LogStatus.Error);
             _modalService.ShowErrorMessageBox(new MessageBoxArg()
             {
                 Caption = "Canot save log",
-                Message = $"Canot save log content to {dialogResult.Path}:\n{e}",
+                Message = msg,
             });
+        }
+        else
+        {
+            _logService.Log($"Saved log content to {dialogResult.Path}", LogStatus.Success);
+        }
     }
 
     [RelayCommand]
