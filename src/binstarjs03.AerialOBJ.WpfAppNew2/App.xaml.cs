@@ -23,12 +23,14 @@ public partial class App : Application
         MainWindow = Host.Services.GetRequiredService<MainView>();
         MainWindow.Show();
 
-        base.OnStartup(e);
+        DebugLogView debugLogView = Host.Services.GetRequiredService<DebugLogView>();
+        debugLogView.Owner = MainWindow;
+        (MainWindow as MainView)!.DebugViewSetPositionRequested += debugLogView.SetTopLeft;
+        (MainWindow as MainView)!.InvokeDebugViewSetPositionRequested();
     }
 
     protected override async void OnExit(ExitEventArgs e)
     {
         await Host.StopAsync(); 
-        base.OnExit(e);
     }
 }

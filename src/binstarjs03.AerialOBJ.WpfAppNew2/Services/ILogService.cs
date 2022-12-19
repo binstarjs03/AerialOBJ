@@ -1,21 +1,21 @@
-﻿using System;
-
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+﻿namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+public delegate void LoggingEventHandler(string message, LogStatus status);
 public interface ILogService
 {
     string LogContent { get; }
-    event Action Logging;
+    
+    event LoggingEventHandler Logging;
 
     void Clear();
     void Log(string message, bool useSeparator = false);
-    void LogEmphasis(string message, Emphasis emphasis, bool useSeparator = false);
+    void Log(string message, LogStatus status, bool useSeparator = false);
     void LogRuntimeInfo();
 }
 
-public enum Emphasis
+public enum LogStatus
 {
+    Normal,
     Warning,
-    Information,
     Error,
     Success,
     Aborted,

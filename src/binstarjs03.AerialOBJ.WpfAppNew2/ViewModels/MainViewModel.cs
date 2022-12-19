@@ -3,31 +3,46 @@
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
-public partial class MainViewModel
+public partial class MainViewModel : ObservableObject
 {
+    private readonly GlobalState _globalState;
     private readonly IModalService _modalService;
-
-    public GlobalState GlobalState { get; }
 
     public MainViewModel(GlobalState globalState, IModalService modalService)
     {
+        _globalState = globalState;
         _modalService = modalService;
-        GlobalState = globalState;
+
+        _globalState.DebugLogViewVisibilityChanged += OnDebugLogViewVisibilityChanged;
     }
 
-    public event Action? CloseRequested;
+    public string Title => GlobalState.AppName;
+
+    public bool IsDebugLogViewVisible
+    {
+        get => _globalState.IsDebugLogWindowVisible;
+        set => _globalState.IsDebugLogWindowVisible = value;
+    }
+
+    public event Action? CloseViewRequested;
+
+    private void OnDebugLogViewVisibilityChanged(bool visible)
+    {
+        OnPropertyChanged(nameof(IsDebugLogViewVisible));
+    }
 
     [RelayCommand]
-    private void OnOpenSavegame(string? path)
+    private void OpenSavegame(string? path)
     {
         _modalService.ShowMessageBox($"Savegame Open Invoked, Path: {path}");
     }
 
     [RelayCommand]
-    private void OnCloseSavegame(CloseSavegameSender sender)
+    private void CloseSavegame(CloseSavegameSender sender)
     {
         _modalService.ShowMessageBox($"Savegame Close Invoked, Sender: {sender}");
     }
@@ -35,7 +50,7 @@ public partial class MainViewModel
     [RelayCommand]
     private void OnClose()
     {
-        CloseRequested?.Invoke();
+        CloseViewRequested?.Invoke();
     }
 
     [RelayCommand]

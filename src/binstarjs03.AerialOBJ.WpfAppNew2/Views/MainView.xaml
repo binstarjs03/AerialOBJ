@@ -7,12 +7,17 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MainViewModel}}"
-        Title="{Binding GlobalState.AppName}"
+        
+        x:Name="Root"
+        Title="{Binding Title}"
         d:Title="AerialOBJ"
-        Width="600" Height="400">
+        Width="600" Height="400"
+        MinWidth="450" MinHeight="400"
+>
     <Grid>
         <DockPanel>
-            <Menu DockPanel.Dock="Top">
+            <Menu IsMainMenu="True" 
+                  DockPanel.Dock="Top">
                 <MenuItem Header="File">
                     <MenuItem Header="Open..."
                               Command="{Binding OpenSavegameCommand}"/>
@@ -26,6 +31,9 @@
                 <MenuItem Header="View">
                     <MenuItem Header="Side Panel"
                               IsCheckable="True"/>
+                    <MenuItem Header="Debug Log" 
+                                  IsCheckable="True"
+                                  IsChecked="{Binding IsDebugLogViewVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="About..."

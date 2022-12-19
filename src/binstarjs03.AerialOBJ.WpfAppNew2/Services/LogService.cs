@@ -6,11 +6,11 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 public class LogService : ILogService
 {
     private string s_logContent = "";
-    private GlobalState _globalState;
+    private readonly GlobalState _globalState;
+
+    public event LoggingEventHandler? Logging;
 
     public string LogContent => s_logContent;
-
-    public event Action? Logging;
 
     public LogService(GlobalState globalState)
     {
@@ -24,15 +24,17 @@ public class LogService : ILogService
 
     public void Log(string message, bool useSeparator = false)
     {
+        Log(message, LogStatus.Normal, useSeparator);
+    }
+
+    public void Log(string message, LogStatus status, bool useSeparator = false)
+    {
+        if (status != LogStatus.Normal)
+            s_logContent += $"[{status.ToString().ToUpper()}] ";
         s_logContent += $"{message}{Environment.NewLine}";
         if (useSeparator)
             s_logContent += Environment.NewLine;
-        Logging?.Invoke();
-    }
-
-    public void LogEmphasis(string message, Emphasis emphasis, bool useSeparator = false)
-    {
-        Log($"[{emphasis.ToString().ToUpper()}] {message}", useSeparator);
+        Logging?.Invoke(message, status);
     }
 
     public void LogRuntimeInfo()

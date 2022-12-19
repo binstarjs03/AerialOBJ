@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Views;
@@ -8,17 +7,17 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 public class ModalService : IModalService
 {
     private readonly IAbstractFactory<IAboutView> _aboutViewFactory;
-    //private readonly Action _showMessageBox;
+    private readonly Action<string> _showMessageBoxHandler;
 
-    public ModalService(IAbstractFactory<IAboutView> aboutViewFactory)
+    public ModalService(IAbstractFactory<IAboutView> aboutViewFactory, Action<string> showMessageBoxHandler)
     {
         _aboutViewFactory = aboutViewFactory;
+        _showMessageBoxHandler = showMessageBoxHandler;
     }
 
     public void ShowMessageBox(string message)
     {
-        MessageBox.Show(message); // TODO not unit testable,
-                                  // make this dependent from WPF dialogs or whatnot
+        _showMessageBoxHandler(message);
     }
 
     public void ShowAbout()
