@@ -2,7 +2,6 @@
 
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -65,10 +64,10 @@ public partial class DebugLogViewModel : ObservableObject
         });
         if (dialogResult.Result != true)
             return;
-        _iOService.WriteText(dialogResult.Path, _logService.LogContent, out Exception? e);
+        _iOService.WriteText(dialogResult.SelectedFilePath, _logService.LogContent, out Exception? e);
         if (e is not null)
         {
-            string msg = $"Canot save log content to {dialogResult.Path}:\n{e}";
+            string msg = $"Canot save log content to {dialogResult.SelectedFilePath}:\n{e}";
             _logService.Log(msg, LogStatus.Error);
             _modalService.ShowErrorMessageBox(new MessageBoxArg()
             {
@@ -78,7 +77,7 @@ public partial class DebugLogViewModel : ObservableObject
         }
         else
         {
-            _logService.Log($"Saved log content to {dialogResult.Path}", LogStatus.Success);
+            _logService.Log($"Saved log content to {dialogResult.SelectedFilePath}", LogStatus.Success);
         }
     }
 

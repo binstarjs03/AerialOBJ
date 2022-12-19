@@ -35,6 +35,7 @@ public static class AppHost
             services.AddModalService();
             services.AddSingleton<ILogService, LogService>();
             services.AddSingleton<IIOService, IOService>();
+            services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
 
         }).Build();
     }

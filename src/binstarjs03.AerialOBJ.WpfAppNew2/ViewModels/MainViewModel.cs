@@ -2,7 +2,6 @@
 
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -11,12 +10,15 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly GlobalState _globalState;
     private readonly IModalService _modalService;
+    private readonly ILogService _logService;
+    private readonly ISavegameLoaderService _savegameLoaderService;
 
-    public MainViewModel(GlobalState globalState, IModalService modalService)
+    public MainViewModel(GlobalState globalState, IModalService modalService, ILogService logService, ISavegameLoaderService savegameLoaderService)
     {
         _globalState = globalState;
         _modalService = modalService;
-
+        _logService = logService;
+        _savegameLoaderService = savegameLoaderService;
         _globalState.DebugLogViewVisibilityChanged += OnDebugLogViewVisibilityChanged;
     }
 
@@ -38,11 +40,38 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenSavegame(string? path)
     {
-        _modalService.ShowMessageBox(new MessageBoxArg()
+        if (path is null)
         {
-            Caption = "Information",
-            Message = $"Savegame Open Invoked, Path: {path}"
-        });
+            _logService.Log("Attempting to load savegame...");
+            FolderBrowserDialogResult result = _modalService.ShowFolderBrowserDialog();
+            if (!result.Result)
+            {
+                _logService.Log("Dialog cancelled. Loading savegame aborted",
+                                LogStatus.Aborted,
+                                useSeparator: true);
+                return;
+            }
+            path = result.SelectedDirectoryPath;
+        }
+        _logService.Log($"Selected path: \"{path}\"");
+        _logService.Log($"Loading selected path as Minecraft savegame folder...");
+        SavegameLoadInfo? loadInfo = _savegameLoaderService.LoadSavegame(path, out Exception? e);
+        if (e is not null)
+        {
+            _logService.Log(e.Message, LogStatus.Error);
+            _logService.Log("Exception Details:");
+            _logService.Log(e.GetType().ToString());
+            if (e.StackTrace is not null)
+                _logService.Log(e.StackTrace);
+            _logService.Log("Loading savegame aborted",
+                            LogStatus.Aborted,
+                            useSeparator: true);
+            _modalService.ShowErrorMessageBox(new MessageBoxArg()
+            {
+                Caption = "Error Opening Minecraft Savegame",
+                Message = e.Message,
+            });
+        }
 
     }
 

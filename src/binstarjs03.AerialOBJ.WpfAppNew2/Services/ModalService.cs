@@ -3,7 +3,7 @@
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Views;
 
-using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
@@ -37,7 +37,7 @@ public class ModalService : IModalService
 
     public SaveFileDialogResult ShowSaveFileDialog(SaveFileDialogArg dialogArg)
     {
-        SaveFileDialog dialog = new()
+        VistaSaveFileDialog dialog = new()
         {
             FileName = dialogArg.FileName,
             DefaultExt = dialogArg.FileExtension,
@@ -46,8 +46,19 @@ public class ModalService : IModalService
         bool? result = dialog.ShowDialog();
         return new SaveFileDialogResult()
         {
-            Path = dialog.FileName,
+            SelectedFilePath = dialog.FileName,
             Result = result == true,
+        };
+    }
+
+    public FolderBrowserDialogResult ShowFolderBrowserDialog()
+    {
+        VistaFolderBrowserDialog dialog = new();
+        bool? result = dialog.ShowDialog();
+        return new FolderBrowserDialogResult()
+        {
+            Result = result == true,
+            SelectedDirectoryPath = dialog.SelectedPath,
         };
     }
 }
