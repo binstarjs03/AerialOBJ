@@ -11,6 +11,7 @@ public partial class DebugLogView : Window
         InitializeComponent();
         DataContext= viewModel;
         viewModel.CloseViewRequested += OnViewModelCloseRequested;
+        viewModel.ScrollToEndRequested += OnViewModelScrollToEndRequested;
     }
 
     public void SetTopLeft(double top, double left)
@@ -22,6 +23,11 @@ public partial class DebugLogView : Window
     private void OnViewModelCloseRequested()
     {
         Close();
+    }
+
+    private void OnViewModelScrollToEndRequested()
+    {
+        LogTextBox.ScrollToEnd();
     }
 
     protected override void OnClosing(CancelEventArgs e)

@@ -31,7 +31,7 @@
                      Text="{Binding LogContent, Mode=OneWay}"
                      d:Text="Some initial text to preview"
                      BorderThickness="0"
-                     Margin="1,0"
+                     Margin="2,3"
                      Background="{StaticResource Background}"
                      Foreground="{StaticResource TextNormal}"
                      IsReadOnly="True"

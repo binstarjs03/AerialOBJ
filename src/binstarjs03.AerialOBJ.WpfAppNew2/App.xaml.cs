@@ -1,5 +1,8 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 
+using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 using binstarjs03.AerialOBJ.WpfAppNew2.Views;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -27,10 +30,18 @@ public partial class App : Application
         debugLogView.Owner = MainWindow;
         (MainWindow as MainView)!.DebugViewSetPositionRequested += debugLogView.SetTopLeft;
         (MainWindow as MainView)!.InvokeDebugViewSetPositionRequested();
+
+        ILogService logService = Host.Services.GetRequiredService<ILogService>();
+        logService.LogRuntimeInfo();
+
+#if DEBUG
+        GlobalState globalState = Host.Services.GetRequiredService<GlobalState>();
+        globalState.IsDebugLogWindowVisible = true;
+#endif
     }
 
     protected override async void OnExit(ExitEventArgs e)
     {
-        await Host.StopAsync(); 
+        await Host.StopAsync();
     }
 }

@@ -48,6 +48,7 @@ public partial class DebugLogViewModel : ObservableObject
     private void ClearLog()
     {
         _logService.Clear();
+        _logService.LogRuntimeInfo();
     }
 
     [RelayCommand]
