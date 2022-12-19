@@ -38,13 +38,22 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenSavegame(string? path)
     {
-        _modalService.ShowMessageBox($"Savegame Open Invoked, Path: {path}");
+        _modalService.ShowMessageBox(new MessageBoxArg()
+        {
+            Caption = "Information",
+            Message = $"Savegame Open Invoked, Path: {path}"
+        });
+
     }
 
     [RelayCommand]
     private void CloseSavegame(CloseSavegameSender sender)
     {
-        _modalService.ShowMessageBox($"Savegame Close Invoked, Sender: {sender}");
+        _modalService.ShowMessageBox(new MessageBoxArg()
+        {
+            Caption = "Information",
+            Message = $"Savegame Close Invoked, Sender: {sender}"
+        });
     }
 
     [RelayCommand]
