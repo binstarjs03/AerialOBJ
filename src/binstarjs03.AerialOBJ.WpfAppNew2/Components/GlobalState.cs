@@ -5,6 +5,7 @@ public class GlobalState
 {
     private bool _isDebugLogViewVisible = false;
     private SavegameLoadInfo? _savegameLoadInfo = null;
+    private bool _isViewportDebugPanelVisible = false;
 
     public GlobalState(DateTime launchTime)
     {
@@ -16,6 +17,7 @@ public class GlobalState
     public DateTime LaunchTime { get; }
 
     public event Action<bool>? DebugLogViewVisibilityChanged;
+    public event Action<bool>? ViewportDebugPanelVisibilityChanged;
     public event Action<SavegameLoadState>? SavegameLoadChanged;
 
     public bool IsDebugLogWindowVisible
@@ -46,4 +48,17 @@ public class GlobalState
     }
 
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
+
+    public bool IsViewportDebugPanelVisible
+    {
+        get => _isViewportDebugPanelVisible;
+        set
+        {
+            if (value != _isViewportDebugPanelVisible)
+            {
+                _isViewportDebugPanelVisible = value;
+                ViewportDebugPanelVisibilityChanged?.Invoke(value);
+            }
+        }
+    }
 }

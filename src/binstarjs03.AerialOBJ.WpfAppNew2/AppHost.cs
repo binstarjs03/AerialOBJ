@@ -32,6 +32,7 @@ public static class AppHost
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<DebugLogViewModel>();
             services.AddTransient<AboutViewModel>();
+            services.AddTransient<ViewportViewModel>();
 
             // configure services
             services.AddModalService();

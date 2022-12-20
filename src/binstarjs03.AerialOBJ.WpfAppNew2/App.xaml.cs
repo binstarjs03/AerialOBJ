@@ -12,6 +12,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2;
 public partial class App : Application
 {
     public IHost Host { get; private set; }
+    public static new App Current => (Application.Current as App)!;
 
     public App()
     {

@@ -6,15 +6,18 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+
                 <ResourceDictionary>
                     <SolidColorBrush x:Key="Background" Color="#303030"/>
                     <SolidColorBrush x:Key="TextNormal" Color="#A0A0A0"/>
                     <SolidColorBrush x:Key="TextHighlighted" Color="#D0D0D0"/>
                     <SolidColorBrush x:Key="TextHyperlink" Color="#759eff"/>
                 </ResourceDictionary>
+                
                 <ResourceDictionary>
                     <converters:BoolToVisibility x:Key="BoolToVisibility"/>
                 </ResourceDictionary>
+                
                 <ResourceDictionary>
                     <Style x:Key="TransparentSeparator" TargetType="Separator">
                         <Setter Property="Background" Value="Transparent"/>
@@ -23,6 +26,7 @@
                         <Setter Property="Background" Value="#44FFFFFF"/>
                     </Style>
                 </ResourceDictionary>
+                
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

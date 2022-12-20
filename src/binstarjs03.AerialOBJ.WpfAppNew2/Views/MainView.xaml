@@ -29,8 +29,9 @@
                               Command="{Binding CloseCommand}"/>
                 </MenuItem>
                 <MenuItem Header="View">
-                    <MenuItem Header="Side Panel"
-                              IsCheckable="True"/>
+                    <MenuItem Header="Viewport Info"
+                              IsCheckable="True"
+                              IsChecked="{Binding IsViewportDebugPanelVisible, Mode=OneWayToSource}"/>
                     <MenuItem Header="Debug Log" 
                                   IsCheckable="True"
                                   IsChecked="{Binding IsDebugLogViewVisible, Mode=TwoWay}"/>

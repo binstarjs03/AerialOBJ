@@ -4,9 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
+             xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
              mc:Ignorable="d" 
-             
-             d:DesignWidth="800" d:DesignHeight="650" >
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
+             d:DesignWidth="600" d:DesignHeight="450" >
     <Grid>
         <DockPanel>
             <!--Height slider-->
@@ -58,39 +59,43 @@
                         Margin="10" 
                         BorderThickness="1" 
                         BorderBrush="{StaticResource TextNormal}"
-                        Background="#10FFFFFF">
+                        Background="#10FFFFFF"
+                        Visibility="{Binding IsDebugPanelVisible, Converter={StaticResource BoolToVisibility}}">
 
                     <!--Debug panel content-->
-                    <StackPanel HorizontalAlignment="Left" Margin="5">
-                        <local:PropertyValuePairView PropertyText="Screen Size" ValueText="(800, 600)"/>
-                        <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="(0, 0)"/>
-                        <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="2"/>
-                        <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
-                        
-                        <Separator Style="{StaticResource SubtleSeparator}"/>
-                        
-                        <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
-                        <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
-                        <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
-                        
-                        <Separator Style="{StaticResource SubtleSeparator}"/>
-                        
-                        <TextBlock Text="Visible Region Range:"/>
-                        <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
-                        <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
-                        <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
-                        <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
-                        <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
-                        
-                        <Separator Style="{StaticResource SubtleSeparator}"/>
-                        
-                        <TextBlock Text="Visible Chunk Range:"/>
-                        <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
-                        <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
-                        <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
-                        <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
-                        <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
-                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel HorizontalAlignment="Left" Margin="5">
+                            <local:PropertyValuePairView PropertyText="Screen Size" ValueText="(800, 600)"/>
+                            <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="(0, 0)"/>
+                            <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="2"/>
+                            <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
+
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
+
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
+
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
+
+                            <TextBlock Text="Visible Region Range:"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
+                            <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
+                            <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
+
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
+
+                            <TextBlock Text="Visible Chunk Range:"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
+                            <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
+                            <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Border>
             </Grid>
         </DockPanel>

@@ -9,7 +9,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
-public partial class MainViewModel : ObservableObject
+[ObservableObject]
+public partial class MainViewModel
 {
     private readonly GlobalState _globalState;
     private readonly IModalService _modalService;
@@ -26,8 +27,9 @@ public partial class MainViewModel : ObservableObject
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
 
-        _globalState.DebugLogViewVisibilityChanged += OnDebugLogViewVisibilityChanged;
-        _globalState.SavegameLoadChanged += OnGlobalStateSavegameLoadChanged;
+        _globalState.DebugLogViewVisibilityChanged += GlobalState_DebugLogViewVisibilityChanged;
+        _globalState.SavegameLoadChanged += GlobalState_SavegameLoadChanged;
+        _globalState.ViewportDebugPanelVisibilityChanged += GlobalState_ViewportDebugPanelVisibilityChanged;
     }
 
     public bool IsDebugLogViewVisible
@@ -36,14 +38,20 @@ public partial class MainViewModel : ObservableObject
         set => _globalState.IsDebugLogWindowVisible = value;
     }
 
+    public bool IsViewportDebugPanelVisible
+    {
+        get => _globalState.IsViewportDebugPanelVisible;
+        set => _globalState.IsViewportDebugPanelVisible = value;
+    }
+
     public event Action? CloseViewRequested;
 
-    private void OnDebugLogViewVisibilityChanged(bool visible)
+    private void GlobalState_DebugLogViewVisibilityChanged(bool visible)
     {
         OnPropertyChanged(nameof(IsDebugLogViewVisible));
     }
 
-    private void OnGlobalStateSavegameLoadChanged(SavegameLoadState state)
+    private void GlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         Title = state switch
         {
@@ -51,6 +59,11 @@ public partial class MainViewModel : ObservableObject
             SavegameLoadState.Closed => GlobalState.AppName,
             _ => throw new NotImplementedException(),
         };
+    }
+
+    private void GlobalState_ViewportDebugPanelVisibilityChanged(bool visible)
+    {
+        OnPropertyChanged(nameof(IsViewportDebugPanelVisible));
     }
 
     [RelayCommand]
