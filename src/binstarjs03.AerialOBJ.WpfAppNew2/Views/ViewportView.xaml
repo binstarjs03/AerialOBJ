@@ -53,16 +53,16 @@
                     </Style>
                 </Grid.Resources>
 
-                <!--Viewport Debug Panel-->
+                <!--Viewport Info-->
                 <Border HorizontalAlignment="Left" 
                         VerticalAlignment="Top"
                         Margin="10" 
                         BorderThickness="1" 
                         BorderBrush="{StaticResource TextNormal}"
                         Background="#10FFFFFF"
-                        Visibility="{Binding GlobalState.IsViewportDebugPanelVisible, Converter={StaticResource BoolToVisibility}}">
+                        Visibility="{Binding GlobalState.IsViewportInfoVisible, Converter={StaticResource BoolToVisibility}}">
 
-                    <!--Debug panel content-->
+                    <!--Info content-->
                     <ScrollViewer VerticalScrollBarVisibility="Hidden" 
                                   HorizontalScrollBarVisibility="Disabled">
                         <StackPanel HorizontalAlignment="Left" Margin="5">

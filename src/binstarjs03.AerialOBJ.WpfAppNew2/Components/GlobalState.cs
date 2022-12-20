@@ -5,7 +5,7 @@ public class GlobalState
 {
     private bool _isDebugLogViewVisible = false;
     private SavegameLoadInfo? _savegameLoadInfo = null;
-    private bool _isViewportDebugPanelVisible = false;
+    private bool _isViewportInfoVisible = false;
 
     public GlobalState(DateTime launchTime)
     {
@@ -18,7 +18,7 @@ public class GlobalState
 
     public event Action<string>? PropertyChanged;
     public event Action<bool>? DebugLogViewVisibilityChanged;
-    public event Action<bool>? ViewportDebugPanelVisibilityChanged;
+    public event Action<bool>? ViewportInfoVisibilityChanged;
     public event Action<SavegameLoadState>? SavegameLoadChanged;
 
     public bool IsDebugLogWindowVisible
@@ -45,21 +45,22 @@ public class GlobalState
             SavegameLoadState loadState = value is null ?
                 SavegameLoadState.Closed : SavegameLoadState.Opened;
             SavegameLoadChanged?.Invoke(loadState);
+            Reinitialize();
             OnPropertyChanged();
         }
     }
 
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
 
-    public bool IsViewportDebugPanelVisible
+    public bool IsViewportInfoVisible
     {
-        get => _isViewportDebugPanelVisible;
+        get => _isViewportInfoVisible;
         set
         {
-            if (value == _isViewportDebugPanelVisible)
+            if (value == _isViewportInfoVisible)
                 return;
-            _isViewportDebugPanelVisible = value;
-            ViewportDebugPanelVisibilityChanged?.Invoke(value);
+            _isViewportInfoVisible = value;
+            ViewportInfoVisibilityChanged?.Invoke(value);
             OnPropertyChanged();
         }
     }
@@ -67,5 +68,10 @@ public class GlobalState
     private void OnPropertyChanged()
     {
         PropertyChanged?.Invoke(nameof(GlobalState));
+    }
+
+    private void Reinitialize()
+    {
+        IsViewportInfoVisible = false;
     }
 }

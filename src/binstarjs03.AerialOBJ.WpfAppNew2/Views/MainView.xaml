@@ -32,7 +32,8 @@
                 <MenuItem Header="View">
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
-                              IsChecked="{Binding GlobalState.IsViewportDebugPanelVisible, Mode=TwoWay}"/>
+                              IsChecked="{Binding GlobalState.IsViewportInfoVisible, Mode=TwoWay}"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Debug Log" 
                                   IsCheckable="True"
                                   IsChecked="{Binding GlobalState.IsDebugLogWindowVisible, Mode=TwoWay}"/>
@@ -45,7 +46,7 @@
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <local:ViewportView/>
+            <local:ViewportView IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
         </DockPanel>
     </Grid>
 </Window>
