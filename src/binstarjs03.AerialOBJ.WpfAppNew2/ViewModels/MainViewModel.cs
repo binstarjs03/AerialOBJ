@@ -12,7 +12,6 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
 public partial class MainViewModel
 {
-    private readonly GlobalState _globalState;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
     private readonly ISavegameLoaderService _savegameLoaderService;
@@ -22,48 +21,27 @@ public partial class MainViewModel
 
     public MainViewModel(GlobalState globalState, IModalService modalService, ILogService logService, ISavegameLoaderService savegameLoaderService)
     {
-        _globalState = globalState;
+        GlobalState = globalState;
         _modalService = modalService;
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
 
-        _globalState.DebugLogViewVisibilityChanged += GlobalState_DebugLogViewVisibilityChanged;
-        _globalState.SavegameLoadChanged += GlobalState_SavegameLoadChanged;
-        _globalState.ViewportDebugPanelVisibilityChanged += GlobalState_ViewportDebugPanelVisibilityChanged;
+        GlobalState.PropertyChanged += OnPropertyChanged;
+        GlobalState.SavegameLoadChanged += GlobalState_SavegameLoadChanged;
     }
 
-    public bool IsDebugLogViewVisible
-    {
-        get => _globalState.IsDebugLogWindowVisible;
-        set => _globalState.IsDebugLogWindowVisible = value;
-    }
-
-    public bool IsViewportDebugPanelVisible
-    {
-        get => _globalState.IsViewportDebugPanelVisible;
-        set => _globalState.IsViewportDebugPanelVisible = value;
-    }
+    public GlobalState GlobalState { get; }
 
     public event Action? CloseViewRequested;
-
-    private void GlobalState_DebugLogViewVisibilityChanged(bool visible)
-    {
-        OnPropertyChanged(nameof(IsDebugLogViewVisible));
-    }
 
     private void GlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         Title = state switch
         {
-            SavegameLoadState.Opened => $"{GlobalState.AppName} - {_globalState.SavegameLoadInfo!.WorldName}",
+            SavegameLoadState.Opened => $"{GlobalState.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
             SavegameLoadState.Closed => GlobalState.AppName,
             _ => throw new NotImplementedException(),
         };
-    }
-
-    private void GlobalState_ViewportDebugPanelVisibilityChanged(bool visible)
-    {
-        OnPropertyChanged(nameof(IsViewportDebugPanelVisible));
     }
 
     [RelayCommand]
@@ -88,12 +66,12 @@ public partial class MainViewModel
         {
             SavegameLoadInfo loadInfo = _savegameLoaderService.LoadSavegame(path);
             // close savegame if already loaded
-            if (_globalState.HasSavegameLoaded)
+            if (GlobalState.HasSavegameLoaded)
             {
                 _logService.Log("Savegame already loaded, closing...");
                 CloseSavegame(CloseSavegameSender.OpenSavegameCommand);
             }
-            _globalState.SavegameLoadInfo = loadInfo;
+            GlobalState.SavegameLoadInfo = loadInfo;
             _logService.Log($"Successfully loaded {loadInfo.WorldName}", useSeparator: true);
         }
         catch (Exception e)
@@ -118,10 +96,10 @@ public partial class MainViewModel
     {
         // default worldname if there is no savegame loaded
         string worldName = "savegame";
-        if (_globalState.SavegameLoadInfo is not null)
-            worldName = _globalState.SavegameLoadInfo.WorldName;
+        if (GlobalState.SavegameLoadInfo is not null)
+            worldName = GlobalState.SavegameLoadInfo.WorldName;
 
-        _globalState.SavegameLoadInfo = null;
+        GlobalState.SavegameLoadInfo = null;
         bool useSeparator = sender == CloseSavegameSender.MenuCloseButton;
         _logService.Log($"Successfully closed {worldName}", useSeparator);
     }

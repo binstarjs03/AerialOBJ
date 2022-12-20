@@ -12,7 +12,7 @@
         Width="600" Height="400"
         d:Width="400" d:Height="300"
         MinWidth="300" MinHeight="300"
-        Visibility="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibility}}"
+        Visibility="{Binding GlobalState.IsDebugLogWindowVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibility}}"
         d:Visibility="Visible"
         Background="{StaticResource Background}">
     <Grid>
@@ -28,7 +28,7 @@
                 </MenuItem>
             </Menu>
             <TextBox x:Name="LogTextBox" 
-                     Text="{Binding LogContent, Mode=OneWay}"
+                     Text="{Binding LogService.LogContent, Mode=OneWay}"
                      d:Text="Some initial text to preview"
                      BorderThickness="0"
                      Margin="2,3"

@@ -60,7 +60,7 @@
                         BorderThickness="1" 
                         BorderBrush="{StaticResource TextNormal}"
                         Background="#10FFFFFF"
-                        Visibility="{Binding IsDebugPanelVisible, Converter={StaticResource BoolToVisibility}}">
+                        Visibility="{Binding GlobalState.IsViewportDebugPanelVisible, Converter={StaticResource BoolToVisibility}}">
 
                     <!--Debug panel content-->
                     <ScrollViewer VerticalScrollBarVisibility="Hidden" 

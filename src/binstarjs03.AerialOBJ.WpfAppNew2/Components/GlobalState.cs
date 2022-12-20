@@ -16,6 +16,7 @@ public class GlobalState
     public string AppVersion { get; } = "InDev";
     public DateTime LaunchTime { get; }
 
+    public event Action<string>? PropertyChanged;
     public event Action<bool>? DebugLogViewVisibilityChanged;
     public event Action<bool>? ViewportDebugPanelVisibilityChanged;
     public event Action<SavegameLoadState>? SavegameLoadChanged;
@@ -25,11 +26,11 @@ public class GlobalState
         get => _isDebugLogViewVisible;
         set
         {
-            if (value != _isDebugLogViewVisible)
-            {
-                _isDebugLogViewVisible = value;
-                DebugLogViewVisibilityChanged?.Invoke(value);
-            }
+            if (value == _isDebugLogViewVisible)
+                return;
+            _isDebugLogViewVisible = value;
+            DebugLogViewVisibilityChanged?.Invoke(value);
+            OnPropertyChanged();
         }
     }
 
@@ -41,9 +42,10 @@ public class GlobalState
             if (value == _savegameLoadInfo)
                 return;
             _savegameLoadInfo = value;
-            SavegameLoadState loadState = value is null ? 
+            SavegameLoadState loadState = value is null ?
                 SavegameLoadState.Closed : SavegameLoadState.Opened;
             SavegameLoadChanged?.Invoke(loadState);
+            OnPropertyChanged();
         }
     }
 
@@ -54,11 +56,16 @@ public class GlobalState
         get => _isViewportDebugPanelVisible;
         set
         {
-            if (value != _isViewportDebugPanelVisible)
-            {
-                _isViewportDebugPanelVisible = value;
-                ViewportDebugPanelVisibilityChanged?.Invoke(value);
-            }
+            if (value == _isViewportDebugPanelVisible)
+                return;
+            _isViewportDebugPanelVisible = value;
+            ViewportDebugPanelVisibilityChanged?.Invoke(value);
+            OnPropertyChanged();
         }
+    }
+
+    private void OnPropertyChanged()
+    {
+        PropertyChanged?.Invoke(nameof(GlobalState));
     }
 }

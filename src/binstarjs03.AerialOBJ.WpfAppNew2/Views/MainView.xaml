@@ -23,7 +23,8 @@
                               Command="{Binding OpenSavegameCommand}"/>
                     <MenuItem Header="Close"
                               Command="{Binding CloseSavegameCommand}"
-                              CommandParameter="{x:Static viewmodels:CloseSavegameSender.MenuCloseButton}"/>
+                              CommandParameter="{x:Static viewmodels:CloseSavegameSender.MenuCloseButton}"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Setting"/>
                     <MenuItem Header="Exit"
                               Command="{Binding CloseCommand}"/>
@@ -31,10 +32,10 @@
                 <MenuItem Header="View">
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
-                              IsChecked="{Binding IsViewportDebugPanelVisible, Mode=OneWayToSource}"/>
+                              IsChecked="{Binding GlobalState.IsViewportDebugPanelVisible, Mode=TwoWay}"/>
                     <MenuItem Header="Debug Log" 
                                   IsCheckable="True"
-                                  IsChecked="{Binding IsDebugLogViewVisible, Mode=TwoWay}"/>
+                                  IsChecked="{Binding GlobalState.IsDebugLogWindowVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="About..."

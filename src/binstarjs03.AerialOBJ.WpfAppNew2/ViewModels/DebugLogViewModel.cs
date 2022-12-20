@@ -8,51 +8,40 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
-public partial class DebugLogViewModel : ObservableObject
+[ObservableObject]
+public partial class DebugLogViewModel
 {
-    private readonly GlobalState _globalState;
-    private readonly ILogService _logService;
     private readonly IModalService _modalService;
     private readonly IIOService _iOService;
 
     public DebugLogViewModel(GlobalState globalState, ILogService logService, IModalService modalService, IIOService iOService)
     {
-        _globalState = globalState;
-        _logService = logService;
+        GlobalState = globalState;
+        LogService = logService;
         _modalService = modalService;
         _iOService = iOService;
 
-        _globalState.DebugLogViewVisibilityChanged += OnVisibilityChanged;
-        _logService.Logging += OnLogServiceLogging;
+        GlobalState.PropertyChanged += OnPropertyChanged;
+        LogService.Logging += OnLogServiceLogging;
     }
+
+    public GlobalState GlobalState { get; }
+    public ILogService LogService { get; }
 
     public event Action? CloseViewRequested;
     public event Action? ScrollToEndRequested;
 
-    public bool IsVisible
-    {
-        get => _globalState.IsDebugLogWindowVisible;
-        set => _globalState.IsDebugLogWindowVisible = value;
-    }
-
-    public string LogContent => _logService.LogContent;
-
-    private void OnVisibilityChanged(bool isVisible)
-    {
-        OnPropertyChanged(nameof(IsVisible));
-    }
-
     private void OnLogServiceLogging(string message, LogStatus status)
     {
-        OnPropertyChanged(nameof(LogContent));
+        OnPropertyChanged(nameof(LogService));
         ScrollToEndRequested?.Invoke();
     }
 
     [RelayCommand]
     private void ClearLog()
     {
-        _logService.Clear();
-        _logService.LogRuntimeInfo();
+        LogService.Clear();
+        LogService.LogRuntimeInfo();
     }
 
     [RelayCommand]
@@ -66,11 +55,11 @@ public partial class DebugLogViewModel : ObservableObject
         });
         if (dialogResult.Result != true)
             return;
-        _iOService.WriteText(dialogResult.SelectedFilePath, _logService.LogContent, out Exception? e);
+        _iOService.WriteText(dialogResult.SelectedFilePath, LogService.LogContent, out Exception? e);
         if (e is not null)
         {
             string msg = $"Canot save log content to {dialogResult.SelectedFilePath}:\n{e}";
-            _logService.Log(msg, LogStatus.Error);
+            LogService.Log(msg, LogStatus.Error);
             _modalService.ShowErrorMessageBox(new MessageBoxArg()
             {
                 Caption = "Canot save log",
@@ -79,7 +68,7 @@ public partial class DebugLogViewModel : ObservableObject
         }
         else
         {
-            _logService.Log($"Saved log content to {dialogResult.SelectedFilePath}", LogStatus.Success);
+            LogService.Log($"Saved log content to {dialogResult.SelectedFilePath}", LogStatus.Success);
         }
     }
 
