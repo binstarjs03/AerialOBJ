@@ -42,61 +42,64 @@
             </Grid>
 
             <!--Viewport-->
+            <!-- Top-level viewport grid to prevent Height slider to expand when viewport is collapsed-->
             <Grid Background="{StaticResource Background}">
-                <Grid.Resources>
-                    <Style TargetType="local:PropertyValuePairView">
-                        <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
-                        <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
-                    </Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
-                    </Style>
-                </Grid.Resources>
+                <Grid Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}">
+                    <Grid.Resources>
+                        <Style TargetType="local:PropertyValuePairView">
+                            <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
+                            <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
+                        </Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
+                        </Style>
+                    </Grid.Resources>
 
-                <!--Viewport Info-->
-                <Border HorizontalAlignment="Left" 
-                        VerticalAlignment="Top"
-                        Margin="10" 
-                        BorderThickness="1" 
-                        BorderBrush="{StaticResource TextNormal}"
-                        Background="#10FFFFFF"
-                        Visibility="{Binding GlobalState.IsViewportInfoVisible, Converter={StaticResource BoolToVisibility}}">
+                    <!--Viewport Info-->
+                    <Border HorizontalAlignment="Left" 
+                            VerticalAlignment="Top"
+                            Margin="10" 
+                            BorderThickness="1" 
+                            BorderBrush="{StaticResource TextNormal}"
+                            Background="#10FFFFFF"
+                            Visibility="{Binding GlobalState.IsViewportInfoVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}">
 
-                    <!--Info content-->
-                    <ScrollViewer VerticalScrollBarVisibility="Hidden" 
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel HorizontalAlignment="Left" Margin="5">
-                            <local:PropertyValuePairView PropertyText="Screen Size" ValueText="(800, 600)"/>
-                            <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="(0, 0)"/>
-                            <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="2"/>
-                            <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
+                        <!--Info content-->
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel HorizontalAlignment="Left" Margin="5">
+                                <local:PropertyValuePairView PropertyText="Screen Size" ValueText="(800, 600)"/>
+                                <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="(0, 0)"/>
+                                <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="2"/>
+                                <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
 
-                            <Separator Style="{StaticResource SubtleSeparator}"/>
+                                <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                            <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
-                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
-                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
+                                <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
+                                <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
+                                <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
 
-                            <Separator Style="{StaticResource SubtleSeparator}"/>
+                                <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                            <TextBlock Text="Visible Region Range:"/>
-                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
-                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
-                            <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
-                            <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
-                            <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
+                                <TextBlock Text="Visible Region Range:"/>
+                                <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
+                                <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
+                                <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
+                                <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
+                                <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
 
-                            <Separator Style="{StaticResource SubtleSeparator}"/>
+                                <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                            <TextBlock Text="Visible Chunk Range:"/>
-                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
-                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
-                            <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
-                            <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
-                            <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Border>
+                                <TextBlock Text="Visible Chunk Range:"/>
+                                <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
+                                <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
+                                <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
+                                <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
+                                <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
             </Grid>
         </DockPanel>
     </Grid>

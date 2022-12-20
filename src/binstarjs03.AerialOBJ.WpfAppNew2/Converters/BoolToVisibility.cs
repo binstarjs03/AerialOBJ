@@ -10,7 +10,18 @@ public class BoolToVisibility : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         bool isTrue = (bool)value;
-        return isTrue ? Visibility.Visible : Visibility.Collapsed;
+        if (isTrue)
+            return Visibility.Visible;
+        else
+        {
+            Visibility visibilityOnFalse = (Visibility)parameter;
+            if (visibilityOnFalse == Visibility.Hidden)
+                return Visibility.Hidden;
+            else if (visibilityOnFalse == Visibility.Collapsed)
+                return Visibility.Collapsed;
+            else
+                throw new ConverterException("Parameter must be either hidden or collapsed on false");
+        }
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
