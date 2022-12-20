@@ -5,10 +5,10 @@ using System.IO;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.SavegameLoaderServices;
 public class SavegameLoaderService : ISavegameLoaderService
 {
-    public SavegameLoadInfo? LoadSavegame(string savegameDirPath)
+    public SavegameLoadInfo LoadSavegame(string savegameDirPath)
     {
         if (!Directory.Exists(savegameDirPath))
             throw new DirectoryNotFoundException($"Directory to {savegameDirPath} not found");

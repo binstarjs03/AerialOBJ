@@ -3,7 +3,8 @@
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
 public class GlobalState
 {
-    private bool s_isDebugLogViewVisible = false;
+    private bool _isDebugLogViewVisible = false;
+    private SavegameLoadInfo? _savegameLoadInfo = null;
 
     public GlobalState(DateTime launchTime)
     {
@@ -15,17 +16,34 @@ public class GlobalState
     public DateTime LaunchTime { get; }
 
     public event Action<bool>? DebugLogViewVisibilityChanged;
+    public event Action<SavegameLoadState>? SavegameLoadChanged;
 
     public bool IsDebugLogWindowVisible
     {
-        get => s_isDebugLogViewVisible;
+        get => _isDebugLogViewVisible;
         set
         {
-            if (value != s_isDebugLogViewVisible)
+            if (value != _isDebugLogViewVisible)
             {
-                s_isDebugLogViewVisible = value;
+                _isDebugLogViewVisible = value;
                 DebugLogViewVisibilityChanged?.Invoke(value);
             }
         }
     }
+
+    public SavegameLoadInfo? SavegameLoadInfo
+    {
+        get => _savegameLoadInfo;
+        set
+        {
+            if (value == _savegameLoadInfo)
+                return;
+            _savegameLoadInfo = value;
+            SavegameLoadState loadState = value is null ? 
+                SavegameLoadState.Closed : SavegameLoadState.Opened;
+            SavegameLoadChanged?.Invoke(loadState);
+        }
+    }
+
+    public bool HasSavegameLoaded => SavegameLoadInfo is not null;
 }

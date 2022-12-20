@@ -2,6 +2,8 @@
 
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
+using binstarjs03.AerialOBJ.WpfAppNew2.Services.ModalServices;
+using binstarjs03.AerialOBJ.WpfAppNew2.Services.SavegameLoaderServices;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,16 +16,19 @@ public partial class MainViewModel : ObservableObject
     private readonly ILogService _logService;
     private readonly ISavegameLoaderService _savegameLoaderService;
 
+    [ObservableProperty]
+    private string _title = GlobalState.AppName;
+
     public MainViewModel(GlobalState globalState, IModalService modalService, ILogService logService, ISavegameLoaderService savegameLoaderService)
     {
         _globalState = globalState;
         _modalService = modalService;
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
-        _globalState.DebugLogViewVisibilityChanged += OnDebugLogViewVisibilityChanged;
-    }
 
-    public string Title => GlobalState.AppName;
+        _globalState.DebugLogViewVisibilityChanged += OnDebugLogViewVisibilityChanged;
+        _globalState.SavegameLoadChanged += OnGlobalStateSavegameLoadChanged;
+    }
 
     public bool IsDebugLogViewVisible
     {
@@ -36,6 +41,16 @@ public partial class MainViewModel : ObservableObject
     private void OnDebugLogViewVisibilityChanged(bool visible)
     {
         OnPropertyChanged(nameof(IsDebugLogViewVisible));
+    }
+
+    private void OnGlobalStateSavegameLoadChanged(SavegameLoadState state)
+    {
+        Title = state switch
+        {
+            SavegameLoadState.Opened => $"{GlobalState.AppName} - {_globalState.SavegameLoadInfo!.WorldName}",
+            SavegameLoadState.Closed => GlobalState.AppName,
+            _ => throw new NotImplementedException(),
+        };
     }
 
     [RelayCommand]
@@ -58,7 +73,15 @@ public partial class MainViewModel : ObservableObject
         _logService.Log($"Loading selected path as Minecraft savegame folder...");
         try
         {
-            SavegameLoadInfo? loadInfo = _savegameLoaderService.LoadSavegame(path);
+            SavegameLoadInfo loadInfo = _savegameLoaderService.LoadSavegame(path);
+            // close savegame if already loaded
+            if (_globalState.HasSavegameLoaded)
+            {
+                _logService.Log("Savegame already loaded, closing...");
+                CloseSavegame(CloseSavegameSender.OpenSavegameCommand);
+            }
+            _globalState.SavegameLoadInfo = loadInfo;
+            _logService.Log($"Successfully loaded {loadInfo.WorldName}", useSeparator: true);
         }
         catch (Exception e)
         {
@@ -80,11 +103,14 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void CloseSavegame(CloseSavegameSender sender)
     {
-        _modalService.ShowMessageBox(new MessageBoxArg()
-        {
-            Caption = "Information",
-            Message = $"Savegame Close Invoked, Sender: {sender}"
-        });
+        // default worldname if there is no savegame loaded
+        string worldName = "savegame";
+        if (_globalState.SavegameLoadInfo is not null)
+            worldName = _globalState.SavegameLoadInfo.WorldName;
+
+        _globalState.SavegameLoadInfo = null;
+        bool useSeparator = sender == CloseSavegameSender.MenuCloseButton;
+        _logService.Log($"Successfully closed {worldName}", useSeparator);
     }
 
     [RelayCommand]

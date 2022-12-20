@@ -4,5 +4,3 @@ public enum SavegameLoadState
     Opened,
     Closed,
 }
-
-public delegate void SavegameLoadStateHandler(SavegameLoadState state);

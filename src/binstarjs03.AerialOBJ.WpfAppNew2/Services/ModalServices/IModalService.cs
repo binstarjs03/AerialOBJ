@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+﻿namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ModalServices;
 public interface IModalService
 {
     void ShowMessageBox(MessageBoxArg dialogArg);

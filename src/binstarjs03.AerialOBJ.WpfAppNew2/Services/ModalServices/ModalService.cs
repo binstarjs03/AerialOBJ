@@ -5,7 +5,7 @@ using binstarjs03.AerialOBJ.WpfAppNew2.Views;
 
 using Ookii.Dialogs.Wpf;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ModalServices;
 
 public delegate void ShowMessageBoxHandler(MessageBoxArg dialogArg);
 public delegate FileDialogResult ShowSaveFileDialogHandler(FileDialogArg dialogArg);
