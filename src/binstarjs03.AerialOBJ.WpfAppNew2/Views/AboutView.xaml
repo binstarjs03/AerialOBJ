@@ -19,9 +19,6 @@
         <StackPanel Grid.Row="0" 
                     HorizontalAlignment="Center">
             <StackPanel.Resources>
-                <Style TargetType="Separator">
-                    <Setter Property="Background" Value="Transparent"/>
-                </Style>
                 <Style TargetType="TextBlock">
                     <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
                 </Style>
@@ -39,20 +36,20 @@
             Free and Open Source Minecraft savegame world 
             to Wavefront OBJ 3D Model converter
             </TextBlock>
-            <Separator Height="10"/>
+            <Separator Height="10" Style="{StaticResource TransparentSeparator}"/>
             <StackPanel>
                 <TextBlock Text="Version: (release number).(patch number)"/>
                 <TextBlock Text="Commit: (commit hash goes here)"/>
                 <TextBlock Text="Build Date: (build date goes here)"/>
             </StackPanel>
-            <Separator Height="10"/>
+            <Separator Height="10" Style="{StaticResource TransparentSeparator}"/>
             <StackPanel>
                 <TextBlock Text="Contributors" TextDecorations="Underline"/>
                 <TextBlock>
                 binstarjs03 - Programming and Design
                 </TextBlock>
             </StackPanel>
-            <Separator Height="10"/>
+            <Separator Height="10" Style="{StaticResource TransparentSeparator}"/>
             <StackPanel>
                 <StackPanel.Resources>
                     <Style TargetType="TextBlock">

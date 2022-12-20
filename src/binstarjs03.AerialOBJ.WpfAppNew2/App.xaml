@@ -15,6 +15,14 @@
                 <ResourceDictionary>
                     <converters:BoolToVisibility x:Key="BoolToVisibility"/>
                 </ResourceDictionary>
+                <ResourceDictionary>
+                    <Style x:Key="TransparentSeparator" TargetType="Separator">
+                        <Setter Property="Background" Value="Transparent"/>
+                    </Style>
+                    <Style x:Key="SubtleSeparator" TargetType="Separator">
+                        <Setter Property="Background" Value="#44FFFFFF"/>
+                    </Style>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

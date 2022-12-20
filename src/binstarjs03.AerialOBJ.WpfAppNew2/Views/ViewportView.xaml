@@ -1,0 +1,98 @@
+﻿<UserControl x:Class="binstarjs03.AerialOBJ.WpfAppNew2.Views.ViewportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
+             mc:Ignorable="d" 
+             
+             d:DesignWidth="800" d:DesignHeight="650" >
+    <Grid>
+        <DockPanel>
+            <!--Height slider-->
+            <Grid DockPanel.Dock="Top" Background="white">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" 
+                            Margin="10,5"
+                            Orientation="Vertical"
+                            HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Text="Height"/>
+                    <TextBlock Text="0" d:Text="255"/>
+                </StackPanel>
+                <Slider Grid.Column="1"
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Name="HeightSlider"
+                        SmallChange="1" 
+                        Value="0"
+                        d:Value="255"
+                        IsSnapToTickEnabled="True" 
+                        Minimum="-64"
+                        Maximum="320"/>
+            </Grid>
+
+            <!--Viewport-->
+            <Grid Background="{StaticResource Background}">
+                <Grid.Resources>
+                    <Style TargetType="local:PropertyValuePairView">
+                        <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
+                        <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
+                    </Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
+                    </Style>
+                </Grid.Resources>
+
+                <!--Viewport Debug Panel-->
+                <Border HorizontalAlignment="Left" 
+                        VerticalAlignment="Top"
+                        Margin="10" 
+                        BorderThickness="1" 
+                        BorderBrush="{StaticResource TextNormal}"
+                        Background="#10FFFFFF">
+
+                    <!--Debug panel content-->
+                    <StackPanel HorizontalAlignment="Left" Margin="5">
+                        <local:PropertyValuePairView PropertyText="Screen Size" ValueText="(800, 600)"/>
+                        <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="(0, 0)"/>
+                        <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="2"/>
+                        <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
+                        
+                        <Separator Style="{StaticResource SubtleSeparator}"/>
+                        
+                        <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
+                        <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
+                        <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
+                        
+                        <Separator Style="{StaticResource SubtleSeparator}"/>
+                        
+                        <TextBlock Text="Visible Region Range:"/>
+                        <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
+                        <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
+                        <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
+                        <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
+                        <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
+                        
+                        <Separator Style="{StaticResource SubtleSeparator}"/>
+                        
+                        <TextBlock Text="Visible Chunk Range:"/>
+                        <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
+                        <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
+                        <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
+                        <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
+                        <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</UserControl>

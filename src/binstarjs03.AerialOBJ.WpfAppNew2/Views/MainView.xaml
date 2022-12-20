@@ -43,7 +43,7 @@
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <Canvas Background="{StaticResource Background}"/>
+            <local:ViewportView/>
         </DockPanel>
     </Grid>
 </Window>
