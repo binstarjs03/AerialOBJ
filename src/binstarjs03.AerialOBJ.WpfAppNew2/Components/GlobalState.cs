@@ -72,6 +72,10 @@ public class GlobalState
 
     private void Reinitialize()
     {
+#if DEBUG
+        IsViewportInfoVisible = true;
+#elif RELEASE
         IsViewportInfoVisible = false;
+#endif
     }
 }

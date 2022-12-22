@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
              mc:Ignorable="d" 
@@ -42,64 +43,101 @@
             </Grid>
 
             <!--Viewport-->
-            <!-- Top-level viewport grid to prevent Height slider to expand when viewport is collapsed-->
-            <Grid Background="{StaticResource Background}">
-                <Grid Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}">
-                    <Grid.Resources>
-                        <Style TargetType="local:PropertyValuePairView">
-                            <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
-                            <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
-                        </Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
-                        </Style>
-                    </Grid.Resources>
+            <Grid Background="{StaticResource Background}"
+                  Focusable="True">
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseMove">
+                        <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseWheel">
+                        <i:InvokeCommandAction Command="{Binding MouseWheelCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseUp">
+                        <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="SizeChanged">
+                        <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
+                <Grid.Resources>
+                    <Style TargetType="local:PropertyValuePairView">
+                        <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
+                        <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
+                    </Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
+                    </Style>
+                </Grid.Resources>
 
-                    <!--Viewport Info-->
-                    <Border HorizontalAlignment="Left" 
-                            VerticalAlignment="Top"
-                            Margin="10" 
-                            BorderThickness="1" 
-                            BorderBrush="{StaticResource TextNormal}"
-                            Background="#10FFFFFF"
-                            Visibility="{Binding GlobalState.IsViewportInfoVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}">
+                <!--Viewport Info-->
+                <Border HorizontalAlignment="Left" 
+                        VerticalAlignment="Top"
+                        Margin="10" 
+                        BorderThickness="1" 
+                        BorderBrush="{StaticResource TextNormal}"
+                        Background="#10FFFFFF"
+                        IsHitTestVisible="False"
+                        Visibility="{Binding GlobalState.IsViewportInfoVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}">
 
-                        <!--Info content-->
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden" 
-                                      HorizontalScrollBarVisibility="Disabled">
-                            <StackPanel HorizontalAlignment="Left" Margin="5">
-                                <local:PropertyValuePairView PropertyText="Screen Size" ValueText="(800, 600)"/>
-                                <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="(0, 0)"/>
-                                <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="2"/>
-                                <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
+                    <!--Info content-->
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel HorizontalAlignment="Left" Margin="5">
+                            <local:PropertyValuePairView PropertyText="Screen Size" ValueText="{Binding ScreenSize}"/>
+                            <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="{Binding CameraPos}"/>
+                            <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="{Binding ZoomLevel}"/>
+                            <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
 
-                                <Separator Style="{StaticResource SubtleSeparator}"/>
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                                <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
-                                <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
-                                <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
 
-                                <Separator Style="{StaticResource SubtleSeparator}"/>
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                                <TextBlock Text="Visible Region Range:"/>
-                                <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
-                                <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
-                                <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
-                                <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
-                                <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
+                            <TextBlock Text="Visible Region Range:"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
+                            <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
+                            <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
 
-                                <Separator Style="{StaticResource SubtleSeparator}"/>
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                                <TextBlock Text="Visible Chunk Range:"/>
-                                <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
-                                <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
-                                <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
-                                <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
-                                <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
+                            <TextBlock Text="Visible Chunk Range:"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
+                            <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
+                            <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
+
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
+
+                            <local:PropertyValuePairView PropertyText="Mouse Pos" ValueText="{Binding MousePos}"/>
+                            <local:PropertyValuePairView PropertyText="Mouse Pos Delta" ValueText="{Binding MousePosDelta}"/>
+                            <local:PropertyValuePairView PropertyText="Mouse Click Holding" ValueText="{Binding MouseClickHolding}"/>
+                            <local:PropertyValuePairView PropertyText="Mouse Init Click Drag" ValueText="{Binding MouseInitClickDrag}"/>
+                            <local:PropertyValuePairView PropertyText="Mouse Is Outside" ValueText="{Binding MouseIsOutside}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
             </Grid>
         </DockPanel>
     </Grid>
