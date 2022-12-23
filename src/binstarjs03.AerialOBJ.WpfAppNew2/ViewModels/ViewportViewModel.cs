@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,16 +17,10 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel : IViewportViewModel
 {
-    // first 8 fib sequence start from 1 and 2
-    private float[] _zoomLevelTable = new float[] {
-        1, 2, 3, 5, 8, 13, 21, 34
-    };
     private float _zoomRatio = 1.5f;
 
     [ObservableProperty] private Size<int> _screenSize = new(1, 1);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
-    //[ObservableProperty] private float _zoomIndex = 0;
-
     [ObservableProperty] private float _zoomLevel = 1f;
 
     [ObservableProperty] private Point2<int> _mousePos = Point2<int>.Zero;
@@ -40,13 +37,13 @@ public partial class ViewportViewModel : IViewportViewModel
         GlobalState.PropertyChanged += OnPropertyChanged;
 
         Random rnd = new();
-        for (int x = 0; x < 1; x++)
-            for (int y = 0; y < 1; y++)
+        for (int x = 0; x < 5; x++)
+            for (int y = 0; y < 5; y++)
             {
                 ViewportObjects.Add(new ViewportObject()
                 {
                     Size = 16,
-                    WorldPosition = new Point2<float>(x, y),
+                    WorldPosition = new Point2<float>(x * 16, y * 16),
                     Color = new Color()
                     {
                         Red = (byte)rnd.Next(0, 128),

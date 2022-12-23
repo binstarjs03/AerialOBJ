@@ -19,6 +19,7 @@
                     <converters:FormattedFloatConverter x:Key="FormattedFloat"/>
                     <converters:ColorToSolidColorBrushConverter x:Key="CoreColor"/>
                     <converters:WorldToScreenCoordConverter x:Key="WorldToScreen"/>
+                    <converters:ZoomLevelToSizeConverter x:Key="ZoomLevelToSize"/>
                 </ResourceDictionary>
                 
                 <ResourceDictionary>

@@ -76,7 +76,7 @@
                                                PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                
+
                 <Grid.Resources>
                     <Style TargetType="local:PropertyValuePairView">
                         <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
@@ -96,9 +96,20 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Rectangle Width="{Binding Size}" 
-                                     Height="{Binding Size}"
-                                     Fill="{Binding Color, Converter={StaticResource CoreColor}}"/>
+                            <Rectangle Fill="{Binding Color, Converter={StaticResource CoreColor}}">
+                                <Rectangle.Width>
+                                    <MultiBinding Converter="{StaticResource ZoomLevelToSize}">
+                                        <Binding Path="Size"/>
+                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                    </MultiBinding>
+                                </Rectangle.Width>
+                                <Rectangle.Height>
+                                    <MultiBinding Converter="{StaticResource ZoomLevelToSize}">
+                                        <Binding Path="Size"/>
+                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                    </MultiBinding>
+                                </Rectangle.Height>
+                            </Rectangle>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>
@@ -126,7 +137,7 @@
                         </Style>
                     </ItemsControl.ItemContainerStyle>
                 </ItemsControl>
-                
+
                 <!--Camera Position Guide-->
                 <Grid RenderOptions.EdgeMode="Aliased"
                       RenderOptions.BitmapScalingMode="NearestNeighbor">
