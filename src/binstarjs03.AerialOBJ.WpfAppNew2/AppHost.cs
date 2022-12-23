@@ -39,6 +39,7 @@ public static class AppHost
             services.AddSingleton<ILogService, LogService>();
             services.AddSingleton<IIOService, IOService>();
             services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
+            services.AddSingleton<ICoordinateConverterService, CoordinateConverterService>();
 
         }).Build();
     }

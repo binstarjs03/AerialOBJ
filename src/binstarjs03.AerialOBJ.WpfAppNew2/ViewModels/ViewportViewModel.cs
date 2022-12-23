@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 
@@ -31,10 +32,30 @@ public partial class ViewportViewModel
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsOutside = true;
 
+    public ObservableCollection<ViewportObject> ViewportObjects { get; } = new();
+
     public ViewportViewModel(GlobalState globalState)
     {
         GlobalState = globalState;
         GlobalState.PropertyChanged += OnPropertyChanged;
+
+        Random rnd = new();
+        for (int x = 0; x < 1; x++)
+            for (int y = 0; y < 1; y++)
+            {
+                ViewportObjects.Add(new ViewportObject()
+                {
+                    Size = 16,
+                    WorldPosition = new Point2<int>(x, y),
+                    Color = new Color()
+                    {
+                        Red = (byte)rnd.Next(0, 128),
+                        Green = (byte)rnd.Next(64, 192),
+                        Blue = (byte)rnd.Next(128, 256),
+                        Alpha = 255,
+                    },
+                });
+            }
     }
 
     public GlobalState GlobalState { get; }

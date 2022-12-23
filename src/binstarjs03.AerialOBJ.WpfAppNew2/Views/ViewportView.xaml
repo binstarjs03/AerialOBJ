@@ -86,6 +86,52 @@
                     </Style>
                 </Grid.Resources>
 
+                <!--Minecraft Region Image lives here-->
+                <ItemsControl ItemsSource="{Binding ViewportObjects}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas ClipToBounds="True"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Rectangle Width="{Binding Size}" 
+                                     Height="{Binding Size}"
+                                     Fill="{Binding Color, Converter={StaticResource CoreColor}}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding WorldPosition, Converter={StaticResource WorldToScreen}}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding WorldPosition}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ItemsControl>
+                
+                <!--Camera Position Guide-->
+                <Grid RenderOptions.EdgeMode="Aliased"
+                      RenderOptions.BitmapScalingMode="NearestNeighbor">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Rectangle Grid.Column="1" Grid.RowSpan="3" 
+                               Fill="DimGray"
+                               Height="15"/>
+                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
+                               Fill="DimGray"
+                               Width="15"/>
+                    <Rectangle Grid.Row="1" Grid.Column="1"
+                               Fill="White"/>
+                </Grid>
+
                 <!--Viewport Info-->
                 <!--TODO cannot scroll if IsHitTestVisible is false-->
                 <Border HorizontalAlignment="Left" 
@@ -140,30 +186,6 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
-
-                <!--Camera Position Guide-->
-                <Grid RenderOptions.EdgeMode="Aliased"
-                      RenderOptions.BitmapScalingMode="NearestNeighbor">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition Height="1"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-
-                    <Rectangle Grid.Column="1" Grid.RowSpan="3" 
-                               Fill="DimGray"
-                               Height="15"/>
-                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
-                               Fill="DimGray"
-                               Width="15"/>
-                    <Rectangle Grid.Row="1" Grid.Column="1"
-                               Fill="White"/>
-                </Grid>
             </Grid>
         </DockPanel>
     </Grid>

@@ -17,6 +17,8 @@
                 <ResourceDictionary>
                     <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
                     <converters:FormattedFloatConverter x:Key="FormattedFloat"/>
+                    <converters:ColorToSolidColorBrushConverter x:Key="CoreColor"/>
+                    <converters:WorldToScreenCoordConverter x:Key="WorldToScreen"/>
                 </ResourceDictionary>
                 
                 <ResourceDictionary>
