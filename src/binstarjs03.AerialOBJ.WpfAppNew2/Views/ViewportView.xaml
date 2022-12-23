@@ -45,7 +45,8 @@
             <!--Viewport-->
             <Grid Background="{StaticResource Background}"
                   Focusable="True">
-                
+
+                <!--Input Handler Bindings-->
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseMove">
                         <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
@@ -86,6 +87,7 @@
                 </Grid.Resources>
 
                 <!--Viewport Info-->
+                <!--TODO cannot scroll if IsHitTestVisible is false-->
                 <Border HorizontalAlignment="Left" 
                         VerticalAlignment="Top"
                         Margin="10" 
@@ -100,7 +102,7 @@
                                   HorizontalScrollBarVisibility="Disabled">
                         <StackPanel HorizontalAlignment="Left" Margin="5">
                             <local:PropertyValuePairView PropertyText="Screen Size" ValueText="{Binding ScreenSize}"/>
-                            <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="{Binding CameraPos}"/>
+                            <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
                             <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="{Binding ZoomLevel}"/>
                             <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
 
@@ -138,6 +140,30 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
+
+                <!--Camera Position Guide-->
+                <Grid RenderOptions.EdgeMode="Aliased"
+                      RenderOptions.BitmapScalingMode="NearestNeighbor">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Rectangle Grid.Column="1" Grid.RowSpan="3" 
+                               Fill="DimGray"
+                               Height="15"/>
+                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
+                               Fill="DimGray"
+                               Width="15"/>
+                    <Rectangle Grid.Row="1" Grid.Column="1"
+                               Fill="White"/>
+                </Grid>
             </Grid>
         </DockPanel>
     </Grid>

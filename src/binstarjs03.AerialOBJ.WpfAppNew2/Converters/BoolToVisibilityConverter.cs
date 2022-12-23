@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
 
-public class BoolToVisibility : IValueConverter
+public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -32,7 +32,7 @@ public class BoolToVisibility : IValueConverter
             Visibility.Visible => true,
             Visibility.Hidden => false,
             Visibility.Collapsed => false,
-            _ => throw new ConverterException($"{nameof(BoolToVisibility)} convert back not set from visible, hidden, or collapsed"),
+            _ => throw new ConverterException($"{nameof(BoolToVisibilityConverter)} convert back not set from visible, hidden, or collapsed"),
         };
     }
 }

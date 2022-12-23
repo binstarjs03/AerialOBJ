@@ -15,7 +15,8 @@
                 </ResourceDictionary>
                 
                 <ResourceDictionary>
-                    <converters:BoolToVisibility x:Key="BoolToVisibility"/>
+                    <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+                    <converters:FormattedFloatConverter x:Key="FormattedFloat"/>
                 </ResourceDictionary>
                 
                 <ResourceDictionary>
