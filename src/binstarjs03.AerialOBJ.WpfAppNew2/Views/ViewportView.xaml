@@ -8,7 +8,8 @@
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
-             d:DesignWidth="600" d:DesignHeight="450" >
+             d:DesignWidth="500" d:DesignHeight="500" 
+             x:Name="Root">
     <Grid>
         <DockPanel>
             <!--Height slider-->
@@ -102,8 +103,26 @@
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">
-                            <Setter Property="Canvas.Left" Value="{Binding WorldPosition, Converter={StaticResource WorldToScreen}}"/>
-                            <Setter Property="Canvas.Top" Value="{Binding WorldPosition}"/>
+                            <Setter Property="Canvas.Left">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource WorldToScreen}">
+                                        <Binding Path="WorldPosition.X"/>
+                                        <Binding ElementName="Root" Path="DataContext.CameraPos.X"/>
+                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                        <Binding ElementName="Root" Path="DataContext.ScreenSize.Width"/>
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Canvas.Top">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource WorldToScreen}">
+                                        <Binding Path="WorldPosition.Y"/>
+                                        <Binding ElementName="Root" Path="DataContext.CameraPos.Z"/>
+                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                        <Binding ElementName="Root" Path="DataContext.ScreenSize.Height"/>
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
                     </ItemsControl.ItemContainerStyle>
                 </ItemsControl>
@@ -136,7 +155,7 @@
                 <!--TODO cannot scroll if IsHitTestVisible is false-->
                 <Border HorizontalAlignment="Left" 
                         VerticalAlignment="Top"
-                        Margin="10" 
+                        Margin="10"
                         BorderThickness="1" 
                         BorderBrush="{StaticResource TextNormal}"
                         Background="#10FFFFFF"
@@ -146,7 +165,9 @@
                     <!--Info content-->
                     <ScrollViewer VerticalScrollBarVisibility="Hidden" 
                                   HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel HorizontalAlignment="Left" Margin="5">
+                        <StackPanel HorizontalAlignment="Left" 
+                                    MinWidth="150"
+                                    Margin="5">
                             <local:PropertyValuePairView PropertyText="Screen Size" ValueText="{Binding ScreenSize}"/>
                             <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
                             <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="{Binding ZoomLevel}"/>

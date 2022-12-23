@@ -12,7 +12,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
-public partial class ViewportViewModel
+public partial class ViewportViewModel : IViewportViewModel
 {
     // first 8 fib sequence start from 1 and 2
     private float[] _zoomLevelTable = new float[] {
@@ -46,7 +46,7 @@ public partial class ViewportViewModel
                 ViewportObjects.Add(new ViewportObject()
                 {
                     Size = 16,
-                    WorldPosition = new Point2<int>(x, y),
+                    WorldPosition = new Point2<float>(x, y),
                     Color = new Color()
                     {
                         Red = (byte)rnd.Next(0, 128),
