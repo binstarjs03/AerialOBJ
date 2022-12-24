@@ -45,7 +45,7 @@ public class GlobalState
             SavegameLoadState loadState = value is null ?
                 SavegameLoadState.Closed : SavegameLoadState.Opened;
             SavegameLoadChanged?.Invoke(loadState);
-            Reinitialize();
+            Reinitialize(loadState);
             OnPropertyChanged();
         }
     }
@@ -70,12 +70,13 @@ public class GlobalState
         PropertyChanged?.Invoke(nameof(GlobalState));
     }
 
-    private void Reinitialize()
+    private void Reinitialize(SavegameLoadState state)
     {
+        if (state == SavegameLoadState.Closed)
+            IsViewportInfoVisible = false;
 #if DEBUG
-        IsViewportInfoVisible = true;
-#elif RELEASE
-        IsViewportInfoVisible = false;
+        else
+            IsViewportInfoVisible = true;
 #endif
     }
 }

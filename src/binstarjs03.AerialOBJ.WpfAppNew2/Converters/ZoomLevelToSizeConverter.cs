@@ -7,8 +7,17 @@ public class ZoomLevelToSizeConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        float absoluteSize = (float)values[0];
+        float absoluteSize;
         float zoomLevel = (float)values[1];
+
+        Type sizeType = values[0].GetType();
+        if (sizeType == typeof(float))
+             absoluteSize = (float)values[0];
+        else if (sizeType == typeof(int))
+            absoluteSize = (int)values[0];
+        else
+            throw new InvalidCastException();
+
         return (double)(absoluteSize * zoomLevel);
     }
 

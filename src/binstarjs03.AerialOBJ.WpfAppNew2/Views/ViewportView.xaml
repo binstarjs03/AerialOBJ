@@ -6,6 +6,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
+             xmlns:models="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Models"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
              d:DesignWidth="500" d:DesignHeight="500" 
@@ -86,30 +87,26 @@
                         <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
                     </Style>
                 </Grid.Resources>
-
+                
                 <!--Minecraft Region Image lives here-->
-                <ItemsControl ItemsSource="{Binding ViewportObjects}">
+                <ItemsControl ItemsSource="{Binding RegionImageModels}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas ClipToBounds="True"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Rectangle Fill="{Binding Color, Converter={StaticResource CoreColor}}">
-                                <Rectangle.Width>
+                        <DataTemplate DataType="models:RegionImageModel">
+                            <ContentControl Content="{Binding Image}" 
+                                            RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                            RenderOptions.EdgeMode="Aliased">
+                                <ContentControl.Width>
                                     <MultiBinding Converter="{StaticResource ZoomLevelToSize}">
-                                        <Binding Path="Size"/>
+                                        <Binding Path="Image.Size.Width"/>
                                         <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
                                     </MultiBinding>
-                                </Rectangle.Width>
-                                <Rectangle.Height>
-                                    <MultiBinding Converter="{StaticResource ZoomLevelToSize}">
-                                        <Binding Path="Size"/>
-                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
-                                    </MultiBinding>
-                                </Rectangle.Height>
-                            </Rectangle>
+                                </ContentControl.Width>
+                            </ContentControl>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>

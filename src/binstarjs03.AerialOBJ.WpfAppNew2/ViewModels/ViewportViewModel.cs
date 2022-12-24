@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -17,7 +15,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel : IViewportViewModel
 {
-    private float _zoomRatio = 1.5f;
+    private const float s_zoomRatio = 1.5f;
 
     [ObservableProperty] private Size<int> _screenSize = new(1, 1);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
@@ -29,30 +27,22 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsOutside = true;
 
-    public ObservableCollection<ViewportObject> ViewportObjects { get; } = new();
+    [ObservableProperty] private ObservableCollection<RegionImageModel> _regionImageModels = new();
 
     public ViewportViewModel(GlobalState globalState)
     {
         GlobalState = globalState;
         GlobalState.PropertyChanged += OnPropertyChanged;
-
-        Random rnd = new();
-        for (int x = 0; x < 5; x++)
-            for (int y = 0; y < 5; y++)
-            {
-                ViewportObjects.Add(new ViewportObject()
-                {
-                    Size = 16,
-                    WorldPosition = new Point2<float>(x * 16, y * 16),
-                    Color = new Color()
-                    {
-                        Red = (byte)rnd.Next(0, 128),
-                        Green = (byte)rnd.Next(64, 192),
-                        Blue = (byte)rnd.Next(128, 256),
-                        Alpha = 255,
-                    },
-                });
-            }
+        RegionImageModel regionImageModel = new()
+        {
+            RegionPosition = new Point2<int>(0, 0),
+            Image = new MutableImage(new Size<int>(512, 512))
+        };
+        for (int x = 0; x < regionImageModel.Image.Size.Width; x++)
+            for (int y = 0; y < regionImageModel.Image.Size.Height; y++)
+                regionImageModel.Image.SetPixel(new Point2<int>(x, y), Random.Shared.NextColor());
+        regionImageModel.Image.Redraw();
+        _regionImageModels.Add(regionImageModel);
     }
 
     public GlobalState GlobalState { get; }
@@ -86,11 +76,11 @@ public partial class ViewportViewModel : IViewportViewModel
     {
         float newZoomLevel;
         if (e.Delta > 0)
-            newZoomLevel = ZoomLevel * _zoomRatio;
+            newZoomLevel = ZoomLevel * s_zoomRatio;
         else
-            newZoomLevel = ZoomLevel / _zoomRatio;
+            newZoomLevel = ZoomLevel / s_zoomRatio;
         // limit zoom scrollability by 8
-        newZoomLevel = float.Clamp(newZoomLevel, 1, 1 * MathF.Pow(_zoomRatio, 8));
+        newZoomLevel = float.Clamp(newZoomLevel, 1, 1 * MathF.Pow(s_zoomRatio, 8));
         ZoomLevel = newZoomLevel;
     }
 
