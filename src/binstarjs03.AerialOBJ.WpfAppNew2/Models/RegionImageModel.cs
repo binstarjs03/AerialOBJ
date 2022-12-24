@@ -7,5 +7,5 @@ public class RegionImageModel
 {
     public required Point2<int> RegionPosition { get; init; }
     public Point2<float> WorldPosition => new(RegionPosition.X * Region.BlockCount, RegionPosition.Y * Region.BlockCount);
-    public required MutableImage Image { get; init; }
+    public required IMutableImage Image { get; init; }
 }

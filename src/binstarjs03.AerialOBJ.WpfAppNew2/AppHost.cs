@@ -20,8 +20,10 @@ public static class AppHost
         {
             // configure components
             services.AddSingleton<GlobalState>(x => new GlobalState(DateTime.Now));
+            services.AddSingleton<IMutableImageFactory, MutableImageFactory>();
 
             // configure models
+            services.AddSingleton<RegionImageModelFactory>();
 
             // configure views
             services.AddSingleton<MainView>();

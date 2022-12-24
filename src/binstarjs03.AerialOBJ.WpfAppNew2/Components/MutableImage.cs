@@ -5,6 +5,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
+
+using System;
+
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 public class MutableImage : Image, IMutableImage
@@ -12,8 +15,6 @@ public class MutableImage : Image, IMutableImage
     private readonly PixelFormat s_pixelFormat = PixelFormats.Bgra32;
     private readonly WriteableBitmap _writeableBitmap;
     private readonly nint _backBuff;
-
-    public Size<int> Size { get; }
 
     public MutableImage(Size<int> imageSize)
     {
@@ -23,6 +24,39 @@ public class MutableImage : Image, IMutableImage
                                                s_pixelFormat, null);
         _backBuff = _writeableBitmap.BackBuffer;
         Source = _writeableBitmap;
+    }
+
+    public Size<int> Size { get; }
+
+    public Color this[int x, int y]
+    {
+        get
+        {
+            int offset = ConvertPixelCoordsToStartOffset(x, y);
+            unsafe
+            {
+                byte* backBuffData = (byte*)_backBuff.ToPointer();
+                return new Color()
+                {
+                    Blue = backBuffData[offset + 0],
+                    Green = backBuffData[offset + 1],
+                    Red = backBuffData[offset + 2],
+                    Alpha = backBuffData[offset + 3],
+                };
+            }
+        }
+        set
+        {
+            int offset = ConvertPixelCoordsToStartOffset(x, y);
+            unsafe
+            {
+                byte* backBuffData = (byte*)_backBuff.ToPointer();
+                backBuffData[offset + 0] = value.Blue;
+                backBuffData[offset + 1] = value.Green;
+                backBuffData[offset + 2] = value.Red;
+                backBuffData[offset + 3] = value.Alpha;
+            }
+        }
     }
 
     public void Redraw()
@@ -40,22 +74,15 @@ public class MutableImage : Image, IMutableImage
         _writeableBitmap.Unlock();
     }
 
-    // TODO add safety to throw an exception if pixelPos exceed image size
-    public void SetPixel(Point2<int> pixelPos, Color color)
+    private int ConvertPixelCoordsToStartOffset(int x, int y)
     {
+        if (x > Size.Width || y > Size.Height)
+            throw new IndexOutOfRangeException("Pixel coordinate exceed image size");
         int bitsPerByte = 8;
         int bytesPerPixel = s_pixelFormat.BitsPerPixel / bitsPerByte;
-        int xOffset = pixelPos.X * bytesPerPixel;
-        int yOffset = pixelPos.Y * bytesPerPixel * Size.Width;
+        int xOffset = x * bytesPerPixel;
+        int yOffset = y * bytesPerPixel * Size.Width;
         int offset = xOffset + yOffset;
-
-        unsafe
-        {
-            byte* backBuffData = (byte*)_backBuff.ToPointer();
-            backBuffData[offset + 0] = color.Blue;
-            backBuffData[offset + 1] = color.Green;
-            backBuffData[offset + 2] = color.Red;
-            backBuffData[offset + 3] = color.Alpha;
-        }
+        return offset;
     }
 }

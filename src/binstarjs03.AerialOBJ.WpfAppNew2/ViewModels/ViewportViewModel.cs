@@ -6,6 +6,7 @@ using System.Windows.Input;
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,6 +17,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 public partial class ViewportViewModel : IViewportViewModel
 {
     private const float s_zoomRatio = 1.5f;
+    private readonly RegionImageModelFactory _regionImageModelFactory;
 
     [ObservableProperty] private Size<int> _screenSize = new(1, 1);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
@@ -29,20 +31,22 @@ public partial class ViewportViewModel : IViewportViewModel
 
     [ObservableProperty] private ObservableCollection<RegionImageModel> _regionImageModels = new();
 
-    public ViewportViewModel(GlobalState globalState)
+    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory)
     {
         GlobalState = globalState;
+        _regionImageModelFactory = regionImageModelFactory;
         GlobalState.PropertyChanged += OnPropertyChanged;
-        RegionImageModel regionImageModel = new()
-        {
-            RegionPosition = new Point2<int>(0, 0),
-            Image = new MutableImage(new Size<int>(512, 512))
-        };
-        for (int x = 0; x < regionImageModel.Image.Size.Width; x++)
-            for (int y = 0; y < regionImageModel.Image.Size.Height; y++)
-                regionImageModel.Image.SetPixel(new Point2<int>(x, y), Random.Shared.NextColor());
-        regionImageModel.Image.Redraw();
-        _regionImageModels.Add(regionImageModel);
+
+        for (int rx = -2; rx < 2; rx++)
+            for (int ry = -2; ry < 2; ry++)
+            {
+                RegionImageModel regionImageModel = _regionImageModelFactory.Create(new Point2<int>(rx, ry));
+                for (int x = 0; x < regionImageModel.Image.Size.Width; x++)
+                    for (int y = 0; y < regionImageModel.Image.Size.Height; y++)
+                        regionImageModel.Image[x, y] = Random.Shared.NextColor();
+                regionImageModel.Image.Redraw();
+                _regionImageModels.Add(regionImageModel);
+            }
     }
 
     public GlobalState GlobalState { get; }

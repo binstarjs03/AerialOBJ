@@ -4,6 +4,6 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
 public interface IMutableImage
 {
     public Size<int> Size { get; }
-    void SetPixel(Point2<int> pos, Color color);
+    Color this[int x, int y] { get; set; }
     void Redraw();
 }
