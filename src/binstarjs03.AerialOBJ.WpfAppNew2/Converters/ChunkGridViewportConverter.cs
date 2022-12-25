@@ -7,8 +7,6 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
 public class ChunkGridViewportConverter : IMultiValueConverter
 {
@@ -16,11 +14,13 @@ public class ChunkGridViewportConverter : IMultiValueConverter
 
     public ChunkGridViewportConverter()
     {
-        _coordsConverterService = App.Current?.Host.Services.GetRequiredService<ICoordinateConverterService>()!;
+        _coordsConverterService = new CoordinateConverterService();
     }
 
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
+        if (_coordsConverterService is null)
+            return new Rect(0, 0, 16, 16);
         Point2Z<float> worldPos = new(0f, 0f);
         Point2Z<float> cameraPos = (Point2Z<float>)values[0];
         float zoomLevel = (float)values[1];
