@@ -89,7 +89,7 @@
                     </Style>
                 </Grid.Resources>
                 
-                <!--Minecraft Region Image lives here-->
+                <!--Minecraft Region Image Model-->
                 <ItemsControl ItemsSource="{Binding RegionImageModels}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -136,6 +136,36 @@
                     </ItemsControl.ItemContainerStyle>
                 </ItemsControl>
 
+                <!--Draw Chunk Grid-->
+                <Canvas RenderOptions.BitmapScalingMode="NearestNeighbor"
+                        RenderOptions.EdgeMode="Aliased">
+                    <Canvas.Background>
+                        <DrawingBrush TileMode="Tile" 
+                                      d:Viewport="0,0,16,16"
+                                      ViewportUnits="Absolute">
+                            <DrawingBrush.Viewport>
+                                <MultiBinding Converter="{StaticResource ChunkGridViewport}">
+                                    <Binding ElementName="Root" Path="DataContext.CameraPos"/>
+                                    <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                    <Binding ElementName="Root" Path="DataContext.ScreenSize"/>
+                                </MultiBinding>
+                            </DrawingBrush.Viewport>
+                            <DrawingBrush.Drawing>
+                                <GeometryDrawing>
+                                    <GeometryDrawing.Geometry>
+                                        <RectangleGeometry Rect="{Binding ZoomLevel, Converter={StaticResource ChunkGridRect}}"
+                                                           d:Rect="0,0,16,16"/>
+                                    </GeometryDrawing.Geometry>
+                                    <GeometryDrawing.Pen>
+                                        <Pen Brush="Gray" Thickness="1"/>
+                                    </GeometryDrawing.Pen>
+                                </GeometryDrawing>
+                            </DrawingBrush.Drawing>
+                            
+                        </DrawingBrush>
+                    </Canvas.Background>
+                </Canvas>
+                
                 <!--Camera Position Guide-->
                 <Grid RenderOptions.EdgeMode="Aliased"
                       RenderOptions.BitmapScalingMode="NearestNeighbor">
