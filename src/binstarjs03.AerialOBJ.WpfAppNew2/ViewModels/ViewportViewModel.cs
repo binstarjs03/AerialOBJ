@@ -40,6 +40,7 @@ public partial class ViewportViewModel : IViewportViewModel
         _chunkRegionManagerService = chunkRegionManagerService;
 
         GlobalState.PropertyChanged += OnPropertyChanged;
+        GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
         _chunkRegionManagerService.PropertyChanged2 += OnPropertyChanged;
 
         for (int rx = 0; rx < 1; rx++)
@@ -60,6 +61,8 @@ public partial class ViewportViewModel : IViewportViewModel
     public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
     public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
 
+    public event Action? ViewportSizeRequested;
+
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
     partial void OnZoomLevelChanged(float value) => UpdateChunkRegionManagerService();
@@ -67,6 +70,11 @@ public partial class ViewportViewModel : IViewportViewModel
     private void UpdateChunkRegionManagerService()
     {
         _chunkRegionManagerService.Update(CameraPos, ZoomLevel, ScreenSize);
+    }
+
+    private void OnGlobalState_SavegameLoadChanged(SavegameLoadState obj)
+    {
+        ViewportSizeRequested?.Invoke();
     }
 
     [RelayCommand]

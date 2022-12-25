@@ -46,7 +46,8 @@
 
             <!--Viewport-->
             <Grid Background="{StaticResource Background}"
-                  Focusable="True">
+                  Focusable="True"
+                  x:Name="Viewport">
 
                 <!--Input Handler Bindings-->
                 <i:Interaction.Triggers>
