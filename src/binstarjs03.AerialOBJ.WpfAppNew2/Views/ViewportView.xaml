@@ -139,6 +139,7 @@
                 <!--Draw Chunk Grid-->
                 <Canvas RenderOptions.BitmapScalingMode="NearestNeighbor"
                         RenderOptions.EdgeMode="Aliased"
+                        Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
                         d:Visibility="Collapsed"
                         Opacity="0.5">
                     <Canvas.Background>

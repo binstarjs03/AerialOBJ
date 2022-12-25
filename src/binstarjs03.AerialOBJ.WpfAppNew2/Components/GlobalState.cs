@@ -6,6 +6,7 @@ public class GlobalState
     private bool _isDebugLogViewVisible = false;
     private SavegameLoadInfo? _savegameLoadInfo = null;
     private bool _isViewportInfoVisible = false;
+    private bool _isViewportChunkGridVisible = false;
 
     public GlobalState(DateTime launchTime)
     {
@@ -17,8 +18,6 @@ public class GlobalState
     public DateTime LaunchTime { get; }
 
     public event Action<string>? PropertyChanged;
-    public event Action<bool>? DebugLogViewVisibilityChanged;
-    public event Action<bool>? ViewportInfoVisibilityChanged;
     public event Action<SavegameLoadState>? SavegameLoadChanged;
 
     public bool IsDebugLogWindowVisible
@@ -29,7 +28,6 @@ public class GlobalState
             if (value == _isDebugLogViewVisible)
                 return;
             _isDebugLogViewVisible = value;
-            DebugLogViewVisibilityChanged?.Invoke(value);
             OnPropertyChanged();
         }
     }
@@ -60,7 +58,18 @@ public class GlobalState
             if (value == _isViewportInfoVisible)
                 return;
             _isViewportInfoVisible = value;
-            ViewportInfoVisibilityChanged?.Invoke(value);
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsViewportChunkGridVisible
+    {
+        get => _isViewportChunkGridVisible;
+        set
+        {
+            if (value == _isViewportChunkGridVisible)
+                return;
+            _isViewportChunkGridVisible = value;
             OnPropertyChanged();
         }
     }
@@ -73,10 +82,16 @@ public class GlobalState
     private void Reinitialize(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Closed)
+        {
             IsViewportInfoVisible = false;
+            IsViewportChunkGridVisible = false;
+        }
 #if DEBUG
         else
+        {
             IsViewportInfoVisible = true;
+            IsViewportChunkGridVisible = true;
+        }
 #endif
     }
 }

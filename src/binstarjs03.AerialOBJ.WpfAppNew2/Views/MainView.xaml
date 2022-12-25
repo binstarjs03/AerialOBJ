@@ -30,6 +30,11 @@
                               Command="{Binding CloseCommand}"/>
                 </MenuItem>
                 <MenuItem Header="View">
+                    <MenuItem Header="Chunk Grid"
+                              IsCheckable="True"
+                              IsChecked="{Binding GlobalState.IsViewportChunkGridVisible, Mode=TwoWay}"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                    <Separator/>
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
                               IsChecked="{Binding GlobalState.IsViewportInfoVisible, Mode=TwoWay}"
