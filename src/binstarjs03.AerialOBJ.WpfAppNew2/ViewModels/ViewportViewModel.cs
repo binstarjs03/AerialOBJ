@@ -8,6 +8,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
+using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,6 +19,7 @@ public partial class ViewportViewModel : IViewportViewModel
 {
     private const float s_zoomRatio = 1.5f;
     private readonly RegionImageModelFactory _regionImageModelFactory;
+    private readonly IChunkRegionManagerService _chunkRegionManagerService;
 
     [ObservableProperty] private Size<int> _screenSize = new(1, 1);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
@@ -31,14 +33,17 @@ public partial class ViewportViewModel : IViewportViewModel
 
     [ObservableProperty] private ObservableCollection<RegionImageModel> _regionImageModels = new();
 
-    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory)
+    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory, IChunkRegionManagerService chunkRegionManagerService)
     {
         GlobalState = globalState;
         _regionImageModelFactory = regionImageModelFactory;
-        GlobalState.PropertyChanged += OnPropertyChanged;
+        _chunkRegionManagerService = chunkRegionManagerService;
 
-        for (int rx = -2; rx < 2; rx++)
-            for (int ry = -2; ry < 2; ry++)
+        GlobalState.PropertyChanged += OnPropertyChanged;
+        _chunkRegionManagerService.PropertyChanged2 += OnPropertyChanged;
+
+        for (int rx = 0; rx < 1; rx++)
+            for (int ry = 0; ry < 1; ry++)
             {
                 RegionImageModel regionImageModel = _regionImageModelFactory.Create(new Point2<int>(rx, ry));
                 for (int x = 0; x < regionImageModel.Image.Size.Width; x++)
@@ -50,6 +55,19 @@ public partial class ViewportViewModel : IViewportViewModel
     }
 
     public GlobalState GlobalState { get; }
+
+    // TODO we can encapsulate these properties bindings into separate class
+    public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
+    public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
+
+    partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
+    partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
+    partial void OnZoomLevelChanged(float value) => UpdateChunkRegionManagerService();
+
+    private void UpdateChunkRegionManagerService()
+    {
+        _chunkRegionManagerService.Update(CameraPos, ZoomLevel, ScreenSize);
+    }
 
     [RelayCommand]
     private void OnScreenSizeChanged(SizeChangedEventArgs e)

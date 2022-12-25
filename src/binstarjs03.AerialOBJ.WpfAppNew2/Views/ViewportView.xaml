@@ -190,8 +190,8 @@
                             <Separator Style="{StaticResource SubtleSeparator}"/>
 
                             <TextBlock Text="Visible Region Range:"/>
-                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-1 ~ 1"/>
-                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-1 ~ 1"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="{Binding VisibleRegionRange.XRange}"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="{Binding VisibleRegionRange.ZRange}"/>
                             <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
                             <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
                             <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
@@ -199,8 +199,8 @@
                             <Separator Style="{StaticResource SubtleSeparator}"/>
 
                             <TextBlock Text="Visible Chunk Range:"/>
-                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="-10 ~ 10"/>
-                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="-10 ~ 10"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range" ValueText="{Binding VisibleChunkRange.XRange}"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="{Binding VisibleChunkRange.ZRange}"/>
                             <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
                             <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
                             <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>

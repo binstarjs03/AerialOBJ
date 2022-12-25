@@ -1,12 +1,19 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
-public interface IChunkRegionManagerService<T> where T : class, IMutableImage
+public delegate void RegionReadingErrorHandler(Point2Z<int> regionCoords, Exception e);
+public interface IChunkRegionManagerService
 {
-    event Action<T> RegionImageAdded;
-    event Action<T> RegionImageRemoved;
-    void AddRegionImage();
-    void RemoveRegionImage();
+    Point2ZRange<int> VisibleChunkRange { get; }
+    Point2ZRange<int> VisibleRegionRange { get; }
+
+    void Update(Point2Z<float> cameraPos, float zoomLevel, Size<int> screenSize);
+
+    event Action<RegionImageModel> RegionImageAdded;
+    event Action<RegionImageModel> RegionImageRemoved;
+    event RegionReadingErrorHandler RegionReadingError;
+    event Action<string> PropertyChanged2;
 }
