@@ -20,8 +20,8 @@
                     <converters:ColorToSolidColorBrushConverter x:Key="CoreColor"/>
                     <converters:WorldToScreenCoordConverter x:Key="WorldToScreen"/>
                     <converters:UnitMultiplierConverter x:Key="UnitMultiplier"/>
-                    <converters:ChunkGridViewportConverter x:Key="ChunkGridViewport"/>
-                    <converters:ChunkGridRectConverter x:Key="ChunkGridRect"/>
+                    <converters:ViewportGridConverter x:Key="ViewportGrid"/>
+                    <converters:ViewportGridRectConverter x:Key="ViewportGridRect"/>
                 </ResourceDictionary>
                 
                 <ResourceDictionary>

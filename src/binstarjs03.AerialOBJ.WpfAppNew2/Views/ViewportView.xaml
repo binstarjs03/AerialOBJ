@@ -137,38 +137,23 @@
                 </ItemsControl>
 
                 <!--Draw Chunk Grid-->
-                <Canvas RenderOptions.BitmapScalingMode="NearestNeighbor"
-                        RenderOptions.EdgeMode="Aliased"
-                        Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
-                        d:Visibility="Collapsed"
-                        Opacity="0.5">
-                    <Canvas.Background>
-                        <DrawingBrush TileMode="Tile" 
-                                      d:Viewport="0,0,16,16"
-                                      ViewportUnits="Absolute">
-                            <DrawingBrush.Viewport>
-                                <MultiBinding Converter="{StaticResource ChunkGridViewport}">
-                                    <Binding ElementName="Root" Path="DataContext.CameraPos"/>
-                                    <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
-                                    <Binding ElementName="Root" Path="DataContext.ScreenSize"/>
-                                </MultiBinding>
-                            </DrawingBrush.Viewport>
-                            <DrawingBrush.Drawing>
-                                <GeometryDrawing>
-                                    <GeometryDrawing.Geometry>
-                                        <RectangleGeometry Rect="{Binding UnitMultiplier, Converter={StaticResource ChunkGridRect}}"
-                                                           d:Rect="0,0,16,16"/>
-                                    </GeometryDrawing.Geometry>
-                                    <GeometryDrawing.Pen>
-                                        <Pen Brush="Gray" Thickness="1"/>
-                                    </GeometryDrawing.Pen>
-                                </GeometryDrawing>
-                            </DrawingBrush.Drawing>
-                            
-                        </DrawingBrush>
-                    </Canvas.Background>
-                </Canvas>
-                
+                <!--Chunk Grid-->
+                <local:GridDrawer GridSize="16" 
+                                  GridThickness="1"
+                                  GridColor="#20FFFFFF"
+                                  Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
+                                  CameraPos="{Binding CameraPos, Mode=OneWay}" 
+                                  UnitMultiplier="{Binding UnitMultiplier, Mode=OneWay}"
+                                  ScreenSize="{Binding ScreenSize, Mode=OneWay}"/>
+                <!--Region Grid-->
+                <local:GridDrawer GridSize="512" 
+                                  GridThickness="1"
+                                  GridColor="#60FFFFFF"
+                                  Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
+                                  CameraPos="{Binding CameraPos, Mode=OneWay}" 
+                                  UnitMultiplier="{Binding UnitMultiplier, Mode=OneWay}"
+                                  ScreenSize="{Binding ScreenSize, Mode=OneWay}"/>
+
                 <!--Camera Position Guide-->
                 <Grid RenderOptions.EdgeMode="Aliased"
                       RenderOptions.BitmapScalingMode="NearestNeighbor">
@@ -227,9 +212,9 @@
                             <TextBlock Text="Visible Region Range:"/>
                             <local:PropertyValuePairView PropertyText=" - X Range" ValueText="{Binding VisibleRegionRange.XRange}"/>
                             <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="{Binding VisibleRegionRange.ZRange}"/>
-                            <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="1"/>
-                            <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="1"/>
-                            <local:PropertyValuePairView PropertyText="Worked Region" ValueText="(0,1)"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="{Binding LoadedRegionsCount}"/>
+                            <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="{Binding PendingRegionsCount}"/>
+                            <local:PropertyValuePairView PropertyText="Worked Region" ValueText="{Binding WorkedRegion}"/>
 
                             <Separator Style="{StaticResource SubtleSeparator}"/>
 

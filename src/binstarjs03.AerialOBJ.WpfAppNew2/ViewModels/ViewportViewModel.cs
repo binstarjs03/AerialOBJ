@@ -41,7 +41,7 @@ public partial class ViewportViewModel : IViewportViewModel
 
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
-        _chunkRegionManagerService.PropertyChanged2 += OnPropertyChanged;
+        _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
 
         for (int rx = 0; rx < 1; rx++)
             for (int ry = 0; ry < 1; ry++)
@@ -57,10 +57,14 @@ public partial class ViewportViewModel : IViewportViewModel
 
     public GlobalState GlobalState { get; }
 
-    // TODO we can encapsulate these properties bindings into separate class
     public float UnitMultiplier => _zoomTable[_zoomLevel];
-    public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
+    // TODO we can encapsulate these properties bindings into separate class
     public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
+    public int LoadedRegionsCount => _chunkRegionManagerService.LoadedRegionsCount;
+    public int PendingRegionsCount => _chunkRegionManagerService.PendingRegionsCount;
+    public Point2Z<int>? WorkedRegion => _chunkRegionManagerService.WorkedRegion;
+    public bool NoWorkedRegion => _chunkRegionManagerService.NoWorkedRegion;
+    public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
 
     public event Action? ViewportSizeRequested;
 

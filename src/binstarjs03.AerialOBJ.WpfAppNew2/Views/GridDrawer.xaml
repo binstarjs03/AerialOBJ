@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="binstarjs03.AerialOBJ.WpfAppNew2.Views.GridDrawer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="Root">
+    <Grid>
+        <Grid.Background>
+            <DrawingBrush TileMode="Tile"
+                          ViewportUnits="Absolute">
+                <DrawingBrush.Viewport>
+                    <MultiBinding Converter="{StaticResource ViewportGrid}">
+                        <Binding ElementName="Root" Path="GridSize"/>
+                        <Binding ElementName="Root" Path="CameraPos"/>
+                        <Binding ElementName="Root" Path="UnitMultiplier"/>
+                        <Binding ElementName="Root" Path="ScreenSize"/>
+                    </MultiBinding>
+                </DrawingBrush.Viewport>
+                <DrawingBrush.Drawing>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry>
+                                <RectangleGeometry.Rect>
+                                    <MultiBinding Converter="{StaticResource ViewportGridRect}">
+                                        <Binding ElementName="Root" Path="GridSize"/>
+                                        <Binding ElementName="Root" Path="UnitMultiplier"/>
+                                    </MultiBinding>
+                                </RectangleGeometry.Rect>
+                            </RectangleGeometry>
+                        </GeometryDrawing.Geometry>
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="{Binding ElementName=Root, Path=GridColor}" 
+                                 Thickness="{Binding ElementName=Root, Path=GridThickness}"/>
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingBrush.Drawing>
+            </DrawingBrush>
+        </Grid.Background>
+    </Grid>
+</UserControl>
