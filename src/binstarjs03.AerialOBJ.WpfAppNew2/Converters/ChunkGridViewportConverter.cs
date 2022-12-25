@@ -23,10 +23,10 @@ public class ChunkGridViewportConverter : IMultiValueConverter
             return new Rect(0, 0, 16, 16);
         Point2Z<float> worldPos = new(0f, 0f);
         Point2Z<float> cameraPos = (Point2Z<float>)values[0];
-        float zoomLevel = (float)values[1];
+        float unitMultiplier = (float)values[1];
         Size<int> screenSize = (Size<int>)values[2];
-        Point2<float> screenPos = _coordsConverterService.ConvertWorldToScreen(worldPos, cameraPos, zoomLevel, screenSize);
-        float gridSize = zoomLevel * Section.BlockCount;
+        Point2<float> screenPos = _coordsConverterService.ConvertWorldToScreen(worldPos, cameraPos, unitMultiplier, screenSize);
+        float gridSize = unitMultiplier * Section.BlockCount;
         return new Rect(screenPos.X, screenPos.Y, gridSize, gridSize);
     }
 

@@ -5,5 +5,6 @@ public interface IViewportViewModel
 {
     Point2Z<float> CameraPos { get; set; }
     Size<int> ScreenSize { get; set; }
-    float ZoomLevel { get; set; }
+    float UnitMultiplier { get; }
+    int ZoomLevel { get; }
 }

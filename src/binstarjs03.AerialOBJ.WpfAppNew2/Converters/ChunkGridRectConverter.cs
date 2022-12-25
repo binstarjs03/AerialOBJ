@@ -10,8 +10,8 @@ public class ChunkGridRectConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        float zoomLevel = (float)value;
-        float gridSize = zoomLevel * Section.BlockCount;
+        float unitMultiplier = (float)value;
+        float gridSize = unitMultiplier * Section.BlockCount;
         return new Rect(0,0, gridSize, gridSize);
     }
 

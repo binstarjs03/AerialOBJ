@@ -17,19 +17,19 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel : IViewportViewModel
 {
-    private const float s_zoomRatio = 1.5f;
+    private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly RegionImageModelFactory _regionImageModelFactory;
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
 
     [ObservableProperty] private Size<int> _screenSize = new(1, 1);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
-    [ObservableProperty] private float _zoomLevel = 1f;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
 
     [ObservableProperty] private Point2<int> _mousePos = Point2<int>.Zero;
     [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
     [ObservableProperty] private bool _mouseInitClickDrag = true;
-    [ObservableProperty] private bool _mouseIsOutside = true;
+    [ObservableProperty] private bool _mouseIsInside = false;
 
     [ObservableProperty] private ObservableCollection<RegionImageModel> _regionImageModels = new();
 
@@ -58,6 +58,7 @@ public partial class ViewportViewModel : IViewportViewModel
     public GlobalState GlobalState { get; }
 
     // TODO we can encapsulate these properties bindings into separate class
+    public float UnitMultiplier => _zoomTable[_zoomLevel];
     public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
     public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
 
@@ -65,11 +66,11 @@ public partial class ViewportViewModel : IViewportViewModel
 
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
-    partial void OnZoomLevelChanged(float value) => UpdateChunkRegionManagerService();
+    partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManagerService();
 
     private void UpdateChunkRegionManagerService()
     {
-        _chunkRegionManagerService.Update(CameraPos, ZoomLevel, ScreenSize);
+        _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
     }
 
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState obj)
@@ -95,7 +96,7 @@ public partial class ViewportViewModel : IViewportViewModel
         MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : newMousePosDelta;
         if (MouseClickHolding)
         {
-            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / ZoomLevel, -MousePosDelta.Y / ZoomLevel);
+            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
             CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
         }
@@ -104,13 +105,12 @@ public partial class ViewportViewModel : IViewportViewModel
     [RelayCommand]
     private void OnMouseWheel(MouseWheelEventArgs e)
     {
-        float newZoomLevel;
+        int newZoomLevel = ZoomLevel;
         if (e.Delta > 0)
-            newZoomLevel = ZoomLevel * s_zoomRatio;
+            newZoomLevel++;
         else
-            newZoomLevel = ZoomLevel / s_zoomRatio;
-        // limit zoom scrollability by 8
-        newZoomLevel = float.Clamp(newZoomLevel, 1, 1 * MathF.Pow(s_zoomRatio, 8));
+            newZoomLevel--;
+        newZoomLevel = int.Clamp(newZoomLevel, 0, _zoomTable.Length - 1);
         ZoomLevel = newZoomLevel;
     }
 
@@ -134,13 +134,13 @@ public partial class ViewportViewModel : IViewportViewModel
     [RelayCommand]
     private void OnMouseEnter()
     {
-        MouseIsOutside = false;
+        MouseIsInside = true;
     }
 
     [RelayCommand]
     private void OnMouseLeave()
     {
-        MouseIsOutside = true;
+        MouseIsInside = false;
         MouseClickHolding = false;
     }
 }

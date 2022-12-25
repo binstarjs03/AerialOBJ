@@ -10,7 +10,7 @@ public interface IChunkRegionManagerService
     Point2ZRange<int> VisibleChunkRange { get; }
     Point2ZRange<int> VisibleRegionRange { get; }
 
-    void Update(Point2Z<float> cameraPos, float zoomLevel, Size<int> screenSize);
+    void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize);
 
     event Action<RegionImageModel> RegionImageAdded;
     event Action<RegionImageModel> RegionImageRemoved;

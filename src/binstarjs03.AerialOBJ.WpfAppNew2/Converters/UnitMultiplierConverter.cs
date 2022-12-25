@@ -3,12 +3,12 @@ using System.Globalization;
 using System.Windows.Data;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
-public class ZoomLevelToSizeConverter : IMultiValueConverter
+public class UnitMultiplierConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
         float absoluteSize;
-        float zoomLevel = (float)values[1];
+        float unitMultiplier = (float)values[1];
 
         Type sizeType = values[0].GetType();
         if (sizeType == typeof(float))
@@ -18,7 +18,7 @@ public class ZoomLevelToSizeConverter : IMultiValueConverter
         else
             throw new InvalidCastException();
 
-        return (double)(absoluteSize * zoomLevel);
+        return (double)(absoluteSize * unitMultiplier);
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

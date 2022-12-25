@@ -19,7 +19,7 @@
                     <converters:FormattedFloatConverter x:Key="FormattedFloat"/>
                     <converters:ColorToSolidColorBrushConverter x:Key="CoreColor"/>
                     <converters:WorldToScreenCoordConverter x:Key="WorldToScreen"/>
-                    <converters:ZoomLevelToSizeConverter x:Key="ZoomLevelToSize"/>
+                    <converters:UnitMultiplierConverter x:Key="UnitMultiplier"/>
                     <converters:ChunkGridViewportConverter x:Key="ChunkGridViewport"/>
                     <converters:ChunkGridRectConverter x:Key="ChunkGridRect"/>
                 </ResourceDictionary>

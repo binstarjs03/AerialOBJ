@@ -18,9 +18,9 @@ public class WorldToScreenCoordConverter : IMultiValueConverter
     {
         float worldPos = (float)values[0];
         float cameraPos = (float)values[1];
-        float zoomLevel = (float)values[2];
+        float unitMultiplier = (float)values[2];
         int screenSize = (int)values[3];
-        float result = _coordsConverterService.ConvertWorldToScreen(worldPos, cameraPos, zoomLevel, screenSize);
+        float result = _coordsConverterService.ConvertWorldToScreen(worldPos, cameraPos, unitMultiplier, screenSize);
         return (double)result;
     }
 

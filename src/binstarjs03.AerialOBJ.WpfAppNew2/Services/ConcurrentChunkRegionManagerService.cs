@@ -29,16 +29,16 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         };
     }
 
-    public void Update(Point2Z<float> cameraPos, float zoomLevel, Size<int> screenSize)
+    public void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
-        if (RecalculateVisibleChunkRange(cameraPos, zoomLevel, screenSize))
+        if (RecalculateVisibleChunkRange(cameraPos, unitMultiplier, screenSize))
             RecalculateVisibleRegionRange();
     }
 
-    private bool RecalculateVisibleChunkRange(Point2Z<float> cameraPos, float zoomLevel, Size<int> screenSize)
+    private bool RecalculateVisibleChunkRange(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
         Point2Z<int> worldScreenCenter = (Point2Z<int>)(screenSize / 2);
-        float pixelPerChunk = zoomLevel * Section.BlockCount; // one unit (or pixel) equal to one block
+        float pixelPerChunk = unitMultiplier * Section.BlockCount; // one unit (or pixel) equal to one block
 
         // Camera chunk in here means which chunk the camera is pointing to.
         // Here we dont use int because floating point accuracy is crucial

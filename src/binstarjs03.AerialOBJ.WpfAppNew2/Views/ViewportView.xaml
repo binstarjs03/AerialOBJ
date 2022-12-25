@@ -102,9 +102,9 @@
                                             RenderOptions.BitmapScalingMode="NearestNeighbor"
                                             RenderOptions.EdgeMode="Aliased">
                                 <ContentControl.Width>
-                                    <MultiBinding Converter="{StaticResource ZoomLevelToSize}">
+                                    <MultiBinding Converter="{StaticResource UnitMultiplier}">
                                         <Binding Path="Image.Size.Width"/>
-                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                        <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
                                     </MultiBinding>
                                 </ContentControl.Width>
                             </ContentControl>
@@ -117,7 +117,7 @@
                                     <MultiBinding Converter="{StaticResource WorldToScreen}">
                                         <Binding Path="WorldPosition.X"/>
                                         <Binding ElementName="Root" Path="DataContext.CameraPos.X"/>
-                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                        <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
                                         <Binding ElementName="Root" Path="DataContext.ScreenSize.Width"/>
                                     </MultiBinding>
                                 </Setter.Value>
@@ -127,7 +127,7 @@
                                     <MultiBinding Converter="{StaticResource WorldToScreen}">
                                         <Binding Path="WorldPosition.Y"/>
                                         <Binding ElementName="Root" Path="DataContext.CameraPos.Z"/>
-                                        <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                        <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
                                         <Binding ElementName="Root" Path="DataContext.ScreenSize.Height"/>
                                     </MultiBinding>
                                 </Setter.Value>
@@ -149,14 +149,14 @@
                             <DrawingBrush.Viewport>
                                 <MultiBinding Converter="{StaticResource ChunkGridViewport}">
                                     <Binding ElementName="Root" Path="DataContext.CameraPos"/>
-                                    <Binding ElementName="Root" Path="DataContext.ZoomLevel"/>
+                                    <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
                                     <Binding ElementName="Root" Path="DataContext.ScreenSize"/>
                                 </MultiBinding>
                             </DrawingBrush.Viewport>
                             <DrawingBrush.Drawing>
                                 <GeometryDrawing>
                                     <GeometryDrawing.Geometry>
-                                        <RectangleGeometry Rect="{Binding ZoomLevel, Converter={StaticResource ChunkGridRect}}"
+                                        <RectangleGeometry Rect="{Binding UnitMultiplier, Converter={StaticResource ChunkGridRect}}"
                                                            d:Rect="0,0,16,16"/>
                                     </GeometryDrawing.Geometry>
                                     <GeometryDrawing.Pen>
@@ -213,6 +213,7 @@
                             <local:PropertyValuePairView PropertyText="Screen Size" ValueText="{Binding ScreenSize}"/>
                             <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
                             <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="{Binding ZoomLevel}"/>
+                            <local:PropertyValuePairView PropertyText="Unit Multiplier" ValueText="{Binding UnitMultiplier}"/>
                             <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
 
                             <Separator Style="{StaticResource SubtleSeparator}"/>
@@ -245,7 +246,7 @@
                             <local:PropertyValuePairView PropertyText="Mouse Pos Delta" ValueText="{Binding MousePosDelta}"/>
                             <local:PropertyValuePairView PropertyText="Mouse Click Holding" ValueText="{Binding MouseClickHolding}"/>
                             <local:PropertyValuePairView PropertyText="Mouse Init Click Drag" ValueText="{Binding MouseInitClickDrag}"/>
-                            <local:PropertyValuePairView PropertyText="Mouse Is Outside" ValueText="{Binding MouseIsOutside}"/>
+                            <local:PropertyValuePairView PropertyText="Mouse Is Inside" ValueText="{Binding MouseIsInside}"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
