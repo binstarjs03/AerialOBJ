@@ -29,7 +29,7 @@
                         </Style>
                     </StackPanel.Resources>
                     <TextBlock Text="Height"/>
-                    <TextBlock Text="0" d:Text="255"/>
+                    <TextBlock Text="{Binding HeightLevel}"/>
                 </StackPanel>
                 <Slider Grid.Column="1"
                         Margin="0,0,10,0"
@@ -37,11 +37,10 @@
                         VerticalAlignment="Center"
                         Name="HeightSlider"
                         SmallChange="1" 
-                        Value="0"
-                        d:Value="255"
+                        Value="{Binding HeightLevel}"
                         IsSnapToTickEnabled="True" 
                         Minimum="-64"
-                        Maximum="320"/>
+                        Maximum="319"/>
             </Grid>
 
             <!--Viewport-->
@@ -142,17 +141,17 @@
                                   GridThickness="1"
                                   GridColor="#20FFFFFF"
                                   Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
-                                  CameraPos="{Binding CameraPos, Mode=OneWay}" 
-                                  UnitMultiplier="{Binding UnitMultiplier, Mode=OneWay}"
-                                  ScreenSize="{Binding ScreenSize, Mode=OneWay}"/>
+                                  CameraPos="{Binding CameraPos}" 
+                                  UnitMultiplier="{Binding UnitMultiplier}"
+                                  ScreenSize="{Binding ScreenSize}"/>
                 <!--Region Grid-->
                 <local:GridDrawer GridSize="512" 
                                   GridThickness="1"
                                   GridColor="#60FFFFFF"
                                   Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
-                                  CameraPos="{Binding CameraPos, Mode=OneWay}" 
-                                  UnitMultiplier="{Binding UnitMultiplier, Mode=OneWay}"
-                                  ScreenSize="{Binding ScreenSize, Mode=OneWay}"/>
+                                  CameraPos="{Binding CameraPos}" 
+                                  UnitMultiplier="{Binding UnitMultiplier}"
+                                  ScreenSize="{Binding ScreenSize}"/>
 
                 <!--Camera Position Guide-->
                 <Grid RenderOptions.EdgeMode="Aliased"
@@ -199,13 +198,13 @@
                             <local:PropertyValuePairView PropertyText="Camera Pos" ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
                             <local:PropertyValuePairView PropertyText="Zoom Level" ValueText="{Binding ZoomLevel}"/>
                             <local:PropertyValuePairView PropertyText="Unit Multiplier" ValueText="{Binding UnitMultiplier}"/>
-                            <local:PropertyValuePairView PropertyText="Height Limit" ValueText="319"/>
+                            <local:PropertyValuePairView PropertyText="Height Limit" ValueText="{Binding HeightLevel}"/>
 
                             <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                            <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="2"/>
-                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="32"/>
-                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="1024"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Block" ValueText="-"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="-"/>
+                            <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk" ValueText="-"/>
 
                             <Separator Style="{StaticResource SubtleSeparator}"/>
 
@@ -221,9 +220,9 @@
                             <TextBlock Text="Visible Chunk Range:"/>
                             <local:PropertyValuePairView PropertyText=" - X Range" ValueText="{Binding VisibleChunkRange.XRange}"/>
                             <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="{Binding VisibleChunkRange.ZRange}"/>
-                            <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="50"/>
-                            <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="20"/>
-                            <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="12"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Chunk Count" ValueText="-"/>
+                            <local:PropertyValuePairView PropertyText="Pending Chunk Count" ValueText="-"/>
+                            <local:PropertyValuePairView PropertyText="Worked Chunk Count" ValueText="-"/>
 
                             <Separator Style="{StaticResource SubtleSeparator}"/>
 

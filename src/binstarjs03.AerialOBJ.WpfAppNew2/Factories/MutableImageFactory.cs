@@ -6,6 +6,9 @@ public class MutableImageFactory : IMutableImageFactory
 {
     public IMutableImage Create(Size<int> size)
     {
-        return new MutableImage(size);
+        if (App.Current.CheckAccess())
+            return new MutableImage(size);
+        else
+            return App.Current.Dispatcher.Invoke(() => new MutableImage(size));
     }
 }

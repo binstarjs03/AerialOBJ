@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
@@ -20,10 +23,12 @@ public partial class ViewportViewModel : IViewportViewModel
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly RegionImageModelFactory _regionImageModelFactory;
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
+    private readonly IChunkRenderService _chunkRenderService;
 
     [ObservableProperty] private Size<int> _screenSize = new(1, 1);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
+    [ObservableProperty] private int _heightLevel = 319;
 
     [ObservableProperty] private Point2<int> _mousePos = Point2<int>.Zero;
     [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
@@ -32,27 +37,20 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty] private bool _mouseIsInside = false;
 
     [ObservableProperty] private ObservableCollection<RegionImageModel> _regionImageModels = new();
+    private readonly Dictionary<Point2Z<int>, RegionImageModel> _regionImageModelKeys = new();
 
-    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory, IChunkRegionManagerService chunkRegionManagerService)
+    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory, IChunkRegionManagerService chunkRegionManagerService, IChunkRenderService chunkRenderService)
     {
         GlobalState = globalState;
         _regionImageModelFactory = regionImageModelFactory;
         _chunkRegionManagerService = chunkRegionManagerService;
+        _chunkRenderService = chunkRenderService;
 
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
         _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
-
-        for (int rx = 0; rx < 1; rx++)
-            for (int ry = 0; ry < 1; ry++)
-            {
-                RegionImageModel regionImageModel = _regionImageModelFactory.Create(new Point2<int>(rx, ry));
-                for (int x = 0; x < regionImageModel.Image.Size.Width; x++)
-                    for (int y = 0; y < regionImageModel.Image.Size.Height; y++)
-                        regionImageModel.Image[x, y] = Random.Shared.NextColor();
-                regionImageModel.Image.Redraw();
-                _regionImageModels.Add(regionImageModel);
-            }
+        _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionLoaded;
+        _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionUnloaded;
     }
 
     public GlobalState GlobalState { get; }
@@ -63,24 +61,51 @@ public partial class ViewportViewModel : IViewportViewModel
     public int LoadedRegionsCount => _chunkRegionManagerService.LoadedRegionsCount;
     public int PendingRegionsCount => _chunkRegionManagerService.PendingRegionsCount;
     public Point2Z<int>? WorkedRegion => _chunkRegionManagerService.WorkedRegion;
-    public bool NoWorkedRegion => _chunkRegionManagerService.NoWorkedRegion;
     public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
 
     public event Action? ViewportSizeRequested;
 
+    // Update CRM Service, callback when these properties updated
+    private void UpdateChunkRegionManagerService() =>
+        _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
     partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManagerService();
 
-    private void UpdateChunkRegionManagerService()
-    {
-        _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
-    }
-
-    private void OnGlobalState_SavegameLoadChanged(SavegameLoadState obj)
+    private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         ViewportSizeRequested?.Invoke();
     }
+
+    private void OnChunkRegionManagerService_RegionLoaded(Region region)
+    {
+        return;
+        RegionImageModel rim = _regionImageModelFactory.Create(region.RegionCoords);
+        _chunkRenderService.RenderRandomNoise(rim.Image,
+                                              new Color() { Alpha = 255, Red = 64, Green = 128, Blue = 192 },
+                                              64);
+        lock (_regionImageModelKeys)
+            _regionImageModelKeys.Add(region.RegionCoords, rim);
+        rim.Image.Redraw();
+        if (App.Current.CheckAccess())
+            _regionImageModels.Add(rim);
+        else
+            App.Current.Dispatcher.BeginInvoke(() => _regionImageModels.Add(rim), DispatcherPriority.Render);
+    }
+
+    private void OnChunkRegionManagerService_RegionUnloaded(Region region)
+    {
+        return;
+        RegionImageModel rim;
+        lock (_regionImageModelKeys)
+        {
+            rim = _regionImageModelKeys[region.RegionCoords];
+            _regionImageModelKeys.Remove(region.RegionCoords);
+        }
+        _regionImageModels.Remove(rim);
+    }
+
+    #region Commands
 
     [RelayCommand]
     private void OnScreenSizeChanged(SizeChangedEventArgs e)
@@ -147,4 +172,6 @@ public partial class ViewportViewModel : IViewportViewModel
         MouseIsInside = false;
         MouseClickHolding = false;
     }
+
+    #endregion Commands
 }

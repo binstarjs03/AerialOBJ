@@ -43,6 +43,8 @@ public static class AppHost
             services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
             services.AddSingleton<ICoordinateConverterService, CoordinateConverterService>();
             services.AddTransient<IChunkRegionManagerService, ConcurrentChunkRegionManagerService>();
+            services.AddSingleton<IRegionLoaderService, RegionLoaderService>();
+            services.AddSingleton<IChunkRenderService, ChunkRenderService>();
 
         }).Build();
     }

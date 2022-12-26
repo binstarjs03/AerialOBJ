@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Models;
+using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
@@ -13,23 +13,31 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private const int s_regionBufferSize = 15;
     private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
 
-    private Point2ZRange<int> _visibleRegionRange;
-    private readonly Dictionary<Point2Z<int>, RegionDataImagePair> _loadedRegions = new(s_regionBufferSize);
+    private readonly Random _rng = new();
+    private readonly IRegionLoaderService _regionLoaderService;
+
+    private readonly StructLock<Point2ZRange<int>> _visibleRegionRange = new();
+    private readonly StructLock<Point2ZRange<int>> _visibleChunkRange = new();
+
+    private readonly Dictionary<Point2Z<int>, Region> _loadedRegions = new(s_regionBufferSize);
+    private readonly Dictionary<Point2Z<int>, Region> _regionCache = new(s_regionBufferSize);
     private readonly List<Point2Z<int>> _pendingRegionList = new(s_regionBufferSize);
-    private Point2Z<int>? _workedRegion = null;
+    private readonly StructLock<Point2Z<int>?> _workedRegion = new() { Value = null };
     private Task _workRegionTask = new(() => { });
 
-    private Point2ZRange<int> _visibleChunkRange;
+    public ConcurrentChunkRegionManagerService(IRegionLoaderService regionLoaderService)
+    {
+        _regionLoaderService = regionLoaderService;
+    }
 
-    public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange;
+    public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange.Value;
     public int LoadedRegionsCount => _loadedRegions.Count;
     public int PendingRegionsCount => _pendingRegionList.Count;
-    public Point2Z<int>? WorkedRegion => _workedRegion;
-    public bool NoWorkedRegion => _workedRegion is null;
-    public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange;
+    public Point2Z<int>? WorkedRegion => _workedRegion.Value;
+    public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange.Value;
 
-    public event Action<RegionImageModel>? RegionImageAdded;
-    public event Action<RegionImageModel>? RegionImageRemoved;
+    public event Action<Region>? RegionLoaded;
+    public event Action<Region>? RegionUnloaded;
     public event RegionReadingErrorHandler? RegionReadingError;
     public event Action<string>? PropertyChanged;
 
@@ -43,15 +51,16 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private bool RecalculateVisibleChunkRange(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
         float pixelPerChunk = unitMultiplier * Section.BlockCount; // one unit (or pixel) equal to one block
-
         Rangeof<int> visibleChunkXRange = calculateVisibleChunkRange(screenSize.Width, pixelPerChunk, cameraPos.X);
         Rangeof<int> visibleChunkZRange = calculateVisibleChunkRange(screenSize.Height, pixelPerChunk, cameraPos.Z);
-
-        Point2ZRange<int> oldVisibleChunkRange = _visibleChunkRange;
-        Point2ZRange<int> newVisibleChunkRange = new(visibleChunkXRange, visibleChunkZRange);
-        if (newVisibleChunkRange == oldVisibleChunkRange)
-            return false;
-        _visibleChunkRange = newVisibleChunkRange;
+        lock (_visibleChunkRange)
+        {
+            Point2ZRange<int> oldVisibleChunkRange = _visibleChunkRange.Value;
+            Point2ZRange<int> newVisibleChunkRange = new(visibleChunkXRange, visibleChunkZRange);
+            if (newVisibleChunkRange == oldVisibleChunkRange)
+                return false;
+            _visibleChunkRange.Value = newVisibleChunkRange;
+        }
         OnPropertyChanged(nameof(VisibleChunkRange));
         return true;
 
@@ -80,14 +89,21 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private bool RecalculateVisibleRegionRange()
     {
-        Rangeof<int> visibleRegionXRange = calculateVisibleRegionRange(_visibleChunkRange.XRange);
-        Rangeof<int> visibleRegionZRange = calculateVisibleRegionRange(_visibleChunkRange.ZRange);
-
-        Point2ZRange<int> oldVisibleRegionRange = _visibleRegionRange;
-        Point2ZRange<int> newVisibleRegionRange = new(visibleRegionXRange, visibleRegionZRange);
-        if (newVisibleRegionRange == oldVisibleRegionRange)
-            return false;
-        _visibleRegionRange = newVisibleRegionRange;
+        Rangeof<int> visibleRegionXRange;
+        Rangeof<int> visibleRegionZRange;
+        lock (_visibleChunkRange)
+        {
+            visibleRegionXRange = calculateVisibleRegionRange(_visibleChunkRange.Value.XRange);
+            visibleRegionZRange = calculateVisibleRegionRange(_visibleChunkRange.Value.ZRange);
+        }
+        lock (_visibleRegionRange)
+        {
+            Point2ZRange<int> oldVisibleRegionRange = _visibleRegionRange.Value;
+            Point2ZRange<int> newVisibleRegionRange = new(visibleRegionXRange, visibleRegionZRange);
+            if (newVisibleRegionRange == oldVisibleRegionRange)
+                return false;
+            _visibleRegionRange.Value = newVisibleRegionRange;
+        }
         OnPropertyChanged(nameof(VisibleRegionRange));
         return true;
 
@@ -104,45 +120,130 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private void ManageRegions()
     {
         UnloadCulledRegions();
-        LoadRegions();
+        if (QueuePendingRegions())
+            LoadRegionConcurrently();
     }
 
     private void UnloadCulledRegions()
     {
         // perform boundary range checking for regions outside display frame
         // unload them if outside
-        foreach ((Point2Z<int> regionCoords, RegionDataImagePair region)in _loadedRegions)
-            if (_visibleRegionRange.IsOutside(regionCoords))
-                UnloadRegion(region);
-        OnPropertyChanged(nameof(LoadedRegionsCount));
+        lock (_visibleRegionRange)
+        {
+            lock (_loadedRegions)
+                foreach ((Point2Z<int> regionCoords, Region region) in _loadedRegions)
+                    if (_visibleRegionRange.Value.IsOutside(regionCoords))
+                        UnloadRegion(region);
 
-        // remove all pending region list that is no longer visible
-        _pendingRegionList.RemoveAll(_visibleRegionRange.IsOutside);
+            // remove all pending region list that is no longer visible
+            lock (_pendingRegionList)
+                _pendingRegionList.RemoveAll(_visibleRegionRange.Value.IsOutside);
+        }
         OnPropertyChanged(nameof(PendingRegionsCount));
     }
 
-    private void LoadRegions()
+    private bool QueuePendingRegions()
     {
-        for (int x = _visibleRegionRange.XRange.Min; x <= _visibleRegionRange.XRange.Max; x++)
-            for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
-            {
-                Point2Z<int> regionCoords = new(x, z);
-                if (_loadedRegions.ContainsKey(regionCoords)
-                    || _pendingRegionList.Contains(regionCoords)
-                    || _workedRegion == regionCoords)
-                    continue;
-                else
-                    _pendingRegionList.Add(regionCoords);
-            }
+        bool hasPendingRegion = false;
+        lock (_visibleRegionRange)
+            for (int x = _visibleRegionRange.Value.XRange.Min; x <= _visibleRegionRange.Value.XRange.Max; x++)
+                for (int z = _visibleRegionRange.Value.ZRange.Min; z <= _visibleRegionRange.Value.ZRange.Max; z++)
+                {
+                    Point2Z<int> regionCoords = new(x, z);
+                    lock (_loadedRegions)
+                        lock (_pendingRegionList)
+                            lock (_workedRegion)
+                                if (_loadedRegions.ContainsKey(regionCoords)
+                                    || _pendingRegionList.Contains(regionCoords)
+                                    || _workedRegion.Value == regionCoords)
+                                    continue;
+                                else
+                                {
+                                    _pendingRegionList.Add(regionCoords);
+                                    hasPendingRegion = true;
+                                }
+                }
         OnPropertyChanged(nameof(PendingRegionsCount));
-        if (_workRegionTask.Status != TaskStatus.Running)
-        {
+        return hasPendingRegion;
+    }
 
+    private void LoadRegionConcurrently()
+    {
+        if (_workRegionTask.Status != TaskStatus.Running)
+            _workRegionTask = Task.Run(LoadRegion);
+    }
+
+    private void LoadRegion()
+    {
+        // we cannot do "while (_pendingRegionList.Count > 0)"
+        // because we need to lock _pendingRegionList
+        while (true)
+        {
+            Point2Z<int> regionCoords;
+            lock (_pendingRegionList)
+            {
+                if (!getRandomPendingRegion(out regionCoords))
+                    break;
+            }
+            lock (_workedRegion)
+                _workedRegion.Value = regionCoords;
+            OnPropertyChanged(nameof(WorkedRegion));
+
+            Region region;
+            if (_regionCache.ContainsKey(regionCoords))
+                region = _regionCache[regionCoords];
+            else
+            {
+                Region? loadResult = _regionLoaderService.LoadRegion(regionCoords, out Exception? e);
+                if (loadResult is null)
+                {
+                    if (e is not null)
+                        RegionReadingError?.Invoke(regionCoords, e);
+                    continue;
+                }
+                region = loadResult;
+                _regionCache.Add(regionCoords, region);
+            }
+            LoadRegion(region);
+        }
+        lock (_workedRegion)
+            _workedRegion.Value = null;
+        OnPropertyChanged(nameof(WorkedRegion));
+
+        bool getRandomPendingRegion(out Point2Z<int> result)
+        {
+            result = new Point2Z<int>(0, 0);
+            if (_pendingRegionList.Count == 0)
+                return false;
+            int randomIndex = _rng.Next(0, _pendingRegionList.Count);
+            result = _pendingRegionList[randomIndex];
+            _pendingRegionList.RemoveAt(randomIndex);
+            OnPropertyChanged(nameof(PendingRegionsCount));
+            return true;
         }
     }
 
+    private void LoadRegion(Region region)
+    {
+        lock (_visibleRegionRange)
+            lock (_loadedRegions)
+            {
+                if (_visibleRegionRange.Value.IsOutside(region.RegionCoords)
+                    || _loadedRegions.ContainsKey(region.RegionCoords))
+                    return;
+                _loadedRegions.Add(region.RegionCoords, region);
+            }
+        OnPropertyChanged(nameof(LoadedRegionsCount));
+        RegionLoaded?.Invoke(region);
+    }
 
-    private void UnloadRegion(RegionDataImagePair region) { }
+    private void UnloadRegion(Region region)
+    {
+        lock (_loadedRegions)
+            _loadedRegions.Remove(region.RegionCoords);
+        OnPropertyChanged(nameof(LoadedRegionsCount));
+        RegionUnloaded?.Invoke(region);
+    }
 
     private void OnPropertyChanged(string propertyName)
     {

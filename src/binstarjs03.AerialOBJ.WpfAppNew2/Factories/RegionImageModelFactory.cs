@@ -12,7 +12,7 @@ public class RegionImageModelFactory
         _mutableImageFactory = mutableImageFactory;
     }
 
-    public RegionImageModel Create(Point2<int> regionPosition)
+    public RegionImageModel Create(Point2Z<int> regionPosition)
     {
         return new RegionImageModel()
         {
