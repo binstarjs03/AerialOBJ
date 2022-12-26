@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
              xmlns:models="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Models"
              mc:Ignorable="d" 
@@ -46,6 +47,7 @@
             <!--Viewport-->
             <Grid Background="{StaticResource Background}"
                   Focusable="True"
+                  ClipToBounds="True"
                   x:Name="Viewport">
 
                 <!--Input Handler Bindings-->
@@ -97,18 +99,29 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="models:RegionImageModel">
-                            <ContentControl Content="{Binding Image}" 
-                                            RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                            RenderOptions.EdgeMode="Aliased">
-                                <ContentControl.Width>
-                                    <MultiBinding Converter="{StaticResource UnitMultiplier}">
-                                        <Binding Path="Image.Size.Width"/>
-                                        <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
-                                    </MultiBinding>
-                                </ContentControl.Width>
-                            </ContentControl>
+                            <Grid>
+                                <!--Region Image-->
+                                <ContentControl Content="{Binding Image}" 
+                                                RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                                RenderOptions.EdgeMode="Aliased">
+                                    <ContentControl.Width>
+                                        <MultiBinding Converter="{StaticResource UnitMultiplier}">
+                                            <Binding Path="Image.Size.Width"/>
+                                            <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
+                                        </MultiBinding>
+                                    </ContentControl.Width>
+                                </ContentControl>
+                                <!--Region Text Information-->
+                                <local:PropertyValuePairView PropertyText="Region" 
+                                                             ValueText="{Binding RegionPosition}"
+                                                             Visibility="{Binding ElementName=Root, Path=DataContext.GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
+                                                             PropertyColor="Black"
+                                                             ValueColor="Black"
+                                                             />
+                            </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
+                    <!--Image Positioning-->
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">
                             <Setter Property="Canvas.Left">
@@ -135,46 +148,74 @@
                     </ItemsControl.ItemContainerStyle>
                 </ItemsControl>
 
-                <!--Draw Chunk Grid-->
-                <!--Chunk Grid-->
-                <local:GridDrawer GridSize="16" 
-                                  GridThickness="1"
-                                  GridColor="#20FFFFFF"
-                                  Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
-                                  CameraPos="{Binding CameraPos}" 
-                                  UnitMultiplier="{Binding UnitMultiplier}"
-                                  ScreenSize="{Binding ScreenSize}"/>
-                <!--Region Grid-->
-                <local:GridDrawer GridSize="512" 
-                                  GridThickness="1"
-                                  GridColor="#60FFFFFF"
-                                  Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
-                                  CameraPos="{Binding CameraPos}" 
-                                  UnitMultiplier="{Binding UnitMultiplier}"
-                                  ScreenSize="{Binding ScreenSize}"/>
+                <!--Draw Line Guides-->
+                <Grid RenderOptions.BitmapScalingMode="NearestNeighbor"
+                      RenderOptions.EdgeMode="Aliased"
+                      Visibility="{Binding GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}">
+                    <!--Chunk Grid-->
+                    <local:GridDrawer GridSize="16" 
+                                      GridThickness="1"
+                                      GridColor="#20FFFFFF"
+                                      CameraPos="{Binding CameraPos}" 
+                                      UnitMultiplier="{Binding UnitMultiplier}"
+                                      ScreenSize="{Binding ScreenSize}"/>
+                    <!--Region Grid-->
+                    <local:GridDrawer GridSize="512" 
+                                      GridThickness="1"
+                                      GridColor="#60FFFFFF"
+                                      CameraPos="{Binding CameraPos}" 
+                                      UnitMultiplier="{Binding UnitMultiplier}"
+                                      ScreenSize="{Binding ScreenSize}"/>
+                    <!--Horizontal Line-->
+                    <Line Stroke="White" StrokeThickness="1"
+                          X1="0" X2="{Binding ScreenSize.Width}" 
+                          Y2="{Binding RelativeSource={RelativeSource Self}, Path=Y1}">
+                        <Line.Y1>
+                            <MultiBinding Converter="{StaticResource WorldToScreen}">
+                                <Binding Source="{StaticResource Zero}"/>
+                                <Binding Path="CameraPos.Z"/>
+                                <Binding Path="UnitMultiplier"/>
+                                <Binding Path="ScreenSize.Height"/>
+                            </MultiBinding>
+                        </Line.Y1>
+                    </Line>
+                    <!--Vertial Line-->
+                    <Line Stroke="White" StrokeThickness="1"
+                          Y1="0" Y2="{Binding ScreenSize.Height}" 
+                          X2="{Binding RelativeSource={RelativeSource Self}, Path=X1}">
+                        <Line.X1>
+                            <MultiBinding Converter="{StaticResource WorldToScreen}">
+                                <Binding Source="{StaticResource Zero}"/>
+                                <Binding Path="CameraPos.X"/>
+                                <Binding Path="UnitMultiplier"/>
+                                <Binding Path="ScreenSize.Width"/>
+                            </MultiBinding>
+                        </Line.X1>
+                    </Line>
+                </Grid>
 
-                <!--Camera Position Guide-->
-                <Grid RenderOptions.EdgeMode="Aliased"
-                      RenderOptions.BitmapScalingMode="NearestNeighbor">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition Height="1"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
+                <!--Camera Position Guide (Center Dot)-->
+                <Grid>
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="2"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="2"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
 
-                    <Rectangle Grid.Column="1" Grid.RowSpan="3" 
-                               Fill="DimGray"
-                               Height="15"/>
-                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
-                               Fill="DimGray"
-                               Width="15"/>
-                    <Rectangle Grid.Row="1" Grid.Column="1"
-                               Fill="White"/>
+                        <Rectangle Grid.Column="1" Grid.RowSpan="3" 
+                                   Fill="DimGray"
+                                   Height="15"/>
+                        <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
+                                   Fill="DimGray"
+                                   Width="15"/>
+                    </Grid>
+                    <Ellipse Width="3" Height="3" Fill="White"/>
                 </Grid>
 
                 <!--Viewport Info-->

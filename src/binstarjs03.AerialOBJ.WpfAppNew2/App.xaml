@@ -2,11 +2,16 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
 
+                <ResourceDictionary>
+                    <sys:Single x:Key="Zero">0</sys:Single>
+                </ResourceDictionary>
+                
                 <ResourceDictionary>
                     <SolidColorBrush x:Key="Background" Color="#303030"/>
                     <SolidColorBrush x:Key="TextNormal" Color="#A0A0A0"/>
