@@ -42,7 +42,7 @@ public static class AppHost
             services.AddSingleton<IIOService, IOService>();
             services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
             services.AddSingleton<ICoordinateConverterService, CoordinateConverterService>();
-            services.AddTransient<IChunkRegionManagerService, ConcurrentChunkRegionManagerService>();
+            services.AddTransient<IChunkRegionManagerService, SingleThreadedChunkRegionManagerService>();
             services.AddSingleton<IRegionLoaderService, RegionLoaderService>();
             services.AddSingleton<IChunkRenderService, ChunkRenderService>();
 

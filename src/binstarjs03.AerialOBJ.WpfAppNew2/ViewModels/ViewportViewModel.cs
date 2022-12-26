@@ -25,7 +25,7 @@ public partial class ViewportViewModel : IViewportViewModel
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly IChunkRenderService _chunkRenderService;
 
-    [ObservableProperty] private Size<int> _screenSize = new(1, 1);
+    [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
     [ObservableProperty] private int _heightLevel = 319;
@@ -57,6 +57,7 @@ public partial class ViewportViewModel : IViewportViewModel
 
     public float UnitMultiplier => _zoomTable[_zoomLevel];
     // TODO we can encapsulate these properties bindings into separate class
+    public int CachedRegionsCount => _chunkRegionManagerService.CachedRegionsCount;
     public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
     public int LoadedRegionsCount => _chunkRegionManagerService.LoadedRegionsCount;
     public int PendingRegionsCount => _chunkRegionManagerService.PendingRegionsCount;
@@ -66,42 +67,40 @@ public partial class ViewportViewModel : IViewportViewModel
     public event Action? ViewportSizeRequested;
 
     // Update CRM Service, callback when these properties updated
-    private void UpdateChunkRegionManagerService() =>
-        _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
+    private void UpdateChunkRegionManagerService()
+    {
+        if (GlobalState.HasSavegameLoaded)
+            _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
+    }
+
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
     partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManagerService();
 
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
-        ViewportSizeRequested?.Invoke();
+        _chunkRegionManagerService.Reinitialize();
+        if (state == SavegameLoadState.Opened)
+            ViewportSizeRequested?.Invoke();
+        else if (state == SavegameLoadState.Closed)
+            ScreenSize = new Size<int>(0, 0);
     }
 
     private void OnChunkRegionManagerService_RegionLoaded(Region region)
     {
-        return;
         RegionImageModel rim = _regionImageModelFactory.Create(region.RegionCoords);
         _chunkRenderService.RenderRandomNoise(rim.Image,
                                               new Color() { Alpha = 255, Red = 64, Green = 128, Blue = 192 },
                                               64);
-        lock (_regionImageModelKeys)
-            _regionImageModelKeys.Add(region.RegionCoords, rim);
+        _regionImageModelKeys.Add(region.RegionCoords, rim);
         rim.Image.Redraw();
-        if (App.Current.CheckAccess())
-            _regionImageModels.Add(rim);
-        else
-            App.Current.Dispatcher.BeginInvoke(() => _regionImageModels.Add(rim), DispatcherPriority.Render);
+        _regionImageModels.Add(rim);
     }
 
     private void OnChunkRegionManagerService_RegionUnloaded(Region region)
     {
-        return;
-        RegionImageModel rim;
-        lock (_regionImageModelKeys)
-        {
-            rim = _regionImageModelKeys[region.RegionCoords];
-            _regionImageModelKeys.Remove(region.RegionCoords);
-        }
+        RegionImageModel rim = _regionImageModelKeys[region.RegionCoords];
+        _regionImageModelKeys.Remove(region.RegionCoords);
         _regionImageModels.Remove(rim);
     }
 
