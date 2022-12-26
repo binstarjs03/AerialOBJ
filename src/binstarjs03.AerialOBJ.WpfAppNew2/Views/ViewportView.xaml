@@ -5,13 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.ViewModels"
              xmlns:models="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Models"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
-             d:DesignWidth="500" d:DesignHeight="500" 
-             x:Name="Root">
+             d:DesignWidth="500" d:DesignHeight="500">
     <Grid>
         <DockPanel>
             <!--Height slider-->
@@ -49,6 +47,7 @@
                   Focusable="True"
                   ClipToBounds="True"
                   x:Name="Viewport">
+                <!--Control name is required for code-behind-->
 
                 <!--Input Handler Bindings-->
                 <i:Interaction.Triggers>
@@ -107,17 +106,17 @@
                                     <ContentControl.Width>
                                         <MultiBinding Converter="{StaticResource UnitMultiplier}">
                                             <Binding Path="Image.Size.Width"/>
-                                            <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
+                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" 
+                                                     Path="DataContext.UnitMultiplier"/>
                                         </MultiBinding>
                                     </ContentControl.Width>
                                 </ContentControl>
                                 <!--Region Text Information-->
                                 <local:PropertyValuePairView PropertyText="Region" 
                                                              ValueText="{Binding RegionPosition}"
-                                                             Visibility="{Binding ElementName=Root, Path=DataContext.GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
+                                                             Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
                                                              PropertyColor="Black"
-                                                             ValueColor="Black"
-                                                             />
+                                                             ValueColor="Black"/>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -128,9 +127,9 @@
                                 <Setter.Value>
                                     <MultiBinding Converter="{StaticResource WorldToScreen}">
                                         <Binding Path="WorldPosition.X"/>
-                                        <Binding ElementName="Root" Path="DataContext.CameraPos.X"/>
-                                        <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
-                                        <Binding ElementName="Root" Path="DataContext.ScreenSize.Width"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.X"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Width"/>
                                     </MultiBinding>
                                 </Setter.Value>
                             </Setter>
@@ -138,9 +137,9 @@
                                 <Setter.Value>
                                     <MultiBinding Converter="{StaticResource WorldToScreen}">
                                         <Binding Path="WorldPosition.Y"/>
-                                        <Binding ElementName="Root" Path="DataContext.CameraPos.Z"/>
-                                        <Binding ElementName="Root" Path="DataContext.UnitMultiplier"/>
-                                        <Binding ElementName="Root" Path="DataContext.ScreenSize.Height"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.Z"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Height"/>
                                     </MultiBinding>
                                 </Setter.Value>
                             </Setter>

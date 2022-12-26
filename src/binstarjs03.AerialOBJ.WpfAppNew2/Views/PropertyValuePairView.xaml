@@ -4,13 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfAppNew2.Views"
-             mc:Ignorable="d"
-             x:Name="Root">
+             mc:Ignorable="d">
     <Grid>
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{Binding ElementName=Root, Path=PropertyText}" Foreground="{Binding ElementName=Root, Path=PropertyColor}"/>
-            <TextBlock Text=": " Foreground="{Binding ElementName=Root, Path=PropertyColor}"/>
-            <TextBlock Text="{Binding ElementName=Root, Path=ValueText}" Foreground="{Binding ElementName=Root, Path=ValueColor}"/>
+            <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=PropertyText}" 
+                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=PropertyColor}"/>
+            <TextBlock Text=": " 
+                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=PropertyColor}"/>
+            <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=ValueText}" 
+                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=ValueColor}"/>
         </StackPanel>
     </Grid>
 </UserControl>
