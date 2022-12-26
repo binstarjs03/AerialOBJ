@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -42,27 +42,10 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private bool RecalculateVisibleChunkRange(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
-        Point2Z<int> worldScreenCenter = (Point2Z<int>)(screenSize / 2);
         float pixelPerChunk = unitMultiplier * Section.BlockCount; // one unit (or pixel) equal to one block
 
-        // Camera chunk in here means which chunk the camera is pointing to.
-        // Here we dont use int because floating point accuracy is crucial
-        double xCameraChunk = cameraPos.X / Section.BlockCount;
-        double zCameraChunk = cameraPos.Z / Section.BlockCount;
-
-        // min/maxCanvasCenterChunk means which chunk that is visible at the edgemost of the control
-        // that is measured by the length or height of the control size (which is chunk canvas)
-        double minXCanvasCenterChunk = -(worldScreenCenter.X / pixelPerChunk);
-        double maxXCanvasCenterChunk = worldScreenCenter.X / pixelPerChunk;
-        int minX = MathUtils.Floor(xCameraChunk + minXCanvasCenterChunk);
-        int maxX = MathUtils.Floor(xCameraChunk + maxXCanvasCenterChunk);
-        Rangeof<int> visibleChunkXRange = new(minX, maxX);
-
-        double minZCanvasCenterChunk = -(worldScreenCenter.Z / pixelPerChunk);
-        double maxZCanvasCenterChunk = worldScreenCenter.Z / pixelPerChunk;
-        int minZ = MathUtils.Floor(zCameraChunk + minZCanvasCenterChunk);
-        int maxZ = MathUtils.Floor(zCameraChunk + maxZCanvasCenterChunk);
-        Rangeof<int> visibleChunkZRange = new(minZ, maxZ);
+        Rangeof<int> visibleChunkXRange = calculateVisibleChunkRange(screenSize.Width, pixelPerChunk, cameraPos.X);
+        Rangeof<int> visibleChunkZRange = calculateVisibleChunkRange(screenSize.Height, pixelPerChunk, cameraPos.Z);
 
         Point2ZRange<int> oldVisibleChunkRange = _visibleChunkRange;
         Point2ZRange<int> newVisibleChunkRange = new(visibleChunkXRange, visibleChunkZRange);
@@ -71,20 +54,34 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         _visibleChunkRange = newVisibleChunkRange;
         OnPropertyChanged(nameof(VisibleChunkRange));
         return true;
+
+        static Rangeof<int> calculateVisibleChunkRange(int screenSize, float pixelPerChunk, float cameraPos)
+        {
+            // Camera chunk in here means which chunk the camera is pointing to.
+            // Floating point accuracy is crucial in here
+            float cameraChunk = cameraPos / Section.BlockCount;
+
+            // worldScreenCenter represent which world coordinate
+            // the center of viewport screen is pointing to
+            float worldScreenCenter = screenSize / 2f;
+
+            // min-maxScreenChunk means which chunk that is visible at the edgemost of the viewport
+            // that is measured by where the center of viewport is pointing to which world coordinate
+            // without taking camera position into account
+            float maxScreenChunk = worldScreenCenter / pixelPerChunk;
+            float minScreenChunk = -maxScreenChunk;
+
+            int minChunkRange = MathUtils.Floor(cameraChunk + minScreenChunk);
+            int maxChunkRange = MathUtils.Floor(cameraChunk + maxScreenChunk);
+
+            return new Rangeof<int>(minChunkRange, maxChunkRange);
+        }
     }
 
     private bool RecalculateVisibleRegionRange()
     {
-        // Calculating region range is easier since we only need to
-        // divide the range by how many chunks in region (in single axis)
-
-        int regionMinX = MathUtils.DivFloor(_visibleChunkRange.XRange.Min, Region.ChunkCount);
-        int regionMaxX = MathUtils.DivFloor(_visibleChunkRange.XRange.Max, Region.ChunkCount);
-        Rangeof<int> visibleRegionXRange = new(regionMinX, regionMaxX);
-
-        int regionMinZ = MathUtils.DivFloor(_visibleChunkRange.ZRange.Min, Region.ChunkCount);
-        int regionMaxZ = MathUtils.DivFloor(_visibleChunkRange.ZRange.Max, Region.ChunkCount);
-        Rangeof<int> visibleRegionZRange = new(regionMinZ, regionMaxZ);
+        Rangeof<int> visibleRegionXRange = calculateVisibleRegionRange(_visibleChunkRange.XRange);
+        Rangeof<int> visibleRegionZRange = calculateVisibleRegionRange(_visibleChunkRange.ZRange);
 
         Point2ZRange<int> oldVisibleRegionRange = _visibleRegionRange;
         Point2ZRange<int> newVisibleRegionRange = new(visibleRegionXRange, visibleRegionZRange);
@@ -93,6 +90,15 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         _visibleRegionRange = newVisibleRegionRange;
         OnPropertyChanged(nameof(VisibleRegionRange));
         return true;
+
+        static Rangeof<int> calculateVisibleRegionRange(Rangeof<int> visibleChunkRange)
+        {
+            // Calculating region range is easier since we only need to
+            // divide the range by how many chunks in region (in single axis)
+            int regionMinX = MathUtils.DivFloor(visibleChunkRange.Min, Region.ChunkCount);
+            int regionMaxX = MathUtils.DivFloor(visibleChunkRange.Max, Region.ChunkCount);
+            return new Rangeof<int>(regionMinX, regionMaxX);
+        }
     }
 
     private void ManageRegions()
