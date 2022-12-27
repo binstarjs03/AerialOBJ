@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
@@ -17,6 +19,22 @@ public partial class App : Application
     public App()
     {
         Host = AppHost.Configure();
+    }
+
+    public void TryInvokeDispatcher(Action method, DispatcherPriority priority)
+    {
+        if (CheckAccess())
+            method();
+        else
+            Dispatcher.Invoke(method, priority);
+    }
+
+    public void TryBeginInvokeDispatcher(Action method, DispatcherPriority priority)
+    {
+        if (CheckAccess())
+            method();
+        else
+            Dispatcher.BeginInvoke(method, priority);
     }
 
     protected override async void OnStartup(StartupEventArgs e)

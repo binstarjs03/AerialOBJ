@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -24,6 +25,7 @@ public partial class ViewportViewModel : IViewportViewModel
     private readonly RegionImageModelFactory _regionImageModelFactory;
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly IChunkRenderService _chunkRenderService;
+    private readonly ILogService _logService;
 
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
@@ -39,18 +41,20 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty] private ObservableCollection<RegionImageModel> _regionImageModels = new();
     private readonly Dictionary<Point2Z<int>, RegionImageModel> _regionImageModelKeys = new();
 
-    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory, IChunkRegionManagerService chunkRegionManagerService, IChunkRenderService chunkRenderService)
+    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory, IChunkRegionManagerService chunkRegionManagerService, IChunkRenderService chunkRenderService, ILogService logService)
     {
         GlobalState = globalState;
         _regionImageModelFactory = regionImageModelFactory;
         _chunkRegionManagerService = chunkRegionManagerService;
         _chunkRenderService = chunkRenderService;
-
+        _logService = logService;
+        
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
         _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
         _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionLoaded;
         _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionUnloaded;
+        _chunkRegionManagerService.RegionReadingError += OnChunkRegionManagerService_RegionReadingError;
     }
 
     public GlobalState GlobalState { get; }
@@ -79,11 +83,16 @@ public partial class ViewportViewModel : IViewportViewModel
 
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
-        _chunkRegionManagerService.Reinitialize();
         if (state == SavegameLoadState.Opened)
+        {
             ViewportSizeRequested?.Invoke();
+            UpdateChunkRegionManagerService();
+        }
         else if (state == SavegameLoadState.Closed)
+        {
+            _chunkRegionManagerService.Reinitialize();
             ScreenSize = new Size<int>(0, 0);
+        }
     }
 
     private void OnChunkRegionManagerService_RegionLoaded(Region region)
@@ -93,27 +102,35 @@ public partial class ViewportViewModel : IViewportViewModel
                                               new Color() { Alpha = 255, Red = 64, Green = 128, Blue = 192 },
                                               64);
         _regionImageModelKeys.Add(region.RegionCoords, rim);
-        if (App.Current.CheckAccess())
+        App.Current.Dispatcher.BeginInvoke(() =>
         {
             rim.Image.Redraw();
             _regionImageModels.Add(rim);
-        }
-        else
-            App.Current.Dispatcher.BeginInvoke(() =>
-            {
-                rim.Image.Redraw();
-                _regionImageModels.Add(rim);
-            }, DispatcherPriority.Render);
+        }, DispatcherPriority.Render);
     }
 
     private void OnChunkRegionManagerService_RegionUnloaded(Region region)
     {
         RegionImageModel rim = _regionImageModelKeys[region.RegionCoords];
         _regionImageModelKeys.Remove(region.RegionCoords);
-        if (App.Current.CheckAccess())
-            _regionImageModels.Remove(rim);
-        else
-            App.Current.Dispatcher.BeginInvoke(() => _regionImageModels.Remove(rim), DispatcherPriority.Render);
+        App.Current.Dispatcher.BeginInvoke(() => _regionImageModels.Remove(rim), DispatcherPriority.Render);
+    }
+
+    private void OnChunkRegionManagerService_RegionReadingError(Point2Z<int> regionCoords, Exception e)
+    {
+        App.Current.Dispatcher.BeginInvoke(() =>
+        {
+            // TODO pass in an enum of error type for more readability
+            if (e is RegionNoDataException)
+                _logService.Log($"Skipped Region {regionCoords}: file contains no data", useSeparator: true);
+            else if (e is InvalidDataException)
+                _logService.Log($"Skipped Region {regionCoords}: file is corrupted", LogStatus.Warning, useSeparator: true);
+            else
+            {
+                _logService.Log($"Skipped Region {regionCoords}: Unhandled exception occured:", LogStatus.Error);
+                _logService.Log(e.ToString(), useSeparator: true);
+            }
+        }, DispatcherPriority.Background);
     }
 
     #region Commands

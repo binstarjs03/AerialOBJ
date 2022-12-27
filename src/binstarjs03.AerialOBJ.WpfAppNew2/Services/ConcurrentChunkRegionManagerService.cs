@@ -14,6 +14,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private readonly Random _rng = new();
     private readonly IRegionLoaderService _regionLoaderService;
+    private readonly IChunkRegionManagerErrorMemoryService _crmErrorMemoryService;
 
     private readonly StructLock<Point2ZRange<int>> _visibleRegionRange = new();
     private readonly StructLock<Point2ZRange<int>> _visibleChunkRange = new();
@@ -26,9 +27,10 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private Task _updaterTask = new(() => { });
 
-    public ConcurrentChunkRegionManagerService(IRegionLoaderService regionLoaderService)
+    public ConcurrentChunkRegionManagerService(IRegionLoaderService regionLoaderService, IChunkRegionManagerErrorMemoryService chunkRegionManagerErrorMemoryService)
     {
         _regionLoaderService = regionLoaderService;
+        _crmErrorMemoryService = chunkRegionManagerErrorMemoryService;
     }
 
     public int CachedRegionsCount => _cachedRegions.Count;
@@ -49,9 +51,30 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             _updaterTask = Task.Run(() => UpdateConcurrently(cameraPos, unitMultiplier, screenSize));
     }
 
-    public void Reinitialize()
+    public async void Reinitialize()
     {
+        // wait all crm threads finished executing,
+        // only then we can use the field safely without locking.
+        // we dont call Task.Wait() because it will lock the Main Thread and cause dead lock
+        await _updaterTask;
+        await _workRegionTask;
 
+        _pendingRegions.Clear();
+        foreach (Region region in _loadedRegions.Values)
+            UnloadRegion(region);
+        _cachedRegions.Clear();
+        _visibleRegionRange.Value = new Point2ZRange<int>(0, 0, 0, 0);
+        _workedRegion.Value = null;
+        _visibleChunkRange.Value = new Point2ZRange<int>(0, 0, 0, 0);
+        _crmErrorMemoryService.Reinitialize();
+
+        OnPropertyChanged(nameof(PendingRegionsCount));
+        OnPropertyChanged(nameof(LoadedRegionsCount));
+        OnPropertyChanged(nameof(CachedRegionsCount));
+        OnPropertyChanged(nameof(VisibleRegionRange));
+        OnPropertyChanged(nameof(WorkedRegion));
+
+        OnPropertyChanged(nameof(VisibleChunkRange));
     }
 
     private void UpdateConcurrently(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
@@ -137,7 +160,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             LoadRegionConcurrently();
     }
 
-    private void UnloadCulledRegions()
+    private void UnloadCulledRegions() 
     {
         // perform boundary range checking for regions outside display frame
         // unload them if outside
@@ -192,8 +215,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         // because we need to lock _pendingRegionList
         while (true)
         {
-            Point2Z<int> regionCoords;
-            if (!getRandomPendingRegion(out regionCoords))
+            if (!getRandomPendingRegion(out Point2Z<int> regionCoords))
                 break;
             lock (_workedRegion)
                 _workedRegion.Value = regionCoords;
@@ -208,7 +230,12 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 if (loadResult is null)
                 {
                     if (e is not null)
-                        RegionReadingError?.Invoke(regionCoords, e);
+                        lock (_crmErrorMemoryService)
+                            if (!_crmErrorMemoryService.CheckHasRegionError(regionCoords))
+                            {
+                                RegionReadingError?.Invoke(regionCoords, e);
+                                _crmErrorMemoryService.StoreRegionError(regionCoords);
+                            }
                     continue;
                 }
                 region = loadResult;
