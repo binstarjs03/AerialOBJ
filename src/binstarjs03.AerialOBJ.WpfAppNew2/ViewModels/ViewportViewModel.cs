@@ -93,15 +93,27 @@ public partial class ViewportViewModel : IViewportViewModel
                                               new Color() { Alpha = 255, Red = 64, Green = 128, Blue = 192 },
                                               64);
         _regionImageModelKeys.Add(region.RegionCoords, rim);
-        rim.Image.Redraw();
-        _regionImageModels.Add(rim);
+        if (App.Current.CheckAccess())
+        {
+            rim.Image.Redraw();
+            _regionImageModels.Add(rim);
+        }
+        else
+            App.Current.Dispatcher.BeginInvoke(() =>
+            {
+                rim.Image.Redraw();
+                _regionImageModels.Add(rim);
+            }, DispatcherPriority.Render);
     }
 
     private void OnChunkRegionManagerService_RegionUnloaded(Region region)
     {
         RegionImageModel rim = _regionImageModelKeys[region.RegionCoords];
         _regionImageModelKeys.Remove(region.RegionCoords);
-        _regionImageModels.Remove(rim);
+        if (App.Current.CheckAccess())
+            _regionImageModels.Remove(rim);
+        else
+            App.Current.Dispatcher.BeginInvoke(() => _regionImageModels.Remove(rim), DispatcherPriority.Render);
     }
 
     #region Commands
