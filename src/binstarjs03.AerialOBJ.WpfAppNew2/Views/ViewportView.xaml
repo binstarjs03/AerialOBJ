@@ -100,12 +100,12 @@
                         <DataTemplate DataType="models:RegionImageModel">
                             <Grid>
                                 <!--Region Image-->
-                                <ContentControl Content="{Binding Image}" 
+                                <ContentControl Content="{Binding RegionImage}" 
                                                 RenderOptions.BitmapScalingMode="NearestNeighbor"
                                                 RenderOptions.EdgeMode="Aliased">
                                     <ContentControl.Width>
                                         <MultiBinding Converter="{StaticResource UnitMultiplier}">
-                                            <Binding Path="Image.Size.Width"/>
+                                            <Binding Path="RegionImage.Size.Width"/>
                                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" 
                                                      Path="DataContext.UnitMultiplier"/>
                                         </MultiBinding>
@@ -113,7 +113,7 @@
                                 </ContentControl>
                                 <!--Region Text Information-->
                                 <local:PropertyValuePairView PropertyText="Region" 
-                                                             ValueText="{Binding RegionPosition}"
+                                                             ValueText="{Binding RegionCoords}"
                                                              Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.GlobalState.IsViewportChunkGridVisible, Converter={StaticResource BoolToVisibility}, ConverterParameter={x:Static Visibility.Collapsed}}"
                                                              PropertyColor="Black"
                                                              ValueColor="Black"/>
@@ -126,7 +126,7 @@
                             <Setter Property="Canvas.Left">
                                 <Setter.Value>
                                     <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                        <Binding Path="WorldPosition.X"/>
+                                        <Binding Path="WorldCoords.X"/>
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.X"/>
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Width"/>
@@ -136,7 +136,7 @@
                             <Setter Property="Canvas.Top">
                                 <Setter.Value>
                                     <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                        <Binding Path="WorldPosition.Y"/>
+                                        <Binding Path="WorldCoords.Y"/>
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.Z"/>
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Height"/>
@@ -252,7 +252,7 @@
                             <local:PropertyValuePairView PropertyText=" - X Range" ValueText="{Binding VisibleRegionRange.XRange}"/>
                             <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="{Binding VisibleRegionRange.ZRange}"/>
                             <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="{Binding LoadedRegionsCount}"/>
-                            <local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/>
+                            <!--local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/-->
                             <local:PropertyValuePairView PropertyText="Pending Region Count" ValueText="{Binding PendingRegionsCount}"/>
                             <local:PropertyValuePairView PropertyText="Worked Region" ValueText="{Binding WorkedRegion}"/>
 

@@ -21,22 +21,6 @@ public partial class App : Application
         Host = AppHost.Configure();
     }
 
-    public void TryInvokeDispatcher(Action method, DispatcherPriority priority)
-    {
-        if (CheckAccess())
-            method();
-        else
-            Dispatcher.Invoke(method, priority);
-    }
-
-    public void TryBeginInvokeDispatcher(Action method, DispatcherPriority priority)
-    {
-        if (CheckAccess())
-            method();
-        else
-            Dispatcher.BeginInvoke(method, priority);
-    }
-
     protected override async void OnStartup(StartupEventArgs e)
     {
         await Host.StartAsync();

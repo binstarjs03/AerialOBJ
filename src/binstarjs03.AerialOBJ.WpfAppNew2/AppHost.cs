@@ -1,5 +1,6 @@
 ﻿using System;
 
+using binstarjs03.AerialOBJ.Core.Threading.MessageDispatching;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
@@ -23,12 +24,15 @@ public static class AppHost
             services.AddSingleton<IMutableImageFactory, MutableImageFactory>();
 
             // configure models
+
+            // configure factories
             services.AddSingleton<RegionImageModelFactory>();
+            services.AddSingleton<IMessageDispatcherFactory, MessageDispatcherFactory>();
+            services.AddAbstractFactory<IAboutView, AboutView>();
 
             // configure views
             services.AddSingleton<MainView>();
             services.AddSingleton<DebugLogView>();
-            services.AddAbstractFactory<IAboutView, AboutView>();
 
             // configure viewmodels
             services.AddSingleton<MainViewModel>();
@@ -37,7 +41,8 @@ public static class AppHost
             services.AddTransient<ViewportViewModel>();
 
             // configure services
-            services.AddModalService();
+            //services.AddModalService();
+            services.AddSingleton<IModalService, ModalService>();
             services.AddSingleton<ILogService, LogService>();
             services.AddSingleton<IIOService, IOService>();
             services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();

@@ -12,12 +12,13 @@ public class RegionImageModelFactory
         _mutableImageFactory = mutableImageFactory;
     }
 
-    public RegionImageModel Create(Point2Z<int> regionPosition)
+    public RegionModel Create(Point2Z<int> regionPosition, Region regionData)
     {
-        return new RegionImageModel()
+        return new RegionModel()
         {
-            RegionPosition = regionPosition,
-            Image = _mutableImageFactory.Create(new Size<int>(Region.BlockCount, Region.BlockCount)),
+            RegionData = regionData,
+            RegionCoords = regionPosition,
+            RegionImage = _mutableImageFactory.Create(new Size<int>(Region.BlockCount, Region.BlockCount)),
         };
     }
 }

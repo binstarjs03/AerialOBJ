@@ -64,7 +64,7 @@ public class MutableImage : Image, IMutableImage
         if (CheckAccess())
             AddFullDirtyRect();
         else
-            Dispatcher.BeginInvoke(AddFullDirtyRect, DispatcherPriority.Render, null);
+            Dispatcher.InvokeAsync(AddFullDirtyRect, DispatcherPriority.Render);
     }
 
     private void AddFullDirtyRect()
