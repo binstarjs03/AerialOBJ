@@ -27,11 +27,10 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly StructLock<Point2ZRange<int>> _visibleRegionRange = new() { Value = new Point2ZRange<int>() };
     private readonly StructLock<Point2ZRange<int>> _visibleChunkRange = new() { Value = new Point2ZRange<int>() };
 
+    private readonly IMessageDispatcher _regionDispatcher;
     private readonly Dictionary<Point2Z<int>, RegionModel> _loadedRegions = new(s_regionBufferSize);
     private readonly List<Point2Z<int>> _pendingRegions = new(s_regionBufferSize);
     private readonly StructLock<Point2Z<int>?> _workedRegion = new() { Value = null };
-    private Task _workedRegionTask = new(() => { });
-    private readonly IMessageDispatcher _regionDispatcher;
 
     public ConcurrentChunkRegionManagerService(
         IRegionLoaderService regionLoaderService,
@@ -161,7 +160,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         UnloadCulledRegions();
         if (QueuePendingRegions())
-            DispatchWorkedRegionTask();
+            _regionDispatcher.InvokeAsynchronousNoDuplicate(LoadPendingRegions);
     }
 
     private void UnloadCulledRegions()
@@ -190,30 +189,49 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 {
                     Point2Z<int> regionCoords = new(x, z);
                     lock (_loadedRegions)
-                        lock (_workedRegion)
-                            if (_loadedRegions.ContainsKey(regionCoords)
-                                || _pendingRegions.Contains(regionCoords)
-                                || _workedRegion.Value == regionCoords)
-                                continue;
-                            else
-                            {
-                                _pendingRegions.Add(regionCoords);
-                                hasPendingRegion = true;
-                            }
+                        lock (_pendingRegions)
+                            lock (_workedRegion)
+                                if (_loadedRegions.ContainsKey(regionCoords)
+                                    || _pendingRegions.Contains(regionCoords)
+                                    || _workedRegion.Value == regionCoords)
+                                    continue;
+                                else
+                                {
+                                    _pendingRegions.Add(regionCoords);
+                                    hasPendingRegion = true;
+                                }
                 }
         }
         OnPropertyChanged(nameof(PendingRegionsCount));
         return hasPendingRegion;
     }
 
-    private void DispatchWorkedRegionTask()
+    private void LoadPendingRegions()
     {
-        if (_pendingRegions.Count == 0)
-            return;
-        Point2Z<int> regionCoords = getRandomPendingRegion();
-
-        // load region asynchronously, CRM dispatcher must be responsive to update request
-        _regionDispatcher.InvokeAsynchronous(() => WorkedRegionTaskMethod(regionCoords));
+        while (true)
+        {
+            Point2Z<int> regionCoords;
+            lock (_pendingRegions)
+            {
+                if (_pendingRegions.Count == 0)
+                    break;
+                regionCoords = getRandomPendingRegion();
+            }
+            lock (_workedRegion)
+                _workedRegion.Value = regionCoords;
+            OnPropertyChanged(nameof(WorkedRegion));
+            Region? region = _regionLoaderService.LoadRegion(regionCoords, out Exception? e);
+            if (region is null)
+            {
+                if (e is not null)
+                    handleRegionLoadingError(regionCoords, e);
+                continue;
+            }
+            LoadRegion(region);
+        }
+        lock (_workedRegion)
+            _workedRegion.Value = null;
+        OnPropertyChanged(nameof(WorkedRegion));
 
         Point2Z<int> getRandomPendingRegion()
         {
@@ -223,39 +241,12 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             OnPropertyChanged(nameof(PendingRegionsCount));
             return result;
         }
-    }
-
-    // TODO WorkedRegionTaskMethod can be put on a separate class for more readability,
-    // because both class can't see the private methods and fields on each other
-    private void WorkedRegionTaskMethod(Point2Z<int> regionCoords)
-    {
-        lock (_workedRegion)
-            _workedRegion.Value = regionCoords;
-        OnPropertyChanged(nameof(WorkedRegion));
-        try
-        {
-            Region? region = _regionLoaderService.LoadRegion(regionCoords, out Exception? e);
-            if (region is null)
-            {
-                if (e is not null)
-                    handleRegionLoadingError(regionCoords, e);
-                return;
-            }
-            LoadRegion(region);
-        }
-        finally
-        {
-            lock (_workedRegion)
-                _workedRegion.Value = null;
-            OnPropertyChanged(nameof(WorkedRegion));
-            _crmDispatcher.InvokeAsynchronousNoDuplicate(DispatchWorkedRegionTask);
-        }
 
         void handleRegionLoadingError(Point2Z<int> regionCoords, Exception e)
         {
             if (!_crmErrorMemoryService.CheckHasRegionError(regionCoords))
             {
-                RegionLoadingError?.Invoke(regionCoords, e);
+                App.Current.Dispatcher.InvokeAsync(()=>RegionLoadingError?.Invoke(regionCoords, e));
                 _crmErrorMemoryService.StoreRegionError(regionCoords);
             }
         }
@@ -275,7 +266,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                                               64);
         rim.RegionImage.Redraw();
         lock (_visibleRegionRange)
-        {
             lock (_loadedRegions)
             {
                 if (_visibleRegionRange.Value.IsOutside(region.RegionCoords)
@@ -284,7 +274,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 App.Current.Dispatcher.InvokeAsync(() => RegionImageLoaded?.Invoke(rim), DispatcherPriority.Render);
                 _loadedRegions.Add(region.RegionCoords, rim);
             }
-        }
         OnPropertyChanged(nameof(LoadedRegionsCount));
     }
 

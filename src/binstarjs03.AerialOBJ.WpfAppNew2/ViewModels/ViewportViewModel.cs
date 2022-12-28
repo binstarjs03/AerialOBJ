@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
-using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
@@ -22,9 +19,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 public partial class ViewportViewModel : IViewportViewModel
 {
     private readonly float[] _zoomTable = new float[] { 0.5f, 1, 2, 3, 5, 8, 13, 21, 34 };
-    private readonly RegionImageModelFactory _regionImageModelFactory;
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
-    private readonly IChunkRenderService _chunkRenderService;
     private readonly ILogService _logService;
 
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
@@ -39,14 +34,11 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty] private bool _mouseIsInside = false;
 
     [ObservableProperty] private ObservableCollection<RegionModel> _regionImageModels = new();
-    private readonly Dictionary<Point2Z<int>, RegionModel> _regionImageModelKeys = new();
 
-    public ViewportViewModel(GlobalState globalState, RegionImageModelFactory regionImageModelFactory, IChunkRegionManagerService chunkRegionManagerService, IChunkRenderService chunkRenderService, ILogService logService)
+    public ViewportViewModel(GlobalState globalState, IChunkRegionManagerService chunkRegionManagerService, ILogService logService)
     {
         GlobalState = globalState;
-        _regionImageModelFactory = regionImageModelFactory;
         _chunkRegionManagerService = chunkRegionManagerService;
-        _chunkRenderService = chunkRenderService;
         _logService = logService;
 
         GlobalState.PropertyChanged += OnPropertyChanged;
@@ -113,7 +105,6 @@ public partial class ViewportViewModel : IViewportViewModel
 
     private void OnChunkRegionManagerService_RegionReadingError(Point2Z<int> regionCoords, Exception e)
     {
-        return;
         if (e is RegionNoDataException)
             _logService.Log($"Skipped Region {regionCoords}: file contains no data", useSeparator: true);
         else if (e is InvalidDataException)
