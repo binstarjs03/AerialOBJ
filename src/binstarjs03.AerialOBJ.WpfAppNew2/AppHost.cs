@@ -1,9 +1,9 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.Core.Threading.MessageDispatching;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
+using binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services.SavegameLoaderServices;
 using binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
@@ -40,26 +40,16 @@ public static class AppHost
             services.AddTransient<ViewportViewModel>();
 
             // configure services
-            //services.AddModalService();
             services.AddSingleton<IModalService, ModalService>();
             services.AddSingleton<ILogService, LogService>();
             services.AddSingleton<IIOService, IOService>();
             services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
             services.AddSingleton<ICoordinateConverterService, CoordinateConverterService>();
             services.AddTransient<IChunkRegionManagerService, ConcurrentChunkRegionManagerService>();
-            services.AddTransient<IChunkRegionManagerErrorMemoryService, ChunkRegionManagerErrorMemoryService>();
+            services.AddTransient<IChunkRegionManagerErrorMemory, ChunkRegionManagerErrorMemory>();
             services.AddSingleton<IRegionLoaderService, RegionLoaderService>();
             services.AddSingleton<IChunkRenderService, ChunkRenderService>();
 
         }).Build();
-    }
-
-    private static void AddModalService(this IServiceCollection services)
-    {
-        services.AddSingleton<IModalService, ModalService>(x =>
-        {
-            ServiceProvider provider = services.BuildServiceProvider();
-            return new ModalService(provider.GetRequiredService<IAbstractFactory<IAboutView>>());
-        });
     }
 }

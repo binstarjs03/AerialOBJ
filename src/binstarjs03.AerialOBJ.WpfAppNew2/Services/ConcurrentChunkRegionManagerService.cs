@@ -21,7 +21,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     // Dependencies -----------------------------------------------------------
     private readonly IRegionLoaderService _regionLoaderService;
-    private readonly IChunkRegionManagerErrorMemoryService _crmErrorMemoryService;
+    private readonly IChunkRegionManagerErrorMemory _crmErrorMemoryService;
     private readonly RegionImageModelFactory _regionModelFactory;
     private readonly IChunkRenderService _chunkRenderService;
 
@@ -51,7 +51,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     public ConcurrentChunkRegionManagerService(
         IRegionLoaderService regionLoaderService,
-        IChunkRegionManagerErrorMemoryService chunkRegionManagerErrorMemoryService,
+        IChunkRegionManagerErrorMemory chunkRegionManagerErrorMemoryService,
         RegionImageModelFactory regionImageModelFactory,
         IChunkRenderService chunkRenderService)
     {
