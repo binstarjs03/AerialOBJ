@@ -15,6 +15,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 {
     private const int s_regionBufferSize = 15;
+    private const int s_chunkBufferSize = s_regionBufferSize * Region.TotalChunkCount;
     private readonly Random _rng = new();
 
     // Dependencies -----------------------------------------------------------
@@ -41,6 +42,11 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly List<Point2Z<int>> _pendingRegions = new(s_regionBufferSize);
     private readonly StructLock<Point2Z<int>?> _workedRegion = new() { Value = null };
 
+    private readonly Dictionary<Point2Z<int>, Chunk> _loadedChunks = new(s_chunkBufferSize);
+    private readonly HashSet<Point2Z<int>> _pendingChunksSet = new(s_chunkBufferSize);
+    private readonly List<Point2Z<int>> _pendingChunks = new(s_chunkBufferSize);
+    private readonly object _pendingChunkLock = new();
+    private readonly List<Point2Z<int>> _workedChunks = new(Environment.ProcessorCount);
 
     public ConcurrentChunkRegionManagerService(
         IRegionLoaderService regionLoaderService,
@@ -69,9 +75,11 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     public void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
         if (RecalculateVisibleChunkRange(cameraPos, unitMultiplier, screenSize))
+        {
             if (RecalculateVisibleRegionRange())
                 ManageRegions();
-        //ManageChunks();
+            ManageChunks();
+        }
     }
 
     public void Reinitialize()
@@ -218,7 +226,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             return _pendingRegions.Count > 0;
     }
 
-
     private void LoadPendingRegions()
     {
         try
@@ -337,6 +344,171 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         OnPropertyChanged(nameof(LoadedRegionsCount));
     }
 
+    private void ManageChunks()
+    {
+        UnloadCulledChunks();
+        if (QueuePendingChunks())
+            RunChunkLoaderTasks();
+    }
+
+    private void UnloadCulledChunks()
+    {
+        // perform boundary range checking for regions outside display frame
+        // unload loaded / cancel pending chunk if outside
+        lock (_visibleChunkRange)
+        {
+            lock (_loadedChunks)
+                foreach ((Point2Z<int> chunkCoords, Chunk chunk) in _loadedChunks)
+                    if (_visibleChunkRange.Value.IsOutside(chunkCoords))
+                        UnloadChunk(chunk);
+            lock (_pendingChunkLock)
+            {
+                _pendingChunks.RemoveAll(_visibleChunkRange.Value.IsOutside);
+                _pendingChunksSet.RemoveWhere(_visibleChunkRange.Value.IsOutside);
+            }
+        }
+    }
+
+    private bool QueuePendingChunks()
+    {
+        // this section of code may have lots of overheads as hundreds even tens of hundreds chunks
+        // may visible to the screen at a time, plus there are quadruple of locks combined
+        lock (_visibleChunkRange)
+        {
+            for (int x = _visibleChunkRange.Value.XRange.Min; x <= _visibleChunkRange.Value.XRange.Max; x++)
+                for (int z = _visibleChunkRange.Value.ZRange.Min; z < _visibleChunkRange.Value.ZRange.Max; z++)
+                {
+                    Point2Z<int> chunkCoords = new(x, z);
+                    lock (_loadedChunks)
+                        lock (_pendingChunkLock)
+                            lock (_workedChunks)
+                                if (_loadedChunks.ContainsKey(chunkCoords)
+                                    || _pendingChunksSet.Contains(chunkCoords)
+                                    || _workedChunks.Contains(chunkCoords))
+                                    continue;
+                                else
+                                {
+                                    _pendingChunks.Add(chunkCoords);
+                                    _pendingChunksSet.Add(chunkCoords);
+                                }
+                }
+        }
+        lock (_pendingChunkLock)
+            return _pendingChunks.Count > 0;
+    }
+
+    // TODO we may be able to create new class that manages and track pool of tasks
+    private void RunChunkLoaderTasks()
+    {
+        lock (_chunkLoaderTasks)
+        {
+            while (_chunkLoaderTasks.Count < _chunkLoaderTasksLimit)
+            {
+                uint taskId = _newChunkLoaderTaskId.Value++;
+                Task task = new(() => LoadPendingChunks(taskId));
+                lock (_chunkLoaderTasks)
+                    _chunkLoaderTasks.Add(taskId, task);
+                task.Start();
+            }
+        }
+    }
+
+    private void LoadPendingChunks(uint taskId)
+    {
+        try
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                // get random pending chunk then assign it to worked chunk
+                Point2Z<int> chunkCoords;
+                lock (_pendingChunks)
+                    lock (_pendingChunksSet)
+                        lock (_workedChunks)
+                        {
+                            if (_pendingChunks.Count == 0)
+                                break;
+                            chunkCoords = getRandomPendingChunk();
+                            _workedChunks.Add(chunkCoords);
+                        }
+                // get the underlying region
+                Point2Z<int> regionCoords = CoordsUtils.GetChunkRegionCoords(chunkCoords);
+                RegionModel? region;
+                lock (_loadedRegions)
+                    _loadedRegions.TryGetValue(regionCoords, out region);
+                if (region is null)
+                {
+                    cleanupWorkedChunk(chunkCoords);
+                    continue;
+                }
+                // get chunk
+                Point2Z<int> chunkCoordsRel = CoordsUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
+                if (!region.RegionData.HasChunkGenerated(chunkCoordsRel))
+                {
+                    cleanupWorkedChunk(chunkCoords);
+                    continue;
+                }
+                Chunk chunk;
+                try
+                {
+                    // TODO we may separate getting chunk logic into its own loader service
+                    // or maybe just keep it as it as getting chunk can be done directly from region
+                    chunk = region.RegionData.GetChunk(chunkCoords, relative: true);
+                }
+                catch (Exception e)
+                {
+                    handleChunkLoadingError(chunkCoords, e);
+                    cleanupWorkedChunk(chunkCoords);
+                    continue;
+                }
+                finally { cleanupWorkedChunk(chunkCoords); }
+                // load it
+                LoadChunk(chunk, region);
+            }
+        }
+        finally
+        {
+            lock (_chunkLoaderTasks)
+                _chunkLoaderTasks.Remove(taskId);
+        }
+
+        Point2Z<int> getRandomPendingChunk()
+        {
+            int randomIndex = _rng.Next(0, _pendingChunks.Count);
+            Point2Z<int> result = _pendingChunks[randomIndex];
+            _pendingChunks.RemoveAt(randomIndex);
+            _pendingChunksSet.Remove(result);
+            return result;
+        }
+
+        void handleChunkLoadingError(Point2Z<int> chunkCoords, Exception e)
+        {
+            if (_crmErrorMemoryService.CheckHasChunkError(chunkCoords))
+                return;
+            App.Current.Dispatcher.InvokeAsync(() => ChunkLoadingError?.Invoke(chunkCoords, e));
+            _crmErrorMemoryService.StoreChunkError(chunkCoords);
+        }
+
+        void cleanupWorkedChunk(Point2Z<int> chunkCoords)
+        {
+            lock (_workedChunks)
+                _workedChunks.Remove(chunkCoords);
+        }
+    }
+
+    private void LoadChunk(Chunk chunk, RegionModel regionModel)
+    {
+        if (_visibleChunkRange.Value.IsOutside(chunk.ChunkCoordsAbs)
+            || _loadedChunks.ContainsKey(chunk.ChunkCoordsAbs))
+            return;
+        _loadedChunks.Add(chunk.ChunkCoordsAbs, chunk);
+        //_chunkRenderService.
+        throw new NotImplementedException();
+    }
+
+    private void UnloadChunk(Chunk chunk)
+    {
+        throw new NotImplementedException();
+    }
 
     // TODO we may be able to move out these two methods into separate class
     // since the definition is about threading and its out of this class responsibility scope
