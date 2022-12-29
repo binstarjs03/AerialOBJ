@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +10,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
+using binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService

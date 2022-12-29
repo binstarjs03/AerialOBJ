@@ -1,12 +1,19 @@
 ﻿using System;
 
 using binstarjs03.AerialOBJ.Core;
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 public class ChunkRenderService : IChunkRenderService
 {
+    public void RenderChunk(RegionModel region, Chunk chunk)
+    {
+        throw new NotImplementedException();
+    }
+
     public void RenderRandomNoise(IMutableImage mutableImage, Color color, byte distance)
     {
         for (int x = 0; x < mutableImage.Size.Width; x++)

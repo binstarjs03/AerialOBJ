@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
