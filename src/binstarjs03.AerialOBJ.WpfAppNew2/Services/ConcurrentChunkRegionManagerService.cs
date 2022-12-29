@@ -28,8 +28,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly int _chunkLoaderTasksLimit = Environment.ProcessorCount;
 
     private readonly StructLock<bool> _isRegionLoaderTaskRunning = new() { Value = false };
-
     private Task _regionLoaderTask = new(() => { });
+
     private readonly Dictionary<uint, Task> _chunkLoaderTasks = new(Environment.ProcessorCount);
     private readonly StructLock<uint> _newChunkLoaderTaskId = new() { Value = 0 };
 
@@ -74,17 +74,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         //ManageChunks();
     }
 
-    private void RunRegionManagerTask()
-    {
-        lock (_isRegionManagerTaskRunning)
-        {
-            if (_isRegionManagerTaskRunning.Value)
-                return;
-            _managerTask = Task.Run(ManageRegions);
-            _isRegionManagerTaskRunning.Value = true;
-        }
-    }
-
     public void Reinitialize()
     {
         _cts.Cancel();
@@ -95,7 +84,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         foreach (RegionModel region in _loadedRegions.Values)
             UnloadRegion(region);
         _pendingRegions.Clear();
-        _workedRegion.Value = null;
         _crmErrorMemoryService.Reinitialize();
         _regionLoaderService.PurgeCache();
 
@@ -184,7 +172,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         UnloadCulledRegions();
         if (QueuePendingRegions())
-            RunRegionLoaderTask();
+            RunTaskNoDuplicate(LoadPendingRegions, ref _regionLoaderTask, _isRegionLoaderTaskRunning);
     }
 
     private void UnloadCulledRegions()
@@ -230,16 +218,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             return _pendingRegions.Count > 0;
     }
 
-    private void RunRegionLoaderTask()
-    {
-        lock (_isRegionLoaderTaskRunning)
-        {
-            if (_isRegionLoaderTaskRunning.Value)
-                return;
-            _regionLoaderTask = Task.Run(LoadPendingRegions);
-            _isRegionLoaderTaskRunning.Value = true;
-        }
-    }
 
     private void LoadPendingRegions()
     {
@@ -269,12 +247,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 cleanupWorkedRegion();
             }
         }
-        finally
-        {
-            cleanupWorkedRegion();
-            lock (_isRegionLoaderTaskRunning)
-                _isRegionLoaderTaskRunning.Value = false;
-        }
+        finally { cleanupWorkedRegion(); }
 
         bool tryGetRandomPendingRegion(out Point2Z<int> result)
         {
@@ -362,6 +335,35 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             App.Current.Dispatcher.InvokeAsync(() => RegionImageUnloaded?.Invoke(region), DispatcherPriority.Render);
         _loadedRegions.Remove(region.RegionCoords);
         OnPropertyChanged(nameof(LoadedRegionsCount));
+    }
+
+
+    // TODO we may be able to move out these two methods into separate class
+    // since the definition is about threading and its out of this class responsibility scope
+    // This is to conform SRP
+    private static void RunTaskNoDuplicate(Action method, ref Task task, StructLock<bool> isTaskRunning)
+    {
+        lock (isTaskRunning)
+        {
+            if (isTaskRunning.Value)
+                return;
+            isTaskRunning.Value = true;
+            task = Task.Run(() => RunTaskMethodWrapper(method, isTaskRunning));
+        }
+
+    }
+
+    private static void RunTaskMethodWrapper(Action method, StructLock<bool> isTaskRunning)
+    {
+        try
+        {
+            method();
+        }
+        finally
+        {
+            lock (isTaskRunning)
+                isTaskRunning.Value = false;
+        }
     }
 
     private void OnPropertyChanged(string propertyName)
