@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -18,7 +18,12 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel : IViewportViewModel
 {
+#if RELEASE
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
+#elif DEBUG
+    private readonly float[] _zoomTable = new float[] { 0.5f, 1, 2, 3, 5, 8, 13, 21, 34 };
+#endif
+
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly ILogService _logService;
 
@@ -132,7 +137,11 @@ public partial class ViewportViewModel : IViewportViewModel
         MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : newMousePosDelta;
         if (MouseClickHolding)
         {
+#if RELEASE
             Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
+#elif DEBUG
+            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X * 4 / UnitMultiplier, -MousePosDelta.Y * 4 / UnitMultiplier);
+#endif
             CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
         }
