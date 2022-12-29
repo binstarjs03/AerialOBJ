@@ -7,5 +7,5 @@
 /// <typeparam name="T"></typeparam>
 public class StructLock<T>
 {
-    public T Value { get; set; }
+    public required T Value { get; set; }
 }

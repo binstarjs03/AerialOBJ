@@ -92,7 +92,7 @@
                     </Grid.Resources>
                     
                     <!--Minecraft Region Image Model-->
-                    <ItemsControl ItemsSource="{Binding RegionImageModels}">
+                    <ItemsControl ItemsSource="{Binding RegionModels}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Canvas ClipToBounds="True"/>

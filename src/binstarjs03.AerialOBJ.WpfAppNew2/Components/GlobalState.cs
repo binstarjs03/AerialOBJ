@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
 public class GlobalState
@@ -32,9 +33,11 @@ public class GlobalState
         }
     }
 
+    // SavegameLoadInfo is accessed by CRM Threads through IOService
     public SavegameLoadInfo? SavegameLoadInfo
     {
         get => _savegameLoadInfo;
+
         set
         {
             if (value == _savegameLoadInfo)

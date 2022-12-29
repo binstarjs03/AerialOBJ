@@ -5,12 +5,12 @@ using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 public class LogService : ILogService
 {
-    private string s_logContent = "";
+    private string _logContent = "";
     private readonly GlobalState _globalState;
 
     public event LoggingEventHandler? Logging;
 
-    public string LogContent => s_logContent;
+    public string LogContent => _logContent;
 
     public LogService(GlobalState globalState)
     {
@@ -19,7 +19,7 @@ public class LogService : ILogService
 
     public void Clear()
     {
-        s_logContent = "";
+        _logContent = "";
     }
 
     public void Log(string message, bool useSeparator = false)
@@ -30,10 +30,10 @@ public class LogService : ILogService
     public void Log(string message, LogStatus status, bool useSeparator = false)
     {
         if (status != LogStatus.Normal)
-            s_logContent += $"[{status.ToString().ToUpper()}] ";
-        s_logContent += $"{message}{Environment.NewLine}";
+            _logContent += $"[{status.ToString().ToUpper()}] ";
+        _logContent += $"{message}{Environment.NewLine}";
         if (useSeparator)
-            s_logContent += Environment.NewLine;
+            _logContent += Environment.NewLine;
         Logging?.Invoke(message, status);
     }
 

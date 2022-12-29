@@ -14,7 +14,7 @@ public partial class ViewportView : UserControl
     {
         InitializeComponent();
         DataContext = App.Current?.Host.Services.GetRequiredService<ViewportViewModel>();
-        (DataContext as ViewportViewModel)!.ViewportSizeRequested += OnViewModel_ViewportSizeRequested;
+        (DataContext as ViewportViewModel)!.SetViewportSizeRequested += OnViewModel_ViewportSizeRequested;
     }
 
     private void OnViewModel_ViewportSizeRequested()

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -18,7 +18,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel : IViewportViewModel
 {
-    private readonly float[] _zoomTable = new float[] { 0.5f, 1, 2, 3, 5, 8, 13, 21, 34 };
+    private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly ILogService _logService;
 
@@ -33,7 +33,7 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsInside = false;
 
-    [ObservableProperty] private ObservableCollection<RegionModel> _regionImageModels = new();
+    [ObservableProperty] private ObservableCollection<RegionModel> _regionModels = new();
 
     public ViewportViewModel(GlobalState globalState, IChunkRegionManagerService chunkRegionManagerService, ILogService logService)
     {
@@ -60,21 +60,14 @@ public partial class ViewportViewModel : IViewportViewModel
     public Point2Z<int>? WorkedRegion => _chunkRegionManagerService.WorkedRegion;
     public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
 
-    public event Action? ViewportSizeRequested;
+    public event Action? SetViewportSizeRequested;
 
     // Update CRM Service, callback when these properties updated
     private void UpdateChunkRegionManagerService()
     {
         if (GlobalState.HasSavegameLoaded)
-        {
             _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
-            //for (int i = 0; i < 50; i++)
-            //{
-            //    _chunkRegionManagerService.Update(CameraPos + new Vector2Z<float>(i * 64, i * 64), UnitMultiplier, ScreenSize);
-            //}
-        }
     }
-
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
     partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManagerService();
@@ -83,24 +76,27 @@ public partial class ViewportViewModel : IViewportViewModel
     {
         if (state == SavegameLoadState.Opened)
         {
-            ViewportSizeRequested?.Invoke();
+            SetViewportSizeRequested?.Invoke();
             UpdateChunkRegionManagerService();
         }
         else if (state == SavegameLoadState.Closed)
         {
             _chunkRegionManagerService.Reinitialize();
+            CameraPos = new Point2Z<float>(0, 0);
+            ZoomLevel = 0;
             ScreenSize = new Size<int>(0, 0);
         }
     }
 
-    private void OnChunkRegionManagerService_RegionImageLoaded(RegionModel rim)
+    private void OnChunkRegionManagerService_RegionImageLoaded(RegionModel regionModel)
     {
-        _regionImageModels.Add(rim);
+        if (GlobalState.HasSavegameLoaded)
+            _regionModels.Add(regionModel);
     }
 
-    private void OnChunkRegionManagerService_RegionImageUnloaded(RegionModel rim)
+    private void OnChunkRegionManagerService_RegionImageUnloaded(RegionModel regionModel)
     {
-        _regionImageModels.Remove(rim);
+        _regionModels.Remove(regionModel);
     }
 
     private void OnChunkRegionManagerService_RegionReadingError(Point2Z<int> regionCoords, Exception e)
@@ -130,13 +126,13 @@ public partial class ViewportViewModel : IViewportViewModel
     {
         Point point = e.GetPosition(e.Source as IInputElement);
         Point2<int> oldMousePos = MousePos;
-        Point2<int> newMousePos = new Point2<int>(point.X.Floor(), point.Y.Floor());
+        Point2<int> newMousePos = new(point.X.Floor(), point.Y.Floor());
         Vector2<int> newMousePosDelta = newMousePos - oldMousePos;
         MousePos = newMousePos;
         MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : newMousePosDelta;
         if (MouseClickHolding)
         {
-            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X * 2 / UnitMultiplier, -MousePosDelta.Y * 2 / UnitMultiplier);
+            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
             CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
         }
