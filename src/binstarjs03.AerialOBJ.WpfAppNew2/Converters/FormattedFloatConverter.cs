@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
 using binstarjs03.AerialOBJ.Core;
@@ -12,8 +13,8 @@ public class FormattedFloatConverter : IValueConverter
     {
         if (value is Point2Z<float> point)
             return $"({point.X.Round()}, {point.Z.Round()})";
-        else 
-            throw new NotImplementedException();
+        else
+            return DependencyProperty.UnsetValue;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

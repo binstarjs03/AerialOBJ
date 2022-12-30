@@ -20,7 +20,7 @@ public class BoolToVisibilityConverter : IValueConverter
             else if (visibilityOnFalse == Visibility.Collapsed)
                 return Visibility.Collapsed;
             else
-                throw new ConverterException("Parameter must be either hidden or collapsed on false");
+                return DependencyProperty.UnsetValue;
         }
     }
 
