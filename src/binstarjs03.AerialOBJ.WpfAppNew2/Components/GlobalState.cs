@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
 public class GlobalState
