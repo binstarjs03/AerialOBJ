@@ -20,7 +20,7 @@
                 </ResourceDictionary>
                 
                 <ResourceDictionary>
-                    <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+                    <converters:FlexibleBoolToVisibilityConverter x:Key="FlexibleBoolToVisibility"/>
                     <converters:FormattedFloatConverter x:Key="FormattedFloat"/>
                     <converters:ColorToSolidColorBrushConverter x:Key="CoreColor"/>
                     <converters:WorldToScreenCoordConverter x:Key="WorldToScreen"/>
