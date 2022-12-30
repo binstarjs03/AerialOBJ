@@ -7,7 +7,8 @@ public class ViewportDefinition : IDefinition
     public required string Name { get; set; }
     public required int FormatVersion { get; set; }
     public required string MinecraftVersion { get; set; }
-    public required List<ViewportBlockDefinition> BlockDefinitions { get; set; }
+    public required ViewportBlockDefinition MissingBlockDefinition { get; set; }
+    public required Dictionary<string, ViewportBlockDefinition> BlockDefinitions { get; set; }
 
     public static ViewportDefinition GetDefaultDefinition()
     {
@@ -16,48 +17,39 @@ public class ViewportDefinition : IDefinition
     "Name": "Default Definitions",
     "FormatVersion": 1,
     "MinecraftVersion": "1.18",
-    "BlockDefinitions": [
-        {
-            "Name": "aerialobj:unknown",
-            "Color": "#FFFF00CC"
+	"MissingBlockDefinition" : {
+		"Color" : "#FFFF00CC"
+	},
+    "BlockDefinitions": 
+	{
+        "minecraft:air" : {
+            "Color" : "#00000000"
         },
-        {
-            "Name": "minecraft:air",
-            "Color": "#00000000"
+		"minecraft:cave_air" : {
+            "Color" : "#00000000"
         },
-        {
-            "Name": "minecraft:cave_air",
-            "Color": "#00000000"
+		"minecraft:dirt" : {
+            "Color" : "#FF6C4D36"
         },
-        {
-            "Name": "minecraft:dirt",
-            "Color": "#FF6C4D36"
+		"minecraft:coarse_dirt" : {
+            "Color" : "#FF4E3826"
         },
-        {
-            "Name": "minecraft:coarse_dirt",
-            "Color": "#FF4E3826"
+		"minecraft:grass_block" : {
+            "Color" : "#FF5D923A"
         },
-        {
-            "Name": "minecraft:grass_block",
-            "Color": "#FF5D923A"
+		"minecraft:mycelium" : {
+            "Color" : "#FF595155"
         },
-        {
-            "Name": "minecraft:mycelium",
-            "Color": "#FF595155"
+		"minecraft:podzol" : {
+            "Color" : "#FF3B2913"
         },
-        {
-            "Name": "minecraft:podzol",
-            "Color": "#FF3B2913"
+		"minecraft:water" : {
+            "Color" : "#FF22417F"
         },
-        {
-            "Name": "minecraft:water",
-            "Color": "#FF22417F"
+		"minecraft:lava" : {
+            "Color" : "#FFCC4600"
         },
-        {
-            "Name": "minecraft:lava",
-            "Color": "#FFCC4600"
-        }
-    ]
+    }
 }
 """;
         return JsonSerializer.Deserialize<ViewportDefinition>(input)!;
