@@ -423,49 +423,22 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             while (!_cts.IsCancellationRequested)
             {
                 // get random pending chunk then assign it to worked chunk
-                Point2Z<int> chunkCoords;
-                lock (_pendingChunks)
-                    lock (_pendingChunksSet)
-                        lock (_workedChunks)
-                        {
-                            if (_pendingChunks.Count == 0)
-                                break;
-                            chunkCoords = getRandomPendingChunk();
-                            _workedChunks.Add(chunkCoords);
-                        }
-                // get the underlying region
-                Point2Z<int> regionCoords = CoordsConversion.GetChunkRegionCoords(chunkCoords);
-                RegionModel? region;
-                lock (_loadedRegions)
-                    _loadedRegions.TryGetValue(regionCoords, out region);
-                if (region is null)
+                if (!tryGetRandomPendingChunk(out Point2Z<int> chunkCoords))
+                    return;
+                lock (_workedChunks)
+                    _workedChunks.Add(chunkCoords);
+
+                // get both chunk and region
+                (Chunk? chunk, RegionModel? region) = getChunkAndRegion(chunkCoords);
+                if (chunk is null || region is null)
                 {
                     cleanupWorkedChunk(chunkCoords);
                     continue;
                 }
-                // get chunk
-                Point2Z<int> chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(chunkCoords);
-                if (!region.RegionData.HasChunkGenerated(chunkCoordsRel))
-                {
-                    cleanupWorkedChunk(chunkCoords);
-                    continue;
-                }
-                Chunk chunk;
-                try
-                {
-                    // TODO we may separate getting chunk logic into its own loader service
-                    // or maybe just keep it as it as getting chunk can be done directly from region
-                    chunk = region.RegionData.GetChunk(chunkCoords, relative: true);
-                }
-                catch (Exception e)
-                {
-                    handleChunkLoadingError(chunkCoords, e);
-                    cleanupWorkedChunk(chunkCoords);
-                    continue;
-                }
-                finally { cleanupWorkedChunk(chunkCoords); }
+
                 // load it
                 LoadChunk(chunk, region);
+                cleanupWorkedChunk(chunkCoords);
             }
         }
         finally
@@ -474,13 +447,47 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 _chunkLoaderTasks.Remove(taskId);
         }
 
-        Point2Z<int> getRandomPendingChunk()
+        (Chunk? chunk, RegionModel? region) getChunkAndRegion(Point2Z<int> chunkCoords)
         {
-            int randomIndex = _rng.Next(0, _pendingChunks.Count);
-            Point2Z<int> result = _pendingChunks[randomIndex];
-            _pendingChunks.RemoveAt(randomIndex);
-            _pendingChunksSet.Remove(result);
-            return result;
+            // get the underlying region
+            RegionModel? region = getUnderlyingRegion(chunkCoords);
+            if (region is null)
+                return (null, null);
+            try
+            {
+                // TODO we may separate getting chunk logic into its own loader service
+                // or maybe just keep it as it as getting chunk can be done directly from region
+                return (region.RegionData.GetChunk(chunkCoords, relative: true), region);
+            }
+            catch (Exception e)
+            {
+                handleChunkLoadingError(chunkCoords, e);
+                return (null, null);
+            }
+        }
+
+        bool tryGetRandomPendingChunk(out Point2Z<int> result)
+        {
+            result = new Point2Z<int>();
+            lock (_pendingChunkLock)
+            {
+                if (_pendingChunks.Count == 0)
+                    return false;
+                int randomIndex = _rng.Next(0, _pendingChunks.Count);
+                result = _pendingChunks[randomIndex];
+                _pendingChunks.RemoveAt(randomIndex);
+                _pendingChunksSet.Remove(result);
+            }
+            return true;
+        }
+
+        RegionModel? getUnderlyingRegion(Point2Z<int> chunkCoords)
+        {
+            Point2Z<int> regionCoords = CoordsConversion.GetChunkRegionCoords(chunkCoords);
+            RegionModel? region;
+            lock (_loadedRegions)
+                _loadedRegions.TryGetValue(regionCoords, out region);
+            return region;
         }
 
         void handleChunkLoadingError(Point2Z<int> chunkCoords, Exception e)
@@ -503,12 +510,16 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private void LoadChunk(Chunk chunk, RegionModel regionModel)
     {
-        if (_visibleChunkRange.Value.IsOutside(chunk.ChunkCoordsAbs)
-            || _loadedChunks.ContainsKey(chunk.ChunkCoordsAbs))
-            return;
-        _loadedChunks.Add(chunk.ChunkCoordsAbs, chunk);
-        //_chunkRenderService.
-        throw new NotImplementedException();
+        _chunkRenderService.RenderChunk(regionModel, chunk);
+        lock (_visibleChunkRange)
+            lock (_loadedChunks)
+            {
+                if (_visibleChunkRange.Value.IsOutside(chunk.ChunkCoordsAbs)
+                    || _loadedChunks.ContainsKey(chunk.ChunkCoordsAbs)
+                    || _cts.IsCancellationRequested)
+                    return;
+                _loadedChunks.Add(chunk.ChunkCoordsAbs, chunk);
+            }
     }
 
     private void UnloadChunk(Chunk chunk)
