@@ -485,10 +485,13 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
         void handleChunkLoadingError(Point2Z<int> chunkCoords, Exception e)
         {
-            if (_crmErrorMemoryService.CheckHasChunkError(chunkCoords))
-                return;
-            App.Current.Dispatcher.InvokeAsync(() => ChunkLoadingError?.Invoke(chunkCoords, e));
-            _crmErrorMemoryService.StoreChunkError(chunkCoords);
+            lock (_crmErrorMemoryService)
+            {
+                if (_crmErrorMemoryService.CheckHasChunkError(chunkCoords))
+                    return;
+                App.Current.Dispatcher.InvokeAsync(() => ChunkLoadingError?.Invoke(chunkCoords, e));
+                _crmErrorMemoryService.StoreChunkError(chunkCoords);
+            }
         }
 
         void cleanupWorkedChunk(Point2Z<int> chunkCoords)
