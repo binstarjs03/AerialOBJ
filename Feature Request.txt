@@ -1,0 +1,1 @@
+[] Draw overlay of alternating line, checkerboard pattern or whatever for chunk that is not yet generated. The overlay may be toggable

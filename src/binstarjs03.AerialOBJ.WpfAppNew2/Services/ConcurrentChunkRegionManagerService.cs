@@ -15,6 +15,7 @@ using binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+// TODO integrate Reinitialize for chunk loading
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 {
     private const int s_regionBufferSize = 15;
@@ -311,10 +312,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         {
             regionModel = _regionModelFactory.Create(region.RegionCoords, region, _cts.Token);
         }
-        catch (TaskCanceledException)
-        {
-            return;
-        }
+        catch (TaskCanceledException) { return; }
+#if DEBUG
         _chunkRenderService.RenderRandomNoise(regionModel.RegionImage,
                                               new Color()
                                               {
@@ -324,6 +323,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                                                   Blue = (byte)Random.Shared.Next(0, 255),
                                               },
                                               64);
+#endif
         regionModel.RegionImage.Redraw();
         lock (_visibleRegionRange)
             lock (_loadedRegions)

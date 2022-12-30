@@ -140,7 +140,8 @@ public partial class ViewportViewModel : IViewportViewModel
 #if RELEASE
             Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
 #elif DEBUG
-            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X * 4 / UnitMultiplier, -MousePosDelta.Y * 4 / UnitMultiplier);
+            float speedMultiplier = 1f;
+            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X * speedMultiplier / UnitMultiplier, -MousePosDelta.Y * speedMultiplier / UnitMultiplier);
 #endif
             CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
