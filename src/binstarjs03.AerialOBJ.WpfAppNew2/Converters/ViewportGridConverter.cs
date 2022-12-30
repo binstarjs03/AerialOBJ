@@ -3,19 +3,12 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
+using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
 public class ViewportGridConverter : IMultiValueConverter
 {
-    private readonly ICoordinateConverterService _coordsConverterService;
-
-    public ViewportGridConverter()
-    {
-        _coordsConverterService = new CoordinateConverterService();
-    }
-
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
         if (values.Length != 4)
@@ -30,7 +23,7 @@ public class ViewportGridConverter : IMultiValueConverter
         Size<int> screenSize = (Size<int>)values[3];
 
         Point2Z<float> worldPos = new(0f, 0f);
-        Point2<float> screenPos = _coordsConverterService.ConvertWorldToScreen(worldPos, cameraPos, unitMultiplier, screenSize);
+        Point2<float> screenPos = MathUtils.PointSpaceConversion.ConvertWorldPosToScreenPos(worldPos, cameraPos, unitMultiplier, screenSize);
         float screenGridSize = gridSize * unitMultiplier;
         return new Rect(screenPos.X, screenPos.Y, screenGridSize, screenGridSize);
     }

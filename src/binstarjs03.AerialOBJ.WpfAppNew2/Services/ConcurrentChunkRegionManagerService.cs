@@ -12,6 +12,8 @@ using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 
+using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
+
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 {
@@ -79,7 +81,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         {
             if (RecalculateVisibleRegionRange())
                 ManageRegions();
-            ManageChunks();
+            //ManageChunks();
         }
     }
 
@@ -432,7 +434,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                             _workedChunks.Add(chunkCoords);
                         }
                 // get the underlying region
-                Point2Z<int> regionCoords = CoordsUtils.GetChunkRegionCoords(chunkCoords);
+                Point2Z<int> regionCoords = CoordsConversion.GetChunkRegionCoords(chunkCoords);
                 RegionModel? region;
                 lock (_loadedRegions)
                     _loadedRegions.TryGetValue(regionCoords, out region);
@@ -442,7 +444,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                     continue;
                 }
                 // get chunk
-                Point2Z<int> chunkCoordsRel = CoordsUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
+                Point2Z<int> chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(chunkCoords);
                 if (!region.RegionData.HasChunkGenerated(chunkCoordsRel))
                 {
                     cleanupWorkedChunk(chunkCoords);
