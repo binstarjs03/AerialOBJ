@@ -40,6 +40,7 @@ public static class AppHost
             services.AddTransient<ViewportViewModel>();
 
             // configure services
+            services.AddSingleton<DefinitionManagerService>();
             services.AddSingleton<IModalService, ModalService>();
             services.AddSingleton<ILogService, LogService>();
             services.AddSingleton<IIOService, IOService>();
@@ -47,7 +48,12 @@ public static class AppHost
             services.AddTransient<IChunkRegionManagerService, ConcurrentChunkRegionManagerService>();
             services.AddTransient<IChunkRegionManagerErrorMemory, ChunkRegionManagerErrorMemory>();
             services.AddSingleton<IRegionLoaderService, RegionLoaderService>();
-            services.AddSingleton<IChunkRenderService, ChunkRenderService>();
+            services.AddSingleton<IChunkRenderService, ChunkRenderService>(x =>
+            {
+                ServiceProvider provider = services.BuildServiceProvider();
+                IChunkShader shader = new FlatChunkShader(provider.GetRequiredService<DefinitionManagerService>());
+                return new ChunkRenderService(shader);
+            });
 
         }).Build();
     }
