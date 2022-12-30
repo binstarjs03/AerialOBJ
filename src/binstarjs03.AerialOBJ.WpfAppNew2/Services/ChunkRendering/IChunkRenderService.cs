@@ -8,4 +8,5 @@ public interface IChunkRenderService
 {
     void RenderRandomNoise(IMutableImage mutableImage, Color color, byte distance);
     void RenderChunk(RegionModel region, Chunk chunk);
+    void SetShader(IChunkShader shader);
 }
