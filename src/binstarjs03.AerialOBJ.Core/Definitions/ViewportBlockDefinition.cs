@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-using binstarjs03.AerialOBJ.Core.Configuration.JSONConverters;
+using binstarjs03.AerialOBJ.Core.Definitions.JSONConverters;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.Core.Configuration;
+namespace binstarjs03.AerialOBJ.Core.Definitions;
 
 public class ViewportBlockDefinition
 {

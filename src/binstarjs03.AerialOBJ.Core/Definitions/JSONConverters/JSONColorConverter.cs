@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 
-namespace binstarjs03.AerialOBJ.Core.Configuration.JSONConverters;
+namespace binstarjs03.AerialOBJ.Core.Definitions.JSONConverters;
 public class JSONColorConverter : JsonConverter<Color>
 {
     public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

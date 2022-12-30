@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
 
-namespace binstarjs03.AerialOBJ.Core.Configuration;
-public class ViewportBlockDefinitions
+namespace binstarjs03.AerialOBJ.Core.Definitions;
+public class ViewportDefinition : IDefinition
 {
     public required string Name { get; set; }
     public required int FormatVersion { get; set; }
     public required string MinecraftVersion { get; set; }
     public required List<ViewportBlockDefinition> BlockDefinitions { get; set; }
 
-    public static ViewportBlockDefinitions GetDefaultDefinitions()
+    public static ViewportDefinition GetDefaultDefinition()
     {
         string input = """
 {
@@ -60,6 +60,6 @@ public class ViewportBlockDefinitions
     ]
 }
 """;
-        return JsonSerializer.Deserialize<ViewportBlockDefinitions>(input)!;
+        return JsonSerializer.Deserialize<ViewportDefinition>(input)!;
     }
 }
