@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
@@ -10,16 +11,28 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 public class ChunkRenderService : IChunkRenderService
 {
     private IChunkShader _chunkShader;
+    private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
     public ChunkRenderService(IChunkShader initialChunkShader)
     {
         _chunkShader = initialChunkShader;
     }
 
-
     public void RenderChunk(RegionModel region, Chunk chunk)
     {
         _chunkShader.RenderChunk(region, chunk);
+    }
+
+    public void EraseChunk(RegionModel region, Chunk chunk)
+    {
+        for (int x = 0; x < Section.BlockCount; x++)
+            for (int z = 0; z < Section.BlockCount; z++)
+            {
+                Point2Z<int> blockCoordsRel = new(x, z);
+                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkCoordsRel, blockCoordsRel);
+                region.RegionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
+            }
+        App.Current.Dispatcher.InvokeAsync(region.RegionImage.Redraw, DispatcherPriority.Background);
     }
 
     public void RenderRandomNoise(IMutableImage mutableImage, Color color, byte distance)

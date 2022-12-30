@@ -28,7 +28,7 @@ public class FlatChunkShader : IChunkShader
             for (int z = 0; z < Section.BlockCount; z++)
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
-                Point2<int> pixelCoords = GetPixelCoords(chunk, blockCoordsRel);
+                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkCoordsRel, blockCoordsRel);
                 Color color = GetBlockColor(_definitionManager.DefaultViewportDefinition, highestBlock, blockCoordsRel);
                 regionModel.RegionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
@@ -44,11 +44,5 @@ public class FlatChunkShader : IChunkShader
             return bd.Color;
         else
             return definition.MissingBlockDefinition.Color;
-    }
-
-    private static Point2<int> GetPixelCoords(Chunk chunk, Point2Z<int> blockCoordsRel)
-    {
-        return new Point2<int>(chunk.ChunkCoordsRel.X * Section.BlockCount + blockCoordsRel.X,
-                               chunk.ChunkCoordsRel.X * Section.BlockCount + blockCoordsRel.Z);
     }
 }
