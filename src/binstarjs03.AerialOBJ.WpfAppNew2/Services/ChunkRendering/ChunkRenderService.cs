@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
@@ -18,12 +19,12 @@ public class ChunkRenderService : IChunkRenderService
         _chunkShader = initialChunkShader;
     }
 
-    public void RenderChunk(RegionModel region, Chunk chunk)
+    public void RenderChunk(RegionModel region, Chunk chunk, CancellationToken cancellationToken)
     {
-        _chunkShader.RenderChunk(region, chunk);
+        _chunkShader.RenderChunk(region, chunk, cancellationToken);
     }
 
-    public void EraseChunk(RegionModel region, Chunk chunk)
+    public void EraseChunk(RegionModel region, Chunk chunk, CancellationToken cancellationToken)
     {
         for (int x = 0; x < Section.BlockCount; x++)
             for (int z = 0; z < Section.BlockCount; z++)
@@ -32,7 +33,7 @@ public class ChunkRenderService : IChunkRenderService
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkCoordsRel, blockCoordsRel);
                 region.RegionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
             }
-        App.Current.Dispatcher.InvokeAsync(region.RegionImage.Redraw, DispatcherPriority.Background);
+        App.Current.Dispatcher.InvokeAsync(region.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);
     }
 
     public void RenderRandomNoise(IMutableImage mutableImage, Color color, byte distance)

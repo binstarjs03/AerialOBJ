@@ -15,7 +15,6 @@ using binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
-// TODO integrate Reinitialize for chunk loading
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 {
     private const int s_regionBufferSize = 15;
@@ -35,6 +34,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly StructLock<bool> _isRegionLoaderTaskRunning = new() { Value = false };
     private Task _regionLoaderTask = new(() => { });
 
+    // TODO Integrate multi-threaded chunk loading
     private readonly StructLock<bool> _isChunkLoaderTaskRunning = new() { Value = false };
     private Task _chunkLoaderTask = new(() => { });
     private readonly Dictionary<uint, Task> _chunkLoaderTasks = new(Environment.ProcessorCount);
@@ -92,12 +92,20 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         _cts.Cancel();
         _regionLoaderTask.Wait();
+        _chunkLoaderTask.Wait();
 
         _visibleRegionRange.Value = new Point2ZRange<int>();
         _visibleChunkRange.Value = new Point2ZRange<int>();
+
         foreach (RegionModel region in _loadedRegions.Values)
             UnloadRegion(region);
         _pendingRegions.Clear();
+
+        foreach (Chunk chunk in _loadedChunks.Values)
+            UnloadChunk(chunk);
+        _pendingChunks.Clear();
+        _pendingChunksSet.Clear();
+
         _crmErrorMemoryService.Reinitialize();
         _regionLoaderService.PurgeCache();
 
@@ -546,7 +554,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private void LoadChunk(Chunk chunk, RegionModel regionModel)
     {
-        _chunkRenderService.RenderChunk(regionModel, chunk);
+        _chunkRenderService.RenderChunk(regionModel, chunk, _cts.Token);
         lock (_visibleChunkRange)
             lock (_loadedChunks)
             {
@@ -566,7 +574,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         RegionModel? region = GetRegionModelForChunk(chunk.ChunkCoordsAbs, out _);
         if (region is null)
             return;
-        _chunkRenderService.EraseChunk(region, chunk);
+        _chunkRenderService.EraseChunk(region, chunk, _cts.Token);
     }
 
     // TODO we may be able to move out these two methods into separate class
@@ -581,7 +589,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             isTaskRunning.Value = true;
             task = Task.Run(() => RunTaskMethodWrapper(method, isTaskRunning));
         }
-
     }
 
     private static void RunTaskMethodWrapper(Action method, StructLock<bool> isTaskRunning)

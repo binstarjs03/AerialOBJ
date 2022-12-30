@@ -1,4 +1,6 @@
-﻿using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+﻿using System.Threading;
+
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
@@ -8,5 +10,5 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 /// </summary>
 public interface IChunkShader
 {
-    void RenderChunk(RegionModel regionModel, Chunk chunk);
+    void RenderChunk(RegionModel regionModel, Chunk chunk, CancellationToken cancellationToken);
 }

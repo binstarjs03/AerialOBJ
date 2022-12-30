@@ -1,4 +1,5 @@
-﻿using System.Windows.Threading;
+﻿using System.Threading;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
@@ -18,7 +19,7 @@ public class FlatChunkShader : IChunkShader
         _definitionManager = definitionManager;
     }
 
-    public void RenderChunk(RegionModel regionModel, Chunk chunk)
+    public void RenderChunk(RegionModel regionModel, Chunk chunk, CancellationToken cancellationToken)
     {
         // TODO reuse instance instead of creating new
         ChunkHighestBlockInfo highestBlock = new();
@@ -32,7 +33,7 @@ public class FlatChunkShader : IChunkShader
                 Color color = GetBlockColor(_definitionManager.DefaultViewportDefinition, highestBlock, blockCoordsRel);
                 regionModel.RegionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
-        App.Current.Dispatcher.InvokeAsync(regionModel.RegionImage.Redraw, DispatcherPriority.Background);
+        App.Current.Dispatcher.InvokeAsync(regionModel.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);
     }
 
     private static Color GetBlockColor(ViewportDefinition definition, ChunkHighestBlockInfo highestBlock, Point2Z<int> blockCoordsRel)
