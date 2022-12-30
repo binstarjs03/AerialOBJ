@@ -474,8 +474,9 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             RegionModel? region = GetRegionModelForChunk(chunkCoords, out RegionStatus status);
             if (region is null)
             {
-                // can't get region because it isn't loaded yet but exist,
-                // put chunk back to pending list
+                // can't get region because it isn't loaded yet,
+                // put chunk back to pending list and "lets hope" in next encounter,
+                // region is loaded. We may refactor this to make it more optimal
                 if (status == RegionStatus.Worked || status == RegionStatus.Pending)
                     lock (_pendingChunkLock)
                     {
@@ -488,6 +489,9 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             {
                 // TODO we may separate getting chunk logic into its own loader service
                 // or maybe just keep it as it as getting chunk can be done directly from region
+                Point2Z<int> chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(chunkCoords);
+                if (!region.RegionData.HasChunkGenerated(chunkCoordsRel))
+                    return (null, null);
                 return (region.RegionData.GetChunk(chunkCoords, relative: false), region);
             }
             catch (Exception e)
@@ -557,6 +561,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private void UnloadChunk(Chunk chunk)
     {
         _loadedChunks.Remove(chunk.ChunkCoordsAbs);
+        // before returning, we want to erase region image part for this chunk,
+        // but if region is not loaded, well, just move on cause it doesn't even exist
         RegionModel? region = GetRegionModelForChunk(chunk.ChunkCoordsAbs, out _);
         if (region is null)
             return;
