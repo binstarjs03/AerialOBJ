@@ -27,6 +27,8 @@ using System.Linq;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
+using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
+
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public class Section
@@ -53,7 +55,7 @@ public class Section
     {
         _sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
         _sectionCoordsAbs = new Point3<int>(chunkCoordsAbs.X, _sectionYPos, chunkCoordsAbs.Z);
-        _blockRangeAbs = CoordsUtils.CalculateSectionBlockRangeAbs(_sectionCoordsAbs);
+        _blockRangeAbs = CoordsConversion.CalculateSectionBlockRangeAbs(_sectionCoordsAbs);
 
         sectionNbt.TryGet("block_states", out NbtCompound? blockStatesNbt);
         if (blockStatesNbt is null)
@@ -95,7 +97,7 @@ public class Section
         {
             if (!skipTest)
                 BlockRangeAbs.ThrowIfOutside(blockCoords);
-            blockCoordsRel = CoordsUtils.ConvertChunkBlockCoordsAbsToRel(blockCoords);
+            blockCoordsRel = CoordsConversion.ConvertChunkBlockCoordsAbsToRel(blockCoords);
             blockCoordsAbs = blockCoords;
         }
         return (blockCoordsRel, blockCoordsAbs);

@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
+using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
+
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public class Chunk
@@ -60,8 +62,8 @@ public class Chunk
     public Chunk(NbtCompound chunkNbt)
     {
         _chunkCoordsAbs = getChunkCoordsAbs(chunkNbt);
-        _chunkCoordsRel = CoordsUtils.ConvertChunkCoordsAbsToRel(_chunkCoordsAbs);
-        _blockRangeAbs = CoordsUtils.CalculateChunkBlockRangeAbs(_chunkCoordsAbs);
+        _chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(_chunkCoordsAbs);
+        _blockRangeAbs = CoordsConversion.CalculateChunkBlockRangeAbs(_chunkCoordsAbs);
         (_sectionsYPos, _sections) = readSections(_chunkCoordsAbs, chunkNbt);
 
         // just in case section is unsorted, we sort them first
@@ -144,7 +146,7 @@ public class Chunk
         {
             BlockRangeAbs.ThrowIfOutside(coords);
             coordsAbs = coords;
-            coordsRel = CoordsUtils.ConvertChunkBlockCoordsAbsToRel(coords);
+            coordsRel = CoordsConversion.ConvertChunkBlockCoordsAbsToRel(coords);
         }
 
         coordsLocalToSection = new Point3<int>(coordsRel.X,

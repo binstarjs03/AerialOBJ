@@ -31,6 +31,8 @@ using System.Linq;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
+using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
+
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public class Region
@@ -196,7 +198,7 @@ public class Region
         else
         {
             ChunkRangeAbs.ThrowIfOutside(chunkCoords);
-            chunkCoordsRel = CoordsUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
+            chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(chunkCoords);
         }
 
         ChunkSectorTableEntryData chunkSectorTableEntryData = GetChunkSectorTableEntryData(chunkCoordsRel);
