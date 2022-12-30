@@ -1,5 +1,7 @@
 ﻿using System;
 
+using binstarjs03.AerialOBJ.Core.Primitives;
+
 namespace binstarjs03.AerialOBJ.Core;
 
 public static class MathUtils
@@ -30,5 +32,20 @@ public static class MathUtils
     public static float Round(this float num)
     {
         return (float)Math.Round(num, 2);
+    }
+
+    public static class PointSpaceConversion
+    {
+        public static Point2<float> ConvertWorldPosToScreenPos(Point2Z<float> worldPos, Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
+        {
+            float screenX = ConvertWorldPosToScreenPos(worldPos.X, cameraPos.X, unitMultiplier, screenSize.Width);
+            float screenY = ConvertWorldPosToScreenPos(worldPos.Z, cameraPos.Z, unitMultiplier, screenSize.Height);
+            return new Point2<float>(screenX, screenY);
+        }
+
+        public static float ConvertWorldPosToScreenPos(float worldPos, float cameraPos, float unitMultiplier, int screenSize)
+        {
+            return -(cameraPos * unitMultiplier) + (screenSize / 2f) + (worldPos * unitMultiplier);
+        }
     }
 }

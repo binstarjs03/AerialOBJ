@@ -1,6 +1,8 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
+
+// TODO we may be able to merge this class into MathUtils class
 public static class CoordsUtils
 {
     /// <summary>
