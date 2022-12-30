@@ -67,6 +67,8 @@ public class Region
 
         static void checkRegionData(FileInfo fileInfo)
         {
+            if (fileInfo.Length == 0)
+                throw new RegionNoDataException();
             if (fileInfo.Length > ChunkHeaderTableSize)
                 return;
             string msg = "Region data is too small";

@@ -14,3 +14,12 @@ public class RegionUnrecognizedFileException : Exception
     public RegionUnrecognizedFileException() : base("Cannot open File as region file") { }
     public RegionUnrecognizedFileException(string message) : base(message) { }
 }
+
+public class RegionNoDataException : Exception
+{
+    public RegionNoDataException() { }
+
+    public RegionNoDataException(string? message) : base(message) { }
+
+    public RegionNoDataException(string? message, Exception? innerException) : base(message, innerException) { }
+}

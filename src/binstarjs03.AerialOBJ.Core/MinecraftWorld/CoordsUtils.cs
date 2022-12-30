@@ -3,6 +3,9 @@
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public static class CoordsUtils
 {
+    /// <summary>
+    /// Returns the relative coordinate version of absolute chunk coordinate (relative to its region)
+    /// </summary>
     public static Point2Z<int> ConvertChunkCoordsAbsToRel(Point2Z<int> coords)
     {
         int chunkCoordsRelX = MathUtils.Mod(coords.X, Region.ChunkCount);
@@ -10,6 +13,9 @@ public static class CoordsUtils
         return new Point2Z<int>(chunkCoordsRelX, chunkCoordsRelZ);
     }
 
+    /// <summary>
+    /// Returns region coords for specified chunk coords
+    /// </summary>
     public static Point2Z<int> GetChunkRegionCoords(Point2Z<int> chunkCoordsAbs)
     {
         return new(MathUtils.DivFloor(chunkCoordsAbs.X, Region.ChunkCount),

@@ -19,7 +19,6 @@ public class MessageDispatcher : IMessageDispatcher
     public event Action<Exception>? DispatchingException;
     public event Action? Reinitialized;
     public event Action<CancellationToken>? Started;
-    public event Action? Stopping;
     public event Action? Stopped;
 
     public MessageDispatcher() { }
@@ -40,16 +39,21 @@ public class MessageDispatcher : IMessageDispatcher
         Started?.Invoke(CancellationToken);
     }
 
+    public void StopAndWait()
+    {
+        if (!IsRunning)
+            return;
+        _cts.Cancel();
+        _messageEvent.Set();
+        _dispatcher.Join();
+    }
+
     public void Stop()
     {
         if (!IsRunning)
             return;
         _cts.Cancel();
         _messageEvent.Set();
-        Stopping?.Invoke();
-        _dispatcher.Join();
-        _cts.Dispose();
-        Stopped?.Invoke();
     }
 
     public bool CheckAccess()
@@ -214,6 +218,8 @@ public class MessageDispatcher : IMessageDispatcher
         // we have to let all remaining messages know that they are abandoned
         foreach (IMessage remainingMessage in _messageQueue)
             remainingMessage.Abandon();
+        _cts.Dispose();
+        Stopped?.Invoke();
     }
     #endregion Internal methods (implementation details)
 }

@@ -7,7 +7,6 @@ public interface IMessageDispatcher
     event Action<Exception> DispatchingException;
     event Action Reinitialized;
     event Action<CancellationToken> Started;
-    event Action Stopping;
     event Action Stopped;
 
     string Name { get; init; }
@@ -16,6 +15,7 @@ public interface IMessageDispatcher
     CancellationToken CancellationToken { get; }
 
     void Start();
+    void StopAndWait();
     void Stop();
 
     void InvokeSynchronous(Action message, MessageDuplication option);
