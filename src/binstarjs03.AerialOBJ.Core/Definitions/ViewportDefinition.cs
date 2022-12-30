@@ -48,7 +48,7 @@ public class ViewportDefinition : IDefinition
         },
 		"minecraft:lava" : {
             "Color" : "#FFCC4600"
-        },
+        }
     }
 }
 """;

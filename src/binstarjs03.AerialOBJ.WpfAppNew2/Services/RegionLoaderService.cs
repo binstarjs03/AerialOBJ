@@ -32,7 +32,7 @@ public class RegionLoaderService : IRegionLoaderService
         try
         {
             // TODO Inconsistency with MutableImageFactory, this one is returning null but RegionLoaderService is throwing
-            loadInfo = App.Current.Dispatcher.Invoke(() => _globalState.SavegameLoadInfo, DispatcherPriority.Background, cancellationToken);
+            loadInfo = App.Current.Dispatcher.Invoke(() => _globalState.SavegameLoadInfo, DispatcherPriority.Send, cancellationToken);
             if (loadInfo is null)
                 return null;
         }
