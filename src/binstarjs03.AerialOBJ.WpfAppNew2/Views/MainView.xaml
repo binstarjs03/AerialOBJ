@@ -48,9 +48,17 @@
                 </MenuItem>
             </Menu>
             <StatusBar DockPanel.Dock="Bottom">
-                <StatusBarItem Content="Ready"/>
+                <StatusBar.Resources>
+                    <Style TargetType="local:PropertyValuePairView">
+                        <Setter Property="PropertyColor" Value="Black"/>
+                        <Setter Property="ValueColor" Value="DarkBlue"/>
+                    </Style>
+                </StatusBar.Resources>
+                <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseBlockPos}"/>
+                <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseChunkPos}"/>
+                <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseRegionPos}"/>
             </StatusBar>
-            <local:ViewportView IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+            <local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
         </DockPanel>
     </Grid>
 </Window>

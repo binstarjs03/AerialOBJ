@@ -8,11 +8,14 @@ using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfAppNew2.ExtensionMethods;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 using binstarjs03.AerialOBJ.WpfAppNew2.Services;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using PointSpaceConversion = binstarjs03.AerialOBJ.Core.MathUtils.PointSpaceConversion;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
@@ -32,12 +35,18 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty][NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
     [ObservableProperty] private int _heightLevel = 319;
 
-    [ObservableProperty] private Point2<int> _mousePos = Point2<int>.Zero;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MouseWorldPos))]
+    [NotifyPropertyChangedFor(nameof(MouseBlockPos))]
+    [NotifyPropertyChangedFor(nameof(MouseChunkPos))]
+    [NotifyPropertyChangedFor(nameof(MouseRegionPos))]
+    private Point2<int> _mouseScreenPos = Point2<int>.Zero;
     [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsInside = false;
 
+    // Region Images
     [ObservableProperty] private ObservableCollection<RegionModel> _regionModels = new();
 
     public ViewportViewModel(GlobalState globalState, IChunkRegionManagerService chunkRegionManagerService, ILogService logService)
@@ -57,6 +66,19 @@ public partial class ViewportViewModel : IViewportViewModel
     public GlobalState GlobalState { get; }
 
     public float UnitMultiplier => _zoomTable[_zoomLevel];
+    public Point2Z<float> MouseWorldPos
+    {
+        get
+        {
+            Size<float> floatScreenSize = new(ScreenSize.Width, ScreenSize.Height);
+            Point2<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
+            return PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
+        }
+    }
+    public Point2Z<int> MouseBlockPos => new(MathUtils.Floor(MouseWorldPos.X), MathUtils.Floor(MouseWorldPos.Z));
+    public Point2Z<int> MouseChunkPos => MathUtils.MinecraftCoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(MouseBlockPos);
+    public Point2Z<int> MouseRegionPos => MathUtils.MinecraftCoordsConversion.GetChunkRegionCoords(MouseChunkPos);
+
     // TODO we can encapsulate these properties bindings into separate class
     //public int CachedRegionsCount => _chunkRegionManagerService.CachedRegionsCount;
     public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
@@ -129,12 +151,10 @@ public partial class ViewportViewModel : IViewportViewModel
     [RelayCommand]
     private void OnMouseMove(MouseEventArgs e)
     {
-        Point point = e.GetPosition(e.Source as IInputElement);
-        Point2<int> oldMousePos = MousePos;
-        Point2<int> newMousePos = new(point.X.Floor(), point.Y.Floor());
-        Vector2<int> newMousePosDelta = newMousePos - oldMousePos;
-        MousePos = newMousePos;
-        MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : newMousePosDelta;
+        // check if this is initial mouse click and dragging, we don't want the delta to be very large
+        // during initial click & drag, which will cause the viewport to teleporting to somewhere
+        (MouseScreenPos, Vector2<int> updatedMousePosDelta) = updateMouseScreenPosAndDelta();
+        MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : updatedMousePosDelta;
         if (MouseClickHolding)
         {
 #if RELEASE
@@ -145,6 +165,15 @@ public partial class ViewportViewModel : IViewportViewModel
 #endif
             CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
+        }
+
+        (Point2<int> newMousePos, Vector2<int> newMousePosDelta) updateMouseScreenPosAndDelta()
+        {
+            Point point = e.GetPosition(e.Source as IInputElement);
+            Point2<int> oldMousePos = MouseScreenPos;
+            Point2<int> newMousePos = new(point.X.Floor(), point.Y.Floor());
+            Vector2<int> newMousePosDelta = newMousePos - oldMousePos;
+            return (newMousePos, newMousePosDelta);
         }
     }
 
