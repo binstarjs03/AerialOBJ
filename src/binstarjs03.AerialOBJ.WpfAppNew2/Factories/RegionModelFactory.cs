@@ -5,11 +5,11 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Factories;
-public class RegionImageModelFactory
+public class RegionModelFactory
 {
     private readonly IMutableImageFactory _mutableImageFactory;
 
-    public RegionImageModelFactory(IMutableImageFactory mutableImageFactory)
+    public RegionModelFactory(IMutableImageFactory mutableImageFactory)
     {
         _mutableImageFactory = mutableImageFactory;
     }

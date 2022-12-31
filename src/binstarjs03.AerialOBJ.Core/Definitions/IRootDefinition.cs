@@ -1,5 +1,5 @@
 ﻿namespace binstarjs03.AerialOBJ.Core.Definitions;
-internal interface IDefinition
+internal interface IRootDefinition
 {
     string Name { get; }
     int FormatVersion { get; }

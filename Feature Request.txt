@@ -1,1 +1,7 @@
 [] Draw overlay of alternating line, checkerboard pattern or whatever for chunk that is not yet generated. The overlay may be toggable
+[] More chunk shaders or implement post-processing:
+	- fancy chunk shader like minutor chunk renderer
+	- lighting post-processing like minutor "View Lighting" mode
+	- Minutor depth shading
+	- Minutor biome-match terrain color
+[] Multi-layer rendering (yes, put region image on top of each other), combine with chunk shaders for crazy cool rendering

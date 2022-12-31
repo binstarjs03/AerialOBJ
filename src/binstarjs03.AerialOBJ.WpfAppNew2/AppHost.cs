@@ -26,7 +26,7 @@ public static class AppHost
             // configure models
 
             // configure factories
-            services.AddSingleton<RegionImageModelFactory>();
+            services.AddSingleton<RegionModelFactory>();
             services.AddAbstractFactory<IAboutView, AboutView>();
 
             // configure views
