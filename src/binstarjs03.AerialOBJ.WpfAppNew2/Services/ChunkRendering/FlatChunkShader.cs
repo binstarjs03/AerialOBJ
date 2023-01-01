@@ -19,7 +19,7 @@ public class FlatChunkShader : IChunkShader
         _definitionManager = definitionManager;
     }
 
-    public void RenderChunk(RegionModel regionModel, ChunkHighestBlockBuffer highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
+    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
     {
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)
@@ -32,11 +32,11 @@ public class FlatChunkShader : IChunkShader
         App.Current.Dispatcher.InvokeAsync(regionModel.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);
     }
 
-    private static Color GetBlockColor(ViewportDefinition definition, ChunkHighestBlockBuffer highestBlocks, Point2Z<int> blockCoordsRel)
+    private static Color GetBlockColor(ViewportDefinition definition, Block[,] highestBlocks, Point2Z<int> blockCoordsRel)
     {
         // try get color from block definition
         // else return missing block color
-        string blockName = highestBlocks.Names[blockCoordsRel.X, blockCoordsRel.Z];
+        string blockName = highestBlocks[blockCoordsRel.X, blockCoordsRel.Z].Name;
         if (definition.BlockDefinitions.TryGetValue(blockName, out ViewportBlockDefinition? bd))
             return bd.Color;
         else

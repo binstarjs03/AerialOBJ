@@ -1,6 +1,7 @@
 ﻿using System;
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+//using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core;
@@ -99,6 +100,14 @@ public static class MathUtils
             int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
             int blockCoordsAbsY = Mod(coords.Y, Section.BlockCount);
             int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
+            return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
+        }
+
+        public static Point3<int> ConvertBlockCoordsRelToSectionToAbs(Point3<int> blockCoordsRel, Point3<int> sectionCoordsAbs)
+        {
+            int blockCoordsAbsX = sectionCoordsAbs.X * MinecraftWorldRefactor.IChunk.BlockCount + blockCoordsRel.X;
+            int blockCoordsAbsY = sectionCoordsAbs.Y * MinecraftWorldRefactor.IChunk.BlockCount + blockCoordsRel.Y;
+            int blockCoordsAbsZ = sectionCoordsAbs.Y * MinecraftWorldRefactor.IChunk.BlockCount + blockCoordsRel.Z;
             return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
         }
 

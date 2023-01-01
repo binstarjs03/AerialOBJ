@@ -10,5 +10,5 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 /// </summary>
 public interface IChunkShader
 {
-    void RenderChunk(RegionModel regionModel, ChunkHighestBlockBuffer highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken);
+    void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken);
 }

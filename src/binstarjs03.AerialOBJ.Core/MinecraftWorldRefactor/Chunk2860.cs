@@ -17,6 +17,7 @@ public class Chunk2860 : IChunk
         CoordsAbs = getChunkCoordsAbs(chunkNbt);
         CoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(CoordsAbs);
         (_sections, _sectionsY) = readSections(chunkNbt);
+        Array.Sort(_sectionsY);
 
         static Point2Z<int> getChunkCoordsAbs(NbtCompound chunkNbt)
         {
@@ -24,7 +25,7 @@ public class Chunk2860 : IChunk
             int chunkCoordsAbsZ = chunkNbt.Get<NbtInt>("zPos").Value;
             return new Point2Z<int>(chunkCoordsAbsX, chunkCoordsAbsZ);
         }
-        static (Dictionary<int, Section>, int[]) readSections(NbtCompound chunkNbt)
+        (Dictionary<int, Section>, int[]) readSections(NbtCompound chunkNbt)
         {
             NbtList<NbtCompound> sectionsNbt = chunkNbt.Get<NbtList<NbtCompound>>("sections");
             int[] sectionsYPos = new int[sectionsNbt.Count];
@@ -34,7 +35,10 @@ public class Chunk2860 : IChunk
             {
                 NbtCompound sectionNbt = sectionsNbt[i];
                 int sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
-                Section section = new(sectionNbt) { YPos = sectionYPos };
+                Section section = new(sectionNbt)
+                {
+                    CoordsAbs = new Point3<int>(CoordsAbs.X, sectionYPos, CoordsAbs.Z)
+                };
 
                 sectionsYPos[i] = sectionYPos;
                 sections.Add(sectionYPos, section);
@@ -49,14 +53,24 @@ public class Chunk2860 : IChunk
     public int DataVersion => 2860;
     public string ReleaseVersion => "1.18";
 
-    public void GetHighestBlock(ChunkHighestBlockBuffer highestBlockBuffer)
+    public void GetHighestBlock(Block[,] highestBlockBuffer)
     {
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
+                // assign initial highest block to air of lowest section
+                Section lowestSection = _sections[0];
+                int lowestBlock = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
+                highestBlockBuffer[x, z] = new Block()
+                {
+                    Coords = new Point3<int>(x, lowestBlock, z),
+                    Name = "minecraft:air"
+                };
+
                 bool foundHighestBlock = false;
                 for (int index = _sectionsY.Length - 1; index >= 0; index--)
                 {
+
                     if (foundHighestBlock)
                         break;
 
@@ -65,22 +79,22 @@ public class Chunk2860 : IChunk
                     if (section.IsAir)
                         continue;
 
-                    int heightAtCurrentSection = section.YPos * IChunk.BlockCount;
+                    //int heightAtCurrentSection = section.CoordsAbs.Y * IChunk.BlockCount;
                     for (int y = IChunk.BlockRange; y >= 0; y--)
                     {
                         if (foundHighestBlock)
                             break;
 
                         // height in here means current block global Y position
-                        int height = heightAtCurrentSection + y;
+                        //int height = heightAtCurrentSection + y;
                         Point3<int> blockCoordsRel = new(x, y, z);
 
                         Block? block = section.GetBlock(blockCoordsRel);
                         if (block is null || block.Value.IsAir)
                             continue;
-
-                        highestBlockBuffer.Names[x, z] = block.Value.Name;
-                        highestBlockBuffer.Heights[x, z] = height;
+                        highestBlockBuffer[x, z] = block.Value;
+                        //highestBlockBuffer.Names[x, z] = block.Value.Name;
+                        //highestBlockBuffer.Heights[x, z] = height;
                         foundHighestBlock = true;
                     }
                 }
@@ -94,7 +108,6 @@ public class Chunk2860 : IChunk
 
         public Section(NbtCompound sectionNbt)
         {
-            YPos = sectionNbt.Get<NbtByte>("Y").Value;
             sectionNbt.TryGet("block_states", out NbtCompound? blockStatesNbt);
             if (blockStatesNbt is null)
                 return;
@@ -119,7 +132,7 @@ public class Chunk2860 : IChunk
             _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteNbt.Count);
         }
 
-        public required int YPos { get; init; }
+        public required Point3<int> CoordsAbs { get; init; }
         public bool IsAir // whether section is completely filled with air block
         {
             get
@@ -203,7 +216,7 @@ public class Chunk2860 : IChunk
             ref Block blockPalette = ref _blockPalette[paletteIndex];
             return new Block()
             {
-                Coords = blockCoordsRel,
+                Coords = CoordsConversion.ConvertBlockCoordsRelToSectionToAbs(blockCoordsRel, CoordsAbs),
                 Name = blockPalette.Name,
             };
         }

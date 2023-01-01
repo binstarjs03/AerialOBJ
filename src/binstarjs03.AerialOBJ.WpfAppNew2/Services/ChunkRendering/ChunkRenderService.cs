@@ -19,7 +19,7 @@ public class ChunkRenderService : IChunkRenderService
         _chunkShader = initialChunkShader;
     }
 
-    public void RenderChunk(RegionModel regionModel, ChunkHighestBlockBuffer highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
+    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
     {
         _chunkShader.RenderChunk(regionModel, highestBlocks, chunkCoordsRel, cancellationToken);
     }
