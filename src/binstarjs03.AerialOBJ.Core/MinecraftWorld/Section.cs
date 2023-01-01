@@ -97,7 +97,7 @@ public class Section
         {
             if (!skipTest)
                 BlockRangeAbs.ThrowIfOutside(blockCoords);
-            blockCoordsRel = CoordsConversion.ConvertChunkBlockCoordsAbsToRel(blockCoords);
+            blockCoordsRel = CoordsConversion.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
             blockCoordsAbs = blockCoords;
         }
         return (blockCoordsRel, blockCoordsAbs);

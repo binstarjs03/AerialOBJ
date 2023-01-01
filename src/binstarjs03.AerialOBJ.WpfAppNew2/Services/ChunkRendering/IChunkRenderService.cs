@@ -9,7 +9,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
 public interface IChunkRenderService
 {
     void RenderRandomNoise(IMutableImage mutableImage, Color color, byte distance);
-    void RenderChunk(RegionModel region, Chunk chunk, CancellationToken cancellationToken);
-    void EraseChunk(RegionModel region, Chunk chunk, CancellationToken cancellationToken);
+    void RenderChunk(RegionModel regionModel, ChunkHighestBlockInfo highestBlockInfo, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken);
+    void EraseChunk(RegionModel regionModel, ChunkModel chunkModel, CancellationToken cancellationToken);
     void SetShader(IChunkShader shader);
 }

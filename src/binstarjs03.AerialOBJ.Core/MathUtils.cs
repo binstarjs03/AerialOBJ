@@ -77,7 +77,7 @@ public static class MathUtils
         /// <summary>
         /// Returns region coords for specified chunk coords
         /// </summary>
-        public static Point2Z<int> GetChunkRegionCoords(Point2Z<int> chunkCoordsAbs)
+        public static Point2Z<int> GetRegionCoordsFromChunkCoordsAbs(Point2Z<int> chunkCoordsAbs)
         {
             return new(DivFloor(chunkCoordsAbs.X, Region.ChunkCount),
                        DivFloor(chunkCoordsAbs.Z, Region.ChunkCount));
@@ -103,10 +103,25 @@ public static class MathUtils
         /// </summary>
         /// <param name="coords">Block absolute coordinate</param>
         /// <returns>Block coordinate relative to chunk</returns>
-        public static Point3<int> ConvertChunkBlockCoordsAbsToRel(Point3<int> coords)
+        public static Point3<int> ConvertBlockCoordsAbsToRelToChunk(Point3<int> coords)
         {
             int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
             int blockCoordsAbsY = coords.Y;
+            int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
+            return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
+        }
+
+        public static Point2Z<int> ConvertBlockCoordsAbsToRelToChunk(Point2Z<int> coords)
+        {
+            int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
+            int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
+            return new Point2Z<int>(blockCoordsAbsX, blockCoordsAbsZ);
+        }
+
+        public static Point3<int> ConvertBlockCoordsAbsToRelToSection(Point3<int> coords)
+        {
+            int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
+            int blockCoordsAbsY = Mod(coords.Y, Section.BlockCount);
             int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
             return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
         }
@@ -130,14 +145,6 @@ public static class MathUtils
         {
             return new Point2Z<int>(DivFloor(blockCoordsAbs.X, Section.BlockCount),
                                DivFloor(blockCoordsAbs.Z, Section.BlockCount));
-        }
-
-        public static Point3<int> ConvertSectionBlockCoordsAbsToRel(Point3<int> coords)
-        {
-            int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
-            int blockCoordsAbsY = Mod(coords.Y, Section.BlockCount);
-            int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
-            return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
         }
     }
 }

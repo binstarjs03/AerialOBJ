@@ -40,6 +40,7 @@ public partial class ViewportViewModel : IViewportViewModel
     [NotifyPropertyChangedFor(nameof(MouseBlockPos))]
     [NotifyPropertyChangedFor(nameof(MouseChunkPos))]
     [NotifyPropertyChangedFor(nameof(MouseRegionPos))]
+    [NotifyPropertyChangedFor(nameof(MouseBlockName))]
     private Point2<int> _mouseScreenPos = Point2<int>.Zero;
     [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
@@ -77,7 +78,8 @@ public partial class ViewportViewModel : IViewportViewModel
     }
     public Point2Z<int> MouseBlockPos => new(MathUtils.Floor(MouseWorldPos.X), MathUtils.Floor(MouseWorldPos.Z));
     public Point2Z<int> MouseChunkPos => MathUtils.MinecraftCoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(MouseBlockPos);
-    public Point2Z<int> MouseRegionPos => MathUtils.MinecraftCoordsConversion.GetChunkRegionCoords(MouseChunkPos);
+    public Point2Z<int> MouseRegionPos => MathUtils.MinecraftCoordsConversion.GetRegionCoordsFromChunkCoordsAbs(MouseChunkPos);
+    public string? MouseBlockName => _chunkRegionManagerService.GetBlockName(MouseBlockPos);
 
     // TODO we can encapsulate these properties bindings into separate class
     //public int CachedRegionsCount => _chunkRegionManagerService.CachedRegionsCount;

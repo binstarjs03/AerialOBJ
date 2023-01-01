@@ -146,7 +146,7 @@ public class Chunk
         {
             BlockRangeAbs.ThrowIfOutside(coords);
             coordsAbs = coords;
-            coordsRel = CoordsConversion.ConvertChunkBlockCoordsAbsToRel(coords);
+            coordsRel = CoordsConversion.ConvertBlockCoordsAbsToRelToChunk(coords);
         }
 
         coordsLocalToSection = new Point3<int>(coordsRel.X,

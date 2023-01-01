@@ -19,18 +19,14 @@ public class FlatChunkShader : IChunkShader
         _definitionManager = definitionManager;
     }
 
-    public void RenderChunk(RegionModel regionModel, Chunk chunk, CancellationToken cancellationToken)
+    public void RenderChunk(RegionModel regionModel, ChunkHighestBlockInfo highestBlockInfo, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
     {
-        // TODO reuse instance instead of creating new
-        ChunkHighestBlockInfo highestBlock = new();
-        chunk.GetHighestBlock(highestBlock);
-
         for (int x = 0; x < Section.BlockCount; x++)
             for (int z = 0; z < Section.BlockCount; z++)
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
-                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkCoordsRel, blockCoordsRel);
-                Color color = GetBlockColor(_definitionManager.DefaultViewportDefinition, highestBlock, blockCoordsRel);
+                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
+                Color color = GetBlockColor(_definitionManager.DefaultViewportDefinition, highestBlockInfo, blockCoordsRel);
                 regionModel.RegionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
         App.Current.Dispatcher.InvokeAsync(regionModel.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);

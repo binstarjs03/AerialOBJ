@@ -21,4 +21,5 @@ public interface IChunkRegionManagerService
 
     void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize);
     void Reinitialize();
+    string? GetBlockName(Point2Z<int> blockCoords);
 }

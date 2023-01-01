@@ -48,7 +48,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly List<Point2Z<int>> _pendingRegions = new(s_regionBufferSize);
     private readonly StructLock<Point2Z<int>?> _workedRegion = new() { Value = null };
 
-    private readonly Dictionary<Point2Z<int>, Chunk> _loadedChunks = new(s_chunkBufferSize);
+    private readonly Dictionary<Point2Z<int>, ChunkModel> _loadedChunks = new(s_chunkBufferSize);
     private readonly HashSet<Point2Z<int>> _pendingChunksSet = new(s_chunkBufferSize);
     private readonly List<Point2Z<int>> _pendingChunks = new(s_chunkBufferSize);
     private readonly object _pendingChunkLock = new();
@@ -101,7 +101,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             UnloadRegion(region);
         _pendingRegions.Clear();
 
-        foreach (Chunk chunk in _loadedChunks.Values)
+        foreach (ChunkModel chunk in _loadedChunks.Values)
             UnloadChunk(chunk);
         _pendingChunks.Clear();
         _pendingChunksSet.Clear();
@@ -313,16 +313,16 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         }
     }
 
-    private void LoadRegion(Region region)
+    private void LoadRegion(Region regionData)
     {
-        RegionModel regionModel;
+        RegionModel region;
         try
         {
-            regionModel = _regionModelFactory.Create(region.RegionCoords, region, _cts.Token);
+            region = _regionModelFactory.Create(regionData.RegionCoords, regionData, _cts.Token);
         }
         catch (TaskCanceledException) { return; }
 #if DEBUG
-        _chunkRenderService.RenderRandomNoise(regionModel.RegionImage,
+        _chunkRenderService.RenderRandomNoise(region.RegionImage,
                                               new Color()
                                               {
                                                   Alpha = 255,
@@ -332,16 +332,16 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                                               },
                                               64);
 #endif
-        regionModel.RegionImage.Redraw();
+        region.RegionImage.Redraw();
         lock (_visibleRegionRange)
             lock (_loadedRegions)
             {
-                if (_visibleRegionRange.Value.IsOutside(region.RegionCoords)
-                    || _loadedRegions.ContainsKey(region.RegionCoords)
+                if (_visibleRegionRange.Value.IsOutside(regionData.RegionCoords)
+                    || _loadedRegions.ContainsKey(regionData.RegionCoords)
                     || _cts.IsCancellationRequested)
                     return;
-                App.Current.Dispatcher.InvokeAsync(() => RegionImageLoaded?.Invoke(regionModel), DispatcherPriority.Render);
-                _loadedRegions.Add(region.RegionCoords, regionModel);
+                App.Current.Dispatcher.InvokeAsync(() => RegionImageLoaded?.Invoke(region), DispatcherPriority.Render);
+                _loadedRegions.Add(regionData.RegionCoords, region);
             }
         OnPropertyChanged(nameof(LoadedRegionsCount));
         RunTaskNoDuplicate(LoadPendingChunks, ref _chunkLoaderTask, _isChunkLoaderTaskRunning);
@@ -373,7 +373,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         lock (_visibleChunkRange)
         {
             lock (_loadedChunks)
-                foreach ((Point2Z<int> chunkCoords, Chunk chunk) in _loadedChunks)
+                foreach ((Point2Z<int> chunkCoords, ChunkModel chunk) in _loadedChunks)
                     if (_visibleChunkRange.Value.IsOutside(chunkCoords))
                         UnloadChunk(chunk);
             lock (_pendingChunkLock)
@@ -529,7 +529,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private RegionModel? GetRegionModelForChunk(Point2Z<int> chunkCoords, out RegionStatus regionStatus)
     {
-        Point2Z<int> regionCoords = CoordsConversion.GetChunkRegionCoords(chunkCoords);
+        Point2Z<int> regionCoords = CoordsConversion.GetRegionCoordsFromChunkCoordsAbs(chunkCoords);
         lock (_loadedRegions)
             lock (_pendingRegions)
                 lock (_workedRegion)
@@ -552,29 +552,30 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         return null;
     }
 
-    private void LoadChunk(Chunk chunk, RegionModel regionModel)
+    private void LoadChunk(Chunk chunkData, RegionModel regionModel)
     {
-        _chunkRenderService.RenderChunk(regionModel, chunk, _cts.Token);
+        ChunkModel chunk = new() { ChunkData = chunkData };
+        chunk.LoadHighestBlock();
+        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlock, chunk.ChunkData.ChunkCoordsRel, _cts.Token);
         lock (_visibleChunkRange)
             lock (_loadedChunks)
             {
-                if (_visibleChunkRange.Value.IsOutside(chunk.ChunkCoordsAbs)
-                    || _loadedChunks.ContainsKey(chunk.ChunkCoordsAbs)
+                if (_visibleChunkRange.Value.IsOutside(chunkData.ChunkCoordsAbs)
+                    || _loadedChunks.ContainsKey(chunkData.ChunkCoordsAbs)
                     || _cts.IsCancellationRequested)
                     return;
-                _loadedChunks.Add(chunk.ChunkCoordsAbs, chunk);
+                _loadedChunks.Add(chunkData.ChunkCoordsAbs, chunk);
             }
     }
 
-    private void UnloadChunk(Chunk chunk)
+    private void UnloadChunk(ChunkModel chunk)
     {
-        _loadedChunks.Remove(chunk.ChunkCoordsAbs);
+        _loadedChunks.Remove(chunk.ChunkData.ChunkCoordsAbs);
         // before returning, we want to erase region image part for this chunk,
         // but if region is not loaded, well, just move on cause it doesn't even exist
-        RegionModel? region = GetRegionModelForChunk(chunk.ChunkCoordsAbs, out _);
-        if (region is null)
-            return;
-        _chunkRenderService.EraseChunk(region, chunk, _cts.Token);
+        RegionModel? region = GetRegionModelForChunk(chunk.ChunkData.ChunkCoordsAbs, out _);
+        if (region is not null)
+            _chunkRenderService.EraseChunk(region, chunk, _cts.Token);
     }
 
     // TODO we may be able to move out these two methods into separate class
@@ -607,6 +608,19 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private void OnPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(propertyName);
+    }
+
+    public string? GetBlockName(Point2Z<int> blockCoords)
+    {
+        // get chunk for this block
+        return null;
+        Point2Z<int> chunkCoords = CoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
+        ChunkModel? chunk;
+        //lock (_loadedChunks)
+            if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
+                return null;
+        Point2Z<int> blockCoordsRel = CoordsConversion.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
+        return chunk.HighestBlock.Names[blockCoordsRel.X, blockCoordsRel.Z];
     }
 
     private enum RegionStatus
