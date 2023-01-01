@@ -63,7 +63,7 @@ public class ChunkCache
                 Block lowestBlock = lowestSection.GetBlockPalette(new Point3<int>(x, 0, z));
                 string lastBlockName = lowestBlock.Name;
 
-                int highestHeight = chunk.GetSectionAt(chunk.SectionsYPos.Length - 1).SectionCoordsAbs.Y * Section.BlockCount + Section.BlockCount - 1;
+                int highestHeight = chunk.GetSectionAt(chunk.SectionsYPos.Length - 1).CoordsAbs.Y * Section.BlockCount + Section.BlockCount - 1;
                 int? heightDelimit = null;
 
                 // iterate through all sections from bottom to top
@@ -78,7 +78,7 @@ public class ChunkCache
                         Point3<int> blockCoordsRel = new(x, y, z);
                         Block block = section.GetBlockPalette(blockCoordsRel);
 
-                        int currentHeightLevel = section.SectionCoordsAbs.Y * Section.BlockCount + y;
+                        int currentHeightLevel = section.CoordsAbs.Y * Section.BlockCount + y;
                         int lastHeightLevel = currentHeightLevel - 1;
 
                         // if we don't do this statement, the highest-most block will not be added

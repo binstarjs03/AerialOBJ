@@ -41,21 +41,19 @@ public class Section
         max: new Point3<int>(BlockRange, BlockRange, BlockRange)
     );
 
-    private readonly int _sectionYPos;
-    private readonly Point3<int> _sectionCoordsAbs;
-    private readonly Point3Range<int> _blockRangeAbs;
+    private readonly int _yPos;
 
     private readonly int[,,]? _blockPaletteIndexTable;
     private readonly Block[]? _blockPalette;
 
-    public Point3<int> SectionCoordsAbs => _sectionCoordsAbs;
-    public Point3Range<int> BlockRangeAbs => _blockRangeAbs;
+    public Point3<int> CoordsAbs { get; }
+    public Point3Range<int> BlockRangeAbs { get; }
 
     public Section(Point2Z<int> chunkCoordsAbs, NbtCompound sectionNbt)
     {
-        _sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
-        _sectionCoordsAbs = new Point3<int>(chunkCoordsAbs.X, _sectionYPos, chunkCoordsAbs.Z);
-        _blockRangeAbs = CoordsConversion.CalculateSectionBlockRangeAbs(_sectionCoordsAbs);
+        _yPos = sectionNbt.Get<NbtByte>("Y").Value;
+        CoordsAbs = new Point3<int>(chunkCoordsAbs.X, _yPos, chunkCoordsAbs.Z);
+        BlockRangeAbs = CoordsConversion.CalculateBlockRangeAbsForSection(CoordsAbs);
 
         sectionNbt.TryGet("block_states", out NbtCompound? blockStatesNbt);
         if (blockStatesNbt is null)
@@ -89,9 +87,9 @@ public class Section
             if (!skipTest)
                 BlockRangeRel.ThrowIfOutside(blockCoords);
             blockCoordsRel = blockCoords;
-            blockCoordsAbs = new Point3<int>(_sectionCoordsAbs.X * BlockCount + blockCoords.X,
-                                         _sectionCoordsAbs.Y * BlockCount + blockCoords.Y,
-                                         _sectionCoordsAbs.Z * BlockCount + blockCoords.Z);
+            blockCoordsAbs = new Point3<int>(CoordsAbs.X * BlockCount + blockCoords.X,
+                                             CoordsAbs.Y * BlockCount + blockCoords.Y,
+                                             CoordsAbs.Z * BlockCount + blockCoords.Z);
         }
         else
         {
@@ -138,25 +136,25 @@ public class Section
 
     // set all input block properties to block table block properties, if inequal.
     // does not generate heap, return true if setting is succeed
-    public bool SetBlock(Block block, Point3<int> coordsRel, string[]? exclusions = null)
-    {
-        if (_blockPaletteIndexTable is null) // set to air block
-            return false;
-        else
-        {
-            int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
-            Block blockTemplate = _blockPalette![blockTableIndex];
-            if (blockTemplate.Name == Block.Air.Name)
-                return false;
-            if (exclusions is not null && exclusions.Contains(blockTemplate.Name))
-                return false;
-            block.Name = blockTemplate.Name;
-            block.BlockCoordsAbs = new Point3<int>(SectionCoordsAbs.X * BlockCount + coordsRel.X,
-                                          SectionCoordsAbs.Y * BlockCount + coordsRel.Y,
-                                          SectionCoordsAbs.Z * BlockCount + coordsRel.Z);
-            return true;
-        }
-    }
+    //public bool SetBlock(Block block, Point3<int> coordsRel, string[]? exclusions = null)
+    //{
+    //    if (_blockPaletteIndexTable is null) // set to air block
+    //        return false;
+    //    else
+    //    {
+    //        int blockTableIndex = _blockPaletteIndexTable[coordsRel.X, coordsRel.Y, coordsRel.Z];
+    //        Block blockTemplate = _blockPalette![blockTableIndex];
+    //        if (blockTemplate.Name == Block.Air.Name)
+    //            return false;
+    //        if (exclusions is not null && exclusions.Contains(blockTemplate.Name))
+    //            return false;
+    //        block.Name = blockTemplate.Name;
+    //        block.BlockCoordsAbs = new Point3<int>(CoordsAbs.X * BlockCount + coordsRel.X,
+    //                                               CoordsAbs.Y * BlockCount + coordsRel.Y,
+    //                                               CoordsAbs.Z * BlockCount + coordsRel.Z);
+    //        return true;
+    //    }
+    //}
 
     public bool SetBlock(out string blockName, Point3<int> blockCoordsRel, string[]? exclusions = null)
     {
@@ -260,6 +258,6 @@ public class Section
 
     public override string ToString()
     {
-        return $"Section {_sectionYPos} at {_sectionCoordsAbs}";
+        return $"Section {_yPos} at {CoordsAbs}";
     }
 }

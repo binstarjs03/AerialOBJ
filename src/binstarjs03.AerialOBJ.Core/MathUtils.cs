@@ -75,30 +75,6 @@ public static class MathUtils
         }
 
         /// <summary>
-        /// Returns region coords for specified chunk coords
-        /// </summary>
-        public static Point2Z<int> GetRegionCoordsFromChunkCoordsAbs(Point2Z<int> chunkCoordsAbs)
-        {
-            return new(DivFloor(chunkCoordsAbs.X, Region.ChunkCount),
-                       DivFloor(chunkCoordsAbs.Z, Region.ChunkCount));
-        }
-
-        public static Point3Range<int> CalculateChunkBlockRangeAbs(Point2Z<int> chunkCoordsAbs)
-        {
-            int blockRangeAbsMinX = chunkCoordsAbs.X * Section.BlockCount;
-            int blockRangeAbsMinY = Chunk.SectionRange.Min * Section.BlockCount;
-            int blockRangeAbsMinZ = chunkCoordsAbs.Z * Section.BlockCount;
-            Point3<int> blockRangeAbsMin = new(blockRangeAbsMinX, blockRangeAbsMinY, blockRangeAbsMinZ);
-
-            int blockRangeAbsMaxX = blockRangeAbsMinX + Section.BlockRange;
-            int blockRangeAbsMaxY = Chunk.SectionRange.Max * Section.BlockCount + Section.BlockRange;
-            int blockRangeAbsMaxZ = blockRangeAbsMinZ + Section.BlockRange;
-            Point3<int> blockRangeAbsMax = new(blockRangeAbsMaxX, blockRangeAbsMaxY, blockRangeAbsMaxZ);
-
-            return new Point3Range<int>(blockRangeAbsMin, blockRangeAbsMax);
-        }
-
-        /// <summary>
         /// Convert block absolute coordinate to local block coordinate of chunk
         /// </summary>
         /// <param name="coords">Block absolute coordinate</param>
@@ -126,7 +102,20 @@ public static class MathUtils
             return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
         }
 
-        public static Point3Range<int> CalculateSectionBlockRangeAbs(Point3<int> coordsAbs)
+        public static Point2ZRange<int> CalculateChunkRangeAbsForRegion(Point2Z<int> regionCoords)
+        {
+            int chunkRangeAbsMinX = regionCoords.X * Region.ChunkCount;
+            int chunkRangeAbsMaxX = chunkRangeAbsMinX + Region.ChunkRange;
+            Rangeof<int> chunkRangeAbsX = new(chunkRangeAbsMinX, chunkRangeAbsMaxX);
+
+            int chunkRangeAbsMinZ = regionCoords.Z * Region.ChunkCount;
+            int chunkRangeAbsMaxZ = chunkRangeAbsMinZ + Region.ChunkRange;
+            Rangeof<int> chunkRangeAbsZ = new(chunkRangeAbsMinZ, chunkRangeAbsMaxZ);
+
+            return new Point2ZRange<int>(chunkRangeAbsX, chunkRangeAbsZ);
+        }
+
+        public static Point3Range<int> CalculateBlockRangeAbsForSection(Point3<int> coordsAbs)
         {
             int minAbsBx = coordsAbs.X * Section.BlockCount;
             int minAbsBy = coordsAbs.Y * Section.BlockCount;
@@ -141,10 +130,34 @@ public static class MathUtils
             return new Point3Range<int>(minAbsB, maxAbsB);
         }
 
+        public static Point3Range<int> CalculateBlockRangeAbsForChunk(Point2Z<int> chunkCoordsAbs)
+        {
+            int blockRangeAbsMinX = chunkCoordsAbs.X * Section.BlockCount;
+            int blockRangeAbsMinY = Chunk.SectionRange.Min * Section.BlockCount;
+            int blockRangeAbsMinZ = chunkCoordsAbs.Z * Section.BlockCount;
+            Point3<int> blockRangeAbsMin = new(blockRangeAbsMinX, blockRangeAbsMinY, blockRangeAbsMinZ);
+
+            int blockRangeAbsMaxX = blockRangeAbsMinX + Section.BlockRange;
+            int blockRangeAbsMaxY = Chunk.SectionRange.Max * Section.BlockCount + Section.BlockRange;
+            int blockRangeAbsMaxZ = blockRangeAbsMinZ + Section.BlockRange;
+            Point3<int> blockRangeAbsMax = new(blockRangeAbsMaxX, blockRangeAbsMaxY, blockRangeAbsMaxZ);
+
+            return new Point3Range<int>(blockRangeAbsMin, blockRangeAbsMax);
+        }
+
         public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point2Z<int> blockCoordsAbs)
         {
             return new Point2Z<int>(DivFloor(blockCoordsAbs.X, Section.BlockCount),
                                DivFloor(blockCoordsAbs.Z, Section.BlockCount));
+        }
+
+        /// <summary>
+        /// Returns region coords for specified chunk coords
+        /// </summary>
+        public static Point2Z<int> GetRegionCoordsFromChunkCoordsAbs(Point2Z<int> chunkCoordsAbs)
+        {
+            return new(DivFloor(chunkCoordsAbs.X, Region.ChunkCount),
+                       DivFloor(chunkCoordsAbs.Z, Region.ChunkCount));
         }
     }
 }

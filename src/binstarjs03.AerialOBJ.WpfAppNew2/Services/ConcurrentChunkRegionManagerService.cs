@@ -318,7 +318,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         RegionModel region;
         try
         {
-            region = _regionModelFactory.Create(regionData.RegionCoords, regionData, _cts.Token);
+            region = _regionModelFactory.Create(regionData.Coords, regionData, _cts.Token);
         }
         catch (TaskCanceledException) { return; }
 #if DEBUG
@@ -336,12 +336,12 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         lock (_visibleRegionRange)
             lock (_loadedRegions)
             {
-                if (_visibleRegionRange.Value.IsOutside(regionData.RegionCoords)
-                    || _loadedRegions.ContainsKey(regionData.RegionCoords)
+                if (_visibleRegionRange.Value.IsOutside(regionData.Coords)
+                    || _loadedRegions.ContainsKey(regionData.Coords)
                     || _cts.IsCancellationRequested)
                     return;
                 App.Current.Dispatcher.InvokeAsync(() => RegionImageLoaded?.Invoke(region), DispatcherPriority.Render);
-                _loadedRegions.Add(regionData.RegionCoords, region);
+                _loadedRegions.Add(regionData.Coords, region);
             }
         OnPropertyChanged(nameof(LoadedRegionsCount));
         RunTaskNoDuplicate(LoadPendingChunks, ref _chunkLoaderTask, _isChunkLoaderTaskRunning);

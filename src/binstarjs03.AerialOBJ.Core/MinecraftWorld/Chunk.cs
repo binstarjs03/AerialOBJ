@@ -63,7 +63,7 @@ public class Chunk
     {
         _chunkCoordsAbs = getChunkCoordsAbs(chunkNbt);
         _chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(_chunkCoordsAbs);
-        _blockRangeAbs = CoordsConversion.CalculateChunkBlockRangeAbs(_chunkCoordsAbs);
+        _blockRangeAbs = CoordsConversion.CalculateBlockRangeAbsForChunk(_chunkCoordsAbs);
         (_sectionsYPos, _sections) = readSections(_chunkCoordsAbs, chunkNbt);
 
         // just in case section is unsorted, we sort them first
@@ -180,7 +180,7 @@ public class Chunk
                     Section section = _sections[sectionPosition];
 
                     // skip sections that is higher than heightLimit
-                    int heightAtSection = section.SectionCoordsAbs.Y * Section.BlockCount;
+                    int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
                     if (heightAtSection > limit)
                         continue;
 

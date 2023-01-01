@@ -50,109 +50,94 @@ public class Region
     public const int ChunkHeaderTableSize = SectorDataLength * 1;
     public const int ChunkHeaderSize = 4;
 
-    private readonly string _path;
+    private readonly string _sourcePath;
     private readonly byte[] _data;
-    private readonly Point2Z<int> _regionCoords;
+    private readonly Point2Z<int> _coords;
     private readonly Point2ZRange<int> _chunkRangeAbs;
 
-    public Point2Z<int> RegionCoords => _regionCoords;
+    public Point2Z<int> Coords => _coords;
     public Point2ZRange<int> ChunkRangeAbs => _chunkRangeAbs;
 
     public Region(string path, Point2Z<int> regionCoords)
     {
-        FileInfo fi = new(path);
-        checkRegionData(fi);
-        _path = path;
+        if (!File.Exists(path))
+            throw new FileNotFoundException("Region file does not exist from given path");
+        verifyDataLength(new FileInfo(path).Length);
+        _sourcePath = path;
         _data = File.ReadAllBytes(path);
-        _regionCoords = regionCoords;
-        _chunkRangeAbs = calculateChunkRangeAbs(regionCoords);
+        _coords = regionCoords;
+        _chunkRangeAbs = CoordsConversion.CalculateChunkRangeAbsForRegion(regionCoords);
 
-        static void checkRegionData(FileInfo fileInfo)
+        static void verifyDataLength(long dataLength)
         {
-            if (fileInfo.Length == 0)
+            if (dataLength == 0)
                 throw new RegionNoDataException();
-            if (fileInfo.Length > ChunkHeaderTableSize)
-                return;
-            string msg = "Region data is too small";
-            throw new InvalidDataException(msg);
-        }
-        static Point2ZRange<int> calculateChunkRangeAbs(Point2Z<int> regionCoords)
-        {
-            int chunkRangeAbsMinX = regionCoords.X * ChunkCount;
-            int chunkRangeAbsMaxX = chunkRangeAbsMinX + ChunkRange;
-            Rangeof<int> chunkRangeAbsX = new(chunkRangeAbsMinX, chunkRangeAbsMaxX);
-
-            int chunkRangeAbsMinZ = regionCoords.Z * ChunkCount;
-            int chunkRangeAbsMaxZ = chunkRangeAbsMinZ + ChunkRange;
-            Rangeof<int> chunkRangeAbsZ = new(chunkRangeAbsMinZ, chunkRangeAbsMaxZ);
-
-            return new Point2ZRange<int>(chunkRangeAbsX, chunkRangeAbsZ);
+            if (dataLength < ChunkHeaderTableSize)
+                throw new InvalidDataException("Region data is too small");
         }
     }
-
-    public static Region Open(string path, Point2Z<int> coords)
-        => new(path, coords);
 
     /// <exception cref="RegionUnrecognizedFileException"></exception>
     public static Region Open(string path)
     {
         FileInfo fi = new(path);
-        if (IsValidFilename(fi.Name, out Point2Z<int>? regionCoords))
+        if (isValidFilename(fi.Name, out Point2Z<int>? regionCoords))
             return new Region(path, regionCoords!.Value);
         throw new RegionUnrecognizedFileException("Cannot automatically determine region position");
-    }
 
-    public static bool IsValidFilename(string regionFilename, out Point2Z<int>? regionCoords)
-    {
-        regionCoords = null;
-        string[] split = regionFilename.Split('.');
-        if (split.Length < 4)
-            return false;
-
-        bool correctPrefix = split[0] == "r";
-        bool correctFileType = split[3] == "mca";
-        bool validX = int.TryParse(split[1], out int x);
-        bool validZ = int.TryParse(split[2], out int z);
-        bool validCoordinate = validX && validZ;
-
-        if (correctPrefix && correctFileType && validCoordinate)
+        static bool isValidFilename(string regionFilename, out Point2Z<int>? regionCoords)
         {
-            regionCoords = new Point2Z<int>(x, z);
-            return true;
+            regionCoords = null;
+            string[] split = regionFilename.Split('.');
+            if (split.Length < 4)
+                return false;
+
+            bool correctPrefix = split[0] == "r";
+            bool correctFileType = split[3] == "mca";
+            bool validX = int.TryParse(split[1], out int x);
+            bool validZ = int.TryParse(split[2], out int z);
+            bool validCoordinate = validX && validZ;
+
+            if (correctPrefix && correctFileType && validCoordinate)
+            {
+                regionCoords = new Point2Z<int>(x, z);
+                return true;
+            }
+            else
+                return false;
         }
-        else
-            return false;
     }
 
-    public (ReadOnlyCollection<Point2Z<int>> generatedChunksList, HashSet<Point2Z<int>> generatedChunksSet) GetGeneratedChunksAsCoordsRel()
-    {
-        HashSet<Point2Z<int>> generatedChunksSet = new(TotalChunkCount);
-        for (int x = 0; x < ChunkCount; x++)
-        {
-            for (int z = 0; z < ChunkCount; z++)
-            {
-                Point2Z<int> coordsChunk = new(x, z);
-                if (HasChunkGenerated(coordsChunk))
-                    generatedChunksSet.Add(coordsChunk);
-            }
-        }
-        generatedChunksSet.TrimExcess();
-        return (new ReadOnlyCollection<Point2Z<int>>(generatedChunksSet.ToList()), generatedChunksSet);
-    }
 
-    public HashSet<Point2Z<int>> GetGeneratedChunksAsCoordsRelSet()
-    {
-        HashSet<Point2Z<int>> generatedChunksSet = new(TotalChunkCount);
-        for (int x = 0; x < ChunkCount; x++)
-            for (int z = 0; z < ChunkCount; z++)
-            {
-                Point2Z<int> coordsChunk = new(x, z);
-                if (HasChunkGenerated(coordsChunk))
-                    generatedChunksSet.Add(coordsChunk);
-            }
-        generatedChunksSet.TrimExcess();
-        return generatedChunksSet;
-    }
+    //public (ReadOnlyCollection<Point2Z<int>> generatedChunksList, HashSet<Point2Z<int>> generatedChunksSet) GetGeneratedChunksAsCoordsRel()
+    //{
+    //    HashSet<Point2Z<int>> generatedChunksSet = new(TotalChunkCount);
+    //    for (int x = 0; x < ChunkCount; x++)
+    //    {
+    //        for (int z = 0; z < ChunkCount; z++)
+    //        {
+    //            Point2Z<int> coordsChunk = new(x, z);
+    //            if (HasChunkGenerated(coordsChunk))
+    //                generatedChunksSet.Add(coordsChunk);
+    //        }
+    //    }
+    //    generatedChunksSet.TrimExcess();
+    //    return (new ReadOnlyCollection<Point2Z<int>>(generatedChunksSet.ToList()), generatedChunksSet);
+    //}
+
+    //public HashSet<Point2Z<int>> GetGeneratedChunksAsCoordsRelSet()
+    //{
+    //    HashSet<Point2Z<int>> generatedChunksSet = new(TotalChunkCount);
+    //    for (int x = 0; x < ChunkCount; x++)
+    //        for (int z = 0; z < ChunkCount; z++)
+    //        {
+    //            Point2Z<int> coordsChunk = new(x, z);
+    //            if (HasChunkGenerated(coordsChunk))
+    //                generatedChunksSet.Add(coordsChunk);
+    //        }
+    //    generatedChunksSet.TrimExcess();
+    //    return generatedChunksSet;
+    //}
 
     public bool HasChunkGenerated(Point2Z<int> chunkCoordsRel)
     {
@@ -172,6 +157,7 @@ public class Region
         int seekPos = (chunkCoordsRel.X + chunkCoordsRel.Z * ChunkCount) * ChunkHeaderSize;
         Span<byte> binaryChunkSectorTableEntryData = Read(seekPos, ChunkHeaderSize);
         int sectorPos = 0;
+        // non human-friendly converting arbitary bytes into integer
         for (int i = 0; i < 3; i++)
         {
             int buff = binaryChunkSectorTableEntryData[i];
@@ -224,6 +210,6 @@ public class Region
 
     public override string ToString()
     {
-        return $"Region {RegionCoords} at \"{_path}\"";
+        return $"Region {Coords} at \"{_sourcePath}\"";
     }
 }

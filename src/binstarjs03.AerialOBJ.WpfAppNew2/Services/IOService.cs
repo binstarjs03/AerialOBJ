@@ -18,7 +18,7 @@ public class IOService : IIOService
             return null;
         try
         {
-            return Region.Open(regionFilePath, regionCoords);
+            return new Region(regionFilePath, regionCoords);
         }
         catch (Exception ex)
         {
