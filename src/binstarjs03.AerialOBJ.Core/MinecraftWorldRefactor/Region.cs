@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.IO;
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
@@ -15,8 +17,8 @@ public class Region
     public static readonly Point2ZRange<int> ChunkRangeRel = new(Point2Z<int>.Zero, new Point2Z<int>(ChunkRange, ChunkRange));
 
     public const int SectorDataLength = 4096;
-    public const int ChunkHeaderTableSize = SectorDataLength * 1;
-    public const int ChunkHeaderSize = 4;
+    public const int ChunkSectorTableSize = SectorDataLength;
+    public const int ChunkSectorTableEntrySize = 4;
 
     private readonly string _sourcePath;
     private readonly byte[] _data;
@@ -26,15 +28,17 @@ public class Region
         if (!File.Exists(path))
             throw new FileNotFoundException("Region file does not exist from given path");
         verifyDataLength(new FileInfo(path).Length);
+
         _sourcePath = path;
         _data = File.ReadAllBytes(path);
         Coords = regionCoords;
         ChunkRangeAbs = CoordsConversion.CalculateChunkRangeAbsForRegion(regionCoords);
+
         static void verifyDataLength(long dataLength)
         {
             if (dataLength == 0)
                 throw new RegionNoDataException();
-            if (dataLength < ChunkHeaderTableSize)
+            if (dataLength < ChunkSectorTableSize)
                 throw new InvalidDataException("Region data is too small");
         }
     }
@@ -44,11 +48,57 @@ public class Region
 
     public IChunk GetChunk(Point2Z<int> chunkCoordsRel)
     {
-        throw new NotImplementedException();
+        ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
+        if (!HasChunkGenerated(chunkCoordsRel))
+            throw new ChunkNotGeneratedException($"Chunk {chunkCoordsRel} (relative) is not generated yet");
+
+        ChunkSectorTableEntry cste = GetChunkSectorTableEntry(chunkCoordsRel);
+        (int chunkDataStartPos, int chunkDataLength) = getChunkNbtData(cste);
+
+        using MemoryStream chunkNbtStream = new(_data, chunkDataStartPos, chunkDataLength);
+        NbtCompound chunkNbt = (NbtIO.ReadStream(chunkNbtStream) as NbtCompound)!;
+        return ChunkFactory.CreateInstance(chunkNbt);
+
+        (int dataStartPos, int dataLength) getChunkNbtData(ChunkSectorTableEntry cste)
+        {
+            int startSectorData = cste.SectorPos * SectorDataLength;
+            int chunkNbtLength = BinaryPrimitives.ReadInt32BigEndian(Read(startSectorData, 4)) - 1;
+            int chunkNbtDataStart = startSectorData + 5;
+            return (chunkNbtDataStart, chunkNbtLength);
+        }
+    }
+
+    public bool HasChunkGenerated(Point2Z<int> chunkCoordsRel)
+    {
+        ChunkSectorTableEntry cste = GetChunkSectorTableEntry(chunkCoordsRel);
+        return cste.SectorPos != 0 && cste.SectorSize != 0;
+    }
+
+    private Span<byte> Read(int pos, int length) => new(_data, pos, length);
+
+    private ChunkSectorTableEntry GetChunkSectorTableEntry(Point2Z<int> chunkCoordsRel)
+    {
+        ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
+        int startData = (chunkCoordsRel.X + chunkCoordsRel.Z * ChunkCount) * ChunkSectorTableEntrySize;
+        Span<byte> tableEntryData = Read(startData, ChunkSectorTableEntrySize);
+        int sectorPos = 0;
+        // non human-friendly converting arbitary bytes into integer
+        for (int i = 0; i < 3; i++)
+        {
+            int buff = tableEntryData[i];
+            buff <<= (3 - i - 1) * 8;
+            sectorPos += buff;
+        }
+        int sectorSize = tableEntryData[3];
+        return new ChunkSectorTableEntry
+        {
+            SectorPos = sectorPos,
+            SectorSize = sectorSize,
+        };
     }
 
     public override string ToString()
     {
-        return $"Region {Coords}";
+        return $"Region {Coords}, Source: {_sourcePath}";
     }
 }
