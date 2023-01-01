@@ -7,6 +7,10 @@ public static class ChunkFactory
 {
     public static IChunk CreateInstance(NbtCompound chunkNbt)
     {
-        throw new NotImplementedException();
+        int dataVersion = chunkNbt.Get<NbtInt>("DataVersion").Value;
+        if (dataVersion >= 2860)
+            return new Chunk2860(chunkNbt);
+        else
+            throw new NotImplementedException();
     }
 }
