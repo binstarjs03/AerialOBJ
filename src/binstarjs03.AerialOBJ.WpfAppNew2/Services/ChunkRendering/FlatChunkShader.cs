@@ -2,7 +2,7 @@
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
@@ -19,24 +19,24 @@ public class FlatChunkShader : IChunkShader
         _definitionManager = definitionManager;
     }
 
-    public void RenderChunk(RegionModel regionModel, ChunkHighestBlockInfo highestBlockInfo, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
+    public void RenderChunk(RegionModel regionModel, ChunkHighestBlockBuffer highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
     {
-        for (int x = 0; x < Section.BlockCount; x++)
-            for (int z = 0; z < Section.BlockCount; z++)
+        for (int x = 0; x < IChunk.BlockCount; x++)
+            for (int z = 0; z < IChunk.BlockCount; z++)
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
-                Color color = GetBlockColor(_definitionManager.DefaultViewportDefinition, highestBlockInfo, blockCoordsRel);
+                Color color = GetBlockColor(_definitionManager.DefaultViewportDefinition, highestBlocks, blockCoordsRel);
                 regionModel.RegionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
         App.Current.Dispatcher.InvokeAsync(regionModel.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);
     }
 
-    private static Color GetBlockColor(ViewportDefinition definition, ChunkHighestBlockInfo highestBlock, Point2Z<int> blockCoordsRel)
+    private static Color GetBlockColor(ViewportDefinition definition, ChunkHighestBlockBuffer highestBlocks, Point2Z<int> blockCoordsRel)
     {
         // try get color from block definition
         // else return missing block color
-        string blockName = highestBlock.Names[blockCoordsRel.X, blockCoordsRel.Z];
+        string blockName = highestBlocks.Names[blockCoordsRel.X, blockCoordsRel.Z];
         if (definition.BlockDefinitions.TryGetValue(blockName, out ViewportBlockDefinition? bd))
             return bd.Color;
         else

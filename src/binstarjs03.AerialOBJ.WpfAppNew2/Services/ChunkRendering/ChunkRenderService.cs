@@ -3,7 +3,7 @@ using System.Threading;
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
@@ -19,18 +19,18 @@ public class ChunkRenderService : IChunkRenderService
         _chunkShader = initialChunkShader;
     }
 
-    public void RenderChunk(RegionModel regionModel, ChunkHighestBlockInfo highestBlockInfo, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
+    public void RenderChunk(RegionModel regionModel, ChunkHighestBlockBuffer highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
     {
-        _chunkShader.RenderChunk(regionModel, highestBlockInfo, chunkCoordsRel, cancellationToken);
+        _chunkShader.RenderChunk(regionModel, highestBlocks, chunkCoordsRel, cancellationToken);
     }
 
     public void EraseChunk(RegionModel region, ChunkModel chunk, CancellationToken cancellationToken)
     {
-        for (int x = 0; x < Section.BlockCount; x++)
-            for (int z = 0; z < Section.BlockCount; z++)
+        for (int x = 0; x < IChunk.BlockCount; x++)
+            for (int z = 0; z < IChunk.BlockCount; z++)
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
-                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkData.ChunkCoordsRel, blockCoordsRel);
+                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkData.CoordsRel, blockCoordsRel);
                 region.RegionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
             }
         App.Current.Dispatcher.InvokeAsync(region.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);

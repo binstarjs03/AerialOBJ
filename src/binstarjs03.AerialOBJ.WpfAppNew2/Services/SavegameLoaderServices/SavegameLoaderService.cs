@@ -55,9 +55,10 @@ public class SavegameLoaderService : ISavegameLoaderService
         }
     }
 
-    private int GetDataVersion(NbtCompound levelNbt)
+    private static int GetDataVersion(NbtCompound levelNbt)
     {
-        throw new NotImplementedException();
+        return levelNbt.Get<NbtCompound>("Data")
+                       .Get<NbtInt>("DataVersion").Value;
     }
 
     private static string GetWorldName(NbtCompound levelNbt)

@@ -11,6 +11,8 @@ using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsCon
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 public class Region
 {
+    public const int BlockCount = ChunkCount * IChunk.BlockCount;
+
     public const int ChunkCount = 32;
     public const int TotalChunkCount = ChunkCount * ChunkCount;
     public const int ChunkRange = ChunkCount - 1;

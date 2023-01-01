@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
@@ -121,7 +121,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private bool RecalculateVisibleChunkRange(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
-        float pixelPerChunk = unitMultiplier * Section.BlockCount; // one unit (or pixel) equal to one block
+        float pixelPerChunk = unitMultiplier * IChunk.BlockCount; // one unit (or pixel) equal to one block
         Rangeof<int> visibleChunkXRange = calculateVisibleChunkRange(screenSize.Width, pixelPerChunk, cameraPos.X);
         Rangeof<int> visibleChunkZRange = calculateVisibleChunkRange(screenSize.Height, pixelPerChunk, cameraPos.Z);
 
@@ -141,7 +141,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         {
             // Camera chunk in here means which chunk the camera is pointing to.
             // Floating point accuracy is crucial in here
-            float cameraChunk = cameraPos / Section.BlockCount;
+            float cameraChunk = cameraPos / IChunk.BlockCount;
 
             // worldScreenCenter represent which world coordinate
             // the center of viewport screen is pointing to
@@ -443,7 +443,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 _workedChunks.Add(chunkCoords);
 
             // get both chunk and region
-            (Chunk? chunk, RegionModel? region) = getChunkAndRegion(chunkCoords);
+            (IChunk? chunk, RegionModel? region) = getChunkAndRegion(chunkCoords);
             if (chunk is null || region is null)
             {
                 cleanupWorkedChunk(chunkCoords);
@@ -476,7 +476,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             return true;
         }
 
-        (Chunk? chunk, RegionModel? region) getChunkAndRegion(Point2Z<int> chunkCoords)
+        (IChunk? chunk, RegionModel? region) getChunkAndRegion(Point2Z<int> chunkCoords)
         {
             // get the underlying region
             RegionModel? region = GetRegionModelForChunk(chunkCoords, out RegionStatus status);
@@ -500,7 +500,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 Point2Z<int> chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(chunkCoords);
                 if (!region.RegionData.HasChunkGenerated(chunkCoordsRel))
                     return (null, null);
-                return (region.RegionData.GetChunk(chunkCoords, relative: false), region);
+                return (region.RegionData.GetChunk(chunkCoordsRel), region);
             }
             catch (Exception e)
             {
@@ -552,28 +552,28 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         return null;
     }
 
-    private void LoadChunk(Chunk chunkData, RegionModel regionModel)
+    private void LoadChunk(IChunk chunkData, RegionModel regionModel)
     {
         ChunkModel chunk = new() { ChunkData = chunkData };
         chunk.LoadHighestBlock();
-        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlock, chunk.ChunkData.ChunkCoordsRel, _cts.Token);
+        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlock, chunk.ChunkData.CoordsRel, _cts.Token);
         lock (_visibleChunkRange)
             lock (_loadedChunks)
             {
-                if (_visibleChunkRange.Value.IsOutside(chunkData.ChunkCoordsAbs)
-                    || _loadedChunks.ContainsKey(chunkData.ChunkCoordsAbs)
+                if (_visibleChunkRange.Value.IsOutside(chunkData.CoordsAbs)
+                    || _loadedChunks.ContainsKey(chunkData.CoordsAbs)
                     || _cts.IsCancellationRequested)
                     return;
-                _loadedChunks.Add(chunkData.ChunkCoordsAbs, chunk);
+                _loadedChunks.Add(chunkData.CoordsAbs, chunk);
             }
     }
 
     private void UnloadChunk(ChunkModel chunk)
     {
-        _loadedChunks.Remove(chunk.ChunkData.ChunkCoordsAbs);
+        _loadedChunks.Remove(chunk.ChunkData.CoordsAbs);
         // before returning, we want to erase region image part for this chunk,
         // but if region is not loaded, well, just move on cause it doesn't even exist
-        RegionModel? region = GetRegionModelForChunk(chunk.ChunkData.ChunkCoordsAbs, out _);
+        RegionModel? region = GetRegionModelForChunk(chunk.ChunkData.CoordsAbs, out _);
         if (region is not null)
             _chunkRenderService.EraseChunk(region, chunk, _cts.Token);
     }
