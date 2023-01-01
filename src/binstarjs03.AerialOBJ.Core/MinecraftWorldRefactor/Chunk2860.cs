@@ -16,7 +16,7 @@ public class Chunk2860 : IChunk
     {
         CoordsAbs = getChunkCoordsAbs(chunkNbt);
         CoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(CoordsAbs);
-        BlockRangeAbs = CoordsConversion.CalculateBlockRangeAbsForChunk(CoordsAbs);
+        (_sections, _sectionsY) = readSections(chunkNbt);
 
         static Point2Z<int> getChunkCoordsAbs(NbtCompound chunkNbt)
         {
@@ -24,11 +24,28 @@ public class Chunk2860 : IChunk
             int chunkCoordsAbsZ = chunkNbt.Get<NbtInt>("zPos").Value;
             return new Point2Z<int>(chunkCoordsAbsX, chunkCoordsAbsZ);
         }
+        static (Dictionary<int, Section>, int[]) readSections(NbtCompound chunkNbt)
+        {
+            NbtList<NbtCompound> sectionsNbt = chunkNbt.Get<NbtList<NbtCompound>>("sections");
+            int[] sectionsYPos = new int[sectionsNbt.Count];
+            Dictionary<int, Section> sections = new();
+
+            for (int i = 0; i < sectionsYPos.Length; i++)
+            {
+                NbtCompound sectionNbt = sectionsNbt[i];
+                int sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
+                Section section = new(sectionNbt) { YPos = sectionYPos };
+
+                sectionsYPos[i] = sectionYPos;
+                sections.Add(sectionYPos, section);
+            }
+
+            return (sections, sectionsYPos);
+        }
     }
 
     public Point2Z<int> CoordsAbs { get; }
     public Point2Z<int> CoordsRel { get; }
-    public Point3Range<int> BlockRangeAbs { get; }
     public int DataVersion => 2860;
     public string ReleaseVersion => "1.18";
 
@@ -42,22 +59,27 @@ public class Chunk2860 : IChunk
                 {
                     if (foundHighestBlock)
                         break;
+
                     int sectionY = _sectionsY[index];
                     Section section = _sections[sectionY];
-                    int heightAtCurrentSection = section.YPos * IChunk.BlockCount;
+                    if (section.IsAir)
+                        continue;
 
+                    int heightAtCurrentSection = section.YPos * IChunk.BlockCount;
                     for (int y = IChunk.BlockRange; y >= 0; y--)
                     {
                         if (foundHighestBlock)
                             break;
+
                         // height in here means current block global Y position
                         int height = heightAtCurrentSection + y;
-
                         Point3<int> blockCoordsRel = new(x, y, z);
-                        Block block = section.GetBlock(blockCoordsRel);
-                        if (block.IsAir)
+
+                        Block? block = section.GetBlock(blockCoordsRel);
+                        if (block is null || block.Value.IsAir)
                             continue;
-                        highestBlockBuffer.Names[x, z] = block.Name;
+
+                        highestBlockBuffer.Names[x, z] = block.Value.Name;
                         highestBlockBuffer.Heights[x, z] = height;
                         foundHighestBlock = true;
                     }
@@ -70,11 +92,120 @@ public class Chunk2860 : IChunk
         private readonly int[,,]? _blockPaletteIndexTable;
         private readonly Block[]? _blockPalette;
 
-        public required int YPos { get; init; }
-
-        public Block GetBlock(Point3<int> blockCoordsRel)
+        public Section(NbtCompound sectionNbt)
         {
-            throw new NotImplementedException();
+            YPos = sectionNbt.Get<NbtByte>("Y").Value;
+            sectionNbt.TryGet("block_states", out NbtCompound? blockStatesNbt);
+            if (blockStatesNbt is null)
+                return;
+            blockStatesNbt.TryGet("palette", out NbtList<NbtCompound>? paletteNbt);
+            if (paletteNbt is null)
+                return;
+
+            _blockPalette = new Block[paletteNbt.Count];
+            for (int i = 0; i < paletteNbt.Count; i++)
+            {
+                string blockName = paletteNbt[i].Get<NbtString>("Name").Value;
+                _blockPalette[i] = new Block()
+                {
+                    Name = blockName,
+                    Coords = Point3<int>.Zero
+                };
+            }
+
+            blockStatesNbt.TryGet("data", out NbtLongArray? dataNbt);
+            if (dataNbt is null)
+                return;
+            _blockPaletteIndexTable = ReadNbtLongData(dataNbt, paletteNbt.Count);
+        }
+
+        public required int YPos { get; init; }
+        public bool IsAir // whether section is completely filled with air block
+        {
+            get
+            {
+                if (_blockPalette is null)
+                    return true;
+                if (_blockPalette.Length == 1 && _blockPalette[0].IsAir)
+                    return true;
+                return false;
+            }
+        }
+
+        private int[,,]? ReadNbtLongData(NbtLongArray dataNbt, int paletteLength)
+        {
+            // bit-length required for single block id
+            // (minimum of 4) based from palette length.
+            int blockBitLength = Math.Max((paletteLength - 1).Bitlength(), 4);
+            int bitsInByte = 8;
+            int longBitLength = sizeof(long) * bitsInByte;
+
+            // maximum count of blocks can fit within single 'long' value
+            int blockCount = longBitLength / blockBitLength;
+
+            // 3D table, order is XZY
+            int[,,] paletteIndexTable3D = new int[IChunk.BlockCount, IChunk.BlockCount, IChunk.BlockCount];
+
+            // filling position to which index is to fill
+            Point3<int> fillPos = Point3<int>.Zero;
+
+            Span<int> buffer = stackalloc int[blockCount];
+
+            bool filledCompletely = false;
+            foreach (long longValue in dataNbt.Values)
+            {
+                if (filledCompletely)
+                    break;
+                BinaryUtils.SplitSubnumberFastNoCheck(longValue, buffer, blockBitLength);
+                foreach (int value in buffer)
+                {
+                    if (filledCompletely)
+                        break;
+                    paletteIndexTable3D[fillPos.X, fillPos.Y, fillPos.Z] = value;
+                    filledCompletely = moveFillingPosition(ref fillPos);
+                }
+            }
+            return paletteIndexTable3D;
+
+            // returns true when filled completely
+            static bool moveFillingPosition(ref Point3<int> fillPos)
+            {
+                if (fillPos.X < 15)
+                    fillPos.X++;
+                else
+                {
+                    fillPos.X = 0;
+                    if (fillPos.Z < 15)
+                        fillPos.Z++;
+                    else
+                    {
+                        fillPos.Z = 0;
+                        if (fillPos.Y < 15)
+                            fillPos.Y++;
+                        else
+                            // if Y reached 15 and want to increment,
+                            // it means filling is finished so we want to break
+                            return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        public Block? GetBlock(Point3<int> blockCoordsRel)
+        {
+            if (_blockPalette is null || _blockPaletteIndexTable is null)
+                return null;
+            int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.X,
+                                                       blockCoordsRel.Y,
+                                                       blockCoordsRel.Z];
+            // avoid creating new block, we just need to access the name
+            ref Block blockPalette = ref _blockPalette[paletteIndex];
+            return new Block()
+            {
+                Coords = blockCoordsRel,
+                Name = blockPalette.Name,
+            };
         }
     }
 }
