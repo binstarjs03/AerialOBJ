@@ -1,7 +1,9 @@
-﻿using binstarjs03.AerialOBJ.Core.Primitives;
+﻿using System;
+
+using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
-public interface IChunk
+public interface IChunk : IDisposable
 {
     const int BlockCount = 16;
     const int BlockRange = BlockCount - 1;

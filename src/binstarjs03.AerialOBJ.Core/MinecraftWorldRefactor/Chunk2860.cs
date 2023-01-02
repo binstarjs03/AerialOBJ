@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using binstarjs03.AerialOBJ.Core.ArrayPooling;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
-public class Chunk2860 : IChunk
+public class Chunk2860 : IChunk, IDisposable
 {
     private readonly Dictionary<int, Section> _sections;
     private readonly int[] _sectionsY;
+    private bool _disposedValue;
 
     public Chunk2860(NbtCompound chunkNbt)
     {
@@ -101,10 +103,12 @@ public class Chunk2860 : IChunk
             }
     }
 
-    private class Section
+    private class Section : IDisposable
     {
+        private static readonly ArrayPool3<int> _blockPaletteIndexTablePooler = new(IChunk.BlockCount, IChunk.BlockCount, IChunk.BlockCount);
         private readonly int[,,]? _blockPaletteIndexTable;
         private readonly Block[]? _blockPalette;
+        private bool _disposedValue;
 
         public Section(NbtCompound sectionNbt)
         {
@@ -157,7 +161,7 @@ public class Chunk2860 : IChunk
             int blockCount = longBitLength / blockBitLength;
 
             // 3D table, order is XZY
-            int[,,] paletteIndexTable3D = new int[IChunk.BlockCount, IChunk.BlockCount, IChunk.BlockCount];
+            int[,,] paletteIndexTable3D = _blockPaletteIndexTablePooler.Rent();
 
             // filling position to which index is to fill
             Point3<int> fillPos = Point3<int>.Zero;
@@ -220,5 +224,36 @@ public class Chunk2860 : IChunk
                 Name = blockPalette.Name,
             };
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (_blockPaletteIndexTable is not null)
+                    _blockPaletteIndexTablePooler.Return(_blockPaletteIndexTable);
+                _disposedValue = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            foreach (var item in _sections.Values)
+                item.Dispose();
+            _disposedValue = true;
+        }
+    }
+
+    void IDisposable.Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
