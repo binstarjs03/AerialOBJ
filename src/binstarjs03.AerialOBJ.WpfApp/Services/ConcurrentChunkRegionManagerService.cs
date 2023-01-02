@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -593,7 +593,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
     }
 
-    private async void RedrawLoop()
+    private void RedrawLoop()
     {
         while (!_cts.IsCancellationRequested)
         {
@@ -603,7 +603,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                     foreach (RegionModel region in _loadedRegions.Values)
                         region.RegionImage.Redraw();
             }, DispatcherPriority.Render, _cts.Token);
-            await Task.Delay(1000 / 15);
+            Thread.Sleep(1000 / 30);
         }
     }
 

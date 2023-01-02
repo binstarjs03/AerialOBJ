@@ -107,6 +107,7 @@ public partial class MainViewModel
     [RelayCommand]
     private void OnClose()
     {
+        GlobalState.SavegameLoadInfo = null;
         CloseViewRequested?.Invoke();
     }
 
