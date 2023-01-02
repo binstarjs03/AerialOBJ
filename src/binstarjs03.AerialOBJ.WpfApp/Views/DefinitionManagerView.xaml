@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:DefinitionManagerViewModel}}"
         Title="DefinitionManager" Height="400" Width="400">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -26,12 +28,7 @@
         </DockPanel>
         <DockPanel Grid.Row="2">
             <TextBlock Text="Available Definitions:" DockPanel.Dock="Top"/>
-            <DataGrid>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Name"/>
-                    <DataGridTextColumn Header="Format Version"/>
-                    <DataGridTextColumn Header="Minecraft Version"/>
-                </DataGrid.Columns>
+            <DataGrid ItemsSource="{Binding ViewportDefinitions}">
             </DataGrid>
         </DockPanel>
         <Grid Grid.Row="4">

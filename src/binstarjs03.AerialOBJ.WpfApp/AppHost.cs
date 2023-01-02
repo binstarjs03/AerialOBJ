@@ -27,21 +27,29 @@ public static class AppHost
 
             // configure factories
             services.AddSingleton<RegionModelFactory>();
-            services.AddAbstractFactory<IAboutView, AboutView>();
 
             // configure views
             services.AddSingleton<MainView>();
             services.AddSingleton<DebugLogView>();
+            services.AddTransient<AboutView>();
+            services.AddTransient<DefinitionManagerView>();
 
             // configure viewmodels
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<DebugLogViewModel>();
             services.AddTransient<AboutViewModel>();
             services.AddTransient<ViewportViewModel>();
+            services.AddTransient<DefinitionManagerViewModel>();
 
             // configure services
+            services.AddSingleton<IModalService, ModalService>(x =>
+            {
+                ServiceProvider provider = services.BuildServiceProvider();
+                IView aboutViewFactory() => provider.GetRequiredService<AboutView>();
+                IView definitionManagerViewModel() => provider.GetRequiredService<DefinitionManagerView>();
+                return new ModalService(aboutViewFactory, definitionManagerViewModel);
+            });
             services.AddSingleton<DefinitionManagerService>();
-            services.AddSingleton<IModalService, ModalService>();
             services.AddSingleton<ILogService, LogService>();
             services.AddSingleton<IIOService, IOService>();
             services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();

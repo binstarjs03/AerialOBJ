@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Views;
@@ -12,11 +13,13 @@ public delegate FileDialogResult ShowSaveFileDialogHandler(FileDialogArg dialogA
 
 public class ModalService : IModalService
 {
-    private readonly IAbstractFactory<IAboutView> _aboutViewFactory;
+    private readonly Func<IView> _aboutViewFactory;
+    private readonly Func<IView> _definitionManagerViewFactory;
 
-    public ModalService(IAbstractFactory<IAboutView> aboutViewFactory)
+    public ModalService(Func<IView> aboutViewFactory, Func<IView> definitionManagerViewFactory)
     {
         _aboutViewFactory = aboutViewFactory;
+        _definitionManagerViewFactory = definitionManagerViewFactory;
     }
 
     public void ShowMessageBox(MessageBoxArg dialogArg)
@@ -29,11 +32,9 @@ public class ModalService : IModalService
         MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
-    public void ShowAbout()
-    {
-        _aboutViewFactory.Create()
-                         .ShowDialog();
-    }
+    public void ShowAbout() => _aboutViewFactory().ShowDialog();
+
+    public void ShowDefinitionManager() => _definitionManagerViewFactory().ShowDialog();
 
     public FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg)
     {

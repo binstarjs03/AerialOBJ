@@ -4,9 +4,12 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Services.SavegameLoaderServices;
+using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
@@ -115,6 +118,12 @@ public partial class MainViewModel
     private void ShowAboutModal()
     {
         _modalService.ShowAbout();
+    }
+
+    [RelayCommand]
+    private void ShowDefinitionManagerModal()
+    {
+        _modalService.ShowDefinitionManager();
     }
 }
 
