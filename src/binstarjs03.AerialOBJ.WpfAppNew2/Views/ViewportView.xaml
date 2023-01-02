@@ -257,9 +257,9 @@
                                 <Separator Style="{StaticResource SubtleSeparator}"/>
 
                                 <TextBlock Text="Visible Region Range:"/>
-                                <local:PropertyValuePairView PropertyText=" - X Range" ValueText="{Binding VisibleRegionRange.XRange}"/>
-                                <local:PropertyValuePairView PropertyText=" - Z Range" ValueText="{Binding VisibleRegionRange.ZRange}"/>
-                                <local:PropertyValuePairView PropertyText="Loaded Region Count" ValueText="{Binding LoadedRegionsCount}"/>
+                                <local:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleRegionRange.XRange}"/>
+                                <local:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleRegionRange.ZRange}"/>
+                                <local:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding LoadedRegionsCount}"/>
                                 <!--local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/-->
                                 <local:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding PendingRegionsCount}"/>
                                 <local:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding WorkedRegion}"/>

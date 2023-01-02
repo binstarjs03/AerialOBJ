@@ -1,5 +1,6 @@
 ﻿using System;
 
+using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Models;
 
@@ -20,7 +21,7 @@ public interface IChunkRegionManagerService
     event Action<string> PropertyChanged;
 
     void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize);
-    string? GetBlockName(Point2Z<int> blockCoords);
+    Block? GetBlock(Point2Z<int> blockCoords);
     void OnSavegameOpened();
     void OnSavegameClosed();
 }

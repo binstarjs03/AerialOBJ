@@ -9,14 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Services\SingleThreadedChunkRegionManagerService.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Services\SingleThreadedChunkRegionManagerService.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />

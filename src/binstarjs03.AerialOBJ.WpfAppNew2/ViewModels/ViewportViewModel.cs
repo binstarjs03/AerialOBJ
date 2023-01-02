@@ -5,7 +5,8 @@ using System.Windows;
 using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.Core;
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.Definitions;
+using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfAppNew2.Components;
 using binstarjs03.AerialOBJ.WpfAppNew2.ExtensionMethods;
@@ -29,7 +30,7 @@ public partial class ViewportViewModel : IViewportViewModel
 
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly ILogService _logService;
-
+    private readonly DefinitionManagerService _definitionManager;
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
@@ -37,10 +38,11 @@ public partial class ViewportViewModel : IViewportViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MouseWorldPos))]
-    [NotifyPropertyChangedFor(nameof(MouseBlockPos))]
+    [NotifyPropertyChangedFor(nameof(MouseBlockPos3))]
     [NotifyPropertyChangedFor(nameof(MouseChunkPos))]
     [NotifyPropertyChangedFor(nameof(MouseRegionPos))]
-    [NotifyPropertyChangedFor(nameof(MouseBlockName))]
+    [NotifyPropertyChangedFor(nameof(MouseBlock))]
+    [NotifyPropertyChangedFor(nameof(MouseBlockDisplayName))]
     private Point2<int> _mouseScreenPos = Point2<int>.Zero;
     [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
@@ -50,12 +52,12 @@ public partial class ViewportViewModel : IViewportViewModel
     // Region Images
     [ObservableProperty] private ObservableCollection<RegionModel> _regionModels = new();
 
-    public ViewportViewModel(GlobalState globalState, IChunkRegionManagerService chunkRegionManagerService, ILogService logService)
+    public ViewportViewModel(GlobalState globalState, IChunkRegionManagerService chunkRegionManagerService, ILogService logService, DefinitionManagerService definitionManager)
     {
         GlobalState = globalState;
         _chunkRegionManagerService = chunkRegionManagerService;
         _logService = logService;
-
+        _definitionManager = definitionManager;
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
         _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
@@ -76,10 +78,26 @@ public partial class ViewportViewModel : IViewportViewModel
             return PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
         }
     }
-    public Point2Z<int> MouseBlockPos => new(MathUtils.Floor(MouseWorldPos.X), MathUtils.Floor(MouseWorldPos.Z));
-    public Point2Z<int> MouseChunkPos => MathUtils.MinecraftCoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(MouseBlockPos);
+    public Point2Z<int> MouseBlockPos2 => new(MathUtils.Floor(MouseWorldPos.X), MathUtils.Floor(MouseWorldPos.Z));
+    public Point3<int> MouseBlockPos3 => MouseBlock is null? new(MouseBlockPos2.X, 0, MouseBlockPos2.Z) : MouseBlock.Value.Coords;
+    public Point2Z<int> MouseChunkPos => MathUtils.MinecraftCoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(MouseBlockPos2);
     public Point2Z<int> MouseRegionPos => MathUtils.MinecraftCoordsConversion.GetRegionCoordsFromChunkCoordsAbs(MouseChunkPos);
-    public string? MouseBlockName => _chunkRegionManagerService.GetBlockName(MouseBlockPos);
+    public bool HasMouseBlock => MouseBlock is not null;
+    public Block? MouseBlock => _chunkRegionManagerService.GetBlock(MouseBlockPos2);
+    public string? MouseBlockName => MouseBlock?.Name;
+    public string? MouseBlockDisplayName
+    {
+        get
+        {
+            if (MouseBlock is null)
+                return null;
+            if (_definitionManager.DefaultViewportDefinition.BlockDefinitions.TryGetValue(MouseBlock.Value.Name, out ViewportBlockDefinition? bd))
+                return bd.DisplayName;
+            else
+                return _definitionManager.DefaultViewportDefinition.MissingBlockDefinition.DisplayName;
+
+        }
+    }
 
     // TODO we can encapsulate these properties bindings into separate class
     //public int CachedRegionsCount => _chunkRegionManagerService.CachedRegionsCount;
@@ -131,7 +149,7 @@ public partial class ViewportViewModel : IViewportViewModel
 
     private void OnChunkRegionManagerService_RegionReadingError(Point2Z<int> regionCoords, Exception e)
     {
-        if (e is RegionNoDataException)
+        if (e is Core.MinecraftWorld.RegionNoDataException)
             _logService.Log($"Skipped Region {regionCoords}: file contains no data", useSeparator: true);
         else if (e is InvalidDataException)
             _logService.Log($"Skipped Region {regionCoords}: file is corrupted", LogStatus.Warning, useSeparator: true);
@@ -160,12 +178,7 @@ public partial class ViewportViewModel : IViewportViewModel
         MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : updatedMousePosDelta;
         if (MouseClickHolding)
         {
-#if RELEASE
             Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
-#elif DEBUG
-            float speedMultiplier = 1f;
-            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X * speedMultiplier / UnitMultiplier, -MousePosDelta.Y * speedMultiplier / UnitMultiplier);
-#endif
             CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
         }

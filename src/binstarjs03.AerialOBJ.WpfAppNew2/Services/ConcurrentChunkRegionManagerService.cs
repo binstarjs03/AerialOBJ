@@ -57,12 +57,12 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     public ConcurrentChunkRegionManagerService(
         IRegionLoaderService regionLoaderService,
-        IChunkRegionManagerErrorMemory chunkRegionManagerErrorMemoryService,
+        IChunkRegionManagerErrorMemory errorMemory,
         RegionModelFactory regionImageModelFactory,
         IChunkRenderService chunkRenderService)
     {
         _regionLoaderService = regionLoaderService;
-        _crmErrorMemoryService = chunkRegionManagerErrorMemoryService;
+        _crmErrorMemoryService = errorMemory;
         _regionModelFactory = regionImageModelFactory;
         _chunkRenderService = chunkRenderService;
         _redrawTask = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
@@ -582,17 +582,16 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         PropertyChanged?.Invoke(propertyName);
     }
 
-    public string? GetBlockName(Point2Z<int> blockCoords)
+    public Block? GetBlock(Point2Z<int> blockCoords)
     {
         // get chunk for this block
-        return null;
         Point2Z<int> chunkCoords = CoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
         ChunkModel? chunk;
-        //lock (_loadedChunks)
-        if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
-            return null;
+        lock (_loadedChunks)
+            if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
+                return null;
         Point2Z<int> blockCoordsRel = CoordsConversion.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
-        //return chunk.HighestBlock.Names[blockCoordsRel.X, blockCoordsRel.Z];
+        return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
     }
 
     private async void RedrawLoop()
