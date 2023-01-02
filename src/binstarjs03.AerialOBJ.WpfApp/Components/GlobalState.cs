@@ -5,8 +5,6 @@ public class GlobalState
 {
     private bool _isDebugLogViewVisible = false;
     private SavegameLoadInfo? _savegameLoadInfo = null;
-    private bool _isViewportInfoVisible = false;
-    private bool _isViewportChunkGridVisible = false;
 
     public GlobalState(DateTime launchTime)
     {
@@ -32,7 +30,6 @@ public class GlobalState
         }
     }
 
-    // SavegameLoadInfo is accessed by CRM Threads through IOService
     public SavegameLoadInfo? SavegameLoadInfo
     {
         get => _savegameLoadInfo;
@@ -45,55 +42,14 @@ public class GlobalState
             SavegameLoadState loadState = value is null ?
                 SavegameLoadState.Closed : SavegameLoadState.Opened;
             SavegameLoadChanged?.Invoke(loadState);
-            Reinitialize(loadState);
             OnPropertyChanged();
         }
     }
 
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
 
-    public bool IsViewportInfoVisible
-    {
-        get => _isViewportInfoVisible;
-        set
-        {
-            if (value == _isViewportInfoVisible)
-                return;
-            _isViewportInfoVisible = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool IsViewportChunkGridVisible
-    {
-        get => _isViewportChunkGridVisible;
-        set
-        {
-            if (value == _isViewportChunkGridVisible)
-                return;
-            _isViewportChunkGridVisible = value;
-            OnPropertyChanged();
-        }
-    }
-
     private void OnPropertyChanged()
     {
         PropertyChanged?.Invoke(nameof(GlobalState));
-    }
-
-    private void Reinitialize(SavegameLoadState state)
-    {
-        if (state == SavegameLoadState.Closed)
-        {
-            IsViewportInfoVisible = false;
-            IsViewportChunkGridVisible = false;
-        }
-#if DEBUG
-        else
-        {
-            IsViewportInfoVisible = true;
-            IsViewportChunkGridVisible = true;
-        }
-#endif
     }
 }

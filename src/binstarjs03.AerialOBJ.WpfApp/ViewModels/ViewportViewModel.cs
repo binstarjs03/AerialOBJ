@@ -27,6 +27,9 @@ public partial class ViewportViewModel : IViewportViewModel
     private readonly ILogService _logService;
     private readonly DefinitionManagerService _definitionManager;
 
+    [ObservableProperty] private bool _isChunkGridVisible = false;
+    [ObservableProperty] private bool _isInfoPanelVisible = false;
+
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
@@ -56,8 +59,8 @@ public partial class ViewportViewModel : IViewportViewModel
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
         _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
-        _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionImageLoaded;
-        _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionImageUnloaded;
+        _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionLoaded;
+        _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionUnloaded;
         _chunkRegionManagerService.RegionLoadingError += OnChunkRegionManagerService_RegionReadingError;
     }
 
@@ -103,16 +106,18 @@ public partial class ViewportViewModel : IViewportViewModel
             CameraPos = new Point2Z<float>(0, 0);
             ZoomLevel = 0;
             ScreenSize = new Size<int>(0, 0);
+            IsChunkGridVisible = false;
+            IsInfoPanelVisible = false;
         }
     }
 
-    private void OnChunkRegionManagerService_RegionImageLoaded(RegionModel regionModel)
+    private void OnChunkRegionManagerService_RegionLoaded(RegionModel regionModel)
     {
         if (GlobalState.HasSavegameLoaded)
             _regionModels.Add(regionModel);
     }
 
-    private void OnChunkRegionManagerService_RegionImageUnloaded(RegionModel regionModel)
+    private void OnChunkRegionManagerService_RegionUnloaded(RegionModel regionModel)
     {
         _regionModels.Remove(regionModel);
     }
