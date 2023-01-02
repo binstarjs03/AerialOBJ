@@ -27,20 +27,29 @@ public partial class ViewportViewModel : IViewportViewModel
     private readonly ILogService _logService;
     private readonly DefinitionManagerService _definitionManager;
 
-    [ObservableProperty] private bool _isChunkGridVisible = false;
+    // viewport UI states
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))] 
+    private bool _isChunkGridVisible = false;
     [ObservableProperty] private bool _isInfoPanelVisible = false;
 
+    // viewport states
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UnitMultiplier))]
+    [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))]
+    private int _zoomLevel = 0;
     [ObservableProperty] private int _heightLevel = 319;
 
+    // mouse states
     [ObservableProperty] private Point2<int> _mouseScreenPos = Point2<int>.Zero;
     [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsInside = false;
 
+    // mouse block states
     [ObservableProperty] private Point3<int> _mouseBlockCoords = Point3<int>.Zero;
     [ObservableProperty] private Point2Z<int> _mouseChunkCoords = Point2Z<int>.Zero;
     [ObservableProperty] private Point2Z<int> _mouseRegionCoords = Point2Z<int>.Zero;
@@ -65,7 +74,8 @@ public partial class ViewportViewModel : IViewportViewModel
     }
 
     public GlobalState GlobalState { get; }
-    public float UnitMultiplier => _zoomTable[_zoomLevel];
+    public float UnitMultiplier => _zoomTable[ZoomLevel];
+    public bool IsRegionTextVisible => ZoomLevel == 0 && IsChunkGridVisible;
 
     // TODO we can encapsulate these properties bindings into separate class
     public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;

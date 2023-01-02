@@ -114,7 +114,7 @@
                                         </ContentControl.Width>
                                     </ContentControl>
                                     <!--Region Text Information-->
-                                    <Grid Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.IsChunkGridVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+                                    <Grid Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.IsRegionTextVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                                         <Border HorizontalAlignment="Left" 
                                                 VerticalAlignment="Top"
                                                 Margin="5"
