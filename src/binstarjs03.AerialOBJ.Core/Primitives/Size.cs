@@ -9,34 +9,19 @@ public struct Size<TNumber> :
     IDivisionOperators<Size<TNumber>, TNumber, Size<TNumber>>
     where TNumber : struct, INumber<TNumber>
 {
-    private TNumber _width;
-    private TNumber _height;
-
-    public TNumber Width
-    {
-        get => _width;
-        set
-        {
-            if (value <= TNumber.Zero)
-                throw new ArgumentException($"{nameof(Width)} must be higher than zero");
-            _width = value;
-        }
-    }
-    public TNumber Height
-    {
-        get => _height;
-        set
-        {
-            if (value <= TNumber.Zero)
-                throw new ArgumentException($"{nameof(Height)} must be higher than zero");
-            _height = value;
-        }
-    }
+    public TNumber Width { get; set; }
+    public TNumber Height { get; set; }
 
     public Size(TNumber width, TNumber height)
     {
         Width = width;
         Height = height;
+    }
+
+    public Point2<TNumber> GetMidPoint()
+    {
+        TNumber two = TNumber.One + TNumber.One;
+        return new Point2<TNumber>(Width / two, Height / two);
     }
 
     public override string ToString()

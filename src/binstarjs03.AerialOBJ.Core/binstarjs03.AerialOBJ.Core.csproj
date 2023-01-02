@@ -11,7 +11,12 @@
 		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
-		<DefineConstants>DANGEROUS_OPTIMIZATION</DefineConstants>
+		<DefineConstants>UNSAFE_OPTIMIZATION</DefineConstants>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	  <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
+	</ItemGroup>
 
 </Project>

@@ -1,0 +1,117 @@
+redstone d10000
+redstone_torch ed0000
+repeater 500000
+comparator 500000
+piston 7c5e32 
+sticky_piston  558244
+slime_block 56923b
+honey_block b17215
+observer 666666
+hopper 2b2b2b
+dispenser 585858
+dropper 585858
+lectern 926e38
+target bdbdbd
+lever
+lighting_rod
+daylight_detector af9c84
+tripwire_hook
+trapped_chest
+tnt d33c12
+redstone_lamp 865434
+note_block 2c180f
+
+stone_button
+polished_blackstone_button
+oak_button
+spruce_button
+birch_button
+jungle_button
+acacia_button
+dark_oak_button
+crimson_button
+warped_button
+
+stone_pressure_plate
+polished_blackstone_pressure_plate
+light_weighted_pressure_plate
+heavy_weighted_pressure_plate
+oak_pressure_plate
+spruce_pressure_plate
+birch_pressure_plate
+jungle_pressure_plate
+acacia_pressure_plate
+dark_oak_pressure_plate
+crimson_pressure_plate
+warped_pressure_plate
+
+iron_door
+oak_door
+spruce_door
+birch_door
+jungle_door
+acacia_door
+dark_oak_door
+crimson_door
+warped_door
+
+iron_trapdoor
+oak_trapdoor
+spruce_trapdoor
+birch_trapdoor
+jungle_trapdoor
+acacia_trapdoor
+dark_oak_trapdoor
+crimson_trapdoor
+warped_trapdoor
+
+oak_fence_gate
+spruce_fence_gate
+birch_fence_gate
+jungle_fence_gate
+acacia_fence_gate
+dark_oak_fence_gate
+crimson_fence_gate
+warped_fence_gate
+
+powered_rail a70000
+detector_rail b3443e
+rail 535353
+activator_rail 7f0000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+oak
+spruce
+birch
+jungle
+acacia
+dark_oak
+crimson
+warped

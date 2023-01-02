@@ -1,131 +1,46 @@
-﻿/*
-Copyright (c) 2022, Bintang Jakasurya
-All rights reserved. 
+﻿using System;
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
-using System;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
-
-public static class LogService
+public class LogService : ILogService
 {
-    public static event StringAction? Logging;
-    public static event StringAction? NotificationPushed;
-    public delegate void StringAction(string content);
-    private static string s_logContent = "";
-    private static string s_notificationContent = "";
+    private string _logContent = "";
+    private readonly GlobalState _globalState;
 
-    public static string GetLogContent()
+    public event LoggingEventHandler? Logging;
+
+    public string LogContent => _logContent;
+
+    public LogService(GlobalState globalState)
     {
-        return s_logContent;
+        _globalState = globalState;
     }
 
-    public static string GetNotificationContent()
+    public void Clear()
     {
-        return s_notificationContent;
+        _logContent = "";
     }
 
-    public static void ClearLogContent()
+    public void Log(string message, bool useSeparator = false)
     {
-        s_logContent = "";
+        Log(message, LogStatus.Normal, useSeparator);
     }
 
-    public static void ClearNotificationContent()
+    public void Log(string message, LogStatus status, bool useSeparator = false)
     {
-        s_notificationContent = "";
-    }
-
-    /// <summary>
-    /// Write log content to disk upon crashed (should not be called manually)
-    /// </summary>
-    /// <param name="path">Disk path location to write the file</param>
-    /// <returns>Report whether writing is successful or failure</returns>
-    public static bool WriteLogToDiskOnCrashed(string path)
-    {
-        try
-        {
-            IOService.WriteText(path, s_logContent);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public static void LogNewline()
-    {
-        Log("");
-    }
-
-    public static void Log(string content, bool useSeparator = false)
-    {
-        s_logContent += $"{content}{Environment.NewLine}";
+        if (status != LogStatus.Normal)
+            _logContent += $"[{status.ToString().ToUpper()}] ";
+        _logContent += $"{message}{Environment.NewLine}";
         if (useSeparator)
-            LogNewline();
-        Logging?.Invoke(content);
+            _logContent += Environment.NewLine;
+        Logging?.Invoke(message, status);
     }
 
-    public static void LogWarning(string content, bool pushNotification = false, bool useSeparator = false)
+    public void LogRuntimeInfo()
     {
-        LogEmphasis(content, "WARNING", pushNotification, useSeparator);
-    }
-
-    public static void LogError(string content, bool pushNotification = false, bool useSeparator = false)
-    {
-        LogEmphasis(content, "ERROR", pushNotification, useSeparator);
-    }
-
-    public static void LogNotification(string content, bool pushNotification = true, bool useSeparator = false)
-    {
-        LogEmphasis(content, "NOTIFICATION", pushNotification, useSeparator);
-    }
-
-    public static void LogSuccess(string content, bool pushNotification = true, bool useSeparator = false)
-    {
-        LogEmphasis(content, "SUCCESS", pushNotification, useSeparator);
-    }
-
-    public static void LogAborted(string content, bool pushNotification = true, bool useSeparator = false)
-    {
-        LogEmphasis(content, "ABORTED", pushNotification, useSeparator);
-    }
-
-    private static void LogEmphasis(string content, string emphasisWord, bool pushNotification = true, bool useSeparator = false)
-    {
-        Log($"--{emphasisWord}--: {content}", useSeparator);
-        if (pushNotification)
-            PushNotification(content);
-    }
-
-    public static void PushNotification(string message)
-    {
-        s_notificationContent = message;
-        NotificationPushed?.Invoke(message);
-    }
-
-    public static void LogRuntimeInfo()
-    {
-        Log($"Launch time: {App.Current.State.LaunchTime}");
-        Log($"{AppState.AppName} Version: ...");
+        Log($"Launch time: {_globalState.LaunchTime}");
+        Log($"{GlobalState.AppName} Version: ...");
         Log("Commit Hash: ...", useSeparator: true);
 
         Log($"Host OS: {Environment.OSVersion}");
@@ -133,4 +48,3 @@ public static class LogService
         Log($".NET Runtime Version: {Environment.Version}", useSeparator: true);
     }
 }
-

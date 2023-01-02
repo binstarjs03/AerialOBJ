@@ -1,5 +1,6 @@
 ﻿namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
+// TODO we may be able to make this class as ref struct instead
 public class ChunkHighestBlockInfo
 {
     public string[,] Names { get; }

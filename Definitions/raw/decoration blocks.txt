@@ -1,0 +1,343 @@
+oak_sapling - 607f0e - 0 - Oak Sapling
+spruce_sapling - 607f0e - 0 - Spruce Sapling
+birch_sapling - 607f0e - 0 - Birch Sapling
+jungle_sapling - 607f0e - 0 - Jungle Sapling
+acacia_sapling - 607f0e - 0 - Acacia Sapling
+dark_oak_sapling - 607f0e - 0 - Dark Oak Sapling
+
+oak_leaves - 337814 - 0 -  Oak Leaves
+spruce_leaves - 2c512c - 0 -  Spruce Leaves
+birch_leaves - 52742d - 0 -  Birch Leaves
+jungle_leaves - 2c9300 - 0 -  Jungle Leaves
+acacia_leaves - 268300 - 0 -  Acacia Leaves
+dark_oak_leaves - 1b5e00 - 0 -  Dark Oak Leaves
+azalea_leaves - 486117 - 0 -  Azalea Leaves
+flowering_azalea_leaves - 555c3c - 0 - Flowering Azalea Leaves
+
+cobweb - dedede - 0 - Cobweb
+
+grass - 81b24c - 0 - Grass
+fern - 557c2b - 0 - Fern
+dead_bush - 7e4e12 - 0 - Dead Bush
+seagrass - 7e4e12 - 0 - Seagrass
+sea_pickle - 6b7129 - 0 - Sea Pickle
+
+dandelion - c6d000 - 0 - Dandelion
+poppy - be0a00 - 0 - Poppy
+blue_orchid - 098edc - 0 - Blue Orchid
+allium - 9946dc - 0 - Allium
+azure_bluet - b2b8c0 - 0 - Azure Bluet
+red_tulip - af1800 - 0 - Red Tulip
+orange_tulip - c35305 - 0 - Orange Tulip
+white_tulip - b6b6b6 - 0 - White Tulip
+pink_tulip - bd91bd - 0 - Pink Tulip
+cornflower - 617fe5 - 0 - Cornflower
+lily_of_the_valley - e4e4e4 - 0 - Lily of The Valley
+wither_rose - 23270f - 0 - Wither Rose
+
+sunflower - dcc511 - 0 - Sunflower
+lilac - 957899 - 0 - Lilac
+rose_bush - e10e00 - 0 - Rose Bush
+peony - b992ca - 0 - Peony
+tall_grass - 6fa535 - 0 - Tall Grash
+large_fern - 6fa535 - 0 - Large Fern
+
+azalea - 5f7628 - 0 - Azalea
+flowering_azalea - 5f7628 - 0 - Flowering Azalea
+spore_blossom - 5f7628 - 0 - Spore Blossom
+
+brown_mushroom - 5f4533 - 0 - Brown Mushroom
+red_mushroom  - 9b0d0b - 0 - Red Mushroom
+crimson_fungus - 8b2d19 - 0 - Crimson Fungus
+warped_fungus - 007969 - 0 - Warped Fungus
+crimson_root - 8b2d19 - 0 - Crimson Root
+warped_roots - 007969 - 0 - Warped Root
+nether_sprouts - 007969 - 0 - Nether Sprouts
+weeping_vines - 8b2d19 - 0 - Weeping Vines
+twisting_vines - 007969 - 0 - Twisting Vines
+vine - 356600 - 0 - Vine
+glow_lichen - 586a60 - 7 - Glow Lichen
+lily_pad - 1a782a - 0 - Lily Pad
+
+sugar_cane - 698b45 - 0 - Sugar Cane
+kelp - 508926 - 0 - Kelp
+
+moss_block - 546827 - 0 - Moss Block
+hanging_roots - 895c47 - 0 - Hanging Roots
+big_dripleaf - 59781a - 0 - Big Dripleaf
+small_dripleaf - 59781a - 0 - Small Dripleaf
+bamboo - 607f0e - 0 - Bamboo
+
+torch - eded00 - 14 - Torch
+soul_torch - 59a9ac - 10 Soul Torch
+end_rod - cacaca - 14 - End Rod
+chorus_plant - af77e5 - 0 - Chorus Plant
+chorus_flower - af77e5 - 0 - Chorus Flower
+chest - 98671b - 0 - Chest
+crafting_table - 7b4d2b - 0 - Crafting Table
+furnace - 5e5e5f - 0 - Furnace
+
+farmland - 512b10 - 0 - Farmland
+dirt_path - 7d642e - 0 - Dirt Path
+
+ladder - 7b4d2b - 0 - Ladder
+snow - dfe9e9 - 0 - Snow
+cactus - 085c13 - 0 - Cactus
+jukebox - 7b4d2b - 0 - Jukebox
+
+oak_fence - 937840 - 0 - Oak Fence
+spruce_fence - 654523 - 0 - Spruce Fence
+birch_fence - b09a5eC - 0 - Birch Fence
+jungle_fence - 956440 - 0 - Jungle Fence
+acacia_fence - a14f22 - 0 - Acacia Fence
+dark_oak_fence - 3e240c - 0 - Dark Fence
+crimson_fence - 5b243b - 0 - Crimson Fence
+warped_fence - 1b5b56 - 0 - Warped Fence
+nether_brick_fence 2b1015 - 0 - Nether Brick Fence
+
+infested_stone - 737373 - 0 - Infested Stone
+infested_cobblestone - 797979 - 0 - Infested Cobblestone
+infested_stone_bricks - 606060 - 0 - Infested Stone Bricks
+infested_mossy_stone_bricks - 4c6056 - 0 - Infested Mossy Stone Bricks
+infested_cracked_stone_bricks - 606060 - 0 - Infested Cracked Stone Bricks
+infested_chiseled_stone_bricks - 606060 - 0 - Infested Chiseled Stone Bricks
+infested_deepslate - 535353 - 0 - Infested Deepslate
+
+brown_mushroom_block - 5f4533 - 0 - Brown Mushroom Block
+red_mushroom_block - 9b0d0b - 0 - Red Mushroom Block
+mushroom_stem - c5bfb2 - 0 - Mushroom Stem
+
+iron_bars - 828383 - 0 - Iron Bars
+chain - 3d4352 - 0 - Chain
+
+enchanting_table - a02828 - 8 - Enchanting Table
+end_portal_frame - 376559 - 2 - End Portal Frame
+ender_chest - 253638 - 10 - Ender Chest
+
+cobblestone_wall - 797979 - 0 - Cobblestone Wall
+mossy_cobblestone_wall - 65796b - 0 - Mossy Cobblestone Wall
+brick_wall - 83402d - 0 - Brick Wall
+stone_brick_wall - 606060 - 0 - Stone Brick Wall
+mossy_stone_brick_wall - 4c6056 - 0 - Mossy Stone Brick Wall
+
+granite_wall - 8d5b48 - 0 - Granite Wall
+andesite_wall - 656565 - 0 - Andesite Wall
+diorite_wall - a0a0a0 - 0 - Diorite Wall
+
+nether_brick_wall - 2b1015 - 0 - Nether Brick Wall
+red_nether_brick_wall - 410103 - 0 - Red Nether Brick Wall
+
+blackstone_wall - 2a252c - 0 - Blackstone Wall
+polished_blackstone_wall - 2a252c - 0 - Polished Blackstone Wall
+polished_blackstone_brick_wall - 2a252c - 0 - Polished Blackstone Brick Wall
+
+cobbled_deepslate_wall - 535353 - 0 - Cobbled Deepslate Wall
+polished_deepslate_wall - 535353 - 0 - Polished Deepslate Wall
+deepslate_brick_wall - 4c4c4c - 0 - Deepslate Brick Wall
+deepslate_tile_wall - 2d2d2e - 0 - Deepslate Tile Wall
+
+sandstone_wall - b5ad7b - 0 - Sandstone Wall
+red_sandstone_wall - 833906 - 0 - Red Sandstone Wall
+prismarine_wall - 5da28c - 0 - Prismarine Wall
+end_stone_brick_wall - cbcd97 - 0 - End Stone Brick Wall
+
+anvil - 3b3b3b - 0 - Anvil
+chipped_anvil - 3b3b3b - 0 - Chipped Anvil
+damaged_anvil - 3b3b3b - 0 - Damaged Anvil
+
+white_carpet - E3E3E3 - White Carpet 
+orange_carpet - E35300 - Orange Carpet 
+magenta_carpet - BC26AF - Magenta Carpet 
+light_blue_carpet - 1288D0 - Light Blue Carpet 
+yellow_carpet - E89E00 - Yellow Carpet 
+lime_carpet - 58B600 - Lime Carpet 
+pink_carpet - D95687 - Pink Carpet 
+gray_carpet - 9B9B9B - Gray Carpet 
+light_gray_carpet - 7c7c76 - Light Gray Carpet 
+cyan_carpet - 048EA5 - Cyan Carpet 
+purple_carpet - 701AB6 - Purple Carpet 
+blue_carpet - 2F32AF - Blue Carpet 
+brown_carpet - 77451E - Brown Carpet 
+green_carpet - 597323 - Green Carpet 
+red_carpet - AD1D1D - Red Carpet 
+black_carpet - 424242 - Black Carpet 
+moss_carpet - 637132 - Moss Carpet
+
+glass_pane - A6CED6 - 0 - Glass Pane
+white_stained_glass_pane - E3E3E3 - 0 - White Stained Glass Pane
+orange_stained_glass_pane - E35300 - 0 - Orange Stained Glass Pane
+magenta_stained_glass_pane - BC26AF - 0 - Magenta Stained Glass Pane
+light_blue_stained_glass_pane - 1288D0 - 0 - Light Blue Stained Glass Pane
+yellow_stained_glass_pane - E89E00 - 0 - Yellow Stained Glass Pane
+lime_stained_glass_pane - 58B600 - 0 - Lime Stained Glass Pane
+pink_stained_glass_pane - D95687 - 0 - Pink Stained Glass Pane
+gray_stained_glass_pane - 9B9B9B - 0 - Gray Stained Glass Pane
+light_gray_stained_glass_pane - 7c7c76 - 0 - Light Gray Stained Glass Pane
+cyan_stained_glass_pane - 048EA5 - 0 - Cyan Stained Glass Pane
+purple_stained_glass_pane - 701AB6 - 0 - Purple Stained Glass Pane
+blue_stained_glass_pane - 2F32AF - 0 - Blue Stained Glass Pane
+brown_stained_glass_pane - 77451E - 0 - Brown Stained Glass Pane
+green_stained_glass_pane - 597323 - 0 - Green Stained Glass Pane
+red_stained_glass_pane - AD1D1D - 0 - Red Stained Glass Pane
+black_stained_glass_pane - 424242 - 0 - Black Stained Glass Pane
+
+shulker_box - 845984 - 0 - Shulker Box
+white_shulker_box - acb1b2 - 0 - White Shulker Box
+orange_shulker_box - d05000 - 0 - Orange Shulker Box
+magenta_shulker_box - 99228f - 0 - Magenta Shulker Box
+light_blue_shulker_box - 1689b8 - 0 - Light Blue Shulker Box
+yellow_shulker_box - d29700 - 0 - Yellow Shulker Box
+lime_shulker_box - 499300 - 0 - Lime Shulker Box
+pink_shulker_box - c75b7e - 0 - Pink Shulker Box
+gray_shulker_box - 2c2f33 - 0 - Gray Shulker Box
+light_gray_shulker_box - 65655c - 0 - Light Gray Shulker Box
+cyan_shulker_box -  016775 - 0 - Cyan Shulker Box
+purple_shulker_box - 754a75 - 0 - Purple Shulker Box
+blue_shulker_box - 202281 - 0 - Blue Shulker Box
+brown_shulker_box - 5c3315 - 0 - Brown Shulker Box
+green_shulker_box - 3d530e - 0 - Green Shulker Box
+red_shulker_box - 811312 - 0 - Red Shulker Box
+black_shulker_box - 141418 - 0 - Black Shulker Box
+
+white_glazed_terracotta - C7C7C7 - 0 - White Glazed Terracotta 
+orange_glazed_terracotta - c74800 - 0 - Orange Glazed Terracotta 
+magenta_glazed_terracotta - 951c8b - 0 - Magenta Glazed Terracotta 
+light_blue_glazed_terracotta - 0d72b0 - 0 - Light Blue Glazed Terracotta 
+yellow_glazed_terracotta - cd8b00 - 0 - Yellow Glazed Terracotta 
+lime_glazed_terracotta - 438e00 - 0 - Lime Glazed Terracotta 
+pink_glazed_terracotta - ba4973 - 0 - Pink Glazed Terracotta 
+gray_glazed_terracotta - 323232 - 0 - Gray Glazed Terracotta 
+light_gray_glazed_terracotta - 646464 - 0 - Light Gray Glazed Terracotta 
+cyan_glazed_terracotta - 026475 - 0 - Cyan Glazed Terracotta 
+purple_glazed_terracotta - 56128e - 0 - Purple Glazed Terracotta 
+blue_glazed_terracotta - 212383 - 0 - Blue Glazed Terracotta 
+brown_glazed_terracotta - 522e12 - 0 - Brown Glazed Terracotta 
+green_glazed_terracotta - 394b14 - 0 - Green Glazed Terracotta 
+red_glazed_terracotta - 801313 - 0 - Red Glazed Terracotta 
+black_glazed_terracotta - 0D0D0D - 0 - Black Glazed Terracotta 
+
+tube_coral - 2c51c4 - 0 - Tube Coral
+brain_coral - ad4280 - 0 - Brain Coral
+bubble_coral - 940c90 - 0 - Bubble Coral
+fire_coral - 9b171e - 0 - Fire Coral
+horn_coral - ad991b - 0 - Horn Coral
+
+dead_tube_coral - 6b645f - 0 - Dead Tube Coral
+dead_brain_coral - 6b645f - 0 - Dead Brain Coral
+dead_bubble_coral - 6b645f - 0 - Dead Bubble Coral
+dead_fire_coral - 6b645f - 0 - Dead Fire Coral
+dead_horn_coral - 6b645f - 0 - Dead Horn Coral
+
+tube_coral_fan - 2c51c4 - 0 - Tube Coral Fan
+brain_coral_fan - ad4280 - 0 - Brain Coral Fan
+bubble_coral_fan - 940c90 - 0 - Bubble Coral Fan
+fire_coral_fan - 9b171e - 0 - Fire Coral Fan
+horn_coral_fan - ad991b - 0 - Horn Coral Fan
+
+dead_tube_coral_fan - 6b645f - 0 - Dead Tube Coral Fan
+dead_brain_coral_fan - 6b645f - 0 - Dead Brain Coral Fan
+dead_bubble_coral_fan - 6b645f - 0 - Dead Bubble Coral Fan
+dead_fire_coral_fan - 6b645f - 0 - Dead Fire Coral Fan
+dead_horn_coral_fan - 6b645f - 0 - Dead Horn Coral Fan
+
+oak_sign - 937840 - 0 - Oak Sign
+spruce_sign - 654523 - 0 - Spruce Sign
+birch_sign - b09a5e - 0 - Birch Sign
+jungle_sign - 956440 - 0 - Jungle Sign
+acacia_sign - a14f22 - 0 - Acacia Sign
+dark_oak_sign - 3e240c - 0 - Dark Oak Sign
+crimson_sign - 5b243b - 0 - Crimson Sign
+warped_sign - 1b5b56 - 0 - Warped Sign
+
+white_bed - E3E3E3 - 0 - White Bed
+orange_bed - E35300 - 0 - Orange Bed
+magenta_bed - BC26AF - 0 - Magenta Bed
+light_blue_bed - 1288D0 - 0 - Light Blue Bed
+yellow_bed - E89E00 - 0 - Yellow Bed
+lime_bed - 58B600 - 0 - Lime Bed
+pink_bed - D95687 - 0 - Pink Bed
+gray_bed - 9B9B9B - 0 - Gray Bed
+light_gray_bed - 7c7c76 - 0 - Light Gray Bed
+cyan_bed - 048EA5 - 0 - Cyan Bed
+purple_bed - 701AB6 - 0 - Purple Bed
+blue_bed - 2F32AF - 0 - Blue Bed
+brown_bed - 77451E - 0 - Brown Bed
+green_bed - 597323 - 0 - Green Bed
+red_bed - AD1D1D - 0 - Red Bed
+black_bed - 424242 - 0 - Black Bed
+
+scaffolding - a9834a - 0 - Scaffolding
+flower_pot - 743f31 - 0 - Flower Pot
+
+skeleton_head - a1a1a1 - 0 - Skeleton Head
+wither_skeleton_head - a1a1a1 - 0 - Wither Skeleton Head
+player_head - a1a1a1 - 0 - Player Head
+zombie_head - a1a1a1 - 0 - Zombie Head
+creeper_head - a1a1a1 - 0 - Creeper Head
+dragon_head - a1a1a1 - 0 - Dragon Head
+
+white_banner - E3E3E3 - 0 - White Banner
+orange_banner - E35300 - 0 - Orange Banner
+magenta_banner - BC26AF - 0 - Magenta Banner
+light_blue_banner - 1288D0 - 0 - Light Blue Banner
+yellow_banner - E89E00 - 0 - Yellow Banner
+lime_banner - 58B600 - 0 - Lime Banner
+pink_banner - D95687 - 0 - Pink Banner
+gray_banner - 9B9B9B - 0 - Gray Banner
+light_gray_banner - 7c7c76 - 0 - Light Gray Banner
+cyan_banner - 048EA5 - 0 - Cyan Banner
+purple_banner - 701AB6 - 0 - Purple Banner
+blue_banner - 2F32AF - 0 - Blue Banner
+brown_banner - 77451E - 0 - Brown Banner
+green_banner - 597323 - 0 - Green Banner
+red_banner - AD1D1D - 0 - Red Banner
+black_banner - 424242 - 0 - Black Banner
+
+loom - 907962  - 0 - Loom
+composter - 663b16 - 0 - Composter
+barrel - 704e25 - 0 - Barrel
+smoker - 494746 - 0 - Smoker
+blast_furnace - 424142 - 0 - Blast Furnace
+cartography_table - 695d55 - 0 - Cartography Table
+fletching_table - a39267 - 0 - Fletching Table
+grindstone - 717171 - 0 - Grindstone
+smithing_table - 2e2f3c - 0 - Smithing Table
+stonecutter - 64605c - 0 - Stonecutter
+
+bell - bb932b - 0 - Bell
+lantern - e1a153 - 15 - Lantern
+soul_lantern - 97c3c5 - 10 - Soul Lantern
+campfire - d3a556 - 15 - Campfire
+soul_campfire - 23bec4 - 10 - Soul Campfire
+shroomlight - cf793b - 15 - Shroomlight
+bee_nest - af8a2e - 0 - Bee Nest
+beehive - 96743c - 0 - Beehive
+honeycomb_block - c47913 - 0 - Honeycomb Block
+lodestone - 636466 - 0 - Lodestone
+respawn_anchor - 5302b8 - 0 - Respawn Anchor
+
+candle
+white_candle
+orange_candle
+magenta_candle
+light_blue_candle
+yellow_candle
+lime_candle
+pink_candle
+gray_candle
+light_gray_candle
+cyan_candle
+purple_candle
+blue_candle
+brown_candle
+green_candle
+red_candle
+black_candle
+
+small_amethyst_bud
+medium_amethyst_bud
+large_amethyst_bud
+amethyst_cluster
+pointed_dripstone
+
+beacon - 85d4bb - 15 - Beacon

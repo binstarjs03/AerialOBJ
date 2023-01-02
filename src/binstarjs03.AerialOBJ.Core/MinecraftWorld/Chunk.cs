@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
 
+using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
+
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public class Chunk
@@ -59,33 +61,19 @@ public class Chunk
 
     public Chunk(NbtCompound chunkNbt)
     {
-        _chunkCoordsAbs = calculateChunkCoordsAbs(chunkNbt);
-        _chunkCoordsRel = Region.ConvertChunkCoordsAbsToRel(_chunkCoordsAbs);
-        _blockRangeAbs = calculateBlockRangeAbs(_chunkCoordsAbs);
+        _chunkCoordsAbs = getChunkCoordsAbs(chunkNbt);
+        _chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(_chunkCoordsAbs);
+        _blockRangeAbs = CoordsConversion.CalculateBlockRangeAbsForChunk(_chunkCoordsAbs);
         (_sectionsYPos, _sections) = readSections(_chunkCoordsAbs, chunkNbt);
 
         // just in case section is unsorted, we sort them first
         Array.Sort(_sectionsYPos);
 
-        static Point2Z<int> calculateChunkCoordsAbs(NbtCompound chunkNbt)
+        static Point2Z<int> getChunkCoordsAbs(NbtCompound chunkNbt)
         {
             int chunkCoordsAbsX = chunkNbt.Get<NbtInt>("xPos").Value;
             int chunkCoordsAbsZ = chunkNbt.Get<NbtInt>("zPos").Value;
             return new Point2Z<int>(chunkCoordsAbsX, chunkCoordsAbsZ);
-        }
-        static Point3Range<int> calculateBlockRangeAbs(Point2Z<int> chunkCoordsAbs)
-        {
-            int blockRangeAbsMinX = chunkCoordsAbs.X * Section.BlockCount;
-            int blockRangeAbsMinY = SectionRange.Min * Section.BlockCount;
-            int blockRangeAbsMinZ = chunkCoordsAbs.Z * Section.BlockCount;
-            Point3<int> blockRangeAbsMin = new(blockRangeAbsMinX, blockRangeAbsMinY, blockRangeAbsMinZ);
-
-            int blockRangeAbsMaxX = blockRangeAbsMinX + Section.BlockRange;
-            int blockRangeAbsMaxY = SectionRange.Max * Section.BlockCount + Section.BlockRange;
-            int blockRangeAbsMaxZ = blockRangeAbsMinZ + Section.BlockRange;
-            Point3<int> blockRangeAbsMax = new(blockRangeAbsMaxX, blockRangeAbsMaxY, blockRangeAbsMaxZ);
-
-            return new Point3Range<int>(blockRangeAbsMin, blockRangeAbsMax);
         }
         static (int[], Dictionary<int, Section>) readSections(Point2Z<int> chunkCoordsAbs, NbtCompound chunkNbt)
         {
@@ -108,34 +96,19 @@ public class Chunk
         }
     }
 
-    public static Point3<int> ConvertBlockCoordsAbsToRel(Point3<int> coords)
-    {
-        int blockCoordsAbsX = MathUtils.Mod(coords.X, Section.BlockCount);
-        int blockCoordsAbsY = coords.Y;
-        int blockCoordsAbsZ = MathUtils.Mod(coords.Z, Section.BlockCount);
-        return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
-    }
-
-    public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point2Z<int> blockCoordsAbs)
-    {
-        return new Point2Z<int>(MathUtils.DivFloor(blockCoordsAbs.X, Section.BlockCount),
-                           MathUtils.DivFloor(blockCoordsAbs.Z, Section.BlockCount));
-    }
-
     public int[] SectionsYPos => _sectionsYPos;
 
     public bool HasSection(int sectionYPos)
     {
-        if (_sections.ContainsKey(sectionYPos))
-            return true;
-        return false;
+        return _sections.ContainsKey(sectionYPos);
     }
 
     public Section GetSection(int sectionYPos)
     {
-        if (_sections.ContainsKey(sectionYPos))
-            return _sections[sectionYPos];
-        throw new KeyNotFoundException($"Section {sectionYPos} does not exist in chunk");
+        _sections.TryGetValue(sectionYPos, out Section? value);
+        if (value is null)
+            throw new KeyNotFoundException($"Section {sectionYPos} does not exist in chunk");
+        return value;
     }
 
     public Section GetSectionAt(int index)
@@ -173,7 +146,7 @@ public class Chunk
         {
             BlockRangeAbs.ThrowIfOutside(coords);
             coordsAbs = coords;
-            coordsRel = ConvertBlockCoordsAbsToRel(coords);
+            coordsRel = CoordsConversion.ConvertBlockCoordsAbsToRelToChunk(coords);
         }
 
         coordsLocalToSection = new Point3<int>(coordsRel.X,
@@ -187,22 +160,12 @@ public class Chunk
             return section.GetBlock(coordsLocalToSection, relative: true);
         }
         else
-            return new Block("minecraft:air", coordsAbs);
-    }
-
-    public static void ReinitializeHighestBlocksBuffer(string[,] highestBlocks)
-    {
-        for (int x = 0; x < Section.BlockCount; x++)
-            for (int z = 0; z < Section.BlockCount; z++)
-                highestBlocks[x, z] = Block.AirBlockName;
+            return new Block(coordsAbs);
     }
 
     public void GetHighestBlock(ChunkHighestBlockInfo highestBlock, string[]? exclusions = null, int? heightLimit = null)
     {
         int limit = (int)(heightLimit is null ? int.MaxValue : heightLimit);
-
-        // We expect the buffer is already initialized (should always do
-        // if generated from GenerateHighestBlocksBuffer)
 
         for (int z = 0; z < Section.BlockCount; z++)
             for (int x = 0; x < Section.BlockCount; x++)
@@ -217,7 +180,7 @@ public class Chunk
                     Section section = _sections[sectionPosition];
 
                     // skip sections that is higher than heightLimit
-                    int heightAtSection = section.SectionCoordsAbs.Y * Section.BlockCount;
+                    int heightAtSection = section.CoordsAbs.Y * Section.BlockCount;
                     if (heightAtSection > limit)
                         continue;
 

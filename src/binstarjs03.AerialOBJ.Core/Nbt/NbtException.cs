@@ -69,9 +69,17 @@ public class NbtDeserializationError : NbtException
     public NbtDeserializationError(string message, Exception inner) : base(message, inner) { }
 }
 
-public class NbtIllegalOperationException : Exception
+public class NbtIllegalOperationException : NbtException
 {
     public NbtIllegalOperationException() { }
     public NbtIllegalOperationException(string message) : base(message) { }
     public NbtIllegalOperationException(string message, Exception inner) : base(message, inner) { }
+}
+
+
+public class NbtNotFoundException : NbtException
+{
+    public NbtNotFoundException() { }
+    public NbtNotFoundException(string message) : base(message) { }
+    public NbtNotFoundException(string message, Exception inner) : base(message, inner) { }
 }
