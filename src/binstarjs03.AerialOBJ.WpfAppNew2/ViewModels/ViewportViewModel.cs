@@ -31,23 +31,23 @@ public partial class ViewportViewModel : IViewportViewModel
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly ILogService _logService;
     private readonly DefinitionManagerService _definitionManager;
+
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(UnitMultiplier))] private int _zoomLevel = 0;
     [ObservableProperty] private int _heightLevel = 319;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(MouseWorldPos))]
-    [NotifyPropertyChangedFor(nameof(MouseBlockPos3))]
-    [NotifyPropertyChangedFor(nameof(MouseChunkPos))]
-    [NotifyPropertyChangedFor(nameof(MouseRegionPos))]
-    [NotifyPropertyChangedFor(nameof(MouseBlock))]
-    [NotifyPropertyChangedFor(nameof(MouseBlockDisplayName))]
-    private Point2<int> _mouseScreenPos = Point2<int>.Zero;
+    [ObservableProperty] private Point2<int> _mouseScreenPos = Point2<int>.Zero;
     [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsInside = false;
+
+    [ObservableProperty] private Point3<int> _mouseBlockCoords = Point3<int>.Zero;
+    [ObservableProperty] private Point2Z<int> _mouseChunkCoords = Point2Z<int>.Zero;
+    [ObservableProperty] private Point2Z<int> _mouseRegionCoords = Point2Z<int>.Zero;
+    [ObservableProperty] private string _mouseBlockName = "";
+    [ObservableProperty] private string _mouseBlockDisplayName = "";
 
     // Region Images
     [ObservableProperty] private ObservableCollection<RegionModel> _regionModels = new();
@@ -67,37 +67,7 @@ public partial class ViewportViewModel : IViewportViewModel
     }
 
     public GlobalState GlobalState { get; }
-
     public float UnitMultiplier => _zoomTable[_zoomLevel];
-    public Point2Z<float> MouseWorldPos
-    {
-        get
-        {
-            Size<float> floatScreenSize = new(ScreenSize.Width, ScreenSize.Height);
-            Point2<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
-            return PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
-        }
-    }
-    public Point2Z<int> MouseBlockPos2 => new(MathUtils.Floor(MouseWorldPos.X), MathUtils.Floor(MouseWorldPos.Z));
-    public Point3<int> MouseBlockPos3 => MouseBlock is null? new(MouseBlockPos2.X, 0, MouseBlockPos2.Z) : MouseBlock.Value.Coords;
-    public Point2Z<int> MouseChunkPos => MathUtils.MinecraftCoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(MouseBlockPos2);
-    public Point2Z<int> MouseRegionPos => MathUtils.MinecraftCoordsConversion.GetRegionCoordsFromChunkCoordsAbs(MouseChunkPos);
-    public bool HasMouseBlock => MouseBlock is not null;
-    public Block? MouseBlock => _chunkRegionManagerService.GetBlock(MouseBlockPos2);
-    public string? MouseBlockName => MouseBlock?.Name;
-    public string? MouseBlockDisplayName
-    {
-        get
-        {
-            if (MouseBlock is null)
-                return null;
-            if (_definitionManager.DefaultViewportDefinition.BlockDefinitions.TryGetValue(MouseBlock.Value.Name, out ViewportBlockDefinition? bd))
-                return bd.DisplayName;
-            else
-                return _definitionManager.DefaultViewportDefinition.MissingBlockDefinition.DisplayName;
-
-        }
-    }
 
     // TODO we can encapsulate these properties bindings into separate class
     //public int CachedRegionsCount => _chunkRegionManagerService.CachedRegionsCount;
@@ -182,6 +152,7 @@ public partial class ViewportViewModel : IViewportViewModel
             CameraPos += cameraPosDelta;
             MouseInitClickDrag = false;
         }
+        updateMouseWorldInformation();
 
         (Point2<int> newMousePos, Vector2<int> newMousePosDelta) updateMouseScreenPosAndDelta()
         {
@@ -190,6 +161,34 @@ public partial class ViewportViewModel : IViewportViewModel
             Point2<int> newMousePos = new(point.X.Floor(), point.Y.Floor());
             Vector2<int> newMousePosDelta = newMousePos - oldMousePos;
             return (newMousePos, newMousePosDelta);
+        }
+
+        void updateMouseWorldInformation()
+        {
+            Size<float> floatScreenSize = new(ScreenSize.Width, ScreenSize.Height);
+            Point2<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
+            Point2Z<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
+            Point2Z<int> mouseBlockCoords2 = new(MathUtils.Floor(mouseWorldPos.X), MathUtils.Floor(mouseWorldPos.Z));
+            Block? block = _chunkRegionManagerService.GetBlock(mouseBlockCoords2);
+
+            MouseChunkCoords = MathUtils.MinecraftCoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(mouseBlockCoords2);
+            MouseRegionCoords = MathUtils.MinecraftCoordsConversion.GetRegionCoordsFromChunkCoordsAbs(MouseChunkCoords);
+            if (block is not null)
+            {
+                MouseBlockCoords = block.Value.Coords;
+                MouseBlockName = block.Value.Name;
+                if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Value.Name, out ViewportBlockDefinition? bd))
+                    MouseBlockDisplayName = bd.DisplayName;
+                else
+                    MouseBlockDisplayName = _definitionManager.CurrentViewportDefinition.MissingBlockDefinition.DisplayName;
+            }
+            else
+            {
+                MouseBlockCoords = new Point3<int>(mouseBlockCoords2.X, 0, mouseBlockCoords2.Z);
+                MouseBlockName = "";
+                MouseBlockDisplayName = "Unknown (Unloaded Chunk)";
+            }
+
         }
     }
 

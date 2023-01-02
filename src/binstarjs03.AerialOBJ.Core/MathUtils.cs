@@ -157,7 +157,13 @@ public static class MathUtils
         public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point2Z<int> blockCoordsAbs)
         {
             return new Point2Z<int>(DivFloor(blockCoordsAbs.X, Section.BlockCount),
-                               DivFloor(blockCoordsAbs.Z, Section.BlockCount));
+                                    DivFloor(blockCoordsAbs.Z, Section.BlockCount));
+        }
+
+        public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point3<int> blockCoordsAbs)
+        {
+            return new Point2Z<int>(DivFloor(blockCoordsAbs.X, Section.BlockCount),
+                                    DivFloor(blockCoordsAbs.Z, Section.BlockCount));
         }
 
         /// <summary>

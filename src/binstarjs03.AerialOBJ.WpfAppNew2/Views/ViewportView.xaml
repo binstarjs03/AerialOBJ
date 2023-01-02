@@ -276,7 +276,6 @@
                                 <Separator Style="{StaticResource SubtleSeparator}"/>
 
                                 <local:PropertyValuePairView PropertyText="Mouse Screen Pos : " ValueText="{Binding MouseScreenPos}"/>
-                                <local:PropertyValuePairView PropertyText="Mouse World Pos : " ValueText="{Binding MouseWorldPos, Converter={StaticResource FormattedFloat}}"/>
                                 <local:PropertyValuePairView PropertyText="Mouse Pos Delta : " ValueText="{Binding MousePosDelta}"/>
                                 <local:PropertyValuePairView PropertyText="Mouse Click Holding : " ValueText="{Binding MouseClickHolding}"/>
                                 <local:PropertyValuePairView PropertyText="Mouse Init Click Drag : " ValueText="{Binding MouseInitClickDrag}"/>

@@ -54,21 +54,15 @@
                         <Setter Property="ValueColor" Value="DarkBlue"/>
                     </Style>
                 </StatusBar.Resources>
-                <StatusBarItem MinWidth="80">
-                    <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseRegionPos}"/>
-                </StatusBarItem>
-                <StatusBarItem MinWidth="80">
-                    <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseChunkPos}"/>
-                </StatusBarItem>
-                <StatusBarItem MinWidth="100">
-                    <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseBlockPos3}"/>
-                </StatusBarItem>
-                <Separator/>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ElementName=Viewport, Path=DataContext.MouseBlockDisplayName}"/>
                     <TextBlock Text=" - "/>
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=DataContext.MouseBlock.Name}"/>
+                    <TextBlock Text="{Binding ElementName=Viewport, Path=DataContext.MouseBlockName}"/>
                 </StackPanel>
+                <Separator/>
+                <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseRegionCoords}"/>
+                <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseChunkCoords}"/>
+                <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseBlockCoords}"/>
             </StatusBar>
             <local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
         </DockPanel>
