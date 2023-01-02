@@ -546,6 +546,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         RegionModel? region = GetRegionModelForChunk(chunk.ChunkData.CoordsAbs, out _);
         if (region is not null)
             _chunkRenderService.EraseChunk(region, chunk, _cts.Token);
+        chunk.Dispose();
     }
 
     // TODO we may be able to move out these two methods into separate class

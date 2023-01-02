@@ -42,6 +42,8 @@ public class GlobalState
             SavegameLoadState loadState = value is null ?
                 SavegameLoadState.Closed : SavegameLoadState.Opened;
             SavegameLoadChanged?.Invoke(loadState);
+            if (loadState == SavegameLoadState.Closed)
+                GC.Collect();
             OnPropertyChanged();
         }
     }
