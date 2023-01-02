@@ -3,11 +3,11 @@ using System.Windows.Controls;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
+using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Views;
+namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class ViewportView : UserControl
 {
     public ViewportView()

@@ -1,18 +1,18 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
-using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services.ModalServices;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services.SavegameLoaderServices;
-using binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
-using binstarjs03.AerialOBJ.WpfAppNew2.Views;
+using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Factories;
+using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
+using binstarjs03.AerialOBJ.WpfApp.Services.SavegameLoaderServices;
+using binstarjs03.AerialOBJ.WpfApp.ViewModels;
+using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2;
+namespace binstarjs03.AerialOBJ.WpfApp;
 public static class AppHost
 {
     public static IHost Configure()

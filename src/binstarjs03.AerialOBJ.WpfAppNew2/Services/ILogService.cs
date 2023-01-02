@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public delegate void LoggingEventHandler(string message, LogStatus status);
 public interface ILogService
 {

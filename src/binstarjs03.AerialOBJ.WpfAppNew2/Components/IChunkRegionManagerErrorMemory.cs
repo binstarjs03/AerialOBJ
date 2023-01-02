@@ -1,6 +1,6 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
+namespace binstarjs03.AerialOBJ.WpfApp.Components;
 public interface IChunkRegionManagerErrorMemory
 {
     bool CheckHasChunkError(Point2Z<int> chunkCoords);

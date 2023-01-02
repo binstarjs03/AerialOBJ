@@ -1,14 +1,14 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services.ModalServices;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services.SavegameLoaderServices;
+using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
+using binstarjs03.AerialOBJ.WpfApp.Services.SavegameLoaderServices;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
+namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class MainViewModel
 {

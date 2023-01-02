@@ -1,10 +1,10 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 
 using CommunityToolkit.Mvvm.Input;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
+namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public partial class AboutViewModel
 {
     public GlobalState GlobalState { get; }

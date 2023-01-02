@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfAppNew2.Views;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public delegate void WindowPositionHandler(double top, double left);
 public interface IView
 {

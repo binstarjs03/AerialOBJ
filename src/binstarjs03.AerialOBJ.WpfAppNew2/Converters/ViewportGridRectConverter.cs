@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class ViewportGridRectConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

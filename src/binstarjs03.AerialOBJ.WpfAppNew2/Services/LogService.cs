@@ -1,8 +1,8 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public class LogService : ILogService
 {
     private string _logContent = "";

@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfAppNew2.Factories;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Factories;
 public interface IAbstractFactory<T>
 {
     T Create();

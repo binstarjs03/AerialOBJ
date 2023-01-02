@@ -8,17 +8,17 @@ using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
-using binstarjs03.AerialOBJ.WpfAppNew2.ExtensionMethods;
-using binstarjs03.AerialOBJ.WpfAppNew2.Models;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services;
+using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
+using binstarjs03.AerialOBJ.WpfApp.Models;
+using binstarjs03.AerialOBJ.WpfApp.Services;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using PointSpaceConversion = binstarjs03.AerialOBJ.Core.MathUtils.PointSpaceConversion;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
+namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel : IViewportViewModel
 {

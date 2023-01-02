@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 
-using binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
+using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Views;
+namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class DebugLogView : Window
 {
     public DebugLogView(DebugLogViewModel viewModel)

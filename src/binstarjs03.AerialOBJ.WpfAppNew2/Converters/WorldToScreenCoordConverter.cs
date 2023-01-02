@@ -4,9 +4,9 @@ using System.Windows;
 using System.Windows.Data;
 
 using binstarjs03.AerialOBJ.Core;
-using binstarjs03.AerialOBJ.WpfAppNew2.ExtensionMethods;
+using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class WorldToScreenCoordConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

@@ -2,9 +2,9 @@
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Models;
+using binstarjs03.AerialOBJ.WpfApp.Models;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Factories;
+namespace binstarjs03.AerialOBJ.WpfApp.Factories;
 public class RegionModelFactory
 {
     private readonly IMutableImageFactory _mutableImageFactory;

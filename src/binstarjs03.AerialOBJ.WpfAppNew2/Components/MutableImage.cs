@@ -4,7 +4,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
+namespace binstarjs03.AerialOBJ.WpfApp.Components;
 
 using System;
 

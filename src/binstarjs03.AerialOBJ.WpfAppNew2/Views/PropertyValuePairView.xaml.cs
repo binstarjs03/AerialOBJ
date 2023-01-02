@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Views;
+namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class PropertyValuePairView : UserControl
 {
     public PropertyValuePairView()

@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ModalServices;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 public readonly struct FileDialogResult
 {
     public required bool Result { get; init; }

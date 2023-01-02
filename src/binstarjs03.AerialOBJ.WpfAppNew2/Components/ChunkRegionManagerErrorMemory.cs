@@ -2,7 +2,7 @@
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Components;
+namespace binstarjs03.AerialOBJ.WpfApp.Components;
 public class ChunkRegionManagerErrorMemory : IChunkRegionManagerErrorMemory
 {
     private readonly HashSet<Point2Z<int>> _regionErrors = new();

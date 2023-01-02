@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Factories;
+namespace binstarjs03.AerialOBJ.WpfApp.Factories;
 public class AbstractFactory<T> : IAbstractFactory<T>
 {
     private readonly Func<T> _factory;

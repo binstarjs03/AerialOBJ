@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Views;
+namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class GridDrawer : UserControl
 {
     public GridDrawer()

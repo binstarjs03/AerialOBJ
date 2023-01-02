@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Factories;
+namespace binstarjs03.AerialOBJ.WpfApp.Factories;
 public class MutableImageFactory : IMutableImageFactory
 {
     /// <exception cref="TaskCanceledException"></exception>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.SavegameLoaderServices;
+namespace binstarjs03.AerialOBJ.WpfApp.Services.SavegameLoaderServices;
 public class LevelDatUnreadableException : Exception
 {
     public LevelDatUnreadableException() { }

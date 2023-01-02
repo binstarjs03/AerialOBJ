@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Views;
+namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class DefinitionManager : Window
 {
     public DefinitionManager()

@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services;
-using binstarjs03.AerialOBJ.WpfAppNew2.Views;
+using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2;
+namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
 {
     public IHost Host { get; private set; }

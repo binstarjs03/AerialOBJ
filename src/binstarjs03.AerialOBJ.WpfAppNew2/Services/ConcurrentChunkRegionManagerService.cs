@@ -7,14 +7,14 @@ using System.Windows.Threading;
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
-using binstarjs03.AerialOBJ.WpfAppNew2.Factories;
-using binstarjs03.AerialOBJ.WpfAppNew2.Models;
-using binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Factories;
+using binstarjs03.AerialOBJ.WpfApp.Models;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 
 using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 {
     private const int s_regionBufferSize = 15;

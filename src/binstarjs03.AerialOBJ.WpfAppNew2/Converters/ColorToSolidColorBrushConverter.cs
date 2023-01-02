@@ -7,7 +7,7 @@ using CoreColor = binstarjs03.AerialOBJ.Core.Primitives.Color;
 using System.Windows.Media;
 using System.Windows;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class ColorToSolidColorBrushConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

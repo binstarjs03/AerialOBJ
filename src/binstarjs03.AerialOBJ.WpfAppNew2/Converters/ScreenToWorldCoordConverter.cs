@@ -6,7 +6,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 
 using PointSpaceConversion = binstarjs03.AerialOBJ.Core.MathUtils.PointSpaceConversion;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class ScreenToWorldCoordConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

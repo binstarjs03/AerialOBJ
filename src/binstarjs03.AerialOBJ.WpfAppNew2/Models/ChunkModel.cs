@@ -1,6 +1,6 @@
 ﻿using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Models;
+namespace binstarjs03.AerialOBJ.WpfApp.Models;
 public class ChunkModel
 {
     public required IChunk ChunkData { get; init; }

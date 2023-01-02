@@ -1,6 +1,6 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
+namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public interface IViewportViewModel
 {
     Point2Z<float> CameraPos { get; set; }

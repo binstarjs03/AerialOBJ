@@ -3,9 +3,9 @@
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Models;
+using binstarjs03.AerialOBJ.WpfApp.Models;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.ChunkRendering;
+namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 /// <summary>
 /// Chunk Shader that render blocks in a flat solid color
 /// </summary>

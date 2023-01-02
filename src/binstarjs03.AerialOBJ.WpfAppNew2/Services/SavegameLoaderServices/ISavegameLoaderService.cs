@@ -1,6 +1,6 @@
-﻿using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+﻿using binstarjs03.AerialOBJ.WpfApp.Components;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Services.SavegameLoaderServices;
+namespace binstarjs03.AerialOBJ.WpfApp.Services.SavegameLoaderServices;
 public interface ISavegameLoaderService
 {
     SavegameLoadInfo LoadSavegame(string savegameDirPath);

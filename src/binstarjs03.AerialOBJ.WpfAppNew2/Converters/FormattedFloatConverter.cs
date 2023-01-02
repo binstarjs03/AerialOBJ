@@ -6,7 +6,7 @@ using System.Windows.Data;
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
+namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class FormattedFloatConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

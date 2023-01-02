@@ -1,8 +1,8 @@
 ﻿using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfAppNew2.Components;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 
-namespace binstarjs03.AerialOBJ.WpfAppNew2.Models;
+namespace binstarjs03.AerialOBJ.WpfApp.Models;
 public class RegionModel
 {
     public required Region RegionData { get; init; }
