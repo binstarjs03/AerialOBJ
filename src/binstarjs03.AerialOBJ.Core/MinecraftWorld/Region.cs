@@ -23,10 +23,7 @@ SOFTWARE.
 
 using System;
 using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Core.Nbt;
