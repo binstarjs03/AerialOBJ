@@ -603,7 +603,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                     foreach (RegionModel region in _loadedRegions.Values)
                         region.RegionImage.Redraw();
             }, DispatcherPriority.Render, _cts.Token);
-            await Task.Delay(1000 / 30);
+            await Task.Delay(1000 / 15);
         }
     }
 
