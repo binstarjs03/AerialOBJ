@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
@@ -33,7 +32,6 @@ public class ChunkRenderService : IChunkRenderService
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkData.CoordsRel, blockCoordsRel);
                 region.RegionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
             }
-        App.Current.Dispatcher.InvokeAsync(region.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);
     }
 
     public void RenderRandomNoise(IMutableImage mutableImage, Color color, byte distance)

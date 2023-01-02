@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
@@ -29,7 +28,6 @@ public class FlatChunkShader : IChunkShader
                 Color color = GetBlockColor(_definitionManager.DefaultViewportDefinition, highestBlocks, blockCoordsRel);
                 regionModel.RegionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
-        App.Current.Dispatcher.InvokeAsync(regionModel.RegionImage.Redraw, DispatcherPriority.Background, cancellationToken);
     }
 
     private static Color GetBlockColor(ViewportDefinition definition, Block[,] highestBlocks, Point2Z<int> blockCoordsRel)

@@ -29,6 +29,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _cts = new();
+    private Task _redrawTask;
     private readonly int _chunkLoaderTasksLimit = Environment.ProcessorCount;
 
     private readonly StructLock<bool> _isRegionLoaderTaskRunning = new() { Value = false };
@@ -64,6 +65,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         _crmErrorMemoryService = chunkRegionManagerErrorMemoryService;
         _regionModelFactory = regionImageModelFactory;
         _chunkRenderService = chunkRenderService;
+        _redrawTask = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
+        _redrawTask.Start();
     }
 
     public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange.Value;
@@ -93,6 +96,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         _cts.Cancel();
         _regionLoaderTask.Wait();
         _chunkLoaderTask.Wait();
+        _redrawTask.Wait();
 
         _visibleRegionRange.Value = new Point2ZRange<int>();
         _visibleChunkRange.Value = new Point2ZRange<int>();
@@ -111,6 +115,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
         _cts.Dispose();
         _cts = new CancellationTokenSource();
+        _redrawTask = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
+        _redrawTask.Start();
 
         OnPropertyChanged(nameof(VisibleRegionRange));
         OnPropertyChanged(nameof(VisibleChunkRange));
@@ -301,7 +307,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         {
             if (_crmErrorMemoryService.CheckHasRegionError(regionCoords))
                 return;
-            App.Current.Dispatcher.InvokeAsync(() => RegionLoadingError?.Invoke(regionCoords, e));
+            App.Current.Dispatcher.InvokeAsync(() => RegionLoadingError?.Invoke(regionCoords, e), DispatcherPriority.Background);
             _crmErrorMemoryService.StoreRegionError(regionCoords);
         }
 
@@ -515,7 +521,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             {
                 if (_crmErrorMemoryService.CheckHasChunkError(chunkCoords))
                     return;
-                App.Current.Dispatcher.InvokeAsync(() => ChunkLoadingError?.Invoke(chunkCoords, e));
+                App.Current.Dispatcher.InvokeAsync(() => ChunkLoadingError?.Invoke(chunkCoords, e), DispatcherPriority.Background);
                 _crmErrorMemoryService.StoreChunkError(chunkCoords);
             }
         }
@@ -556,7 +562,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         ChunkModel chunk = new() { ChunkData = chunkData };
         chunk.LoadHighestBlock();
-        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlock, chunk.ChunkData.CoordsRel, _cts.Token);
+        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlocks, chunk.ChunkData.CoordsRel, _cts.Token);
         lock (_visibleChunkRange)
             lock (_loadedChunks)
             {
@@ -617,10 +623,24 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         Point2Z<int> chunkCoords = CoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
         ChunkModel? chunk;
         //lock (_loadedChunks)
-            if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
-                return null;
+        if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
+            return null;
         Point2Z<int> blockCoordsRel = CoordsConversion.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
-        return chunk.HighestBlock.Names[blockCoordsRel.X, blockCoordsRel.Z];
+        //return chunk.HighestBlock.Names[blockCoordsRel.X, blockCoordsRel.Z];
+    }
+
+    private async void RedrawLoop()
+    {
+        while (!_cts.IsCancellationRequested)
+        {
+            App.Current?.Dispatcher.InvokeAsync(() =>
+            {
+                lock (_loadedRegions)
+                    foreach (RegionModel region in _loadedRegions.Values)
+                        region.RegionImage.Redraw();
+            }, DispatcherPriority.Render, _cts.Token);
+            await Task.Delay(1000 / 30);
+        }
     }
 
     private enum RegionStatus
