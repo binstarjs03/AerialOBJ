@@ -12,10 +12,14 @@ public interface IChunkRegionManagerService
     int LoadedRegionsCount { get; }
     int PendingRegionsCount { get; }
     Point2Z<int>? WorkedRegion { get; }
-    Point2ZRange<int> VisibleChunkRange { get; }
 
-    event Action<RegionModel> RegionImageLoaded;
-    event Action<RegionModel> RegionImageUnloaded;
+    Point2ZRange<int> VisibleChunkRange { get; }
+    int LoadedChunksCount { get; }
+    int PendingChunksCount { get; }
+    int WorkedChunksCount { get; }
+
+    event Action<RegionModel> RegionLoaded;
+    event Action<RegionModel> RegionUnloaded;
     event ChunkRegionReadingErrorHandler RegionLoadingError;
     event ChunkRegionReadingErrorHandler ChunkLoadingError;
     event Action<string> PropertyChanged;

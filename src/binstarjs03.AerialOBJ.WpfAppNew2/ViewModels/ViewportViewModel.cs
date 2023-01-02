@@ -61,8 +61,8 @@ public partial class ViewportViewModel : IViewportViewModel
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
         _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
-        _chunkRegionManagerService.RegionImageLoaded += OnChunkRegionManagerService_RegionImageLoaded;
-        _chunkRegionManagerService.RegionImageUnloaded += OnChunkRegionManagerService_RegionImageUnloaded;
+        _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionImageLoaded;
+        _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionImageUnloaded;
         _chunkRegionManagerService.RegionLoadingError += OnChunkRegionManagerService_RegionReadingError;
     }
 
@@ -76,6 +76,9 @@ public partial class ViewportViewModel : IViewportViewModel
     public int PendingRegionsCount => _chunkRegionManagerService.PendingRegionsCount;
     public Point2Z<int>? WorkedRegion => _chunkRegionManagerService.WorkedRegion;
     public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
+    public int LoadedChunksCount => _chunkRegionManagerService.LoadedChunksCount;
+    public int PendingChunksCount => _chunkRegionManagerService.PendingChunksCount;
+    public int WorkedChunksCount => _chunkRegionManagerService.WorkedChunksCount;
 
     public event Action? SetViewportSizeRequested;
 

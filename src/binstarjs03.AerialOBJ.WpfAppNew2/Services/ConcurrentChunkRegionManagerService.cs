@@ -72,10 +72,13 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     public int PendingRegionsCount => _pendingRegions.Count;
     public Point2Z<int>? WorkedRegion => _workedRegion.Value;
     public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange.Value;
+    public int LoadedChunksCount=>_loadedChunks.Count;
+    public int PendingChunksCount => _pendingChunks.Count;
+    public int WorkedChunksCount => _workedChunks.Count;
 
     public event Action<string>? PropertyChanged;
-    public event Action<RegionModel>? RegionImageLoaded;
-    public event Action<RegionModel>? RegionImageUnloaded;
+    public event Action<RegionModel>? RegionLoaded;
+    public event Action<RegionModel>? RegionUnloaded;
     public event ChunkRegionReadingErrorHandler? RegionLoadingError;
     public event ChunkRegionReadingErrorHandler? ChunkLoadingError;
 
@@ -165,6 +168,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         UnloadCulledRegions();
         if (QueuePendingRegions())
             RunTaskNoDuplicate(LoadPendingRegions, ref _regionLoaderTask, _isRegionLoaderTaskRunning);
+        OnPropertyChanged(nameof(LoadedRegionsCount));
+        OnPropertyChanged(nameof(PendingRegionsCount));
     }
 
     private void UnloadCulledRegions()
@@ -181,7 +186,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             lock (_pendingRegions)
                 _pendingRegions.RemoveAll(_visibleRegionRange.Value.IsOutside);
         }
-        OnPropertyChanged(nameof(PendingRegionsCount));
+        
     }
 
     private bool QueuePendingRegions()
@@ -205,7 +210,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                                     _pendingRegions.Add(regionCoords);
                 }
         }
-        OnPropertyChanged(nameof(PendingRegionsCount));
         lock (_pendingRegions)
             return _pendingRegions.Count > 0;
     }
@@ -291,17 +295,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             region = _regionModelFactory.Create(regionData.Coords, regionData, _cts.Token);
         }
         catch (TaskCanceledException) { return; }
-#if DEBUG
-        _chunkRenderService.RenderRandomNoise(region.RegionImage,
-                                              new Color()
-                                              {
-                                                  Alpha = 255,
-                                                  Red = (byte)Random.Shared.Next(0, 255),
-                                                  Green = (byte)Random.Shared.Next(0, 255),
-                                                  Blue = (byte)Random.Shared.Next(0, 255),
-                                              },
-                                              64);
-#endif
         region.RegionImage.Redraw();
         lock (_visibleRegionRange)
             lock (_loadedRegions)
@@ -310,7 +303,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                     || _loadedRegions.ContainsKey(regionData.Coords)
                     || _cts.IsCancellationRequested)
                     return;
-                App.Current.Dispatcher.InvokeAsync(() => RegionImageLoaded?.Invoke(region), DispatcherPriority.Render);
+                App.Current.Dispatcher.InvokeAsync(() => RegionLoaded?.Invoke(region), DispatcherPriority.Render);
                 _loadedRegions.Add(regionData.Coords, region);
             }
         OnPropertyChanged(nameof(LoadedRegionsCount));
@@ -321,11 +314,10 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         // locking is already done before this method called
         if (App.Current.CheckAccess())
-            RegionImageUnloaded?.Invoke(region);
+            RegionUnloaded?.Invoke(region);
         else
-            App.Current.Dispatcher.InvokeAsync(() => RegionImageUnloaded?.Invoke(region), DispatcherPriority.Render);
+            App.Current.Dispatcher.InvokeAsync(() => RegionUnloaded?.Invoke(region), DispatcherPriority.Render);
         _loadedRegions.Remove(region.RegionCoords);
-        OnPropertyChanged(nameof(LoadedRegionsCount));
     }
 
     private void ManageChunks()
@@ -334,6 +326,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         QueuePendingChunks();
         RunTaskNoDuplicate(LoadPendingChunks, ref _chunkLoaderTask, _isChunkLoaderTaskRunning);
         //RunChunkLoaderTasks();
+        OnPropertyChanged(nameof(LoadedChunksCount));
+        OnPropertyChanged(nameof(PendingChunksCount));
     }
 
     private void UnloadCulledChunks()
@@ -352,6 +346,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 _pendingChunksSet.RemoveWhere(_visibleChunkRange.Value.IsOutside);
             }
         }
+        
     }
 
     private bool QueuePendingChunks()
@@ -411,6 +406,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 return;
             lock (_workedChunks)
                 _workedChunks.Add(chunkCoords);
+            OnPropertyChanged(nameof(WorkedChunksCount));
 
             // get both chunk and region
             (IChunk? chunk, RegionModel? region) = getChunkAndRegion(chunkCoords);
@@ -443,6 +439,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 _pendingChunks.RemoveAt(randomIndex);
                 _pendingChunksSet.Remove(result);
             }
+            OnPropertyChanged(nameof(PendingChunksCount));
             return true;
         }
 
@@ -461,6 +458,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                         _pendingChunks.Add(chunkCoords);
                         _pendingChunksSet.Add(chunkCoords);
                     }
+                OnPropertyChanged(nameof(PendingChunksCount));
                 return (null, null);
             }
             try
@@ -494,6 +492,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         {
             lock (_workedChunks)
                 _workedChunks.Remove(chunkCoords);
+            OnPropertyChanged(nameof(WorkedChunksCount));
         }
     }
 
@@ -535,6 +534,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                     || _cts.IsCancellationRequested)
                     return;
                 _loadedChunks.Add(chunkData.CoordsAbs, chunk);
+                OnPropertyChanged(nameof(LoadedChunksCount));
             }
     }
 
