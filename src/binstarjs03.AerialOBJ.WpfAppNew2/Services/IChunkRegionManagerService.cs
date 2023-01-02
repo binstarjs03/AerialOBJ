@@ -20,6 +20,7 @@ public interface IChunkRegionManagerService
     event Action<string> PropertyChanged;
 
     void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize);
-    void Reinitialize();
     string? GetBlockName(Point2Z<int> blockCoords);
+    void OnSavegameOpened();
+    void OnSavegameClosed();
 }

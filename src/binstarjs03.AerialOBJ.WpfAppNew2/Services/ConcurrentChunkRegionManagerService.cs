@@ -91,40 +91,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         }
     }
 
-    public void Reinitialize()
-    {
-        _cts.Cancel();
-        _regionLoaderTask.Wait();
-        _chunkLoaderTask.Wait();
-        _redrawTask.Wait();
-
-        _visibleRegionRange.Value = new Point2ZRange<int>();
-        _visibleChunkRange.Value = new Point2ZRange<int>();
-
-        foreach (RegionModel region in _loadedRegions.Values)
-            UnloadRegion(region);
-        _pendingRegions.Clear();
-
-        foreach (ChunkModel chunk in _loadedChunks.Values)
-            UnloadChunk(chunk);
-        _pendingChunks.Clear();
-        _pendingChunksSet.Clear();
-
-        _crmErrorMemoryService.Reinitialize();
-        _regionLoaderService.PurgeCache();
-
-        _cts.Dispose();
-        _cts = new CancellationTokenSource();
-        _redrawTask = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
-        _redrawTask.Start();
-
-        OnPropertyChanged(nameof(VisibleRegionRange));
-        OnPropertyChanged(nameof(VisibleChunkRange));
-        OnPropertyChanged(nameof(LoadedRegionsCount));
-        OnPropertyChanged(nameof(PendingRegionsCount));
-        OnPropertyChanged(nameof(WorkedRegion));
-    }
-
     private bool RecalculateVisibleChunkRange(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
         float pixelPerChunk = unitMultiplier * IChunk.BlockCount; // one unit (or pixel) equal to one block
@@ -641,6 +607,44 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             }, DispatcherPriority.Render, _cts.Token);
             await Task.Delay(1000 / 30);
         }
+    }
+
+    public void OnSavegameOpened()
+    {
+        _redrawTask = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
+        _redrawTask.Start();
+    }
+
+    public void OnSavegameClosed()
+    {
+        _cts.Cancel();
+        _regionLoaderTask.Wait();
+        _chunkLoaderTask.Wait();
+        _redrawTask.Wait();
+
+        _visibleRegionRange.Value = new Point2ZRange<int>();
+        _visibleChunkRange.Value = new Point2ZRange<int>();
+
+        foreach (RegionModel region in _loadedRegions.Values)
+            UnloadRegion(region);
+        _pendingRegions.Clear();
+
+        foreach (ChunkModel chunk in _loadedChunks.Values)
+            UnloadChunk(chunk);
+        _pendingChunks.Clear();
+        _pendingChunksSet.Clear();
+
+        _crmErrorMemoryService.Reinitialize();
+        _regionLoaderService.PurgeCache();
+
+        _cts.Dispose();
+        _cts = new CancellationTokenSource();
+
+        OnPropertyChanged(nameof(VisibleRegionRange));
+        OnPropertyChanged(nameof(VisibleChunkRange));
+        OnPropertyChanged(nameof(LoadedRegionsCount));
+        OnPropertyChanged(nameof(PendingRegionsCount));
+        OnPropertyChanged(nameof(WorkedRegion));
     }
 
     private enum RegionStatus

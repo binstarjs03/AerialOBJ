@@ -105,12 +105,13 @@ public partial class ViewportViewModel : IViewportViewModel
     {
         if (state == SavegameLoadState.Opened)
         {
+            _chunkRegionManagerService.OnSavegameOpened();
             SetViewportSizeRequested?.Invoke();
             UpdateChunkRegionManagerService();
         }
         else if (state == SavegameLoadState.Closed)
         {
-            _chunkRegionManagerService.Reinitialize();
+            _chunkRegionManagerService.OnSavegameClosed();
             CameraPos = new Point2Z<float>(0, 0);
             ZoomLevel = 0;
             ScreenSize = new Size<int>(0, 0);
