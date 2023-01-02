@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 
 using binstarjs03.AerialOBJ.Core;
+using binstarjs03.AerialOBJ.WpfAppNew2.ExtensionMethods;
 
 namespace binstarjs03.AerialOBJ.WpfAppNew2.Converters;
 public class WorldToScreenCoordConverter : IMultiValueConverter
@@ -17,7 +18,7 @@ public class WorldToScreenCoordConverter : IMultiValueConverter
             float unitMultiplier = (float)values[2];
             int screenSize = (int)values[3];
             float result = MathUtils.PointSpaceConversion.ConvertWorldPosToScreenPos(worldPos, cameraPos, unitMultiplier, screenSize);
-            return (double)result;
+            return (double)result.Floor();
         }
         catch { return DependencyProperty.UnsetValue; }
     }

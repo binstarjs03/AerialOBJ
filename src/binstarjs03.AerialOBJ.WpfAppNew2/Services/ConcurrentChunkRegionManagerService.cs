@@ -29,7 +29,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _cts = new();
-    private Task _redrawTask;
+    private Task _redrawTask = new(()=> { });
     private readonly int _chunkLoaderTasksLimit = Environment.ProcessorCount;
 
     private readonly StructLock<bool> _isRegionLoaderTaskRunning = new() { Value = false };
@@ -65,8 +65,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         _crmErrorMemoryService = errorMemory;
         _regionModelFactory = regionImageModelFactory;
         _chunkRenderService = chunkRenderService;
-        _redrawTask = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
-        _redrawTask.Start();
     }
 
     public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange.Value;
