@@ -47,7 +47,8 @@
                               Command="{Binding ShowAboutModalCommand}"/>
                 </MenuItem>
             </Menu>
-            <StatusBar DockPanel.Dock="Bottom">
+            <StatusBar DockPanel.Dock="Bottom"
+                       Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <StatusBar.Resources>
                     <Style TargetType="local:PropertyValuePairView">
                         <Setter Property="PropertyColor" Value="Black"/>
@@ -63,6 +64,10 @@
                 <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseRegionCoords}"/>
                 <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseChunkCoords}"/>
                 <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseBlockCoords}"/>
+            </StatusBar>
+            <StatusBar DockPanel.Dock="Bottom"
+                       Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
+                <StatusBarItem Content="Ready"/>
             </StatusBar>
             <local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
         </DockPanel>

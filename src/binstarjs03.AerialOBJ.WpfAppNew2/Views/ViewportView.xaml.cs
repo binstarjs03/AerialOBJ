@@ -14,12 +14,12 @@ public partial class ViewportView : UserControl
     {
         InitializeComponent();
         DataContext = App.Current?.Host.Services.GetRequiredService<ViewportViewModel>();
-        (DataContext as ViewportViewModel)!.SetViewportSizeRequested += OnViewModel_ViewportSizeRequested;
+        (DataContext as ViewportViewModel)!.SetViewportScreenSizeRequested += OnViewModel_ViewportSizeRequested;
     }
 
-    private void OnViewModel_ViewportSizeRequested()
+    private void OnViewModel_ViewportSizeRequested(ref Size<int> screenSize)
     {
-        (DataContext as ViewportViewModel)!.ScreenSize = new Size<int>(Viewport.ActualWidth.Floor(),
-                                                                       Viewport.ActualHeight.Floor());
+        screenSize = new Size<int>(Viewport.ActualWidth.Floor(),
+                                   Viewport.ActualHeight.Floor());
     }
 }

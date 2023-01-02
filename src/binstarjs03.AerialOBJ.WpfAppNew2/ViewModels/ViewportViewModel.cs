@@ -22,12 +22,7 @@ namespace binstarjs03.AerialOBJ.WpfAppNew2.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel : IViewportViewModel
 {
-#if RELEASE
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
-#elif DEBUG
-    private readonly float[] _zoomTable = new float[] { 0.5f, 1, 2, 3, 5, 8, 13, 21, 34 };
-#endif
-
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly ILogService _logService;
     private readonly DefinitionManagerService _definitionManager;
@@ -70,7 +65,6 @@ public partial class ViewportViewModel : IViewportViewModel
     public float UnitMultiplier => _zoomTable[_zoomLevel];
 
     // TODO we can encapsulate these properties bindings into separate class
-    //public int CachedRegionsCount => _chunkRegionManagerService.CachedRegionsCount;
     public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
     public int LoadedRegionsCount => _chunkRegionManagerService.LoadedRegionsCount;
     public int PendingRegionsCount => _chunkRegionManagerService.PendingRegionsCount;
@@ -80,7 +74,8 @@ public partial class ViewportViewModel : IViewportViewModel
     public int PendingChunksCount => _chunkRegionManagerService.PendingChunksCount;
     public int WorkedChunksCount => _chunkRegionManagerService.WorkedChunksCount;
 
-    public event Action? SetViewportSizeRequested;
+    public delegate void SizeSetter(ref Size<int> size);
+    public event SizeSetter? SetViewportScreenSizeRequested;
 
     // Update CRM Service, callback when these properties updated
     private void UpdateChunkRegionManagerService()
@@ -97,7 +92,9 @@ public partial class ViewportViewModel : IViewportViewModel
         if (state == SavegameLoadState.Opened)
         {
             _chunkRegionManagerService.OnSavegameOpened();
-            SetViewportSizeRequested?.Invoke();
+            Size<int> screenSize = ScreenSize;
+            SetViewportScreenSizeRequested?.Invoke(ref screenSize);
+            ScreenSize = screenSize;
             UpdateChunkRegionManagerService();
         }
         else if (state == SavegameLoadState.Closed)

@@ -227,7 +227,6 @@
                     </Grid>
 
                     <!--Viewport Info-->
-                    <!--TODO cannot scroll-->
                     <Border HorizontalAlignment="Left" 
                             VerticalAlignment="Top"
                             Margin="10"
@@ -237,51 +236,34 @@
                             Visibility="{Binding GlobalState.IsViewportInfoVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
 
                         <!--Info content-->
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden" 
-                                      HorizontalScrollBarVisibility="Disabled">
-                            <StackPanel HorizontalAlignment="Left" 
-                                        MinWidth="170"
-                                        Margin="5">
-                                <local:PropertyValuePairView PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
-                                <local:PropertyValuePairView PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
-                                <local:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/>
-                                <local:PropertyValuePairView PropertyText="Unit Multiplier : " ValueText="{Binding UnitMultiplier}"/>
-                                <local:PropertyValuePairView PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
+                        <StackPanel HorizontalAlignment="Left" 
+                                    MinWidth="150"
+                                    Margin="5">
+                            <local:PropertyValuePairView PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
+                            <local:PropertyValuePairView PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
+                            <local:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/>
+                            <local:PropertyValuePairView PropertyText="Unit Multiplier : " ValueText="{Binding UnitMultiplier}"/>
+                            <local:PropertyValuePairView PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
 
-                                <Separator Style="{StaticResource SubtleSeparator}"/>
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                                <local:PropertyValuePairView PropertyText="Pixel-Per-Block : " ValueText="TODO"/>
-                                <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk : " ValueText="TODO"/>
-                                <local:PropertyValuePairView PropertyText="Pixel-Per-Chunk : " ValueText="TODO"/>
+                            <TextBlock Text="Visible Region Range:"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleRegionRange.XRange}"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleRegionRange.ZRange}"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding LoadedRegionsCount}"/>
+                            <!--local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/-->
+                            <local:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding PendingRegionsCount}"/>
+                            <local:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding WorkedRegion}"/>
 
-                                <Separator Style="{StaticResource SubtleSeparator}"/>
+                            <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                                <TextBlock Text="Visible Region Range:"/>
-                                <local:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleRegionRange.XRange}"/>
-                                <local:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleRegionRange.ZRange}"/>
-                                <local:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding LoadedRegionsCount}"/>
-                                <!--local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/-->
-                                <local:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding PendingRegionsCount}"/>
-                                <local:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding WorkedRegion}"/>
-
-                                <Separator Style="{StaticResource SubtleSeparator}"/>
-
-                                <TextBlock Text="Visible Chunk Range:"/>
-                                <local:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleChunkRange.XRange}"/>
-                                <local:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleChunkRange.ZRange}"/>
-                                <local:PropertyValuePairView PropertyText="Loaded Chunk Count : " ValueText="{Binding LoadedChunksCount}"/>
-                                <local:PropertyValuePairView PropertyText="Pending Chunk Count : " ValueText="{Binding PendingChunksCount}"/>
-                                <local:PropertyValuePairView PropertyText="Worked Chunk Count : " ValueText="{Binding WorkedChunksCount}"/>
-
-                                <Separator Style="{StaticResource SubtleSeparator}"/>
-
-                                <local:PropertyValuePairView PropertyText="Mouse Screen Pos : " ValueText="{Binding MouseScreenPos}"/>
-                                <local:PropertyValuePairView PropertyText="Mouse Pos Delta : " ValueText="{Binding MousePosDelta}"/>
-                                <local:PropertyValuePairView PropertyText="Mouse Click Holding : " ValueText="{Binding MouseClickHolding}"/>
-                                <local:PropertyValuePairView PropertyText="Mouse Init Click Drag : " ValueText="{Binding MouseInitClickDrag}"/>
-                                <local:PropertyValuePairView PropertyText="Mouse Is Inside : " ValueText="{Binding MouseIsInside}"/>
-                            </StackPanel>
-                        </ScrollViewer>
+                            <TextBlock Text="Visible Chunk Range:"/>
+                            <local:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleChunkRange.XRange}"/>
+                            <local:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleChunkRange.ZRange}"/>
+                            <local:PropertyValuePairView PropertyText="Loaded Chunk Count : " ValueText="{Binding LoadedChunksCount}"/>
+                            <local:PropertyValuePairView PropertyText="Pending Chunk Count : " ValueText="{Binding PendingChunksCount}"/>
+                            <local:PropertyValuePairView PropertyText="Worked Chunk Count : " ValueText="{Binding WorkedChunksCount}"/>
+                        </StackPanel>
                     </Border>
                 </Grid>
             </Grid>
