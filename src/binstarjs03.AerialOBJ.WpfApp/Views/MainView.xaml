@@ -41,12 +41,12 @@
                 <MenuItem Header="View">
                     <MenuItem Header="Chunk Grid"
                               IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsChunkGridVisible, Mode=TwoWay}"
+                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsChunkGridVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <Separator/>
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsInfoPanelVisible, Mode=TwoWay}"
+                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsInfoPanelVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Debug Log" 
                                   IsCheckable="True"
@@ -66,20 +66,23 @@
                     </Style>
                 </StatusBar.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=DataContext.MouseBlockDisplayName}"/>
+                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockDisplayName}"/>
                     <TextBlock Text=" - "/>
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=DataContext.MouseBlockName}"/>
+                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockName}"/>
                 </StackPanel>
                 <Separator/>
-                <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseRegionCoords}"/>
-                <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseChunkCoords}"/>
-                <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseBlockCoords}"/>
+                <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseRegionCoords}"/>
+                <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseChunkCoords}"/>
+                <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockCoords}"/>
             </StatusBar>
             <StatusBar DockPanel.Dock="Bottom"
                        Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+            <!--local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/-->
+            <ContentControl Content="{Binding ViewportView}" 
+                            x:Name="Viewport"
+                            IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
         </DockPanel>
     </Grid>
 </Window>
