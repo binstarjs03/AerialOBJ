@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services;
@@ -105,10 +106,11 @@ public partial class MainViewModel
     }
 
     [RelayCommand]
-    private void OnClose()
+    private void OnClose(CloseViewSender sender)
     {
         GlobalState.SavegameLoadInfo = null;
-        CloseViewRequested?.Invoke();
+        if (sender == CloseViewSender.MenuExitButton)
+            CloseViewRequested?.Invoke();
     }
 
     [RelayCommand]
@@ -122,10 +124,17 @@ public partial class MainViewModel
     {
         _modalService.ShowDefinitionManager();
     }
+
 }
 
-public enum CloseSavegameSender
-{
-    OpenSavegameCommand,
-    MenuCloseButton
-}
+    public enum CloseSavegameSender
+    {
+        OpenSavegameCommand,
+        MenuCloseButton,
+    }
+
+    public enum CloseViewSender
+    {
+        WindowCloseButton,
+        MenuExitButton,
+    }

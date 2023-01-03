@@ -4,7 +4,6 @@ using System.IO;
 using System.Text.Json;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
