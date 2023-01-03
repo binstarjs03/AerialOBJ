@@ -4,13 +4,12 @@ using System.Windows;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
-public partial class DebugLogView : Window
+public partial class DebugLogView : Window, IClosableView
 {
     public DebugLogView(DebugLogViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.CloseViewRequested += OnViewModelCloseRequested;
         viewModel.ScrollToEndRequested += OnViewModelScrollToEndRequested;
     }
 
@@ -18,11 +17,6 @@ public partial class DebugLogView : Window
     {
         Top = top;
         Left = left;
-    }
-
-    private void OnViewModelCloseRequested()
-    {
-        Close();
     }
 
     private void OnViewModelScrollToEndRequested()

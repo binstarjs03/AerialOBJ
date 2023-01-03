@@ -26,7 +26,6 @@ public partial class DebugLogViewModel
     public GlobalState GlobalState { get; }
     public ILogService LogService { get; }
 
-    public event Action? CloseViewRequested;
     public event Action? ScrollToEndRequested;
 
     private void OnLogServiceLogging(string message, LogStatus status)
@@ -68,11 +67,5 @@ public partial class DebugLogViewModel
         {
             LogService.Log($"Saved log content to {dialogResult.SelectedFilePath}", LogStatus.Success);
         }
-    }
-
-    [RelayCommand]
-    private void CloseView()
-    {
-        CloseViewRequested?.Invoke();
     }
 }
