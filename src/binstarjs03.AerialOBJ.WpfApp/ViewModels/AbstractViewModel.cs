@@ -1,16 +1,18 @@
 ﻿using binstarjs03.AerialOBJ.WpfApp.Views;
 
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
-public partial class AboutViewModel : IViewModel
+[ObservableObject]
+public partial class AbstractViewModel
 {
-    public GlobalState GlobalState { get; }
-
-    public AboutViewModel(GlobalState globalState)
+	public AbstractViewModel(GlobalState globalState)
 	{
         GlobalState = globalState;
     }
+
+    public GlobalState GlobalState { get; }
 
     [RelayCommand]
     private void Close(IClosableView view)

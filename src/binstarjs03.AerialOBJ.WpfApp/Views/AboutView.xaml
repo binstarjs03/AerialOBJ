@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d" 
-        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:AboutViewModel}}"
         Title="About"
         Background="{StaticResource Background}" 
         SizeToContent="WidthAndHeight">
@@ -71,7 +70,7 @@
         <Button Content="Close" 
                 Grid.Row="2"
                 Width="90"
-                Command="{Binding CloseCommand}"
+                Command="{Binding Path=AbstractViewModel.CloseCommand, Source={StaticResource AppResource}}"
                 CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
     </Grid>
 </Window>

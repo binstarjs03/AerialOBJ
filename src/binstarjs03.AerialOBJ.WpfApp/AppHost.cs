@@ -31,11 +31,12 @@ public static class AppHost
             // configure views
             services.AddSingleton<MainView>();
             services.AddSingleton<DebugLogView>();
-            services.AddTransient<AboutView>(x => new AboutView(x.GetRequiredService<AboutViewModel>()));
+            services.AddTransient<AboutView>();
             services.AddTransient<DefinitionManagerView>();
             services.AddTransient<ViewportView>();
 
             // configure viewmodels
+            services.AddSingleton<AbstractViewModel>();
             services.AddSingleton<MainViewModel>(x =>
             {
                 GlobalState globalState = x.GetRequiredService<GlobalState>();
@@ -46,7 +47,6 @@ public static class AppHost
                 return new MainViewModel(globalState, modalService, logService, savegameLoaderService, viewportView);
             });
             services.AddSingleton<DebugLogViewModel>();
-            services.AddTransient<AboutViewModel>();
             services.AddTransient<ViewportViewModel>();
             services.AddTransient<DefinitionManagerViewModel>();
 
