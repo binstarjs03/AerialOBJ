@@ -4,14 +4,13 @@ using System.Windows;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
-public partial class DebugLogView : Window
+public partial class DebugLogView : Window, IClosableView
 {
     public DebugLogView(DebugLogViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.CloseViewRequested += OnViewModelCloseRequested;
-        viewModel.ScrollToEndRequested += OnViewModelScrollToEndRequested;
+        viewModel.RequestScrollToEnd += OnViewModelScrollToEndRequested;
     }
 
     public void SetTopLeft(double top, double left)
@@ -20,15 +19,7 @@ public partial class DebugLogView : Window
         Left = left;
     }
 
-    private void OnViewModelCloseRequested()
-    {
-        Close();
-    }
-
-    private void OnViewModelScrollToEndRequested()
-    {
-        LogTextBox.ScrollToEnd();
-    }
+    private void OnViewModelScrollToEndRequested() => LogTextBox.ScrollToEnd();
 
     // Debug log window do not close. They just hide.
     protected override void OnClosing(CancelEventArgs e)

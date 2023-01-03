@@ -1,25 +1,22 @@
-﻿using System;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
-public partial class ViewportView : UserControl
+public partial class ViewportView : UserControl, IView
 {
-    public ViewportView()
+    public ViewportView(ViewportViewModel viewModel)
     {
         InitializeComponent();
-        DataContext = App.Current?.Host.Services.GetRequiredService<ViewportViewModel>();
-        (DataContext as ViewportViewModel)!.SetViewportScreenSizeRequested += OnViewModel_ViewportSizeRequested;
+        DataContext = viewModel;
+        viewModel.GetViewViewportSize = GetViewportSize;
     }
 
-    private void OnViewModel_ViewportSizeRequested(ref Size<int> screenSize)
+    private Size<int> GetViewportSize()
     {
-        screenSize = new Size<int>(Viewport.ActualWidth.Floor(),
-                                   Viewport.ActualHeight.Floor());
+        return new Size<int>(Viewport.ActualWidth.Floor(),
+                             Viewport.ActualHeight.Floor());
     }
 }

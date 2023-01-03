@@ -10,6 +10,7 @@
 
                 <ResourceDictionary>
                     <sys:Single x:Key="Zero">0</sys:Single>
+                    <local:AppResourceBootstrapper x:Key="AppResource"/>
                 </ResourceDictionary>
                 
                 <ResourceDictionary>

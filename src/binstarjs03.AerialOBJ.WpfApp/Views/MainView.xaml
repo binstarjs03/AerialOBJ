@@ -5,7 +5,8 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
-        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
+        xmlns:reusables="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls"
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels" 
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MainViewModel}}"
         x:Name="Root"
@@ -41,12 +42,12 @@
                 <MenuItem Header="View">
                     <MenuItem Header="Chunk Grid"
                               IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsChunkGridVisible, Mode=TwoWay}"
+                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsChunkGridVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <Separator/>
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsInfoPanelVisible, Mode=TwoWay}"
+                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsInfoPanelVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Debug Log" 
                                   IsCheckable="True"
@@ -60,26 +61,29 @@
             <StatusBar DockPanel.Dock="Bottom"
                        Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <StatusBar.Resources>
-                    <Style TargetType="local:PropertyValuePairView">
+                    <Style TargetType="reusables:PropertyValuePairView">
                         <Setter Property="PropertyColor" Value="Black"/>
                         <Setter Property="ValueColor" Value="DarkBlue"/>
                     </Style>
                 </StatusBar.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=DataContext.MouseBlockDisplayName}"/>
+                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockDisplayName}"/>
                     <TextBlock Text=" - "/>
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=DataContext.MouseBlockName}"/>
+                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockName}"/>
                 </StackPanel>
                 <Separator/>
-                <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseRegionCoords}"/>
-                <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseChunkCoords}"/>
-                <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=DataContext.MouseBlockCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseRegionCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseChunkCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockCoords}"/>
             </StatusBar>
             <StatusBar DockPanel.Dock="Bottom"
                        Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+            <!--local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/-->
+            <ContentControl Content="{Binding ViewportView}" 
+                            x:Name="Viewport"
+                            IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
         </DockPanel>
     </Grid>
 </Window>

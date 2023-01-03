@@ -20,7 +20,7 @@ using PointSpaceConversion = binstarjs03.AerialOBJ.Core.MathUtils.PointSpaceConv
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
-public partial class ViewportViewModel : IViewportViewModel
+public partial class ViewportViewModel
 {
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
@@ -74,6 +74,7 @@ public partial class ViewportViewModel : IViewportViewModel
     }
 
     public GlobalState GlobalState { get; }
+    public Func<Size<int>>? GetViewViewportSize { get; set; }
     public float UnitMultiplier => _zoomTable[ZoomLevel];
     public bool IsRegionTextVisible => ZoomLevel == 0 && IsChunkGridVisible;
 
@@ -86,9 +87,6 @@ public partial class ViewportViewModel : IViewportViewModel
     public int LoadedChunksCount => _chunkRegionManagerService.LoadedChunksCount;
     public int PendingChunksCount => _chunkRegionManagerService.PendingChunksCount;
     public int WorkedChunksCount => _chunkRegionManagerService.WorkedChunksCount;
-
-    public delegate void SizeSetter(ref Size<int> size);
-    public event SizeSetter? SetViewportScreenSizeRequested;
 
     // Update CRM Service, callback when these properties updated
     private void UpdateChunkRegionManagerService()
@@ -105,9 +103,8 @@ public partial class ViewportViewModel : IViewportViewModel
         if (state == SavegameLoadState.Opened)
         {
             _chunkRegionManagerService.OnSavegameOpened();
-            Size<int> screenSize = ScreenSize;
-            SetViewportScreenSizeRequested?.Invoke(ref screenSize);
-            ScreenSize = screenSize;
+            if (GetViewViewportSize is not null)
+                ScreenSize = GetViewViewportSize();
             UpdateChunkRegionManagerService();
         }
         else if (state == SavegameLoadState.Closed)

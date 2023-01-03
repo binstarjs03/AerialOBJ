@@ -1,7 +1,5 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfApp.Components;
-
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public class LogService : ILogService
 {

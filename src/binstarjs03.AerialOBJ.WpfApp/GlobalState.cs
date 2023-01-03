@@ -1,6 +1,7 @@
 ﻿using System;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Components;
+namespace binstarjs03.AerialOBJ.WpfApp;
 public class GlobalState
 {
     private bool _isDebugLogViewVisible = false;

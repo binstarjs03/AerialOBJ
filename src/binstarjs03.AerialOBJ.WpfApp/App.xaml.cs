@@ -11,26 +11,22 @@ using Microsoft.Extensions.Hosting;
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
 {
-    public IHost Host { get; private set; }
+    public IHost Host { get; } = AppHost.Configure();
     public static new App Current => (Application.Current as App)!;
-
-    public App()
-    {
-        Host = AppHost.Configure();
-    }
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         await Host.StartAsync();
 
         ShutdownMode = ShutdownMode.OnMainWindowClose;
-        MainWindow = Host.Services.GetRequiredService<MainView>();
+        MainView mainView = Host.Services.GetRequiredService<MainView>();
+        MainWindow = mainView;
         MainWindow.Show();
 
         DebugLogView debugLogView = Host.Services.GetRequiredService<DebugLogView>();
-        debugLogView.Owner = MainWindow;
-        (MainWindow as MainView)!.DebugViewSetPositionRequested += debugLogView.SetTopLeft;
-        (MainWindow as MainView)!.InvokeDebugViewSetPositionRequested();
+        debugLogView.Owner = mainView;
+        mainView.DebugViewSyncPositionRequested += debugLogView.SetTopLeft;
+        mainView.RequestDebugViewsSyncPosition();
 
         ILogService logService = Host.Services.GetRequiredService<ILogService>();
         logService.LogRuntimeInfo();

@@ -1,6 +1,4 @@
 ﻿using System;
-
-using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
@@ -28,13 +26,12 @@ public partial class DebugLogViewModel
     public GlobalState GlobalState { get; }
     public ILogService LogService { get; }
 
-    public event Action? CloseViewRequested;
-    public event Action? ScrollToEndRequested;
+    public event Action? RequestScrollToEnd;
 
     private void OnLogServiceLogging(string message, LogStatus status)
     {
         OnPropertyChanged(nameof(LogService));
-        ScrollToEndRequested?.Invoke();
+        RequestScrollToEnd?.Invoke();
     }
 
     [RelayCommand]
@@ -70,11 +67,5 @@ public partial class DebugLogViewModel
         {
             LogService.Log($"Saved log content to {dialogResult.SelectedFilePath}", LogStatus.Success);
         }
-    }
-
-    [RelayCommand]
-    private void CloseView()
-    {
-        CloseViewRequested?.Invoke();
     }
 }
