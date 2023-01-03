@@ -11,12 +11,12 @@ public partial class ViewportView : UserControl, IView
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.SetViewportScreenSizeRequested += OnViewModel_ViewportSizeRequested;
+        viewModel.ViewportSizeGetter = ViewportSizeGetter;
     }
 
-    private void OnViewModel_ViewportSizeRequested(ref Size<int> screenSize)
+    private Size<int> ViewportSizeGetter()
     {
-        screenSize = new Size<int>(Viewport.ActualWidth.Floor(),
-                                   Viewport.ActualHeight.Floor());
+        return new Size<int>(Viewport.ActualWidth.Floor(),
+                             Viewport.ActualHeight.Floor());
     }
 }

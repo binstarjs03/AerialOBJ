@@ -74,6 +74,7 @@ public partial class ViewportViewModel : IViewportViewModel
     }
 
     public GlobalState GlobalState { get; }
+    public Func<Size<int>>? ViewportSizeGetter { get; set; }
     public float UnitMultiplier => _zoomTable[ZoomLevel];
     public bool IsRegionTextVisible => ZoomLevel == 0 && IsChunkGridVisible;
 
@@ -86,9 +87,6 @@ public partial class ViewportViewModel : IViewportViewModel
     public int LoadedChunksCount => _chunkRegionManagerService.LoadedChunksCount;
     public int PendingChunksCount => _chunkRegionManagerService.PendingChunksCount;
     public int WorkedChunksCount => _chunkRegionManagerService.WorkedChunksCount;
-
-    public delegate void SizeSetter(ref Size<int> size);
-    public event SizeSetter? SetViewportScreenSizeRequested;
 
     // Update CRM Service, callback when these properties updated
     private void UpdateChunkRegionManagerService()
@@ -105,9 +103,8 @@ public partial class ViewportViewModel : IViewportViewModel
         if (state == SavegameLoadState.Opened)
         {
             _chunkRegionManagerService.OnSavegameOpened();
-            Size<int> screenSize = ScreenSize;
-            SetViewportScreenSizeRequested?.Invoke(ref screenSize);
-            ScreenSize = screenSize;
+            if (ViewportSizeGetter is not null)
+                ScreenSize = ViewportSizeGetter();
             UpdateChunkRegionManagerService();
         }
         else if (state == SavegameLoadState.Closed)
