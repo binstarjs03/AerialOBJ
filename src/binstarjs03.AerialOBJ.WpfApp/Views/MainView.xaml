@@ -5,7 +5,8 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
-        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
+        xmlns:reusables="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls"
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels" 
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MainViewModel}}"
         x:Name="Root"
@@ -60,7 +61,7 @@
             <StatusBar DockPanel.Dock="Bottom"
                        Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <StatusBar.Resources>
-                    <Style TargetType="local:PropertyValuePairView">
+                    <Style TargetType="reusables:PropertyValuePairView">
                         <Setter Property="PropertyColor" Value="Black"/>
                         <Setter Property="ValueColor" Value="DarkBlue"/>
                     </Style>
@@ -71,9 +72,9 @@
                     <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockName}"/>
                 </StackPanel>
                 <Separator/>
-                <local:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseRegionCoords}"/>
-                <local:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseChunkCoords}"/>
-                <local:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseRegionCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseChunkCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockCoords}"/>
             </StatusBar>
             <StatusBar DockPanel.Dock="Bottom"
                        Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">

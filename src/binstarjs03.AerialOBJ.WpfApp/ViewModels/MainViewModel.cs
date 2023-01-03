@@ -37,8 +37,6 @@ public partial class MainViewModel
     public IView ViewportView { get; }
     public IClosableView? View { get; set; }
 
-    public event Action? CloseViewRequested;
-
     private void GlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         Title = state switch
