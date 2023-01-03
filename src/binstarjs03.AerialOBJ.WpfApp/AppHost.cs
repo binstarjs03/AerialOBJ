@@ -44,10 +44,9 @@ public static class AppHost
             // configure services
             services.AddSingleton<IModalService, ModalService>(x =>
             {
-                ServiceProvider provider = services.BuildServiceProvider();
-                IView aboutViewFactory() => provider.GetRequiredService<AboutView>();
-                IView definitionManagerViewModel() => provider.GetRequiredService<DefinitionManagerView>();
-                return new ModalService(aboutViewFactory, definitionManagerViewModel);
+                IView aboutViewFactory() => x.GetRequiredService<AboutView>();
+                IView definitionManagerViewFactory() => x.GetRequiredService<DefinitionManagerView>();
+                return new ModalService(aboutViewFactory, definitionManagerViewFactory);
             });
             services.AddSingleton<DefinitionManagerService>();
             services.AddSingleton<ILogService, LogService>();
@@ -62,7 +61,6 @@ public static class AppHost
                 IChunkShader shader = new FlatChunkShader(provider.GetRequiredService<DefinitionManagerService>());
                 return new ChunkRenderService(shader);
             });
-
         }).Build();
     }
 }

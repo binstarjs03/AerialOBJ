@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -29,15 +30,15 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _cts = new();
-    private Task _redrawTask = new(()=> { });
-    private readonly int _chunkLoaderTasksLimit = Environment.ProcessorCount;
+    private Task _redrawTask = new(() => { });
+    private readonly int _chunkLoaderTasksLimit = 4;
 
     private readonly StructLock<bool> _isRegionLoaderTaskRunning = new() { Value = false };
     private Task _regionLoaderTask = new(() => { });
 
     // TODO Integrate multi-threaded chunk loading
-    private readonly StructLock<bool> _isChunkLoaderTaskRunning = new() { Value = false };
-    private Task _chunkLoaderTask = new(() => { });
+    //private readonly StructLock<bool> _isChunkLoaderTaskRunning = new() { Value = false };
+    //private Task _chunkLoaderTask = new(() => { });
     private readonly Dictionary<uint, Task> _chunkLoaderTasks = new(Environment.ProcessorCount);
     private readonly StructLock<uint> _newChunkLoaderTaskId = new() { Value = 0 };
 
@@ -72,7 +73,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     public int PendingRegionsCount => _pendingRegions.Count;
     public Point2Z<int>? WorkedRegion => _workedRegion.Value;
     public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange.Value;
-    public int LoadedChunksCount=>_loadedChunks.Count;
+    public int LoadedChunksCount => _loadedChunks.Count;
     public int PendingChunksCount => _pendingChunks.Count;
     public int WorkedChunksCount => _workedChunks.Count;
 
@@ -186,7 +187,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             lock (_pendingRegions)
                 _pendingRegions.RemoveAll(_visibleRegionRange.Value.IsOutside);
         }
-        
+
     }
 
     private bool QueuePendingRegions()
@@ -307,7 +308,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 _loadedRegions.Add(regionData.Coords, region);
             }
         OnPropertyChanged(nameof(LoadedRegionsCount));
-        RunTaskNoDuplicate(LoadPendingChunks, ref _chunkLoaderTask, _isChunkLoaderTaskRunning);
+        //RunTaskNoDuplicate(LoadPendingChunks, ref _chunkLoaderTask, _isChunkLoaderTaskRunning);
     }
 
     private void UnloadRegion(RegionModel region)
@@ -324,8 +325,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         UnloadCulledChunks();
         QueuePendingChunks();
-        RunTaskNoDuplicate(LoadPendingChunks, ref _chunkLoaderTask, _isChunkLoaderTaskRunning);
-        //RunChunkLoaderTasks();
+        //RunTaskNoDuplicate(LoadPendingChunks, ref _chunkLoaderTask, _isChunkLoaderTaskRunning);
+        RunChunkLoaderTasks();
         OnPropertyChanged(nameof(LoadedChunksCount));
         OnPropertyChanged(nameof(PendingChunksCount));
     }
@@ -346,7 +347,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 _pendingChunksSet.RemoveWhere(_visibleChunkRange.Value.IsOutside);
             }
         }
-        
+
     }
 
     private bool QueuePendingChunks()
@@ -387,45 +388,45 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             while (_chunkLoaderTasks.Count < _chunkLoaderTasksLimit)
             {
                 uint taskId = _newChunkLoaderTaskId.Value++;
-                //Task task = new(() => LoadPendingChunks(taskId));
-                //lock (_chunkLoaderTasks)
-                //    _chunkLoaderTasks.Add(taskId, task);
-                //task.Start();
+                Task task = new(() => LoadPendingChunks(taskId));
+                lock (_chunkLoaderTasks)
+                    _chunkLoaderTasks.Add(taskId, task);
+                task.Start();
             }
         }
     }
 
-    private void LoadPendingChunks()//uint taskId)
+    private void LoadPendingChunks(uint taskId)
     {
-        //try
-        //{
-        while (!_cts.IsCancellationRequested)
+        try
         {
-            // get random pending chunk then assign it to worked chunk
-            if (!tryGetRandomPendingChunk(out Point2Z<int> chunkCoords))
-                return;
-            lock (_workedChunks)
-                _workedChunks.Add(chunkCoords);
-            OnPropertyChanged(nameof(WorkedChunksCount));
-
-            // get both chunk and region
-            (IChunk? chunk, RegionModel? region) = getChunkAndRegion(chunkCoords);
-            if (chunk is null || region is null)
+            while (!_cts.IsCancellationRequested)
             {
-                cleanupWorkedChunk(chunkCoords);
-                continue;
-            }
+                // get random pending chunk then assign it to worked chunk
+                if (!tryGetRandomPendingChunk(out Point2Z<int> chunkCoords))
+                    return;
+                lock (_workedChunks)
+                    _workedChunks.Add(chunkCoords);
+                OnPropertyChanged(nameof(WorkedChunksCount));
 
-            // load it
-            LoadChunk(chunk, region);
-            cleanupWorkedChunk(chunkCoords);
+                // get both chunk and region
+                (IChunk? chunk, RegionModel? region) = getChunkAndRegion(chunkCoords);
+                if (chunk is null || region is null)
+                {
+                    cleanupWorkedChunk(chunkCoords);
+                    continue;
+                }
+
+                // load it
+                LoadChunk(chunk, region);
+                cleanupWorkedChunk(chunkCoords);
+            }
         }
-        //}
-        //finally
-        //{
-        //    lock (_chunkLoaderTasks)
-        //        _chunkLoaderTasks.Remove(taskId);
-        //}
+        finally
+        {
+            lock (_chunkLoaderTasks)
+                _chunkLoaderTasks.Remove(taskId);
+        }
 
         bool tryGetRandomPendingChunk(out Point2Z<int> result)
         {
@@ -617,7 +618,11 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         _cts.Cancel();
         _regionLoaderTask.Wait();
-        _chunkLoaderTask.Wait();
+        //_chunkLoaderTask.Wait();
+        Task[] chunkLoaderTasks;
+        lock (_chunkLoaderTasks)
+            chunkLoaderTasks = _chunkLoaderTasks.Values.ToArray();
+        Task.WaitAll(chunkLoaderTasks);
         _redrawTask.Wait();
 
         _visibleRegionRange.Value = new Point2ZRange<int>();

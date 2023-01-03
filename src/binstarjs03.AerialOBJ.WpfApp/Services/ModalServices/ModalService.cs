@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 
-using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Ookii.Dialogs.Wpf;
@@ -39,6 +38,22 @@ public class ModalService : IModalService
     public FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg)
     {
         VistaSaveFileDialog dialog = new()
+        {
+            FileName = dialogArg.FileName,
+            DefaultExt = dialogArg.FileExtension,
+            Filter = dialogArg.FileExtensionFilter
+        };
+        bool? result = dialog.ShowDialog();
+        return new FileDialogResult()
+        {
+            SelectedFilePath = dialog.FileName,
+            Result = result == true,
+        };
+    }
+
+    public FileDialogResult ShowOpenFileDialog(FileDialogArg dialogArg)
+    {
+        VistaOpenFileDialog dialog = new()
         {
             FileName = dialogArg.FileName,
             DefaultExt = dialogArg.FileExtension,

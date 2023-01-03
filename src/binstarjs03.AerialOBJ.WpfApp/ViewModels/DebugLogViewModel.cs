@@ -51,7 +51,7 @@ public partial class DebugLogViewModel
         {
             FileName = $"{GlobalState.AppName} Log",
             FileExtension = ".txt",
-            FileExtensionFilter = "Text Document (.txt)|*.txt",
+            FileExtensionFilter = "Text Document|*.txt",
         });
         if (dialogResult.Result != true)
             return;

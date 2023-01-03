@@ -7,43 +7,59 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:DefinitionManagerViewModel}}"
-        Title="DefinitionManager" Height="400" Width="400">
-    <Grid Margin="10">
+        Title="DefinitionManager" Height="300" Width="400">
+    <Grid Margin="10,10">
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="10"/>
-            <RowDefinition/>
-            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
-            <TextBlock Text="Used Definitions:" DockPanel.Dock="Top"/>
-            <ListBox>
-                <ListBoxItem Content="Hello"/>
-                <ListBoxItem Content="Iello"/>
-                <ListBoxItem Content="Jello"/>
-                <ListBoxItem Content="Kello"/>
-                <ListBoxItem Content="Lello"/>
-            </ListBox>
-        </DockPanel>
-        <DockPanel Grid.Row="2">
-            <TextBlock Text="Available Definitions:" DockPanel.Dock="Top"/>
-            <DataGrid ItemsSource="{Binding ViewportDefinitions}">
+            <StackPanel DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Selected Definition: "/>
+                    <TextBlock Text="{Binding ElementName=ViewportDefinitionGrid, Path=SelectedValue.Name}"/>
+                </StackPanel>
+                <TextBlock Text="Available Definitions:"/>
+            </StackPanel>
+            <DataGrid ItemsSource="{Binding ViewportDefinitions}"
+                      x:Name="ViewportDefinitionGrid"
+                      
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectedValue="{Binding SelectedDefinition}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" 
+                                        Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Format Version" 
+                                        Binding="{Binding FormatVersion}"/>
+                    <DataGridTextColumn Header="Minecraft Version" 
+                                        Binding="{Binding MinecraftVersion}"/>
+                </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
-        <Grid Grid.Row="4">
-            <Grid.Resources>
-                <Style TargetType="Button">
-                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                    <Setter Property="Padding" Value="20,3"/>
-                </Style>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Import Definition..."/>
-            <Button Grid.Column="2" Content="Delete Definition"/>
-        </Grid>
+        <Border BorderBrush="Transparent" BorderThickness="5" Grid.Row="1">
+            <Grid>
+                <Grid.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Width" Value="150"/>
+                        <Setter Property="Padding" Value="2"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" 
+                        Content="Import Definition..."
+                        Command="{Binding ImportDefinitionCommand}"/>
+                <Button Grid.Column="1" 
+                        Content="Delete Definition..."
+                        Command="{Binding DeleteDefinitionCommand}"
+                        IsEnabled="{Binding CanDeleteDefinition}"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
