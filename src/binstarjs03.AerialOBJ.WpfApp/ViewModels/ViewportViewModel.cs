@@ -20,7 +20,7 @@ using PointSpaceConversion = binstarjs03.AerialOBJ.Core.MathUtils.PointSpaceConv
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
-public partial class ViewportViewModel : IViewportViewModel
+public partial class ViewportViewModel
 {
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly IChunkRegionManagerService _chunkRegionManagerService;

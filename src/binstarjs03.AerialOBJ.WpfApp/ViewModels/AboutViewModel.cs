@@ -1,5 +1,4 @@
-﻿using binstarjs03.AerialOBJ.WpfApp.Components;
-using binstarjs03.AerialOBJ.WpfApp.Views;
+﻿using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using CommunityToolkit.Mvvm.Input;
 
