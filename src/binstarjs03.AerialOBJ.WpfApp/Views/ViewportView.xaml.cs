@@ -11,10 +11,10 @@ public partial class ViewportView : UserControl, IView
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.ViewportSizeGetter = ViewportSizeGetter;
+        viewModel.GetViewViewportSize = GetViewportSize;
     }
 
-    private Size<int> ViewportSizeGetter()
+    private Size<int> GetViewportSize()
     {
         return new Size<int>(Viewport.ActualWidth.Floor(),
                              Viewport.ActualHeight.Floor());

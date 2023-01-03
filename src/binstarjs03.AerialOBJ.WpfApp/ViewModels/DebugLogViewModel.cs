@@ -26,12 +26,12 @@ public partial class DebugLogViewModel
     public GlobalState GlobalState { get; }
     public ILogService LogService { get; }
 
-    public event Action? ScrollToEndRequested;
+    public event Action? RequestScrollToEnd;
 
     private void OnLogServiceLogging(string message, LogStatus status)
     {
         OnPropertyChanged(nameof(LogService));
-        ScrollToEndRequested?.Invoke();
+        RequestScrollToEnd?.Invoke();
     }
 
     [RelayCommand]

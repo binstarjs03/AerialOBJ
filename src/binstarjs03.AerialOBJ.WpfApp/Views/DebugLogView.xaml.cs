@@ -10,7 +10,7 @@ public partial class DebugLogView : Window, IClosableView
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.ScrollToEndRequested += OnViewModelScrollToEndRequested;
+        viewModel.RequestScrollToEnd += OnViewModelScrollToEndRequested;
     }
 
     public void SetTopLeft(double top, double left)
@@ -19,10 +19,7 @@ public partial class DebugLogView : Window, IClosableView
         Left = left;
     }
 
-    private void OnViewModelScrollToEndRequested()
-    {
-        LogTextBox.ScrollToEnd();
-    }
+    private void OnViewModelScrollToEndRequested() => LogTextBox.ScrollToEnd();
 
     // Debug log window do not close. They just hide.
     protected override void OnClosing(CancelEventArgs e)
