@@ -3,7 +3,7 @@
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
-public partial class AboutView : Window, IView
+public partial class AboutView : Window, IDialogView
 {
     public AboutView(AboutViewModel viewModel)
     {

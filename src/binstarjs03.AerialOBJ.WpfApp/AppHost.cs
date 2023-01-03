@@ -44,8 +44,8 @@ public static class AppHost
             // configure services
             services.AddSingleton<IModalService, ModalService>(x =>
             {
-                IView aboutViewFactory() => x.GetRequiredService<AboutView>();
-                IView definitionManagerViewFactory() => x.GetRequiredService<DefinitionManagerView>();
+                IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
+                IDialogView definitionManagerViewFactory() => x.GetRequiredService<DefinitionManagerView>();
                 return new ModalService(aboutViewFactory, definitionManagerViewFactory);
             });
             services.AddSingleton<DefinitionManagerService>();

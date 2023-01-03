@@ -12,10 +12,10 @@ public delegate FileDialogResult ShowSaveFileDialogHandler(FileDialogArg dialogA
 
 public class ModalService : IModalService
 {
-    private readonly Func<IView> _aboutViewFactory;
-    private readonly Func<IView> _definitionManagerViewFactory;
+    private readonly Func<IDialogView> _aboutViewFactory;
+    private readonly Func<IDialogView> _definitionManagerViewFactory;
 
-    public ModalService(Func<IView> aboutViewFactory, Func<IView> definitionManagerViewFactory)
+    public ModalService(Func<IDialogView> aboutViewFactory, Func<IDialogView> definitionManagerViewFactory)
     {
         _aboutViewFactory = aboutViewFactory;
         _definitionManagerViewFactory = definitionManagerViewFactory;
