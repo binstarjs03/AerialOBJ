@@ -35,6 +35,7 @@ public partial class MainViewModel
 
     public GlobalState GlobalState { get; }
     public IView ViewportView { get; }
+    public IClosableView? View { get; set; }
 
     public event Action? CloseViewRequested;
 
@@ -113,7 +114,7 @@ public partial class MainViewModel
     {
         GlobalState.SavegameLoadInfo = null;
         if (sender == CloseViewSender.MenuExitButton)
-            CloseViewRequested?.Invoke();
+            View?.Close();
     }
 
     [RelayCommand]

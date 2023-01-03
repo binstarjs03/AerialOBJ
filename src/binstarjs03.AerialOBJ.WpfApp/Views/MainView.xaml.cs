@@ -3,13 +3,13 @@
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
-public partial class MainView : Window
+public partial class MainView : Window, IClosableView
 {
     public MainView(MainViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.CloseViewRequested += OnViewModelCloseRequested;
+        viewModel.View = this;
         Root.LocationChanged += OnLocationChanged;
         Root.SizeChanged += OnSizeChanged;
     }
@@ -29,10 +29,5 @@ public partial class MainView : Window
     public void InvokeDebugViewSetPositionRequested()
     {
         DebugViewSetPositionRequested?.Invoke(Top, Left + ActualWidth);
-    }
-
-    private void OnViewModelCloseRequested()
-    {
-        Close();
     }
 }
