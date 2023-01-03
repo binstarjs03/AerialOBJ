@@ -1,4 +1,5 @@
 ﻿using System;
+
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
@@ -12,18 +13,21 @@ public partial class DebugLogViewModel
     private readonly IModalService _modalService;
     private readonly IIOService _iOService;
 
-    public DebugLogViewModel(GlobalState globalState, ILogService logService, IModalService modalService, IIOService iOService)
+    public DebugLogViewModel(GlobalState globalState, ViewState viewState, ILogService logService, IModalService modalService, IIOService iOService)
     {
         GlobalState = globalState;
+        ViewState = viewState;
         LogService = logService;
         _modalService = modalService;
         _iOService = iOService;
 
         GlobalState.PropertyChanged += OnPropertyChanged;
+        ViewState.PropertyChanged += OnPropertyChanged;
         LogService.Logging += OnLogServiceLogging;
     }
 
     public GlobalState GlobalState { get; }
+    public ViewState ViewState { get; }
     public ILogService LogService { get; }
 
     public event Action? RequestScrollToEnd;

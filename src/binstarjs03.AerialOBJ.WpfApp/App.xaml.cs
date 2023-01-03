@@ -32,8 +32,8 @@ public partial class App : Application
         logService.LogRuntimeInfo();
 
 #if DEBUG
-        GlobalState globalState = Host.Services.GetRequiredService<GlobalState>();
-        globalState.IsDebugLogWindowVisible = true;
+        ViewState viewState = Host.Services.GetRequiredService<ViewState>();
+        viewState.IsDebugLogWindowVisible = true;
 #endif
     }
 

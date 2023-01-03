@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services;
@@ -21,19 +20,22 @@ public partial class MainViewModel
     [ObservableProperty]
     private string _title = GlobalState.AppName;
 
-    public MainViewModel(GlobalState globalState, IModalService modalService, ILogService logService, ISavegameLoaderService savegameLoaderService, IView viewportView)
+    public MainViewModel(GlobalState globalState, ViewState viewState, IModalService modalService, ILogService logService, ISavegameLoaderService savegameLoaderService, IView viewportView)
     {
         GlobalState = globalState;
+        ViewState = viewState;
         _modalService = modalService;
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
 
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += GlobalState_SavegameLoadChanged;
+        ViewState.PropertyChanged += OnPropertyChanged;
         ViewportView = viewportView;
     }
 
     public GlobalState GlobalState { get; }
+    public ViewState ViewState { get; }
     public IView ViewportView { get; }
     public IClosableView? View { get; set; }
 

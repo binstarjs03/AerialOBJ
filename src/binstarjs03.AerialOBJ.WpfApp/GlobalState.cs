@@ -1,35 +1,25 @@
 ﻿using System;
+
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 public class GlobalState
 {
-    private bool _isDebugLogViewVisible = false;
     private SavegameLoadInfo? _savegameLoadInfo = null;
 
-    public GlobalState(DateTime launchTime)
+    public GlobalState(DateTime launchTime, string version)
     {
         LaunchTime = launchTime;
+        Version = version;
     }
-
-    public static string AppName => "AerialOBJ";
-    public string AppVersion { get; } = "InDev";
-    public DateTime LaunchTime { get; }
 
     public event Action<string>? PropertyChanged;
     public event Action<SavegameLoadState>? SavegameLoadChanged;
 
-    public bool IsDebugLogWindowVisible
-    {
-        get => _isDebugLogViewVisible;
-        set
-        {
-            if (value == _isDebugLogViewVisible)
-                return;
-            _isDebugLogViewVisible = value;
-            OnPropertyChanged();
-        }
-    }
+    public static string AppName => "AerialOBJ";
+    public string Version { get; }
+    public DateTime LaunchTime { get; }
+    public bool HasSavegameLoaded => SavegameLoadInfo is not null;
 
     public SavegameLoadInfo? SavegameLoadInfo
     {
@@ -49,10 +39,5 @@ public class GlobalState
         }
     }
 
-    public bool HasSavegameLoaded => SavegameLoadInfo is not null;
-
-    private void OnPropertyChanged()
-    {
-        PropertyChanged?.Invoke(nameof(GlobalState));
-    }
+    private void OnPropertyChanged() => PropertyChanged?.Invoke(nameof(GlobalState));
 }

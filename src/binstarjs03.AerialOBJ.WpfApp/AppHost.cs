@@ -20,7 +20,8 @@ public static class AppHost
         return Host.CreateDefaultBuilder().ConfigureServices((hostContext, services) =>
         {
             // configure components
-            services.AddSingleton<GlobalState>(x => new GlobalState(DateTime.Now));
+            services.AddSingleton<GlobalState>(x => new GlobalState(DateTime.Now, "Alpha"));
+            services.AddSingleton<ViewState>();
             services.AddSingleton<IMutableImageFactory, MutableImageFactory>();
 
             // configure models
@@ -40,11 +41,12 @@ public static class AppHost
             services.AddSingleton<MainViewModel>(x =>
             {
                 GlobalState globalState = x.GetRequiredService<GlobalState>();
+                ViewState viewState = x.GetRequiredService<ViewState>();
                 IModalService modalService = x.GetRequiredService<IModalService>();
                 ILogService logService = x.GetRequiredService<ILogService>();
                 ISavegameLoaderService savegameLoaderService = x.GetRequiredService<ISavegameLoaderService>();
                 IView viewportView = x.GetRequiredService<ViewportView>();
-                return new MainViewModel(globalState, modalService, logService, savegameLoaderService, viewportView);
+                return new MainViewModel(globalState, viewState, modalService, logService, savegameLoaderService, viewportView);
             });
             services.AddSingleton<DebugLogViewModel>();
             services.AddTransient<ViewportViewModel>();
