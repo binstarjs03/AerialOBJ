@@ -1,11 +1,10 @@
-﻿using System;
-
-using binstarjs03.AerialOBJ.WpfApp.Components;
+﻿using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
-public partial class AboutViewModel
+public partial class AboutViewModel : IViewModel
 {
     public GlobalState GlobalState { get; }
 
@@ -14,11 +13,9 @@ public partial class AboutViewModel
         GlobalState = globalState;
     }
 
-    public event Action? CloseRequested;
-
     [RelayCommand]
-    private void OnClose()
+    private void Close(IClosableView view)
     {
-        CloseRequested?.Invoke();
+        view.Close();
     }
 }

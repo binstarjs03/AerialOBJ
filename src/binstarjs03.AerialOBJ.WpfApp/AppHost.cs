@@ -31,7 +31,7 @@ public static class AppHost
             // configure views
             services.AddSingleton<MainView>();
             services.AddSingleton<DebugLogView>();
-            services.AddTransient<AboutView>();
+            services.AddTransient<AboutView>(x => new AboutView(x.GetRequiredService<AboutViewModel>()));
             services.AddTransient<DefinitionManagerView>();
 
             // configure viewmodels

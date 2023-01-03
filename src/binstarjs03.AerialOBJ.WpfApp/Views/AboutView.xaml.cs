@@ -5,15 +5,9 @@ using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class AboutView : Window, IDialogView
 {
-    public AboutView(AboutViewModel viewModel)
+    public AboutView(IViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.CloseRequested += MainViewModel_CloseRequested;
-    }
-
-    private void MainViewModel_CloseRequested()
-    {
-        Close();
     }
 }
