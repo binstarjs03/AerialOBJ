@@ -81,6 +81,14 @@ public partial class DefinitionManagerViewModel
     [RelayCommand]
     private void OnDeleteDefinition()
     {
-        ViewportDefinitions.Remove(SelectedDefinition);
+        bool result = _modalService.ShowConfirmationDialog(new MessageBoxArg()
+        {
+            Caption = "Confirm Deleting Definition",
+            Message = $"Are you sure to delete definition {SelectedDefinition.Name}?\n" +
+                       "This cannot be undone"
+        });
+        if (result)
+            ViewportDefinitions.Remove(SelectedDefinition);
+        SelectedDefinition = _definitionManager.DefaultViewportDefinition;
     }
 }

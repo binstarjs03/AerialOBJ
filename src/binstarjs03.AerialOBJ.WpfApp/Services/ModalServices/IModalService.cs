@@ -8,5 +8,6 @@ public interface IModalService
     FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg);
     FileDialogResult ShowOpenFileDialog(FileDialogArg dialogArg);
     FolderDialogResult ShowFolderBrowserDialog();
+    bool ShowConfirmationDialog(MessageBoxArg dialogArg);
 }
 
