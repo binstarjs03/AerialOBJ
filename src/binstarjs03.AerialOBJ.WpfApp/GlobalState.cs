@@ -7,10 +7,11 @@ public class GlobalState
 {
     private SavegameLoadInfo? _savegameLoadInfo = null;
 
-    public GlobalState(DateTime launchTime, string version)
+    public GlobalState(DateTime launchTime, string version, string currentPath)
     {
         LaunchTime = launchTime;
         Version = version;
+        CurrentPath = currentPath;
     }
 
     public event Action<string>? PropertyChanged;
@@ -19,6 +20,7 @@ public class GlobalState
     public static string AppName => "AerialOBJ";
     public string Version { get; }
     public DateTime LaunchTime { get; }
+    public string CurrentPath { get; } // current path to "AerialOBJ.exe"
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
 
     public SavegameLoadInfo? SavegameLoadInfo

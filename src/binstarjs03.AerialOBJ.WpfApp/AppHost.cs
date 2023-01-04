@@ -20,7 +20,7 @@ public static class AppHost
         return Host.CreateDefaultBuilder().ConfigureServices((hostContext, services) =>
         {
             // configure components
-            services.AddSingleton<GlobalState>(x => new GlobalState(DateTime.Now, "Alpha"));
+            services.AddSingleton<GlobalState>(x => new GlobalState(DateTime.Now, "Alpha", Environment.CurrentDirectory));
             services.AddSingleton<ViewState>();
             services.AddSingleton<IMutableImageFactory, MutableImageFactory>();
 
@@ -28,6 +28,7 @@ public static class AppHost
 
             // configure factories
             services.AddSingleton<RegionModelFactory>();
+            services.AddSingleton<IFileInfoFactory, FileInfoFactory>();
 
             // configure views
             services.AddSingleton<MainView>();
@@ -72,6 +73,7 @@ public static class AppHost
                 IChunkShader shader = new FlatChunkShader(provider.GetRequiredService<DefinitionManagerService>());
                 return new ChunkRenderService(shader);
             });
+            services.AddSingleton<IFileUtilsService, FileUtilsService>();
         }).Build();
     }
 }
