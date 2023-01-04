@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Text.Json;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.WpfApp.Components;
-using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
@@ -18,28 +14,24 @@ public partial class DefinitionManagerViewModel
 {
     private readonly DefinitionManagerService _definitionManager;
     private readonly GlobalState _globalState;
-    private readonly IFileInfoFactory _fileFactory;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
-    private readonly IFileUtilsService _fileUtilsService;
-
+    private readonly IViewportDefinitionLoaderService _viewportDefinitionLoaderService;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanDeleteDefinition))]
     private ViewportDefinition _selectedDefinition;
 
     public DefinitionManagerViewModel(DefinitionManagerService definitionManager,
                                       GlobalState globalState,
-                                      IFileInfoFactory fileFactory,
                                       IModalService modalService,
                                       ILogService logService,
-                                      IFileUtilsService fileUtilsService)
+                                      IViewportDefinitionLoaderService viewportDefinitionLoaderService)
     {
         _definitionManager = definitionManager;
         _globalState = globalState;
-        _fileFactory = fileFactory;
         _modalService = modalService;
         _logService = logService;
-        _fileUtilsService = fileUtilsService;
+        _viewportDefinitionLoaderService = viewportDefinitionLoaderService;
         _selectedDefinition = definitionManager.CurrentViewportDefinition;
     }
 
@@ -49,59 +41,34 @@ public partial class DefinitionManagerViewModel
     [RelayCommand]
     private void OnImportDefinition()
     {
-        FileDialogResult result = showDialog();
-        if (!result.Result)
+        if (!isDefinitionFileConfirmedFromFileDialog(out string path))
             return;
         try
         {
-            string input = _fileUtilsService.ReadAllText(result.SelectedFilePath);
-            ViewportDefinition definition = deserialize(input);
-            copyFileToDefinitionFolder(result.SelectedFilePath);
+            ViewportDefinition definition = _viewportDefinitionLoaderService.ImportDefinitionFile(path);
             ViewportDefinitions.Add(definition);
         }
-        catch (Exception e) { handleError(e); }
+        catch (Exception e) { handleException(e); }
 
-        void handleError(Exception e)
+        bool isDefinitionFileConfirmedFromFileDialog(out string path)
         {
-            string msg = $"Cannot import definition:\n" +
-                         $"{e.Message}\n" +
-                          "See \"Debug Log\" window for more details";
-            _logService.Log(msg, LogStatus.Error);
-            _logService.Log(e.Message);
-            _logService.Log("Exception Details:");
-            _logService.Log(e.ToString());
-            _logService.Log("Importing definition aborted", LogStatus.Aborted, true);
-            _modalService.ShowErrorMessageBox(new MessageBoxArg()
-            {
-                Caption = "Error Importing Definition",
-                Message = msg,
-            });
-        }
-
-        static ViewportDefinition deserialize(string input)
-        {
-            ViewportDefinition? definition = JsonSerializer.Deserialize<ViewportDefinition>(input);
-            if (definition is null)
-                throw new NullReferenceException("Definition is null");
-            return definition;
-        }
-
-        void copyFileToDefinitionFolder(string path)
-        {
-            IFileInfo originalFile = _fileFactory.Create(path);
-            string targetDirectory = $"{_globalState.CurrentPath}\\Definitions";
-            string targetCopyPath = $"{targetDirectory}\\{originalFile.Name}";
-            _fileUtilsService.CreateDirectory(targetDirectory);
-            _fileUtilsService.Copy(path, targetCopyPath);
-        }
-
-        FileDialogResult showDialog()
-        {
-            return _modalService.ShowOpenFileDialog(new FileDialogArg()
+            FileDialogResult dialogResult = _modalService.ShowOpenFileDialog(new FileDialogArg()
             {
                 FileExtension = ".json",
                 FileExtensionFilter = "JSON File|*.json",
                 FileName = ""
+            });
+            path = dialogResult.SelectedFilePath;
+            return dialogResult.Result;
+        }
+
+        void handleException(Exception e)
+        {
+            _logService.LogException("Cannot import definition", e, "Importing definition aborted");
+            _modalService.ShowErrorMessageBox(new MessageBoxArg()
+            {
+                Caption = "Error Importing Definition",
+                Message = e.Message,
             });
         }
     }
