@@ -124,7 +124,7 @@
                                                 BorderBrush="{StaticResource TextNormal}"
                                                 Background="#88000000">
                                             <reusables:PropertyValuePairView PropertyText="Region" 
-                                                                             ValueText="{Binding RegionCoords}"/>
+                                                                             ValueText="{Binding RegionData.Coords}"/>
                                         </Border>
                                     </Grid>
                                 </Grid>
