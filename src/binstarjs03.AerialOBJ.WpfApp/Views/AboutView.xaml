@@ -70,7 +70,7 @@
         <Button Content="Close" 
                 Grid.Row="2"
                 Width="90"
-                Command="{Binding Path=AbstractViewModel.CloseCommand, Source={StaticResource AppResource}}"
+                Command="{Binding Path=AbstractViewModel.CloseCommand, Source={StaticResource ViewModelLocator}}"
                 CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
     </Grid>
 </Window>

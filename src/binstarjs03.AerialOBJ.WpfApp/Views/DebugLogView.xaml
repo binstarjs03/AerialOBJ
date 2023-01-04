@@ -24,7 +24,7 @@
                     <MenuItem Header="Clear"
                               Command="{Binding ClearLogCommand}"/>
                     <MenuItem Header="Close"
-                              Command="{Binding Path=AbstractViewModel.CloseCommand, Source={StaticResource AppResource}}"
+                              Command="{Binding Path=AbstractViewModel.CloseCommand, Source={StaticResource ViewModelLocator}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
                 </MenuItem>
             </Menu>
