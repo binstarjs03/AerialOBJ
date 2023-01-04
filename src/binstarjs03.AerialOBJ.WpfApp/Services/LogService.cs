@@ -45,4 +45,15 @@ public class LogService : ILogService
         Log($"CPU cores count: {Environment.ProcessorCount}");
         Log($".NET Runtime Version: {Environment.Version}", useSeparator: true);
     }
+
+    public void LogException(string message, Exception e, string? operationAbortedMessage = null)
+    {
+        Log(e.Message, LogStatus.Error);
+        Log("Exception Details:");
+        Log(e.ToString());
+        if (operationAbortedMessage is not null)
+            Log(operationAbortedMessage, LogStatus.Aborted, true);
+        else
+            Log(""); // log newline separator
+    }
 }
