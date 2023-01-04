@@ -5,6 +5,7 @@ using System.Text.Json;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
@@ -16,6 +17,8 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public partial class DefinitionManagerViewModel
 {
     private readonly DefinitionManagerService _definitionManager;
+    private readonly GlobalState _globalState;
+    private readonly IFileInfoFactory _fileFactory;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
     private readonly IFileUtilsService _fileUtilsService;
@@ -25,11 +28,15 @@ public partial class DefinitionManagerViewModel
     private ViewportDefinition _selectedDefinition;
 
     public DefinitionManagerViewModel(DefinitionManagerService definitionManager,
+                                      GlobalState globalState,
+                                      IFileInfoFactory fileFactory,
                                       IModalService modalService,
                                       ILogService logService,
                                       IFileUtilsService fileUtilsService)
     {
         _definitionManager = definitionManager;
+        _globalState = globalState;
+        _fileFactory = fileFactory;
         _modalService = modalService;
         _logService = logService;
         _fileUtilsService = fileUtilsService;
@@ -47,23 +54,17 @@ public partial class DefinitionManagerViewModel
             return;
         try
         {
-            checkFileExistence(result);
             string input = _fileUtilsService.ReadAllText(result.SelectedFilePath);
             ViewportDefinition definition = deserialize(input);
+            copyFileToDefinitionFolder(result.SelectedFilePath);
             ViewportDefinitions.Add(definition);
         }
         catch (Exception e) { handleError(e); }
 
         void handleError(Exception e)
         {
-            string reason;
-            if (e is FileNotFoundException)
-                reason = "the file do not exist in given path";
-            else if (e is JsonException)
-                reason = "the JSON structure mismatched";
-            else
-                reason = "of unhandled exception";
-            string msg = $"Cannot import definition because {reason}.\n" +
+            string msg = $"Cannot import definition:\n" +
+                         $"{e.Message}\n" +
                           "See \"Debug Log\" window for more details";
             _logService.Log(msg, LogStatus.Error);
             _logService.Log(e.Message);
@@ -77,6 +78,23 @@ public partial class DefinitionManagerViewModel
             });
         }
 
+        static ViewportDefinition deserialize(string input)
+        {
+            ViewportDefinition? definition = JsonSerializer.Deserialize<ViewportDefinition>(input);
+            if (definition is null)
+                throw new NullReferenceException("Definition is null");
+            return definition;
+        }
+
+        void copyFileToDefinitionFolder(string path)
+        {
+            IFileInfo originalFile = _fileFactory.Create(path);
+            string targetDirectory = $"{_globalState.CurrentPath}\\Definitions";
+            string targetCopyPath = $"{targetDirectory}\\{originalFile.Name}";
+            _fileUtilsService.CreateDirectory(targetDirectory);
+            _fileUtilsService.Copy(path, targetCopyPath);
+        }
+
         FileDialogResult showDialog()
         {
             return _modalService.ShowOpenFileDialog(new FileDialogArg()
@@ -85,20 +103,6 @@ public partial class DefinitionManagerViewModel
                 FileExtensionFilter = "JSON File|*.json",
                 FileName = ""
             });
-        }
-
-        void checkFileExistence(FileDialogResult result)
-        {
-            if (!_fileUtilsService.Exist(result.SelectedFilePath))
-                throw new FileNotFoundException("File do not exist in given path", result.SelectedFilePath);
-        }
-
-        static ViewportDefinition deserialize(string input)
-        {
-            ViewportDefinition? definition = JsonSerializer.Deserialize<ViewportDefinition>(input);
-            if (definition is null)
-                throw new NullReferenceException("Definition is null");
-            return definition;
         }
     }
 
