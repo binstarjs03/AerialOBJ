@@ -1,44 +1,53 @@
 ﻿using System;
 using System.Windows;
 
-using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
 {
-    public IHost Host { get; } = AppHost.Configure();
+    public IServiceProvider ServiceProvider { get; } = ServiceConfiguration.Configure();
     public static new App Current => (Application.Current as App)!;
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
-        await Host.StartAsync();
-
         ShutdownMode = ShutdownMode.OnMainWindowClose;
-        MainView mainView = Host.Services.GetRequiredService<MainView>();
-        MainWindow = mainView;
-        MainWindow.Show();
 
-        DebugLogView debugLogView = Host.Services.GetRequiredService<DebugLogView>();
+        MainWindow = GetMainWindow();
+        MainWindow.Show();
+        if (MainWindow is MainView mainView)
+            ConfigureDebugLogWindow(mainView);
+
+        InitializeLogService();
+        InitializeViewState();
+    }
+
+    private Window GetMainWindow()
+    {
+        return ServiceProvider.GetRequiredService<MainView>();
+    }
+    private void ConfigureDebugLogWindow(MainView mainView)
+    {
+        DebugLogView debugLogView = ServiceProvider.GetRequiredService<DebugLogView>();
         debugLogView.Owner = mainView;
         mainView.DebugViewSyncPositionRequested += debugLogView.SetTopLeft;
         mainView.RequestDebugViewsSyncPosition();
-
-        ILogService logService = Host.Services.GetRequiredService<ILogService>();
-        logService.LogRuntimeInfo();
-
-#if DEBUG
-        ViewState viewState = Host.Services.GetRequiredService<ViewState>();
-        viewState.IsDebugLogWindowVisible = true;
-#endif
     }
 
-    protected override async void OnExit(ExitEventArgs e)
+    void InitializeLogService()
     {
-        await Host.StopAsync();
+        ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
+        logService.LogRuntimeInfo();
+    }
+
+    private void InitializeViewState()
+    {
+#if DEBUG // TODO refactor if "debug" is in command-line arg
+        ViewState viewState = ServiceProvider.GetRequiredService<ViewState>();
+        viewState.IsDebugLogWindowVisible = true;
+#endif
     }
 }

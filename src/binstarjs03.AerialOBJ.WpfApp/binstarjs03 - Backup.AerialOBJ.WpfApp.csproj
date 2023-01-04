@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<BaseOutputPath></BaseOutputPath>
+		<BaseOutputPath>bin\</BaseOutputPath>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
 		<RetainVMGarbageCollection>true</RetainVMGarbageCollection>
 	</PropertyGroup>

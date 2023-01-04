@@ -7,7 +7,7 @@ public class AppResourceBootstrapper
 {
 	public AppResourceBootstrapper()
 	{
-		AbstractViewModel = App.Current?.Host.Services.GetRequiredService<AbstractViewModel>()!;
+		AbstractViewModel = App.Current?.ServiceProvider.GetRequiredService<AbstractViewModel>()!;
 	}
 
 	public AbstractViewModel AbstractViewModel { get; }
