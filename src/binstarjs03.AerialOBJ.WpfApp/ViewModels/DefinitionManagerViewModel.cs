@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
@@ -17,18 +18,21 @@ public partial class DefinitionManagerViewModel
     private readonly DefinitionManagerService _definitionManager;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
+    private readonly IFileUtilsService _fileUtilsService;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanDeleteDefinition))] 
+    [NotifyPropertyChangedFor(nameof(CanDeleteDefinition))]
     private ViewportDefinition _selectedDefinition;
 
     public DefinitionManagerViewModel(DefinitionManagerService definitionManager,
                                       IModalService modalService,
-                                      ILogService logService)
+                                      ILogService logService,
+                                      IFileUtilsService fileUtilsService)
     {
         _definitionManager = definitionManager;
         _modalService = modalService;
         _logService = logService;
+        _fileUtilsService = fileUtilsService;
         _selectedDefinition = definitionManager.CurrentViewportDefinition;
     }
 
@@ -38,38 +42,30 @@ public partial class DefinitionManagerViewModel
     [RelayCommand]
     private void OnImportDefinition()
     {
-        FileDialogResult result = _modalService.ShowOpenFileDialog(new FileDialogArg()
-        {
-            FileExtension = ".json",
-            FileExtensionFilter = "JSON File|*.json",
-            FileName = ""
-        });
+        FileDialogResult result = showDialog();
         if (!result.Result)
             return;
-        string input = File.ReadAllText(result.SelectedFilePath);
         try
         {
-            ViewportDefinition? definition = JsonSerializer.Deserialize<ViewportDefinition>(input);
-            if (definition is null)
-                throw new NullReferenceException("Definition is null");
+            checkFileExistence(result);
+            string input = _fileUtilsService.ReadAllText(result.SelectedFilePath);
+            ViewportDefinition definition = deserialize(input);
             ViewportDefinitions.Add(definition);
         }
-        catch (JsonException e)
-        {
-            string msg = "Cannot import definition because the JSON structure mismatched.\n" +
-                "See \"Debug Log\" window for more details";
-            handleError(msg, e);
-        }
-        catch (Exception e)
-        {
-            string msg = "Cannot import definition because of unhandled exception.\n" +
-                "See \"Debug Log\" window for more details";
-            handleError(msg, e);
-        }
+        catch (Exception e) { handleError(e); }
 
-        void handleError(string message, Exception e)
+        void handleError(Exception e)
         {
-            _logService.Log(message, LogStatus.Error);
+            string reason;
+            if (e is FileNotFoundException)
+                reason = "the file do not exist in given path";
+            else if (e is JsonException)
+                reason = "the JSON structure mismatched";
+            else
+                reason = "of unhandled exception";
+            string msg = $"Cannot import definition because {reason}.\n" +
+                          "See \"Debug Log\" window for more details";
+            _logService.Log(msg, LogStatus.Error);
             _logService.Log(e.Message);
             _logService.Log("Exception Details:");
             _logService.Log(e.ToString());
@@ -77,8 +73,32 @@ public partial class DefinitionManagerViewModel
             _modalService.ShowErrorMessageBox(new MessageBoxArg()
             {
                 Caption = "Error Importing Definition",
-                Message = message,
+                Message = msg,
             });
+        }
+
+        FileDialogResult showDialog()
+        {
+            return _modalService.ShowOpenFileDialog(new FileDialogArg()
+            {
+                FileExtension = ".json",
+                FileExtensionFilter = "JSON File|*.json",
+                FileName = ""
+            });
+        }
+
+        void checkFileExistence(FileDialogResult result)
+        {
+            if (!_fileUtilsService.Exist(result.SelectedFilePath))
+                throw new FileNotFoundException("File do not exist in given path", result.SelectedFilePath);
+        }
+
+        static ViewportDefinition deserialize(string input)
+        {
+            ViewportDefinition? definition = JsonSerializer.Deserialize<ViewportDefinition>(input);
+            if (definition is null)
+                throw new NullReferenceException("Definition is null");
+            return definition;
         }
     }
 
