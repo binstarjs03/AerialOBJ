@@ -57,42 +57,28 @@ public partial class MainViewModel
     [RelayCommand]
     private void OpenSavegame(string? path)
     {
-        if (path is null)
-        {
-            _logService.Log("Attempting to load savegame...");
-            FolderDialogResult result = _modalService.ShowFolderBrowserDialog();
-            if (!result.Result)
-            {
-                _logService.Log("Dialog cancelled. Loading savegame aborted",
-                                LogStatus.Aborted,
-                                useSeparator: true);
-                return;
-            }
-            path = result.SelectedDirectoryPath;
-        }
-        _logService.Log($"Selected path: \"{path}\"");
-        _logService.Log($"Loading selected path as Minecraft savegame folder...");
+        if (path is null && !isPathConfirmedFromBrowserDialog(out path))
+            return;
         try
         {
             SavegameLoadInfo loadInfo = _savegameLoaderService.LoadSavegame(path);
             // close savegame if already loaded
             if (GlobalState.HasSavegameLoaded)
-            {
-                _logService.Log("Savegame already loaded, closing...");
                 CloseSavegame(CloseSavegameSender.OpenSavegameCommand);
-            }
             GlobalState.SavegameLoadInfo = loadInfo;
-            _logService.Log($"Successfully loaded {loadInfo.WorldName}", useSeparator: true);
         }
-        catch (Exception e)
-        {
-            _logService.Log(e.Message, LogStatus.Error);
-            _logService.Log("Exception Details:");
-            _logService.Log(e.ToString());
-            _logService.Log("Loading savegame aborted",
-                            LogStatus.Aborted,
-                            useSeparator: true);
+        catch (Exception e) { handleException(e); }
 
+        bool isPathConfirmedFromBrowserDialog(out string path)
+        {
+            FolderDialogResult result = _modalService.ShowFolderBrowserDialog();
+            path = result.SelectedDirectoryPath;
+            return result.Result;
+        }
+
+        void handleException(Exception e)
+        {
+            _logService.LogException($"Cannot open {path}", e, "Loading savegame aborted");
             _modalService.ShowErrorMessageBox(new MessageBoxArg()
             {
                 Caption = "Error Opening Minecraft Savegame",
@@ -104,14 +90,7 @@ public partial class MainViewModel
     [RelayCommand]
     private void CloseSavegame(CloseSavegameSender sender)
     {
-        // default worldname if there is no savegame loaded
-        string worldName = "savegame";
-        if (GlobalState.SavegameLoadInfo is not null)
-            worldName = GlobalState.SavegameLoadInfo.WorldName;
-
         GlobalState.SavegameLoadInfo = null;
-        bool useSeparator = sender == CloseSavegameSender.MenuCloseButton;
-        _logService.Log($"Successfully closed {worldName}", useSeparator);
     }
 
     [RelayCommand]
@@ -123,27 +102,21 @@ public partial class MainViewModel
     }
 
     [RelayCommand]
-    private void ShowAboutModal()
-    {
-        _modalService.ShowAboutView();
-    }
+    private void ShowAboutModal() => _modalService.ShowAboutView();
 
     [RelayCommand]
-    private void ShowDefinitionManagerModal()
-    {
-        _modalService.ShowDefinitionManagerView();
-    }
+    private void ShowDefinitionManagerModal() => _modalService.ShowDefinitionManagerView();
 
 }
 
-    public enum CloseSavegameSender
-    {
-        OpenSavegameCommand,
-        MenuCloseButton,
-    }
+public enum CloseSavegameSender
+{
+    OpenSavegameCommand,
+    MenuCloseButton,
+}
 
-    public enum CloseViewSender
-    {
-        WindowCloseButton,
-        MenuExitButton,
-    }
+public enum CloseViewSender
+{
+    WindowCloseButton,
+    MenuExitButton,
+}
