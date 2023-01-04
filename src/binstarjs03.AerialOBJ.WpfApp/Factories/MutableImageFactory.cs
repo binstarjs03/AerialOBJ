@@ -15,7 +15,6 @@ public class MutableImageFactory : IMutableImageFactory
             return new MutableImage(size);
         else
         {
-            // TODO Inconsistency with RegionLoaderService, this one is throwing but RegionLoaderService is returning null
             MutableImage? result = App.Current.Dispatcher.Invoke(() => new MutableImage(size), DispatcherPriority.Background, cancellationToken);
             if (result is null)
                 throw new TaskCanceledException();

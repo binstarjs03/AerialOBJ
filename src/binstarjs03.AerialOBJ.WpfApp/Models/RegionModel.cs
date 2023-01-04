@@ -6,7 +6,6 @@ namespace binstarjs03.AerialOBJ.WpfApp.Models;
 public class RegionModel
 {
     public required Region RegionData { get; init; }
-    public required Point2Z<int> RegionCoords { get; init; }
-    public Point2<float> WorldCoords => new(RegionCoords.X * Region.BlockCount, RegionCoords.Z * Region.BlockCount);
+    public Point2<float> WorldCoords => new(RegionData.Coords.X * Region.BlockCount, RegionData.Coords.Z * Region.BlockCount);
     public required IMutableImage RegionImage { get; init; }
 }

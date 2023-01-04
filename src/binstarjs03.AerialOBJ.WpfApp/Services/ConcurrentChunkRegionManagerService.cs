@@ -293,7 +293,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         RegionModel region;
         try
         {
-            region = _regionModelFactory.Create(regionData.Coords, regionData, _cts.Token);
+            region = _regionModelFactory.Create(regionData, _cts.Token);
         }
         catch (TaskCanceledException) { return; }
         region.RegionImage.Redraw();
@@ -318,7 +318,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             RegionUnloaded?.Invoke(region);
         else
             App.Current.Dispatcher.InvokeAsync(() => RegionUnloaded?.Invoke(region), DispatcherPriority.Render);
-        _loadedRegions.Remove(region.RegionCoords);
+        _loadedRegions.Remove(region.RegionData.Coords);
     }
 
     private void ManageChunks()

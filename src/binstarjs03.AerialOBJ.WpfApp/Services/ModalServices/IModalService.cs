@@ -3,11 +3,11 @@ public interface IModalService
 {
     void ShowMessageBox(MessageBoxArg dialogArg);
     void ShowErrorMessageBox(MessageBoxArg dialogArg);
-    void ShowAbout();
-    void ShowDefinitionManager();
+    bool ShowConfirmationBox(MessageBoxArg dialogArg);
+    void ShowAboutView();
+    void ShowDefinitionManagerView();
     FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg);
     FileDialogResult ShowOpenFileDialog(FileDialogArg dialogArg);
     FolderDialogResult ShowFolderBrowserDialog();
-    bool ShowConfirmationDialog(MessageBoxArg dialogArg);
 }
 

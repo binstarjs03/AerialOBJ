@@ -59,12 +59,16 @@ public partial class ViewportViewModel
     // Region Images
     [ObservableProperty] private ObservableCollection<RegionModel> _regionModels = new();
 
-    public ViewportViewModel(GlobalState globalState, IChunkRegionManagerService chunkRegionManagerService, ILogService logService, DefinitionManagerService definitionManager)
+    public ViewportViewModel(GlobalState globalState,
+                             IChunkRegionManagerService chunkRegionManagerService,
+                             ILogService logService,
+                             DefinitionManagerService definitionManager)
     {
         GlobalState = globalState;
         _chunkRegionManagerService = chunkRegionManagerService;
         _logService = logService;
         _definitionManager = definitionManager;
+
         GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
         _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;

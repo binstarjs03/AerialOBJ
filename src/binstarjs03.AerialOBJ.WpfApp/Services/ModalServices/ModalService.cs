@@ -31,15 +31,15 @@ public class ModalService : IModalService
         MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
-    public bool ShowConfirmationDialog(MessageBoxArg dialogArg)
+    public bool ShowConfirmationBox(MessageBoxArg dialogArg)
     {
         MessageBoxResult result = MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OKCancel, MessageBoxImage.Question);
         return result == MessageBoxResult.OK;
     }
 
-    public void ShowAbout() => _aboutViewFactory().ShowDialog();
+    public void ShowAboutView() => _aboutViewFactory().ShowDialog();
 
-    public void ShowDefinitionManager() => _definitionManagerViewFactory().ShowDialog();
+    public void ShowDefinitionManagerView() => _definitionManagerViewFactory().ShowDialog();
 
     public FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg)
     {

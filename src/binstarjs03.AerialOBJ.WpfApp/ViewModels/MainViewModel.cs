@@ -20,7 +20,12 @@ public partial class MainViewModel
     [ObservableProperty]
     private string _title = GlobalState.AppName;
 
-    public MainViewModel(GlobalState globalState, ViewState viewState, IModalService modalService, ILogService logService, ISavegameLoaderService savegameLoaderService, IView viewportView)
+    public MainViewModel(GlobalState globalState,
+                         ViewState viewState,
+                         IModalService modalService,
+                         ILogService logService,
+                         ISavegameLoaderService savegameLoaderService,
+                         IView viewportView)
     {
         GlobalState = globalState;
         ViewState = viewState;
@@ -120,13 +125,13 @@ public partial class MainViewModel
     [RelayCommand]
     private void ShowAboutModal()
     {
-        _modalService.ShowAbout();
+        _modalService.ShowAboutView();
     }
 
     [RelayCommand]
     private void ShowDefinitionManagerModal()
     {
-        _modalService.ShowDefinitionManager();
+        _modalService.ShowDefinitionManagerView();
     }
 
 }

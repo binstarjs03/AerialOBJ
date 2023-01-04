@@ -17,9 +17,14 @@ public partial class DefinitionManagerViewModel
     private readonly DefinitionManagerService _definitionManager;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(CanDeleteDefinition))] private ViewportDefinition _selectedDefinition;
 
-    public DefinitionManagerViewModel(DefinitionManagerService definitionManager, IModalService modalService, ILogService logService)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanDeleteDefinition))] 
+    private ViewportDefinition _selectedDefinition;
+
+    public DefinitionManagerViewModel(DefinitionManagerService definitionManager,
+                                      IModalService modalService,
+                                      ILogService logService)
     {
         _definitionManager = definitionManager;
         _modalService = modalService;
@@ -80,7 +85,7 @@ public partial class DefinitionManagerViewModel
     [RelayCommand]
     private void OnDeleteDefinition()
     {
-        bool result = _modalService.ShowConfirmationDialog(new MessageBoxArg()
+        bool result = _modalService.ShowConfirmationBox(new MessageBoxArg()
         {
             Caption = "Confirm Deleting Definition",
             Message = $"Are you sure to delete definition {SelectedDefinition.Name}?\n" +

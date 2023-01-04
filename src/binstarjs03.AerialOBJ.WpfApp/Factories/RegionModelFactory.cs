@@ -14,12 +14,11 @@ public class RegionModelFactory
         _mutableImageFactory = mutableImageFactory;
     }
 
-    public RegionModel Create(Point2Z<int> regionPosition, Region regionData, CancellationToken cancellationToken)
+    public RegionModel Create(Region regionData, CancellationToken cancellationToken)
     {
         return new RegionModel()
         {
             RegionData = regionData,
-            RegionCoords = regionPosition,
             RegionImage = _mutableImageFactory.Create(new Size<int>(Region.BlockCount, Region.BlockCount), cancellationToken),
         };
     }

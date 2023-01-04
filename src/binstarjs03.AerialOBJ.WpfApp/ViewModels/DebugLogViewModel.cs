@@ -13,7 +13,11 @@ public partial class DebugLogViewModel
     private readonly IModalService _modalService;
     private readonly IIOService _iOService;
 
-    public DebugLogViewModel(GlobalState globalState, ViewState viewState, ILogService logService, IModalService modalService, IIOService iOService)
+    public DebugLogViewModel(GlobalState globalState,
+                             ViewState viewState,
+                             ILogService logService,
+                             IModalService modalService,
+                             IIOService iOService)
     {
         GlobalState = globalState;
         ViewState = viewState;
