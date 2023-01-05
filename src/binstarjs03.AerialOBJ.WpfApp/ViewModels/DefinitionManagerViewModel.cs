@@ -13,40 +13,33 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public partial class DefinitionManagerViewModel
 {
     private readonly IDefinitionManagerService _definitionManager;
-    private readonly GlobalState _globalState;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
-    private readonly IViewportDefinitionLoaderService _viewportDefinitionLoaderService;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanDeleteDefinition))]
     private ViewportDefinition _selectedDefinition;
 
     public DefinitionManagerViewModel(IDefinitionManagerService definitionManager,
-                                      GlobalState globalState,
                                       IModalService modalService,
-                                      ILogService logService,
-                                      IViewportDefinitionLoaderService viewportDefinitionLoaderService)
+                                      ILogService logService)
     {
         _definitionManager = definitionManager;
-        _globalState = globalState;
         _modalService = modalService;
         _logService = logService;
-        _viewportDefinitionLoaderService = viewportDefinitionLoaderService;
         _selectedDefinition = definitionManager.CurrentViewportDefinition;
     }
 
-    public ObservableCollection<ViewportDefinition> ViewportDefinitions => _definitionManager.ViewportDefinitions;
+    public ObservableCollection<ViewportDefinition> LoadedViewportDefinitions => _definitionManager.LoadedViewportDefinitions;
     public bool CanDeleteDefinition => SelectedDefinition != _definitionManager.DefaultViewportDefinition;
 
     [RelayCommand]
-    private void OnImportDefinition()
+    private void ImportDefinition()
     {
         if (!isDefinitionFileConfirmedFromFileDialog(out string path))
             return;
         try
         {
-            ViewportDefinition definition = _viewportDefinitionLoaderService.ImportDefinitionFile(path);
-            _definitionManager.LoadViewportDefinition(definition);
+            _definitionManager.ImportDefinitionFile(path);
         }
         catch (Exception e) { handleException(e); }
 
@@ -74,7 +67,7 @@ public partial class DefinitionManagerViewModel
     }
 
     [RelayCommand]
-    private void OnDeleteDefinition()
+    private void DeleteDefinition()
     {
         bool result = _modalService.ShowConfirmationBox(new MessageBoxArg()
         {
@@ -83,7 +76,13 @@ public partial class DefinitionManagerViewModel
                        "This cannot be undone"
         });
         if (result)
-            ViewportDefinitions.Remove(SelectedDefinition);
+            LoadedViewportDefinitions.Remove(SelectedDefinition);
         SelectedDefinition = _definitionManager.DefaultViewportDefinition;
+    }
+
+    [RelayCommand]
+    private void Close()
+    {
+        _definitionManager.CurrentViewportDefinition = SelectedDefinition;
     }
 }

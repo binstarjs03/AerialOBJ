@@ -18,7 +18,7 @@ public class DefinitionManagerService : IDefinitionManagerService
                                     ILogService logService,
                                     IModalService modalService)
     {
-        ViewportDefinitions = new ObservableCollection<ViewportDefinition>
+        LoadedViewportDefinitions = new ObservableCollection<ViewportDefinition>
         {
             DefaultViewportDefinition,
         };
@@ -38,16 +38,24 @@ public class DefinitionManagerService : IDefinitionManagerService
                 return;
             OnViewportDefinitionChanging?.Invoke();
             _currentDefinition = value;
+            OnViewportDefinitionChanged?.Invoke();
         }
 
     }
-    public ObservableCollection<ViewportDefinition> ViewportDefinitions { get; private set; }
+    public ObservableCollection<ViewportDefinition> LoadedViewportDefinitions { get; private set; }
 
     public event Action? OnViewportDefinitionChanging;
+    public event Action? OnViewportDefinitionChanged;
+
+    public void ImportDefinitionFile(string path)
+    {
+        ViewportDefinition definition = _viewportDefinitionLoaderService.ImportDefinitionFile(path);
+        LoadViewportDefinition(definition);
+    }
 
     public void LoadViewportDefinition(ViewportDefinition definition)
     {
-        ViewportDefinitions.Add(definition);
+        LoadedViewportDefinitions.Add(definition);
     }
 
     public void LoadDefinitionFolder()

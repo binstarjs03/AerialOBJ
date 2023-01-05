@@ -30,15 +30,14 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _cts = new();
-    private Task _redrawTask = new(() => { });
-    private readonly int _chunkLoaderTasksLimit = 4;
 
     private readonly StructLock<bool> _isRegionLoaderTaskRunning = new() { Value = false };
     private Task _regionLoaderTask = new(() => { });
 
-    // TODO Integrate multi-threaded chunk loading
-    //private readonly StructLock<bool> _isChunkLoaderTaskRunning = new() { Value = false };
-    //private Task _chunkLoaderTask = new(() => { });
+    private readonly StructLock<bool> _isRedrawTaskRunning = new() { Value = false };
+    private Task _redrawTask = new(() => { });
+
+    private readonly int _chunkLoaderTasksLimit = 4;
     private readonly Dictionary<uint, Task> _chunkLoaderTasks = new(Environment.ProcessorCount);
     private readonly StructLock<uint> _newChunkLoaderTaskId = new() { Value = 0 };
 
@@ -608,23 +607,35 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         }
     }
 
-    public void OnSavegameOpened()
+    public void RequestStart()
     {
-        _redrawTask = new Task(RedrawLoop, TaskCreationOptions.LongRunning);
-        _redrawTask.Start();
+        StartBackgroundThreads();
     }
 
-    public void OnSavegameClosed()
+    public void RequestStop()
+    {
+        StopBackgroundThreads();
+        Reinitialize();
+    }
+
+    private void StartBackgroundThreads()
+    {
+        RunTaskNoDuplicate(RedrawLoop, ref _redrawTask, _isRedrawTaskRunning);
+    }
+
+    private void StopBackgroundThreads()
     {
         _cts.Cancel();
         _regionLoaderTask.Wait();
-        //_chunkLoaderTask.Wait();
         Task[] chunkLoaderTasks;
         lock (_chunkLoaderTasks)
             chunkLoaderTasks = _chunkLoaderTasks.Values.ToArray();
         Task.WaitAll(chunkLoaderTasks);
         _redrawTask.Wait();
+    }
 
+    private void Reinitialize()
+    {
         _visibleRegionRange.Value = new Point2ZRange<int>();
         _visibleChunkRange.Value = new Point2ZRange<int>();
 

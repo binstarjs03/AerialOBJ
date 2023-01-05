@@ -26,6 +26,6 @@ public interface IChunkRegionManagerService
 
     void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize);
     Block? GetBlock(Point2Z<int> blockCoords);
-    void OnSavegameOpened();
-    void OnSavegameClosed();
+    void RequestStart();
+    void RequestStop();
 }

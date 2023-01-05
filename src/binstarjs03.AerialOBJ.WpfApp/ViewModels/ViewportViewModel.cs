@@ -29,7 +29,7 @@ public partial class ViewportViewModel
 
     // viewport UI states
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))] 
+    [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))]
     private bool _isChunkGridVisible = false;
     [ObservableProperty] private bool _isInfoPanelVisible = false;
 
@@ -75,6 +75,8 @@ public partial class ViewportViewModel
         _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionLoaded;
         _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionUnloaded;
         _chunkRegionManagerService.RegionLoadingError += OnChunkRegionManagerService_RegionReadingError;
+        _definitionManager.OnViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
+        _definitionManager.OnViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
     }
 
     public GlobalState GlobalState { get; }
@@ -92,12 +94,8 @@ public partial class ViewportViewModel
     public int PendingChunksCount => _chunkRegionManagerService.PendingChunksCount;
     public int WorkedChunksCount => _chunkRegionManagerService.WorkedChunksCount;
 
-    // Update CRM Service, callback when these properties updated
-    private void UpdateChunkRegionManagerService()
-    {
-        if (GlobalState.HasSavegameLoaded)
-            _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
-    }
+    #region Event Handlers
+
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
     partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManagerService();
@@ -105,21 +103,11 @@ public partial class ViewportViewModel
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Opened)
-        {
-            _chunkRegionManagerService.OnSavegameOpened();
-            if (GetViewViewportSize is not null)
-                ScreenSize = GetViewViewportSize();
-            UpdateChunkRegionManagerService();
-        }
+            ReinitializeOnSavegameOpened();
         else if (state == SavegameLoadState.Closed)
-        {
-            _chunkRegionManagerService.OnSavegameClosed();
-            CameraPos = new Point2Z<float>(0, 0);
-            ZoomLevel = 0;
-            ScreenSize = new Size<int>(0, 0);
-            IsChunkGridVisible = false;
-            IsInfoPanelVisible = false;
-        }
+            ReinitializeOnSavegameClosed();
+        else
+            throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
 
     private void OnChunkRegionManagerService_RegionLoaded(RegionModel regionModel)
@@ -144,6 +132,52 @@ public partial class ViewportViewModel
             _logService.Log($"Skipped Region {regionCoords}: Unhandled exception occured:", LogStatus.Error);
             _logService.Log(e.ToString(), useSeparator: true);
         }
+    }
+
+    private void OnDefinitionManager_ViewportDefinitionChanging()
+    {
+        // We want to request for CRM service to stop so we can safely swap definition.
+
+        // if there is no open savegame, then there is no reason to stop
+        // CRM service (current implementation will wait on background thread,
+        // which is not run yet so deadblock will occur)
+        if (!GlobalState.HasSavegameLoaded)
+            return;
+        _chunkRegionManagerService.RequestStop();
+    }
+
+    private void OnDefinitionManager_ViewportDefinitionChanged()
+    {
+        if (!GlobalState.HasSavegameLoaded)
+            return;
+        _chunkRegionManagerService.RequestStart();
+        UpdateChunkRegionManagerService();
+    }
+
+    #endregion Event Handlers
+
+    private void ReinitializeOnSavegameOpened()
+    {
+        _chunkRegionManagerService.RequestStart();
+        if (GetViewViewportSize is not null)
+            ScreenSize = GetViewViewportSize();
+        UpdateChunkRegionManagerService();
+    }
+
+    private void ReinitializeOnSavegameClosed()
+    {
+        _chunkRegionManagerService.RequestStop();
+        CameraPos = new Point2Z<float>(0, 0);
+        ZoomLevel = 0;
+        ScreenSize = new Size<int>(0, 0);
+        IsChunkGridVisible = false;
+        IsInfoPanelVisible = false;
+    }
+
+    private void UpdateChunkRegionManagerService()
+    {
+        if (GlobalState.HasSavegameLoaded)
+            _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
     }
 
     #region Commands
