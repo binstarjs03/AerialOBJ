@@ -22,44 +22,94 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
-        <DockPanel>
-            <Menu IsMainMenu="True" 
-                  DockPanel.Dock="Top">
-                <MenuItem Header="File">
-                    <MenuItem Header="Open..."
-                              Command="{Binding OpenSavegameCommand}"/>
-                    <MenuItem Header="Close"
-                              Command="{Binding CloseSavegameCommand}"
-                              CommandParameter="{x:Static viewmodels:CloseSavegameSender.MenuCloseButton}"
-                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
-                    <MenuItem Header="Setting"/>
-                    <MenuItem Header="Manage Definitions.."
-                              Command="{Binding ShowDefinitionManagerModalCommand}"/>
-                    <MenuItem Header="Exit"
-                              Command="{Binding CloseCommand}"
-                              CommandParameter="{x:Static viewmodels:CloseViewSender.MenuExitButton}"/>
-                </MenuItem>
-                <MenuItem Header="View">
-                    <MenuItem Header="Chunk Grid"
-                              IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsChunkGridVisible, Mode=TwoWay}"
-                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
-                    <Separator/>
-                    <MenuItem Header="Viewport Info"
-                              IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsInfoPanelVisible, Mode=TwoWay}"
-                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
-                    <MenuItem Header="Debug Log" 
-                                  IsCheckable="True"
-                                  IsChecked="{Binding ViewState.IsDebugLogWindowVisible, Mode=TwoWay}"/>
-                </MenuItem>
-                <MenuItem Header="Help">
-                    <MenuItem Header="About..."
-                              Command="{Binding ShowAboutModalCommand}"/>
-                </MenuItem>
-            </Menu>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1"/>
+            <RowDefinition/>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0" 
+              IsMainMenu="True" 
+              x:Name="MainMenu"
+              DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Open..."
+                          Command="{Binding OpenSavegameCommand}"/>
+                <MenuItem Header="Close"
+                          Command="{Binding CloseSavegameCommand}"
+                          CommandParameter="{x:Static viewmodels:CloseSavegameSender.MenuCloseButton}"
+                          IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                <MenuItem Header="Setting"/>
+                <MenuItem Header="Manage Definitions.."
+                          Command="{Binding ShowDefinitionManagerModalCommand}"/>
+                <MenuItem Header="Exit"
+                          Command="{Binding CloseCommand}"
+                          CommandParameter="{x:Static viewmodels:CloseViewSender.MenuExitButton}"/>
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Chunk Grid"
+                          IsCheckable="True"
+                          IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsChunkGridVisible, Mode=TwoWay}"
+                          IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                <Separator/>
+                <MenuItem Header="Viewport Info"
+                          IsCheckable="True"
+                          IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsInfoPanelVisible, Mode=TwoWay}"
+                          IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                <MenuItem Header="Debug Log" 
+                          IsCheckable="True"
+                          IsChecked="{Binding ViewState.IsDebugLogWindowVisible, Mode=TwoWay}"/>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About..."
+                          Command="{Binding ShowAboutModalCommand}"/>
+            </MenuItem>
+        </Menu>
+        <Rectangle Grid.Row="1" Height="1" Fill="LightGray" DockPanel.Dock="top"/>
+        <Grid Grid.Row="2" 
+              Background="{Binding ElementName=MainMenu, Path=Background}"
+              IsEnabled="{Binding GlobalState.HasSavegameLoaded}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" 
+                        Margin="10,5"
+                        Orientation="Vertical"
+                        HorizontalAlignment="Center">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
+                <TextBlock Text="Height"/>
+                <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.HeightLevel}"/>
+            </StackPanel>
+            <Slider Grid.Column="1"
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Name="HeightSlider"
+                    SmallChange="1" 
+                    Value="{Binding ElementName=Viewport, Path=Content.DataContext.HeightLevel}"
+                    IsSnapToTickEnabled="True" 
+                    Minimum="{Binding ElementName=Viewport, Path=Content.DataContext.LowHeightLimit}"
+                    Maximum="{Binding ElementName=Viewport, Path=Content.DataContext.HighHeightLimit}"/>
+        </Grid>
+        <Rectangle Grid.Row="3" Height="1" Fill="LightGray" DockPanel.Dock="top"/>
+        <ContentControl Grid.Row="4" 
+                        Content="{Binding ViewportView}" 
+                        x:Name="Viewport"
+                        d:Background="{StaticResource Background}"
+                        IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+        <Rectangle Grid.Row="5" Height="1" Fill="LightGray" DockPanel.Dock="top"/>
+        <Grid Grid.Row="6">
             <StatusBar DockPanel.Dock="Bottom"
-                       Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+                   d:Visibility="Collapsed"
+                   Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <StatusBar.Resources>
                     <Style TargetType="reusables:PropertyValuePairView">
                         <Setter Property="PropertyColor" Value="Black"/>
@@ -77,13 +127,10 @@
                 <reusables:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockCoords}"/>
             </StatusBar>
             <StatusBar DockPanel.Dock="Bottom"
-                       Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
+                    Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
-            <!--local:ViewportView x:Name="Viewport" IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/-->
-            <ContentControl Content="{Binding ViewportView}" 
-                            x:Name="Viewport"
-                            IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
-        </DockPanel>
+        </Grid>
+        
     </Grid>
 </Window>

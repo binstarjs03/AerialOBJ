@@ -51,6 +51,7 @@ public class SavegameLoaderService : ISavegameLoaderService
     // TODO refactor this to conform open-closed principle,
     // maybe use separate class for dataversion parser,
     // put it in a collection and iterate over which dataversion parser range it supports
+    // TODO we may create DataVersion class that contains what IChunk implementation it use, Level.dat parser, etc
     private static SavegameLoadInfo ParseLevelNbtStructure(NbtCompound levelNbt, string savegameDirectoryPath)
     {
         int dataVersion = GetDataVersion(levelNbt);

@@ -10,265 +10,228 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
              d:DesignWidth="500" d:DesignHeight="550">
-    <Grid>
-        <DockPanel>
-            <!--Height slider-->
-            <Grid DockPanel.Dock="Top" 
-                  Background="white"
-                  Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Hidden}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" 
-                            Margin="10,5"
-                            Orientation="Vertical"
-                            HorizontalAlignment="Center">
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <TextBlock Text="Height"/>
-                    <TextBlock Text="{Binding HeightLevel}"/>
-                </StackPanel>
-                <Slider Grid.Column="1"
-                        Margin="0,0,10,0"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Center"
-                        Name="HeightSlider"
-                        SmallChange="1" 
-                        Value="{Binding HeightLevel}"
-                        IsSnapToTickEnabled="True" 
-                        Minimum="{Binding LowHeightLimit}"
-                        Maximum="{Binding HighHeightLimit}"/>
-            </Grid>
+    <Grid Background="{StaticResource Background}"
+            Focusable="True"
+            ClipToBounds="True"
+            x:Name="Viewport">
+        <!--Control name is required for code-behind-->
 
-            <!--Viewport-->
-            <Grid Background="{StaticResource Background}"
-                  Focusable="True"
-                  ClipToBounds="True"
-                  x:Name="Viewport">
-                <!--Control name is required for code-behind-->
+        <!--Input Handler Bindings-->
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseMove">
+                <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseWheel">
+                <i:InvokeCommandAction Command="{Binding MouseWheelCommand}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseUp">
+                <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseDown">
+                <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseEnter">
+                <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseLeave">
+                <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="SizeChanged">
+                <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
 
-                <!--Input Handler Bindings-->
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseMove">
-                        <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
-                                               PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseWheel">
-                        <i:InvokeCommandAction Command="{Binding MouseWheelCommand}"
-                                               PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseUp">
-                        <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
-                                               PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseDown">
-                        <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
-                                               PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseEnter">
-                        <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseLeave">
-                        <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="SizeChanged">
-                        <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
-                                               PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-
-                <!--Disable events for all controls inside this grid-->
-                <Grid IsHitTestVisible="False">
-                    <Grid.Resources>
-                        <Style TargetType="reusables:PropertyValuePairView">
-                            <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
-                            <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
-                        </Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
-                        </Style>
-                    </Grid.Resources>
+        <!--Disable events for all controls inside this grid-->
+        <Grid IsHitTestVisible="False">
+            <Grid.Resources>
+                <Style TargetType="reusables:PropertyValuePairView">
+                    <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
+                    <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
+                </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
+                </Style>
+            </Grid.Resources>
                     
-                    <!--Minecraft Region Image-->
-                    <ItemsControl ItemsSource="{Binding RegionModels}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas ClipToBounds="True"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="models:RegionModel">
-                                <Grid>
-                                    <!--Region Image-->
-                                    <ContentControl Content="{Binding Image}" 
-                                                    RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                                    RenderOptions.EdgeMode="Aliased">
-                                        <ContentControl.Width>
-                                            <MultiBinding Converter="{StaticResource UnitMultiplier}">
-                                                <Binding Path="Image.Size.Width"/>
-                                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" 
-                                                         Path="DataContext.UnitMultiplier"/>
-                                            </MultiBinding>
-                                        </ContentControl.Width>
-                                    </ContentControl>
-                                    <!--Region Text Information-->
-                                    <Grid Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.IsRegionTextVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
-                                        <Border HorizontalAlignment="Left" 
-                                                VerticalAlignment="Top"
-                                                Margin="5"
-                                                Padding="2.5"
-                                                BorderThickness="1" 
-                                                BorderBrush="{StaticResource TextNormal}"
-                                                Background="#88000000">
-                                            <reusables:PropertyValuePairView PropertyText="Region" 
-                                                                             ValueText="{Binding Data.Coords}"/>
-                                        </Border>
-                                    </Grid>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <!--Image Positioning-->
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Left">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                            <Binding Path="Image.ImagePosition.X"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.X"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Width"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Canvas.Top">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                            <Binding Path="Image.ImagePosition.Y"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.Z"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Height"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                    </ItemsControl>
-
-                    <!--Draw Line Guides-->
-                    <Grid RenderOptions.BitmapScalingMode="NearestNeighbor"
-                          RenderOptions.EdgeMode="Aliased"
-                          Visibility="{Binding IsChunkGridVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
-                        <!--Chunk Grid-->
-                        <reusables:GridDrawerView GridSize="16" 
-                                                  GridThickness="1"
-                                                  GridColor="#20FFFFFF"
-                                                  CameraPos="{Binding CameraPos}" 
-                                                  UnitMultiplier="{Binding UnitMultiplier}"
-                                                  ScreenSize="{Binding ScreenSize}"/>
-                        <!--Region Grid-->
-                        <reusables:GridDrawerView GridSize="512" 
-                                                  GridThickness="1"
-                                                  GridColor="#60FFFFFF"
-                                                  CameraPos="{Binding CameraPos}" 
-                                                  UnitMultiplier="{Binding UnitMultiplier}"
-                                                  ScreenSize="{Binding ScreenSize}"/>
-                        <!--Horizontal Line-->
-                        <Line Stroke="White" StrokeThickness="1"
-                              X1="0" X2="{Binding ScreenSize.Width}" 
-                              Y2="{Binding RelativeSource={RelativeSource Self}, Path=Y1}">
-                            <Line.Y1>
-                                <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                    <Binding Source="{StaticResource Zero}"/>
-                                    <Binding Path="CameraPos.Z"/>
-                                    <Binding Path="UnitMultiplier"/>
-                                    <Binding Path="ScreenSize.Height"/>
-                                </MultiBinding>
-                            </Line.Y1>
-                        </Line>
-                        <!--Vertial Line-->
-                        <Line Stroke="White" StrokeThickness="1"
-                              Y1="0" Y2="{Binding ScreenSize.Height}" 
-                              X2="{Binding RelativeSource={RelativeSource Self}, Path=X1}">
-                            <Line.X1>
-                                <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                    <Binding Source="{StaticResource Zero}"/>
-                                    <Binding Path="CameraPos.X"/>
-                                    <Binding Path="UnitMultiplier"/>
-                                    <Binding Path="ScreenSize.Width"/>
-                                </MultiBinding>
-                            </Line.X1>
-                        </Line>
-                    </Grid>
-
-                    <!--Camera Position Guide (Center Dot)-->
-                    <Grid>
-                        <Grid >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="2"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition Height="2"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-
-                            <Rectangle Grid.Column="1" Grid.RowSpan="3" 
-                                       Fill="DimGray"
-                                       Height="15"/>
-                            <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
-                                       Fill="DimGray"
-                                       Width="15"/>
+            <!--Minecraft Region Image-->
+            <ItemsControl ItemsSource="{Binding RegionModels}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas ClipToBounds="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="models:RegionModel">
+                        <Grid>
+                            <!--Region Image-->
+                            <ContentControl Content="{Binding Image}" 
+                                            RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                            RenderOptions.EdgeMode="Aliased">
+                                <ContentControl.Width>
+                                    <MultiBinding Converter="{StaticResource UnitMultiplier}">
+                                        <Binding Path="Image.Size.Width"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" 
+                                                    Path="DataContext.UnitMultiplier"/>
+                                    </MultiBinding>
+                                </ContentControl.Width>
+                            </ContentControl>
+                            <!--Region Text Information-->
+                            <Grid Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.IsRegionTextVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+                                <Border HorizontalAlignment="Left" 
+                                        VerticalAlignment="Top"
+                                        Margin="5"
+                                        Padding="2.5"
+                                        BorderThickness="1" 
+                                        BorderBrush="{StaticResource TextNormal}"
+                                        Background="#88000000">
+                                    <reusables:PropertyValuePairView PropertyText="Region" 
+                                                                        ValueText="{Binding Data.Coords}"/>
+                                </Border>
+                            </Grid>
                         </Grid>
-                        <Ellipse Width="3" Height="3" Fill="White"/>
-                    </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <!--Image Positioning-->
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource WorldToScreen}">
+                                    <Binding Path="Image.ImagePosition.X"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.X"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Width"/>
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Canvas.Top">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource WorldToScreen}">
+                                    <Binding Path="Image.ImagePosition.Y"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.Z"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Height"/>
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
 
-                    <!--Viewport Info Panel-->
-                    <Border HorizontalAlignment="Left" 
-                            VerticalAlignment="Top"
-                            Margin="10"
-                            BorderThickness="1" 
-                            BorderBrush="{StaticResource TextNormal}"
-                            Background="#88000000"
-                            Visibility="{Binding IsInfoPanelVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
-
-                        <!--Info content-->
-                        <StackPanel HorizontalAlignment="Left" 
-                                    MinWidth="150"
-                                    Margin="5">
-                            <reusables:PropertyValuePairView PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
-                            <reusables:PropertyValuePairView PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
-                            <reusables:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/>
-                            <reusables:PropertyValuePairView PropertyText="Unit Multiplier : " ValueText="{Binding UnitMultiplier}"/>
-                            <reusables:PropertyValuePairView PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
-
-                            <Separator Style="{StaticResource SubtleSeparator}"/>
-
-                            <TextBlock Text="Visible Region Range:"/>
-                            <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleRegionRange.XRange}"/>
-                            <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleRegionRange.ZRange}"/>
-                            <reusables:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding LoadedRegionsCount}"/>
-                            <!--local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/-->
-                            <reusables:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding PendingRegionsCount}"/>
-                            <reusables:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding WorkedRegion}"/>
-
-                            <Separator Style="{StaticResource SubtleSeparator}"/>
-
-                            <TextBlock Text="Visible Chunk Range:"/>
-                            <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleChunkRange.XRange}"/>
-                            <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleChunkRange.ZRange}"/>
-                            <reusables:PropertyValuePairView PropertyText="Loaded Chunk Count : " ValueText="{Binding LoadedChunksCount}"/>
-                            <reusables:PropertyValuePairView PropertyText="Pending Chunk Count : " ValueText="{Binding PendingChunksCount}"/>
-                            <reusables:PropertyValuePairView PropertyText="Worked Chunk Count : " ValueText="{Binding WorkedChunksCount}"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
+            <!--Draw Line Guides-->
+            <Grid RenderOptions.BitmapScalingMode="NearestNeighbor"
+                    RenderOptions.EdgeMode="Aliased"
+                    Visibility="{Binding IsChunkGridVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+                <!--Chunk Grid-->
+                <reusables:GridDrawerView GridSize="16" 
+                                            GridThickness="1"
+                                            GridColor="#20FFFFFF"
+                                            CameraPos="{Binding CameraPos}" 
+                                            UnitMultiplier="{Binding UnitMultiplier}"
+                                            ScreenSize="{Binding ScreenSize}"/>
+                <!--Region Grid-->
+                <reusables:GridDrawerView GridSize="512" 
+                                            GridThickness="1"
+                                            GridColor="#60FFFFFF"
+                                            CameraPos="{Binding CameraPos}" 
+                                            UnitMultiplier="{Binding UnitMultiplier}"
+                                            ScreenSize="{Binding ScreenSize}"/>
+                <!--Horizontal Line-->
+                <Line Stroke="White" StrokeThickness="1"
+                        X1="0" X2="{Binding ScreenSize.Width}" 
+                        Y2="{Binding RelativeSource={RelativeSource Self}, Path=Y1}">
+                    <Line.Y1>
+                        <MultiBinding Converter="{StaticResource WorldToScreen}">
+                            <Binding Source="{StaticResource Zero}"/>
+                            <Binding Path="CameraPos.Z"/>
+                            <Binding Path="UnitMultiplier"/>
+                            <Binding Path="ScreenSize.Height"/>
+                        </MultiBinding>
+                    </Line.Y1>
+                </Line>
+                <!--Vertial Line-->
+                <Line Stroke="White" StrokeThickness="1"
+                        Y1="0" Y2="{Binding ScreenSize.Height}" 
+                        X2="{Binding RelativeSource={RelativeSource Self}, Path=X1}">
+                    <Line.X1>
+                        <MultiBinding Converter="{StaticResource WorldToScreen}">
+                            <Binding Source="{StaticResource Zero}"/>
+                            <Binding Path="CameraPos.X"/>
+                            <Binding Path="UnitMultiplier"/>
+                            <Binding Path="ScreenSize.Width"/>
+                        </MultiBinding>
+                    </Line.X1>
+                </Line>
             </Grid>
-        </DockPanel>
+
+            <!--Camera Position Guide (Center Dot)-->
+            <Grid>
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="2"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="2"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Rectangle Grid.Column="1" Grid.RowSpan="3" 
+                                Fill="DimGray"
+                                Height="15"/>
+                    <Rectangle Grid.Row="1" Grid.ColumnSpan="3" 
+                                Fill="DimGray"
+                                Width="15"/>
+                </Grid>
+                <Ellipse Width="3" Height="3" Fill="White"/>
+            </Grid>
+
+            <!--Viewport Info Panel-->
+            <Border HorizontalAlignment="Left" 
+                    VerticalAlignment="Top"
+                    Margin="10"
+                    BorderThickness="1" 
+                    BorderBrush="{StaticResource TextNormal}"
+                    Background="#88000000"
+                    Visibility="{Binding IsInfoPanelVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+
+                <!--Info content-->
+                <StackPanel HorizontalAlignment="Left" 
+                            MinWidth="150"
+                            Margin="5">
+                    <reusables:PropertyValuePairView PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
+                    <reusables:PropertyValuePairView PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
+                    <reusables:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/>
+                    <reusables:PropertyValuePairView PropertyText="Unit Multiplier : " ValueText="{Binding UnitMultiplier}"/>
+                    <reusables:PropertyValuePairView PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
+
+                    <Separator Style="{StaticResource SubtleSeparator}"/>
+
+                    <TextBlock Text="Visible Region Range:"/>
+                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleRegionRange.XRange}"/>
+                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleRegionRange.ZRange}"/>
+                    <reusables:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding LoadedRegionsCount}"/>
+                    <!--local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/-->
+                    <reusables:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding PendingRegionsCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding WorkedRegion}"/>
+
+                    <Separator Style="{StaticResource SubtleSeparator}"/>
+
+                    <TextBlock Text="Visible Chunk Range:"/>
+                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleChunkRange.XRange}"/>
+                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleChunkRange.ZRange}"/>
+                    <reusables:PropertyValuePairView PropertyText="Loaded Chunk Count : " ValueText="{Binding LoadedChunksCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Pending Chunk Count : " ValueText="{Binding PendingChunksCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Worked Chunk Count : " ValueText="{Binding WorkedChunksCount}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
