@@ -263,7 +263,9 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         {
             try
             {
-                Region region = _regionLoaderService.LoadRegion(regionCoords, _cts.Token);
+                Region? region = _regionLoaderService.LoadRegion(regionCoords, _cts.Token);
+                if (region is null)
+                    return null;
                 return region;
             }
             catch (Exception e)

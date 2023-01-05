@@ -20,12 +20,14 @@ public class RegionLoaderService : IRegionLoaderService
         _globalState = globalState;
     }
 
-    public Region LoadRegion(Point2Z<int> regionCoords, CancellationToken cancellationToken)
+    public Region? LoadRegion(Point2Z<int> regionCoords, CancellationToken cancellationToken)
     {
         if (_cachedRegions.TryGetValue(regionCoords, out Region? region))
             return region;
 
         string regionPath = getRegionPath(regionCoords);
+        if (!File.Exists(regionPath))
+            return null;
         byte[] regionData = File.ReadAllBytes(regionPath);
         region = new(regionData, regionCoords);
         _cachedRegions.Add(regionCoords, region);
