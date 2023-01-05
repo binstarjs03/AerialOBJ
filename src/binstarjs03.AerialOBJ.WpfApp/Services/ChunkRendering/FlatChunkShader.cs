@@ -11,9 +11,9 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 /// </summary>
 public class FlatChunkShader : IChunkShader
 {
-    private readonly DefinitionManagerService _definitionManager;
+    private readonly IDefinitionManagerService _definitionManager;
 
-    public FlatChunkShader(DefinitionManagerService definitionManager)
+    public FlatChunkShader(IDefinitionManagerService definitionManager)
     {
         _definitionManager = definitionManager;
     }

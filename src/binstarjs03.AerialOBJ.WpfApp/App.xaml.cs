@@ -54,7 +54,7 @@ public partial class App : Application
 
     private void InitializeDefinitions()
     {
-        DefinitionManagerService definitionManagerService = ServiceProvider.GetRequiredService<DefinitionManagerService>();
+        IDefinitionManagerService definitionManagerService = ServiceProvider.GetRequiredService<IDefinitionManagerService>();
         definitionManagerService.LoadDefinitionFolder();
     }
 }

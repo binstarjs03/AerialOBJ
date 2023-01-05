@@ -6,7 +6,7 @@ using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
-public class DefinitionManagerService
+public class DefinitionManagerService : IDefinitionManagerService
 {
     private readonly ViewportDefinition _defaultViewportDefinition = ViewportDefinition.GetDefaultDefinition();
     private readonly IViewportDefinitionLoaderService _viewportDefinitionLoaderService;

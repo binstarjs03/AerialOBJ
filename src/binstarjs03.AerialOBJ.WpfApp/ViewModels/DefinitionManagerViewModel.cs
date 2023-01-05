@@ -12,7 +12,7 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class DefinitionManagerViewModel
 {
-    private readonly DefinitionManagerService _definitionManager;
+    private readonly IDefinitionManagerService _definitionManager;
     private readonly GlobalState _globalState;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
@@ -21,7 +21,7 @@ public partial class DefinitionManagerViewModel
     [NotifyPropertyChangedFor(nameof(CanDeleteDefinition))]
     private ViewportDefinition _selectedDefinition;
 
-    public DefinitionManagerViewModel(DefinitionManagerService definitionManager,
+    public DefinitionManagerViewModel(IDefinitionManagerService definitionManager,
                                       GlobalState globalState,
                                       IModalService modalService,
                                       ILogService logService,
@@ -46,7 +46,7 @@ public partial class DefinitionManagerViewModel
         try
         {
             ViewportDefinition definition = _viewportDefinitionLoaderService.ImportDefinitionFile(path);
-            ViewportDefinitions.Add(definition);
+            _definitionManager.LoadViewportDefinition(definition);
         }
         catch (Exception e) { handleException(e); }
 

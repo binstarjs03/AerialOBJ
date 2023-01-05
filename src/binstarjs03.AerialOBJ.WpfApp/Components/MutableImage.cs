@@ -12,7 +12,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 
 public class MutableImage : Image, IMutableImage
 {
-    private readonly PixelFormat s_pixelFormat = PixelFormats.Bgra32;
+    private readonly PixelFormat _pixelFormat = PixelFormats.Bgra32;
     private readonly WriteableBitmap _writeableBitmap;
     private readonly nint _backBuff;
 
@@ -21,7 +21,7 @@ public class MutableImage : Image, IMutableImage
         Size = imageSize;
         _writeableBitmap = new WriteableBitmap(imageSize.Width, imageSize.Height,
                                                96, 96,
-                                               s_pixelFormat, null);
+                                               _pixelFormat, null);
         _backBuff = _writeableBitmap.BackBuffer;
         Source = _writeableBitmap;
     }
@@ -79,7 +79,7 @@ public class MutableImage : Image, IMutableImage
         if (x > Size.Width || y > Size.Height)
             throw new IndexOutOfRangeException("Pixel coordinate exceed image size");
         int bitsPerByte = 8;
-        int bytesPerPixel = s_pixelFormat.BitsPerPixel / bitsPerByte;
+        int bytesPerPixel = _pixelFormat.BitsPerPixel / bitsPerByte;
         int xOffset = x * bytesPerPixel;
         int yOffset = y * bytesPerPixel * Size.Width;
         int offset = xOffset + yOffset;

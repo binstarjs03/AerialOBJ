@@ -8,7 +8,7 @@
 		<LangVersion>11.0</LangVersion>
 		<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<Platforms>AnyCPU;x64</Platforms>
-		<BaseOutputPath>$(SolutionDir)Build\</BaseOutputPath>
+		<BaseOutputPath></BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
 		<DefineConstants>UNSAFE_OPTIMIZATION</DefineConstants>

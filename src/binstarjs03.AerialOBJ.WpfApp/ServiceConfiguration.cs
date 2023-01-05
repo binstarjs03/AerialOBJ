@@ -67,7 +67,7 @@ internal static class ServiceConfiguration
             IDialogView definitionManagerViewFactory() => x.GetRequiredService<DefinitionManagerView>();
             return new ModalService(aboutViewFactory, definitionManagerViewFactory);
         });
-        services.AddSingleton<DefinitionManagerService>();
+        services.AddSingleton<IDefinitionManagerService, DefinitionManagerService>();
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IIOService, IOService>();
         services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
@@ -76,7 +76,7 @@ internal static class ServiceConfiguration
         services.AddSingleton<IChunkRenderService, ChunkRenderService>(x =>
         {
             ServiceProvider provider = services.BuildServiceProvider();
-            IChunkShader shader = new FlatChunkShader(provider.GetRequiredService<DefinitionManagerService>());
+            IChunkShader shader = new FlatChunkShader(provider.GetRequiredService<IDefinitionManagerService>());
             return new ChunkRenderService(shader);
         });
         services.AddSingleton<IViewportDefinitionLoaderService, ViewportDefinitionLoaderService>();

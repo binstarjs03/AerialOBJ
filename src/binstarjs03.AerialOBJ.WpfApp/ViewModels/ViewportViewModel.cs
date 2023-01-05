@@ -25,7 +25,7 @@ public partial class ViewportViewModel
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly ILogService _logService;
-    private readonly DefinitionManagerService _definitionManager;
+    private readonly IDefinitionManagerService _definitionManager;
 
     // viewport UI states
     [ObservableProperty]
@@ -62,7 +62,7 @@ public partial class ViewportViewModel
     public ViewportViewModel(GlobalState globalState,
                              IChunkRegionManagerService chunkRegionManagerService,
                              ILogService logService,
-                             DefinitionManagerService definitionManager)
+                             IDefinitionManagerService definitionManager)
     {
         GlobalState = globalState;
         _chunkRegionManagerService = chunkRegionManagerService;
