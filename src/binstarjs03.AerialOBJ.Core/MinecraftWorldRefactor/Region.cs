@@ -22,17 +22,12 @@ public class Region
     public const int ChunkSectorTableSize = SectorDataLength;
     public const int ChunkSectorTableEntrySize = 4;
 
-    private readonly string _sourcePath;
     private readonly byte[] _data;
 
-    public Region(string path, Point2Z<int> regionCoords)
+    public Region(byte[] data, Point2Z<int> regionCoords)
     {
-        if (!File.Exists(path))
-            throw new FileNotFoundException("Region file does not exist from given path");
-        verifyDataLength(new FileInfo(path).Length);
-
-        _sourcePath = path;
-        _data = File.ReadAllBytes(path);
+        verifyDataLength(data.Length);
+        _data = data;
         Coords = regionCoords;
         ChunkRangeAbs = CoordsConversion.CalculateChunkRangeAbsForRegion(regionCoords);
 
@@ -99,8 +94,5 @@ public class Region
         };
     }
 
-    public override string ToString()
-    {
-        return $"Region {Coords}, Source: {_sourcePath}";
-    }
+    public override string ToString() => $"Region {Coords}";
 }

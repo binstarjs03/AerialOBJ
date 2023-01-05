@@ -26,7 +26,8 @@ public class RegionLoaderService : IRegionLoaderService
             return region;
         
         string regionPath = getRegionPath(regionCoords);
-        region = new(regionPath, regionCoords);
+        byte[] regionData = File.ReadAllBytes(regionPath);
+        region = new(regionData, regionCoords);
         _cachedRegions.Add(regionCoords, region);
         return region;
 
