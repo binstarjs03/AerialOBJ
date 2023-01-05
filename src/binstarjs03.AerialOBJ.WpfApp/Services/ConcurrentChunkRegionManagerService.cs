@@ -261,14 +261,16 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
         Region? tryGetRegion(Point2Z<int> regionCoords)
         {
-            Region? region = _regionLoaderService.LoadRegion(regionCoords, _cts.Token, out Exception? e);
-            if (region is null)
+            try
             {
-                if (e is not null)
-                    handleRegionLoadingError(regionCoords, e);
+                Region region = _regionLoaderService.LoadRegion(regionCoords, _cts.Token);
+                return region;
+            }
+            catch (Exception e)
+            {
+                handleRegionLoadingError(regionCoords, e);
                 return null;
             }
-            return region;
         }
 
         void handleRegionLoadingError(Point2Z<int> regionCoords, Exception e)
