@@ -30,6 +30,7 @@ public partial class App : Application
     {
         return ServiceProvider.GetRequiredService<MainView>();
     }
+    
     private void ConfigureDebugLogWindow(MainView mainView)
     {
         DebugLogView debugLogView = ServiceProvider.GetRequiredService<DebugLogView>();
@@ -38,7 +39,7 @@ public partial class App : Application
         mainView.RequestDebugViewsSyncPosition();
     }
 
-    void InitializeLogService()
+    private void InitializeLogService()
     {
         ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
         logService.LogRuntimeInfo();

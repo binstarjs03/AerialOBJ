@@ -6,11 +6,11 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 namespace binstarjs03.AerialOBJ.WpfApp.Models;
 public class ChunkModel : IDisposable
 {
-    private static readonly ArrayPool2<Block> _highestBlockPooler = new(IChunk.BlockCount, IChunk.BlockCount);
+    private static readonly ArrayPool2<Block> s_highestBlockPooler = new(IChunk.BlockCount, IChunk.BlockCount);
     private bool _disposed;
 
     public required IChunk ChunkData { get; init; }
-    public Block[,] HighestBlocks { get; } = _highestBlockPooler.Rent();
+    public Block[,] HighestBlocks { get; } = s_highestBlockPooler.Rent();
 
     public void LoadHighestBlock() => ChunkData.GetHighestBlock(HighestBlocks);
 
@@ -21,7 +21,7 @@ public class ChunkModel : IDisposable
             if (disposing)
             {
                 ChunkData.Dispose();
-                _highestBlockPooler.Return(HighestBlocks);
+                s_highestBlockPooler.Return(HighestBlocks);
             }
             _disposed = true;
         }

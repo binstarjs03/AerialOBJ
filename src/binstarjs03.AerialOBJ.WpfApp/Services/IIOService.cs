@@ -7,6 +7,6 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public interface IIOService
 {
-    bool WriteText(string path, string content, out Exception? e);
+    void WriteText(string path, string content);
     Region? ReadRegionFile(Point2Z<int> regionCoords, SavegameLoadInfo loadInfo, out Exception? e);
 }

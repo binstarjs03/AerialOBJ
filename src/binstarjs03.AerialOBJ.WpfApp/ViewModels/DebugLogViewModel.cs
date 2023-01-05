@@ -52,28 +52,36 @@ public partial class DebugLogViewModel
     [RelayCommand]
     private void SaveLog()
     {
-        FileDialogResult dialogResult = _modalService.ShowSaveFileDialog(new FileDialogArg()
-        {
-            FileName = $"{GlobalState.AppName} Log",
-            FileExtension = ".txt",
-            FileExtensionFilter = "Text Document|*.txt",
-        });
-        if (dialogResult.Result != true)
+        if (!isSavePathConfirmedFromFileDialog(out string path))
             return;
-        _iOService.WriteText(dialogResult.SelectedFilePath, LogService.LogContent, out Exception? e);
-        if (e is not null)
+        try
         {
-            string msg = $"Canot save log content to {dialogResult.SelectedFilePath}:\n{e}";
-            LogService.Log(msg, LogStatus.Error);
+            _iOService.WriteText(path, LogService.LogContent);
+            LogService.Log($"Saved log content to {path}", LogStatus.Success);
+        }
+        catch (Exception e) { handleException(e); }
+
+        bool isSavePathConfirmedFromFileDialog(out string path)
+        {
+            FileDialogResult dialogResult = _modalService.ShowSaveFileDialog(new FileDialogArg()
+            {
+                FileName = $"{GlobalState.AppName} Log",
+                FileExtension = ".txt",
+                FileExtensionFilter = "Text Document|*.txt",
+            });
+            path = dialogResult.SelectedFilePath;
+            return dialogResult.Result;
+        }
+
+        void handleException(Exception e)
+        {
+            string caption = "Cannot save log content";
+            LogService.LogException(caption, e);
             _modalService.ShowErrorMessageBox(new MessageBoxArg()
             {
-                Caption = "Canot save log",
-                Message = msg,
+                Caption = caption,
+                Message = e.Message,
             });
-        }
-        else
-        {
-            LogService.Log($"Saved log content to {dialogResult.SelectedFilePath}", LogStatus.Success);
         }
     }
 }

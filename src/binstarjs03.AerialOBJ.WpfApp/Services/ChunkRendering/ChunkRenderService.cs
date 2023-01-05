@@ -18,18 +18,19 @@ public class ChunkRenderService : IChunkRenderService
         _chunkShader = initialChunkShader;
     }
 
-    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
+    // TODO pass in an interface of IRegionImage instead
+    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
-        _chunkShader.RenderChunk(regionModel, highestBlocks, chunkCoordsRel, cancellationToken);
+        _chunkShader.RenderChunk(regionModel, highestBlocks, chunkCoordsRel);
     }
 
-    public void EraseChunk(RegionModel region, ChunkModel chunk, CancellationToken cancellationToken)
+    public void EraseChunk(RegionModel region, Point2Z<int> chunkCoordsRel)
     {
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
-                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunk.ChunkData.CoordsRel, blockCoordsRel);
+                Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
                 region.RegionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
             }
     }

@@ -18,26 +18,26 @@ public class FlatChunkShader : IChunkShader
         _definitionManager = definitionManager;
     }
 
-    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel, CancellationToken cancellationToken)
+    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
-                Color color = GetBlockColor(_definitionManager.CurrentViewportDefinition, highestBlocks, blockCoordsRel);
+                Color color = GetBlockColor(highestBlocks, blockCoordsRel);
                 regionModel.RegionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
     }
 
-    private static Color GetBlockColor(ViewportDefinition definition, Block[,] highestBlocks, Point2Z<int> blockCoordsRel)
+    private Color GetBlockColor(Block[,] highestBlocks, Point2Z<int> blockCoordsRel)
     {
         // try get color from block definition
         // else return missing block color
         string blockName = highestBlocks[blockCoordsRel.X, blockCoordsRel.Z].Name;
-        if (definition.BlockDefinitions.TryGetValue(blockName, out ViewportBlockDefinition? bd))
+        if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(blockName, out ViewportBlockDefinition? bd))
             return bd.Color;
         else
-            return definition.MissingBlockDefinition.Color;
+            return _definitionManager.CurrentViewportDefinition.MissingBlockDefinition.Color;
     }
 }

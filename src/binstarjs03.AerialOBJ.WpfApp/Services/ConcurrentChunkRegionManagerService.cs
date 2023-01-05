@@ -525,7 +525,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     {
         ChunkModel chunk = new() { ChunkData = chunkData };
         chunk.LoadHighestBlock();
-        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlocks, chunk.ChunkData.CoordsRel, _cts.Token);
+        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlocks, chunk.ChunkData.CoordsRel);
         lock (_visibleChunkRange)
             lock (_loadedChunks)
             {
@@ -545,7 +545,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         // but if region is not loaded, well, just move on cause it doesn't even exist
         RegionModel? region = GetRegionModelForChunk(chunk.ChunkData.CoordsAbs, out _);
         if (region is not null)
-            _chunkRenderService.EraseChunk(region, chunk, _cts.Token);
+            _chunkRenderService.EraseChunk(region, chunk.ChunkData.CoordsRel);
         chunk.Dispose();
     }
 

@@ -27,19 +27,9 @@ public class IOService : IIOService
         }
     }
 
-    public bool WriteText(string path, string content, out Exception? e)
+    public void WriteText(string path, string content)
     {
-        try
-        {
-            using StreamWriter writer = File.CreateText(path);
-            writer.Write(content);
-            e = null;
-            return true;
-        }
-        catch (Exception ex)
-        {
-            e = ex;
-            return false;
-        }
+        using StreamWriter writer = File.CreateText(path);
+        writer.Write(content);
     }
 }
