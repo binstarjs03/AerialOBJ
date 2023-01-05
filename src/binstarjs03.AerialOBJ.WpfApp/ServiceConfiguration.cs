@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
@@ -29,7 +29,6 @@ internal static class ServiceConfiguration
 
         // configure factories
         services.AddSingleton<RegionModelFactory>();
-        services.AddSingleton<IFileInfoFactory, FileInfoFactory>();
         services.AddSingleton<IMutableImageFactory, MutableImageFactory>();
 
         // configure views
@@ -74,7 +73,7 @@ internal static class ServiceConfiguration
             IChunkShader shader = new FlatChunkShader(provider.GetRequiredService<DefinitionManagerService>());
             return new ChunkRenderService(shader);
         });
-        services.AddSingleton<IFileUtilsService, FileUtilsService>();
+        services.AddSingleton<IViewportDefinitionLoaderService, ViewportDefinitionLoaderService>();
 
         return services.BuildServiceProvider();
     }
