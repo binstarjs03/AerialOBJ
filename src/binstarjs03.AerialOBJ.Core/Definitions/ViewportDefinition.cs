@@ -851,75 +851,75 @@ public class ViewportDefinition : IRootDefinition
                     "DisplayName": "Black Wool"
                 },
                 "minecraft:glass": {
-                    "Color": "#80A6CED6",
+                    "Color": "#A6CED6",
                     "DisplayName": "Glass"
                 },
                 "minecraft:tinted_glass": {
-                    "Color": "#80252523",
+                    "Color": "#252523",
                     "DisplayName": "Tinted Glass"
                 },
                 "minecraft:white_stained_glass": {
-                    "Color": "#80E3E3E3",
+                    "Color": "#E3E3E3",
                     "DisplayName": "White Stained Glass"
                 },
                 "minecraft:orange_stained_glass": {
-                    "Color": "#80E35300",
+                    "Color": "#E35300",
                     "DisplayName": "Orange Stained Glass"
                 },
                 "minecraft:magenta_stained_glass": {
-                    "Color": "#80BC26AF",
+                    "Color": "#BC26AF",
                     "DisplayName": "Magenta Stained Glass"
                 },
                 "minecraft:light_blue_stained_glass": {
-                    "Color": "#801288D0",
+                    "Color": "#1288D0",
                     "DisplayName": "Light Blue Stained Glass"
                 },
                 "minecraft:yellow_stained_glass": {
-                    "Color": "#80E89E00",
+                    "Color": "#E89E00",
                     "DisplayName": "Yellow Stained Glass"
                 },
                 "minecraft:lime_stained_glass": {
-                    "Color": "#8058B600",
+                    "Color": "#58B600",
                     "DisplayName": "Lime Stained Glass"
                 },
                 "minecraft:pink_stained_glass": {
-                    "Color": "#80D95687",
+                    "Color": "#D95687",
                     "DisplayName": "Pink Stained Glass"
                 },
                 "minecraft:gray_stained_glass": {
-                    "Color": "#809B9B9B",
+                    "Color": "#9B9B9B",
                     "DisplayName": "Gray Stained Glass"
                 },
                 "minecraft:light_gray_stained_glass": {
-                    "Color": "#807C7C76",
+                    "Color": "#7C7C76",
                     "DisplayName": "Light Gray Stained Glass"
                 },
                 "minecraft:cyan_stained_glass": {
-                    "Color": "#80048EA5",
+                    "Color": "#048EA5",
                     "DisplayName": "Cyan Stained Glass"
                 },
                 "minecraft:purple_stained_glass": {
-                    "Color": "#80701AB6",
+                    "Color": "#701AB6",
                     "DisplayName": "Purple Stained Glass"
                 },
                 "minecraft:blue_stained_glass": {
-                    "Color": "#802F32AF",
+                    "Color": "#2F32AF",
                     "DisplayName": "Blue Stained Glass"
                 },
                 "minecraft:brown_stained_glass": {
-                    "Color": "#8077451E",
+                    "Color": "#77451E",
                     "DisplayName": "Brown Stained Glass"
                 },
                 "minecraft:green_stained_glass": {
-                    "Color": "#80597323",
+                    "Color": "#597323",
                     "DisplayName": "Green Stained Glass"
                 },
                 "minecraft:red_stained_glass": {
-                    "Color": "#80AD1D1D",
+                    "Color": "#AD1D1D",
                     "DisplayName": "Red Stained Glass"
                 },
                 "minecraft:black_stained_glass": {
-                    "Color": "#80424242",
+                    "Color": "#424242",
                     "DisplayName": "Black Stained Glass"
                 },
                 "minecraft:oak_planks": {
@@ -1487,7 +1487,7 @@ public class ViewportDefinition : IRootDefinition
                     "DisplayName": "Warped Stairs"
                 },
                 "minecraft:ice": {
-                    "Color": "#8071A0F2",
+                    "Color": "#71A0F2",
                     "DisplayName": "Ice"
                 },
                 "minecraft:packed_ice": {
@@ -2015,71 +2015,71 @@ public class ViewportDefinition : IRootDefinition
                     "DisplayName": "Damaged Anvil"
                 },
                 "minecraft:glass_pane": {
-                    "Color": "#80A6CED6",
+                    "Color": "#A6CED6",
                     "DisplayName": "Glass Pane"
                 },
                 "minecraft:white_stained_glass_pane": {
-                    "Color": "#80E3E3E3",
+                    "Color": "#E3E3E3",
                     "DisplayName": "White Stained Glass Pane"
                 },
                 "minecraft:orange_stained_glass_pane": {
-                    "Color": "#80E35300",
+                    "Color": "#E35300",
                     "DisplayName": "Orange Stained Glass Pane"
                 },
                 "minecraft:magenta_stained_glass_pane": {
-                    "Color": "#80BC26AF",
+                    "Color": "#BC26AF",
                     "DisplayName": "Magenta Stained Glass Pane"
                 },
                 "minecraft:light_blue_stained_glass_pane": {
-                    "Color": "#801288D0",
+                    "Color": "#1288D0",
                     "DisplayName": "Light Blue Stained Glass Pane"
                 },
                 "minecraft:yellow_stained_glass_pane": {
-                    "Color": "#80E89E00",
+                    "Color": "#E89E00",
                     "DisplayName": "Yellow Stained Glass Pane"
                 },
                 "minecraft:lime_stained_glass_pane": {
-                    "Color": "#8058B600",
+                    "Color": "#58B600",
                     "DisplayName": "Lime Stained Glass Pane"
                 },
                 "minecraft:pink_stained_glass_pane": {
-                    "Color": "#80D95687",
+                    "Color": "#D95687",
                     "DisplayName": "Pink Stained Glass Pane"
                 },
                 "minecraft:gray_stained_glass_pane": {
-                    "Color": "#809B9B9B",
+                    "Color": "#9B9B9B",
                     "DisplayName": "Gray Stained Glass Pane"
                 },
                 "minecraft:light_gray_stained_glass_pane": {
-                    "Color": "#807C7C76",
+                    "Color": "#7C7C76",
                     "DisplayName": "Light Gray Stained Glass Pane"
                 },
                 "minecraft:cyan_stained_glass_pane": {
-                    "Color": "#80048EA5",
+                    "Color": "#048EA5",
                     "DisplayName": "Cyan Stained Glass Pane"
                 },
                 "minecraft:purple_stained_glass_pane": {
-                    "Color": "#80701AB6",
+                    "Color": "#701AB6",
                     "DisplayName": "Purple Stained Glass Pane"
                 },
                 "minecraft:blue_stained_glass_pane": {
-                    "Color": "#802F32AF",
+                    "Color": "#2F32AF",
                     "DisplayName": "Blue Stained Glass Pane"
                 },
                 "minecraft:brown_stained_glass_pane": {
-                    "Color": "#8077451E",
+                    "Color": "#77451E",
                     "DisplayName": "Brown Stained Glass Pane"
                 },
                 "minecraft:green_stained_glass_pane": {
-                    "Color": "#80597323",
+                    "Color": "#597323",
                     "DisplayName": "Green Stained Glass Pane"
                 },
                 "minecraft:red_stained_glass_pane": {
-                    "Color": "#80AD1D1D",
+                    "Color": "#AD1D1D",
                     "DisplayName": "Red Stained Glass Pane"
                 },
                 "minecraft:black_stained_glass_pane": {
-                    "Color": "#80424242",
+                    "Color": "#424242",
                     "DisplayName": "Black Stained Glass Pane"
                 },
                 "minecraft:shulker_box": {

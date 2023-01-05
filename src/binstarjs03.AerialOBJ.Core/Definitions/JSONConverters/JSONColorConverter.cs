@@ -14,7 +14,7 @@ public class JSONColorConverter : JsonConverter<Color>
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Token is not a string value");
         string stringvalue = reader.GetString()!;
-        if (stringvalue.Length != 9)
+        if (stringvalue.Length != 7)
             throw new JsonException("Length is not equal to 7, \"#RRGGBB\" format expected");
         if (!stringvalue.StartsWith("#"))
             throw new JsonException("Missing pound (#) sign");
