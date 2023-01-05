@@ -35,7 +35,7 @@ internal static class ServiceConfiguration
 
         // configure factories
         services.AddSingleton<RegionModelFactory>();
-        services.AddSingleton<IMutableImageFactory, MutableImageFactory>();
+        services.AddSingleton<IRegionImageFactory, RegionImageFactory>();
 
         // configure views
         services.AddSingleton<MainView>();

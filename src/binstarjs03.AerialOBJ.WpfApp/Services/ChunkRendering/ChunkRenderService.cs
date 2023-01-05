@@ -19,27 +19,27 @@ public class ChunkRenderService : IChunkRenderService
     }
 
     // TODO pass in an interface of IRegionImage instead
-    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
-        _chunkShader.RenderChunk(regionModel, highestBlocks, chunkCoordsRel);
+        _chunkShader.RenderChunk(regionImage, highestBlocks, chunkCoordsRel);
     }
 
-    public void EraseChunk(RegionModel region, Point2Z<int> chunkCoordsRel)
+    public void EraseChunk(IRegionImage regionImage, Point2Z<int> chunkCoordsRel)
     {
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
-                region.RegionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
+                regionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
             }
     }
 
-    public void RenderRandomNoise(IMutableImage mutableImage, Color color, byte distance)
+    public void RenderRandomNoise(IRegionImage regionImage, Color color, byte distance)
     {
-        for (int x = 0; x < mutableImage.Size.Width; x++)
-            for (int y = 0; y < mutableImage.Size.Height; y++)
-                mutableImage[x, y] = Random.Shared.NextColor(color, distance);
+        for (int x = 0; x < regionImage.Size.Width; x++)
+            for (int y = 0; y < regionImage.Size.Height; y++)
+                regionImage[x, y] = Random.Shared.NextColor(color, distance);
     }
 
     // TODO lock chunkShader if there are reading threads

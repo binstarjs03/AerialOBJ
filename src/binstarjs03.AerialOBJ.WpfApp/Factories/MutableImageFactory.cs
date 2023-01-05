@@ -13,12 +13,9 @@ public class MutableImageFactory : IMutableImageFactory
     {
         if (App.Current.CheckAccess())
             return new MutableImage(size);
-        else
-        {
-            MutableImage? result = App.Current.Dispatcher.Invoke(() => new MutableImage(size), DispatcherPriority.Background, cancellationToken);
-            if (result is null)
-                throw new TaskCanceledException();
-            return result;
-        }
+        MutableImage? result = App.Current.Dispatcher.Invoke(() => new MutableImage(size), DispatcherPriority.Background, cancellationToken);
+        if (result is null)
+            throw new TaskCanceledException();
+        return result;
     }
 }

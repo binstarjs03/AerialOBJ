@@ -3,6 +3,7 @@
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
@@ -18,7 +19,7 @@ public class FlatChunkShader : IChunkShader
         _definitionManager = definitionManager;
     }
 
-    public void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)
@@ -26,7 +27,7 @@ public class FlatChunkShader : IChunkShader
                 Point2Z<int> blockCoordsRel = new(x, z);
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
                 Color color = GetBlockColor(highestBlocks, blockCoordsRel);
-                regionModel.RegionImage[pixelCoords.X, pixelCoords.Y] = color;
+                regionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
     }
 

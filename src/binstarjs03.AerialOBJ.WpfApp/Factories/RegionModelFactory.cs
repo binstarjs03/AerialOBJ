@@ -7,19 +7,19 @@ using binstarjs03.AerialOBJ.WpfApp.Models;
 namespace binstarjs03.AerialOBJ.WpfApp.Factories;
 public class RegionModelFactory
 {
-    private readonly IMutableImageFactory _mutableImageFactory;
+    private readonly IRegionImageFactory _regionImageFactory;
 
-    public RegionModelFactory(IMutableImageFactory mutableImageFactory)
+    public RegionModelFactory(IRegionImageFactory regionImageFactory)
     {
-        _mutableImageFactory = mutableImageFactory;
+        _regionImageFactory = regionImageFactory;
     }
 
     public RegionModel Create(Region regionData, CancellationToken cancellationToken)
     {
         return new RegionModel()
         {
-            RegionData = regionData,
-            RegionImage = _mutableImageFactory.Create(new Size<int>(Region.BlockCount, Region.BlockCount), cancellationToken),
+            Data = regionData,
+            Image = _regionImageFactory.Create(regionData.Coords, cancellationToken),
         };
     }
 }

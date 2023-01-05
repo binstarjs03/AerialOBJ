@@ -9,10 +9,10 @@ public class ChunkModel : IDisposable
     private static readonly ArrayPool2<Block> s_highestBlockPooler = new(IChunk.BlockCount, IChunk.BlockCount);
     private bool _disposed;
 
-    public required IChunk ChunkData { get; init; }
+    public required IChunk Data { get; init; }
     public Block[,] HighestBlocks { get; } = s_highestBlockPooler.Rent();
 
-    public void LoadHighestBlock() => ChunkData.GetHighestBlock(HighestBlocks);
+    public void LoadHighestBlock() => Data.GetHighestBlock(HighestBlocks);
 
     protected virtual void Dispose(bool disposing)
     {
@@ -20,7 +20,7 @@ public class ChunkModel : IDisposable
         {
             if (disposing)
             {
-                ChunkData.Dispose();
+                Data.Dispose();
                 s_highestBlockPooler.Return(HighestBlocks);
             }
             _disposed = true;

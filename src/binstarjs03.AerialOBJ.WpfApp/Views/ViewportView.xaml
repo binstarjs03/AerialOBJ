@@ -103,12 +103,12 @@
                             <DataTemplate DataType="models:RegionModel">
                                 <Grid>
                                     <!--Region Image-->
-                                    <ContentControl Content="{Binding RegionImage}" 
+                                    <ContentControl Content="{Binding Image}" 
                                                     RenderOptions.BitmapScalingMode="NearestNeighbor"
                                                     RenderOptions.EdgeMode="Aliased">
                                         <ContentControl.Width>
                                             <MultiBinding Converter="{StaticResource UnitMultiplier}">
-                                                <Binding Path="RegionImage.Size.Width"/>
+                                                <Binding Path="Image.Size.Width"/>
                                                 <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" 
                                                          Path="DataContext.UnitMultiplier"/>
                                             </MultiBinding>
@@ -124,7 +124,7 @@
                                                 BorderBrush="{StaticResource TextNormal}"
                                                 Background="#88000000">
                                             <reusables:PropertyValuePairView PropertyText="Region" 
-                                                                             ValueText="{Binding RegionData.Coords}"/>
+                                                                             ValueText="{Binding Data.Coords}"/>
                                         </Border>
                                     </Grid>
                                 </Grid>
@@ -136,7 +136,7 @@
                                 <Setter Property="Canvas.Left">
                                     <Setter.Value>
                                         <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                            <Binding Path="WorldCoords.X"/>
+                                            <Binding Path="Image.ImagePosition.X"/>
                                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.X"/>
                                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
                                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Width"/>
@@ -146,7 +146,7 @@
                                 <Setter Property="Canvas.Top">
                                     <Setter.Value>
                                         <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                            <Binding Path="WorldCoords.Y"/>
+                                            <Binding Path="Image.ImagePosition.Y"/>
                                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.Z"/>
                                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.UnitMultiplier"/>
                                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Height"/>

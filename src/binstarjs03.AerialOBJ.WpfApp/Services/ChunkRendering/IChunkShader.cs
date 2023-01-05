@@ -2,6 +2,7 @@
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
@@ -10,5 +11,5 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 /// </summary>
 public interface IChunkShader
 {
-    void RenderChunk(RegionModel regionModel, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel);
+    void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel);
 }

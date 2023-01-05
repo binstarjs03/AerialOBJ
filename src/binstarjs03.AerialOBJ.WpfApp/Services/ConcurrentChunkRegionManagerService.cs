@@ -297,7 +297,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             region = _regionModelFactory.Create(regionData, _cts.Token);
         }
         catch (TaskCanceledException) { return; }
-        region.RegionImage.Redraw();
+        region.Image.Redraw();
         lock (_visibleRegionRange)
             lock (_loadedRegions)
             {
@@ -319,7 +319,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             RegionUnloaded?.Invoke(region);
         else
             App.Current.Dispatcher.InvokeAsync(() => RegionUnloaded?.Invoke(region), DispatcherPriority.Render);
-        _loadedRegions.Remove(region.RegionData.Coords);
+        _loadedRegions.Remove(region.Data.Coords);
     }
 
     private void ManageChunks()
@@ -468,9 +468,9 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
                 // TODO we may separate getting chunk logic into its own loader service
                 // or maybe just keep it as it as getting chunk can be done directly from region
                 Point2Z<int> chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(chunkCoords);
-                if (!region.RegionData.HasChunkGenerated(chunkCoordsRel))
+                if (!region.Data.HasChunkGenerated(chunkCoordsRel))
                     return (null, null);
-                return (region.RegionData.GetChunk(chunkCoordsRel), region);
+                return (region.Data.GetChunk(chunkCoordsRel), region);
             }
             catch (Exception e)
             {
@@ -525,9 +525,9 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private void LoadChunk(IChunk chunkData, RegionModel regionModel)
     {
-        ChunkModel chunk = new() { ChunkData = chunkData };
+        ChunkModel chunk = new() { Data = chunkData };
         chunk.LoadHighestBlock();
-        _chunkRenderService.RenderChunk(regionModel, chunk.HighestBlocks, chunk.ChunkData.CoordsRel);
+        _chunkRenderService.RenderChunk(regionModel.Image, chunk.HighestBlocks, chunk.Data.CoordsRel);
         lock (_visibleChunkRange)
             lock (_loadedChunks)
             {
@@ -542,12 +542,12 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private void UnloadChunk(ChunkModel chunk)
     {
-        _loadedChunks.Remove(chunk.ChunkData.CoordsAbs);
+        _loadedChunks.Remove(chunk.Data.CoordsAbs);
         // before returning, we want to erase region image part for this chunk,
         // but if region is not loaded, well, just move on cause it doesn't even exist
-        RegionModel? region = GetRegionModelForChunk(chunk.ChunkData.CoordsAbs, out _);
+        RegionModel? region = GetRegionModelForChunk(chunk.Data.CoordsAbs, out _);
         if (region is not null)
-            _chunkRenderService.EraseChunk(region, chunk.ChunkData.CoordsRel);
+            _chunkRenderService.EraseChunk(region.Image, chunk.Data.CoordsRel);
         chunk.Dispose();
     }
 
@@ -603,7 +603,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             {
                 lock (_loadedRegions)
                     foreach (RegionModel region in _loadedRegions.Values)
-                        region.RegionImage.Redraw();
+                        region.Image.Redraw();
             }, DispatcherPriority.Render, _cts.Token);
             Thread.Sleep(1000 / 30);
         }
