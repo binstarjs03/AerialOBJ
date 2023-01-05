@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 using binstarjs03.AerialOBJ.Core.Nbt;
@@ -10,22 +9,16 @@ public class SavegameLoaderService : ISavegameLoaderService
 {
     public SavegameLoadInfo LoadSavegame(string savegameDirPath)
     {
-        if (!Directory.Exists(savegameDirPath))
-            throw new DirectoryNotFoundException($"Directory to {savegameDirPath} not found");
         DirectoryInfo savegameDirInfo = new(savegameDirPath);
         NbtCompound levelNbt = LoadLevelNbt(savegameDirInfo);
-        return new SavegameLoadInfo()
-        {
-            SavegameDirectoryPath = savegameDirInfo.FullName,
-            DataVersion = GetDataVersion(levelNbt),
-            WorldName = GetWorldName(levelNbt),
-        };
+        return ParseLevelNbtStructure(levelNbt, savegameDirInfo.FullName);
     }
 
+    // TODO refactor this method
     private static NbtCompound LoadLevelNbt(DirectoryInfo savegameDirInfo)
     {
         string errorHeader = "Cannot read savegame:\n";
-        string levelNbtPath = $"{savegameDirInfo.FullName}/level.dat";
+        string levelNbtPath = Path.Combine(savegameDirInfo.FullName, "level.dat");
         if (!File.Exists(levelNbtPath))
         {
             string msg = $"{errorHeader}Missing level.dat file in specified savegame folder";
@@ -55,25 +48,48 @@ public class SavegameLoaderService : ISavegameLoaderService
         }
     }
 
+    // TODO refactor this to conform open-closed principle,
+    // maybe use separate class for dataversion parser,
+    // put it in a collection and iterate over which dataversion parser range it supports
+    private static SavegameLoadInfo ParseLevelNbtStructure(NbtCompound levelNbt, string savegameDirectoryPath)
+    {
+        int dataVersion = GetDataVersion(levelNbt);
+        try
+        {
+            if (dataVersion >= 2860)
+                return ParseDataVersion2860(levelNbt, savegameDirectoryPath);
+            throw new LevelDatNotImplementedParserException($"No parser found for dataversion {dataVersion}");
+        }
+        catch (Exception e)
+        {
+            string unsupportedMsg = "Mismatch NBT structure of level.dat file. " +
+                                   $"Savegame is not supported by this version of {GlobalState.AppName}.";
+            throw new NbtException(unsupportedMsg, e);
+        }
+    }
+
     private static int GetDataVersion(NbtCompound levelNbt)
     {
         return levelNbt.Get<NbtCompound>("Data")
                        .Get<NbtInt>("DataVersion").Value;
     }
 
-    private static string GetWorldName(NbtCompound levelNbt)
+    private static SavegameLoadInfo ParseDataVersion2860(NbtCompound levelNbt, string savegameDirectoryPath)
     {
-        try
+        return new SavegameLoadInfo()
+        {
+            DataVersion = 2860,
+            WorldName = getWorldName(),
+            SavegameDirectoryPath = savegameDirectoryPath,
+            HighHeightLimit = 319,
+            LowHeightLimit = -64
+        };
+
+        string getWorldName()
         {
             return levelNbt.Get<NbtCompound>("Data")
                            .Get<NbtString>("LevelName")
                            .Value;
-        }
-        catch (KeyNotFoundException ex)
-        {
-            string msg = "Mismatch NBT structure of level.dat file. "
-                       + $"Savegame is not supported by this version of {GlobalState.AppName}.";
-            throw new NbtException(msg, ex);
         }
     }
 }

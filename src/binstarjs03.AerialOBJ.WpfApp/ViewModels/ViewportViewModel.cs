@@ -40,7 +40,10 @@ public partial class ViewportViewModel
     [NotifyPropertyChangedFor(nameof(UnitMultiplier))]
     [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))]
     private int _zoomLevel = 0;
-    [ObservableProperty] private int _heightLevel = 319;
+
+    [ObservableProperty] private int _heightLevel = 0;
+    [ObservableProperty] private int _lowHeightLimit = 0;
+    [ObservableProperty] private int _highHeightLimit = 0;
 
     // mouse states
     [ObservableProperty] private Point2<int> _mouseScreenPos = Point2<int>.Zero;
@@ -103,7 +106,9 @@ public partial class ViewportViewModel
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Opened)
+        {
             ReinitializeOnSavegameOpened();
+        }
         else if (state == SavegameLoadState.Closed)
             ReinitializeOnSavegameClosed();
         else
@@ -158,6 +163,9 @@ public partial class ViewportViewModel
 
     private void ReinitializeOnSavegameOpened()
     {
+        LowHeightLimit = GlobalState.SavegameLoadInfo!.LowHeightLimit;
+        HighHeightLimit = GlobalState.SavegameLoadInfo!.HighHeightLimit;
+        HeightLevel = HighHeightLimit;
         _chunkRegionManagerService.RequestStart();
         if (GetViewViewportSize is not null)
             ScreenSize = GetViewViewportSize();
@@ -170,6 +178,9 @@ public partial class ViewportViewModel
         CameraPos = new Point2Z<float>(0, 0);
         ZoomLevel = 0;
         ScreenSize = new Size<int>(0, 0);
+        LowHeightLimit = 0;
+        HighHeightLimit = 0;
+        HeightLevel = 0;
         IsChunkGridVisible = false;
         IsInfoPanelVisible = false;
     }

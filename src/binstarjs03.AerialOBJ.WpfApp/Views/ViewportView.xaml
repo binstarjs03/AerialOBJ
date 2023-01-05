@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
              xmlns:reusables="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls"
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
              xmlns:models="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Models"
@@ -14,7 +13,9 @@
     <Grid>
         <DockPanel>
             <!--Height slider-->
-            <Grid DockPanel.Dock="Top" Background="white">
+            <Grid DockPanel.Dock="Top" 
+                  Background="white"
+                  Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Hidden}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
@@ -39,8 +40,8 @@
                         SmallChange="1" 
                         Value="{Binding HeightLevel}"
                         IsSnapToTickEnabled="True" 
-                        Minimum="-64"
-                        Maximum="319"/>
+                        Minimum="{Binding LowHeightLimit}"
+                        Maximum="{Binding HighHeightLimit}"/>
             </Grid>
 
             <!--Viewport-->
