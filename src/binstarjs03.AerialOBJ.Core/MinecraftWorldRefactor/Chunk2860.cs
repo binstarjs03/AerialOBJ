@@ -72,7 +72,6 @@ public class Chunk2860 : IChunk, IDisposable
                 bool foundHighestBlock = false;
                 for (int index = _sectionsY.Length - 1; index >= 0; index--)
                 {
-
                     if (foundHighestBlock)
                         break;
 
@@ -81,22 +80,17 @@ public class Chunk2860 : IChunk, IDisposable
                     if (section.IsAir)
                         continue;
 
-                    //int heightAtCurrentSection = section.CoordsAbs.Y * IChunk.BlockCount;
                     for (int y = IChunk.BlockRange; y >= 0; y--)
                     {
                         if (foundHighestBlock)
                             break;
 
-                        // height in here means current block global Y position
-                        //int height = heightAtCurrentSection + y;
                         Point3<int> blockCoordsRel = new(x, y, z);
-
                         Block? block = section.GetBlock(blockCoordsRel);
                         if (block is null || block.Value.IsAir)
                             continue;
+
                         highestBlockBuffer[x, z] = block.Value;
-                        //highestBlockBuffer.Names[x, z] = block.Value.Name;
-                        //highestBlockBuffer.Heights[x, z] = height;
                         foundHighestBlock = true;
                     }
                 }
@@ -185,27 +179,18 @@ public class Chunk2860 : IChunk, IDisposable
             return paletteIndexTable3D;
 
             // returns true when filled completely
+            // if Y reached 15 and want to increment, it means filling is finished
             static bool moveFillingPosition(ref Point3<int> fillPos)
             {
-                if (fillPos.X < 15)
-                    fillPos.X++;
-                else
-                {
-                    fillPos.X = 0;
-                    if (fillPos.Z < 15)
-                        fillPos.Z++;
-                    else
-                    {
-                        fillPos.Z = 0;
-                        if (fillPos.Y < 15)
-                            fillPos.Y++;
-                        else
-                            // if Y reached 15 and want to increment,
-                            // it means filling is finished so we want to break
-                            return true;
-                    }
-                }
-                return false;
+                if (fillPos.X++ < 15)
+                    return false;
+                fillPos.X = 0;
+                if (fillPos.Z++ < 15)
+                    return false;
+                fillPos.Z = 0;
+                if (fillPos.Y++ < 15)
+                    return false;
+                return true;
             }
         }
 

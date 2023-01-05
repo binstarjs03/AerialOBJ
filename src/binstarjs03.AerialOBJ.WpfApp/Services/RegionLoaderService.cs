@@ -24,7 +24,7 @@ public class RegionLoaderService : IRegionLoaderService
     {
         if (_cachedRegions.TryGetValue(regionCoords, out Region? region))
             return region;
-        
+
         string regionPath = getRegionPath(regionCoords);
         byte[] regionData = File.ReadAllBytes(regionPath);
         region = new(regionData, regionCoords);
