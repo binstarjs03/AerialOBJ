@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
@@ -10,6 +10,7 @@ using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
@@ -20,7 +21,12 @@ internal static class ServiceConfiguration
         IServiceCollection services = new ServiceCollection();
 
         // configure components
-        services.AddSingleton<GlobalState>(x => new GlobalState(DateTime.Now, "Alpha", Environment.CurrentDirectory));
+        services.AddSingleton<GlobalState>(x =>
+        {
+            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string definitionDirectoryPath = Path.Combine(currentDirectory, "Definitions");
+            return new GlobalState(DateTime.Now, "Alpha", currentDirectory, definitionDirectoryPath);
+        });
         services.AddSingleton<ViewState>();
         services.AddTransient<IChunkRegionManagerErrorMemory, ChunkRegionManagerErrorMemory>();
 

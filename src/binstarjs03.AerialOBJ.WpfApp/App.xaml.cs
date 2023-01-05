@@ -23,6 +23,7 @@ public partial class App : Application
 
         InitializeLogService();
         InitializeViewState();
+        InitializeDefinitions();
     }
 
     private Window GetMainWindow()
@@ -49,5 +50,11 @@ public partial class App : Application
         ViewState viewState = ServiceProvider.GetRequiredService<ViewState>();
         viewState.IsDebugLogWindowVisible = true;
 #endif
+    }
+
+    private void InitializeDefinitions()
+    {
+        DefinitionManagerService definitionManagerService = ServiceProvider.GetRequiredService<DefinitionManagerService>();
+        definitionManagerService.LoadDefinitionFolder();
     }
 }
