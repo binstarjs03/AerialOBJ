@@ -6,7 +6,12 @@ using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
-public class Region
+
+/// <summary>
+/// Region is a wrapper around byte-array data that holds chunk NBT data structure.
+/// Region was implemented for easier getting chunk data from raw byte array of r.x.z.mca file
+/// </summary>
+public class Region : IRegion
 {
     public const int BlockCount = ChunkCount * IChunk.BlockCount;
 
@@ -33,7 +38,7 @@ public class Region
             if (dataLength == 0)
                 throw new RegionNoDataException();
             if (dataLength < ChunkSectorTableSize)
-                throw new InvalidDataException("Region data is too small");
+                throw new InvalidDataException("Region data is smaller than chunk sector table data");
         }
     }
 
