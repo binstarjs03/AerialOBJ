@@ -2,7 +2,7 @@
 
 using binstarjs03.AerialOBJ.Core.Nbt;
 
-namespace binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
+namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public static class ChunkFactory
 {
     public static IChunk CreateInstance(NbtCompound chunkNbt)

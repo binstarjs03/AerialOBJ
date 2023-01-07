@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
+﻿namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 public readonly struct ChunkSectorTableEntry
 {

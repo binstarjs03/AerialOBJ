@@ -7,7 +7,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 
 using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
 
-namespace binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
+namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public class Chunk2860 : IChunk, IDisposable
 {
     private readonly Dictionary<int, Section> _sections;

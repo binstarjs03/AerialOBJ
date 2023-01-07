@@ -1,6 +1,6 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
+namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public struct Block
 {
     public Block() { }
