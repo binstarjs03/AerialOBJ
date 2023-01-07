@@ -128,7 +128,7 @@ public partial class ViewportViewModel
 
     private void OnChunkRegionManagerService_RegionReadingError(Point2Z<int> regionCoords, Exception e)
     {
-        if (e is Core.MinecraftWorld.RegionNoDataException)
+        if (e is RegionNoDataException)
             _logService.Log($"Skipped Region {regionCoords}: file contains no data", useSeparator: true);
         else if (e is InvalidDataException)
             _logService.Log($"Skipped Region {regionCoords}: file is corrupted", LogStatus.Warning, useSeparator: true);

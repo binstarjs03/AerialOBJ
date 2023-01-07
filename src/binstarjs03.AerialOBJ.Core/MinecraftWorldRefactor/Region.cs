@@ -2,7 +2,6 @@
 using System.Buffers.Binary;
 using System.IO;
 
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.Primitives;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
-//using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
+using binstarjs03.AerialOBJ.Core.MinecraftWorldRefactor;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core;
@@ -82,32 +81,32 @@ public static class MathUtils
         /// <returns>Block coordinate relative to chunk</returns>
         public static Point3<int> ConvertBlockCoordsAbsToRelToChunk(Point3<int> coords)
         {
-            int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
+            int blockCoordsAbsX = Mod(coords.X, IChunk.BlockCount);
             int blockCoordsAbsY = coords.Y;
-            int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
+            int blockCoordsAbsZ = Mod(coords.Z, IChunk.BlockCount);
             return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
         }
 
         public static Point2Z<int> ConvertBlockCoordsAbsToRelToChunk(Point2Z<int> coords)
         {
-            int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
-            int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
+            int blockCoordsAbsX = Mod(coords.X, IChunk.BlockCount);
+            int blockCoordsAbsZ = Mod(coords.Z, IChunk.BlockCount);
             return new Point2Z<int>(blockCoordsAbsX, blockCoordsAbsZ);
         }
 
         public static Point3<int> ConvertBlockCoordsAbsToRelToSection(Point3<int> coords)
         {
-            int blockCoordsAbsX = Mod(coords.X, Section.BlockCount);
-            int blockCoordsAbsY = Mod(coords.Y, Section.BlockCount);
-            int blockCoordsAbsZ = Mod(coords.Z, Section.BlockCount);
+            int blockCoordsAbsX = Mod(coords.X, IChunk.BlockCount);
+            int blockCoordsAbsY = Mod(coords.Y, IChunk.BlockCount);
+            int blockCoordsAbsZ = Mod(coords.Z, IChunk.BlockCount);
             return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
         }
 
         public static Point3<int> ConvertBlockCoordsRelToSectionToAbs(Point3<int> blockCoordsRel, Point3<int> sectionCoordsAbs)
         {
-            int blockCoordsAbsX = sectionCoordsAbs.X * MinecraftWorldRefactor.IChunk.BlockCount + blockCoordsRel.X;
-            int blockCoordsAbsY = sectionCoordsAbs.Y * MinecraftWorldRefactor.IChunk.BlockCount + blockCoordsRel.Y;
-            int blockCoordsAbsZ = sectionCoordsAbs.Y * MinecraftWorldRefactor.IChunk.BlockCount + blockCoordsRel.Z;
+            int blockCoordsAbsX = sectionCoordsAbs.X * IChunk.BlockCount + blockCoordsRel.X;
+            int blockCoordsAbsY = sectionCoordsAbs.Y * IChunk.BlockCount + blockCoordsRel.Y;
+            int blockCoordsAbsZ = sectionCoordsAbs.Y * IChunk.BlockCount + blockCoordsRel.Z;
             return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
         }
 
@@ -124,46 +123,16 @@ public static class MathUtils
             return new Point2ZRange<int>(chunkRangeAbsX, chunkRangeAbsZ);
         }
 
-        public static Point3Range<int> CalculateBlockRangeAbsForSection(Point3<int> coordsAbs)
-        {
-            int minAbsBx = coordsAbs.X * Section.BlockCount;
-            int minAbsBy = coordsAbs.Y * Section.BlockCount;
-            int minAbsBz = coordsAbs.Z * Section.BlockCount;
-            Point3<int> minAbsB = new(minAbsBx, minAbsBy, minAbsBz);
-
-            int maxAbsBx = minAbsBx + Section.BlockRange;
-            int maxAbsBy = minAbsBy + Section.BlockRange;
-            int maxAbsBz = minAbsBz + Section.BlockRange;
-            Point3<int> maxAbsB = new(maxAbsBx, maxAbsBy, maxAbsBz);
-
-            return new Point3Range<int>(minAbsB, maxAbsB);
-        }
-
-        public static Point3Range<int> CalculateBlockRangeAbsForChunk(Point2Z<int> chunkCoordsAbs)
-        {
-            int blockRangeAbsMinX = chunkCoordsAbs.X * Section.BlockCount;
-            int blockRangeAbsMinY = Chunk.SectionRange.Min * Section.BlockCount;
-            int blockRangeAbsMinZ = chunkCoordsAbs.Z * Section.BlockCount;
-            Point3<int> blockRangeAbsMin = new(blockRangeAbsMinX, blockRangeAbsMinY, blockRangeAbsMinZ);
-
-            int blockRangeAbsMaxX = blockRangeAbsMinX + Section.BlockRange;
-            int blockRangeAbsMaxY = Chunk.SectionRange.Max * Section.BlockCount + Section.BlockRange;
-            int blockRangeAbsMaxZ = blockRangeAbsMinZ + Section.BlockRange;
-            Point3<int> blockRangeAbsMax = new(blockRangeAbsMaxX, blockRangeAbsMaxY, blockRangeAbsMaxZ);
-
-            return new Point3Range<int>(blockRangeAbsMin, blockRangeAbsMax);
-        }
-
         public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point2Z<int> blockCoordsAbs)
         {
-            return new Point2Z<int>(DivFloor(blockCoordsAbs.X, Section.BlockCount),
-                                    DivFloor(blockCoordsAbs.Z, Section.BlockCount));
+            return new Point2Z<int>(DivFloor(blockCoordsAbs.X, IChunk.BlockCount),
+                                    DivFloor(blockCoordsAbs.Z, IChunk.BlockCount));
         }
 
         public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point3<int> blockCoordsAbs)
         {
-            return new Point2Z<int>(DivFloor(blockCoordsAbs.X, Section.BlockCount),
-                                    DivFloor(blockCoordsAbs.Z, Section.BlockCount));
+            return new Point2Z<int>(DivFloor(blockCoordsAbs.X, IChunk.BlockCount),
+                                    DivFloor(blockCoordsAbs.Z, IChunk.BlockCount));
         }
 
         /// <summary>
