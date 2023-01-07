@@ -5,8 +5,6 @@ using System.IO;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
-
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public class Region
 {
@@ -28,7 +26,7 @@ public class Region
         verifyDataLength(data.Length);
         _data = data;
         Coords = regionCoords;
-        ChunkRangeAbs = CoordsConversion.CalculateChunkRangeAbsForRegion(regionCoords);
+        ChunkRangeAbs = MinecraftWorldMathUtils.CalculateChunkRangeAbsForRegion(regionCoords);
 
         static void verifyDataLength(long dataLength)
         {

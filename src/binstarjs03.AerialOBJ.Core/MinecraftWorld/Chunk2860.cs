@@ -5,8 +5,6 @@ using binstarjs03.AerialOBJ.Core.ArrayPooling;
 using binstarjs03.AerialOBJ.Core.Nbt;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
-
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public class Chunk2860 : IChunk, IDisposable
 {
@@ -17,7 +15,7 @@ public class Chunk2860 : IChunk, IDisposable
     public Chunk2860(NbtCompound chunkNbt)
     {
         CoordsAbs = getChunkCoordsAbs(chunkNbt);
-        CoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(CoordsAbs);
+        CoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(CoordsAbs);
         (_sections, _sectionsY) = readSections(chunkNbt);
         Array.Sort(_sectionsY);
 
@@ -205,7 +203,7 @@ public class Chunk2860 : IChunk, IDisposable
             ref Block blockPalette = ref _blockPalette[paletteIndex];
             return new Block()
             {
-                Coords = CoordsConversion.ConvertBlockCoordsRelToSectionToAbs(blockCoordsRel, CoordsAbs),
+                Coords = MinecraftWorldMathUtils.ConvertBlockCoordsRelToSectionToAbs(blockCoordsRel, CoordsAbs),
                 Name = blockPalette.Name,
             };
         }

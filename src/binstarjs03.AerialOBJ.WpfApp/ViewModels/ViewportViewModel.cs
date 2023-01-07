@@ -16,8 +16,6 @@ using binstarjs03.AerialOBJ.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-using PointSpaceConversion = binstarjs03.AerialOBJ.Core.MathUtils.PointSpaceConversion;
-
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel
@@ -232,8 +230,8 @@ public partial class ViewportViewModel
             Point2Z<int> mouseBlockCoords2 = new(MathUtils.Floor(mouseWorldPos.X), MathUtils.Floor(mouseWorldPos.Z));
             Block? block = _chunkRegionManagerService.GetBlock(mouseBlockCoords2);
 
-            MouseChunkCoords = MathUtils.MinecraftCoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(mouseBlockCoords2);
-            MouseRegionCoords = MathUtils.MinecraftCoordsConversion.GetRegionCoordsFromChunkCoordsAbs(MouseChunkCoords);
+            MouseChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(mouseBlockCoords2);
+            MouseRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(MouseChunkCoords);
             if (block is not null)
             {
                 MouseBlockCoords = block.Value.Coords;

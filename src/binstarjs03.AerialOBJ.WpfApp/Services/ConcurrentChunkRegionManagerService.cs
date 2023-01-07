@@ -13,8 +13,6 @@ using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 
-using CoordsConversion = binstarjs03.AerialOBJ.Core.MathUtils.MinecraftCoordsConversion;
-
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 {
@@ -469,7 +467,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
             {
                 // TODO we may separate getting chunk logic into its own loader service
                 // or maybe just keep it as it as getting chunk can be done directly from region
-                Point2Z<int> chunkCoordsRel = CoordsConversion.ConvertChunkCoordsAbsToRel(chunkCoords);
+                Point2Z<int> chunkCoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
                 if (!region.Data.HasChunkGenerated(chunkCoordsRel))
                     return (null, null);
                 return (region.Data.GetChunk(chunkCoordsRel), region);
@@ -502,7 +500,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     private RegionModel? GetRegionModelForChunk(Point2Z<int> chunkCoords, out RegionStatus regionStatus)
     {
-        Point2Z<int> regionCoords = CoordsConversion.GetRegionCoordsFromChunkCoordsAbs(chunkCoords);
+        Point2Z<int> regionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(chunkCoords);
         lock (_loadedRegions)
             lock (_pendingRegions)
                 lock (_workedRegion)
@@ -588,12 +586,12 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     public Block? GetBlock(Point2Z<int> blockCoords)
     {
         // get chunk for this block
-        Point2Z<int> chunkCoords = CoordsConversion.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
+        Point2Z<int> chunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
         ChunkModel? chunk;
         lock (_loadedChunks)
             if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
                 return null;
-        Point2Z<int> blockCoordsRel = CoordsConversion.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
+        Point2Z<int> blockCoordsRel = MinecraftWorldMathUtils.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
     }
 

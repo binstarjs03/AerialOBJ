@@ -2,9 +2,8 @@
 using System.Globalization;
 using System.Windows.Data;
 
+using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
-
-using PointSpaceConversion = binstarjs03.AerialOBJ.Core.MathUtils.PointSpaceConversion;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class ScreenToWorldCoordConverter : IMultiValueConverter
