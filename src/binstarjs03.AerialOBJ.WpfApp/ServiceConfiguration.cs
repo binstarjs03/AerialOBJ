@@ -46,15 +46,16 @@ internal static class ServiceConfiguration
 
         // configure viewmodels
         services.AddSingleton<AbstractViewModel>();
-        services.AddSingleton<MainViewModel>(x =>
+        services.AddSingleton<IMainViewModel, MainViewModel>(x =>
         {
             GlobalState globalState = x.GetRequiredService<GlobalState>();
             ViewState viewState = x.GetRequiredService<ViewState>();
+            AbstractViewModel abstractViewModel = x.GetRequiredService<AbstractViewModel>();
             IModalService modalService = x.GetRequiredService<IModalService>();
             ILogService logService = x.GetRequiredService<ILogService>();
             ISavegameLoaderService savegameLoaderService = x.GetRequiredService<ISavegameLoaderService>();
             IView viewportView = x.GetRequiredService<ViewportView>();
-            return new MainViewModel(globalState, viewState, modalService, logService, savegameLoaderService, viewportView);
+            return new MainViewModel(globalState, viewState, abstractViewModel, modalService, logService, savegameLoaderService, viewportView);
         });
         services.AddSingleton<DebugLogViewModel>();
         services.AddTransient<ViewportViewModel>();

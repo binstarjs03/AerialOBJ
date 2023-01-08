@@ -2,7 +2,6 @@
 using System.Windows;
 
 using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +16,7 @@ public partial class App : Application
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-        MainWindow = GetAndConfigureMainWindow();
+        MainWindow = GetMainWindow();
         MainWindow.Show();
         if (MainWindow is MainView mainView)
             ConfigureDebugLogWindow(mainView);
@@ -27,20 +26,14 @@ public partial class App : Application
         InitializeDefinitions();
     }
 
-    private Window GetAndConfigureMainWindow()
-    {
-        MainView mainView = ServiceProvider.GetRequiredService<MainView>();
-        MainViewModel mainViewModel = ServiceProvider.GetRequiredService<MainViewModel>();
-        mainViewModel.RequestCloseView += mainView.Close;
-        return mainView;
-    }
+    private MainView GetMainWindow() => ServiceProvider.GetRequiredService<MainView>();
 
     private void ConfigureDebugLogWindow(MainView mainView)
     {
         DebugLogView debugLogView = ServiceProvider.GetRequiredService<DebugLogView>();
         debugLogView.Owner = mainView;
-        mainView.DebugViewSyncPositionRequested += debugLogView.SetTopLeft;
-        mainView.RequestDebugViewsSyncPosition();
+        mainView.RequestSetDebugViewPosition += debugLogView.SetTopLeft;
+        mainView.SyncDebugViewPosition();
     }
 
     private void InitializeLogService()

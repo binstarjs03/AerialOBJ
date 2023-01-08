@@ -10,9 +10,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
+
 [ObservableObject]
-public partial class MainViewModel
+public partial class MainViewModel : IMainViewModel
 {
+    private readonly AbstractViewModel _abstractViewModel;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
     private readonly ISavegameLoaderService _savegameLoaderService;
@@ -22,6 +24,7 @@ public partial class MainViewModel
 
     public MainViewModel(GlobalState globalState,
                          ViewState viewState,
+                         AbstractViewModel abstractViewModel,
                          IModalService modalService,
                          ILogService logService,
                          ISavegameLoaderService savegameLoaderService,
@@ -29,6 +32,7 @@ public partial class MainViewModel
     {
         GlobalState = globalState;
         ViewState = viewState;
+        _abstractViewModel = abstractViewModel;
         _modalService = modalService;
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
@@ -37,8 +41,6 @@ public partial class MainViewModel
         ViewState.PropertyChanged += OnPropertyChanged;
         ViewportView = viewportView;
     }
-
-    public event Action? RequestCloseView;
 
     public GlobalState GlobalState { get; }
     public ViewState ViewState { get; }
@@ -91,10 +93,10 @@ public partial class MainViewModel
     private void CloseSavegame() => GlobalState.SavegameLoadInfo = null;
 
     [RelayCommand]
-    private void Close()
+    private void Close(IClosableView view)
     {
         OnClosing();
-        RequestCloseView?.Invoke();
+        _abstractViewModel.CloseCommand.Execute(view);
     }
 
     [RelayCommand]
