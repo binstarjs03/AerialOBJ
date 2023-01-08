@@ -29,23 +29,23 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _cts = new();
 
-    private readonly StructLock<bool> _isRegionLoaderTaskRunning = new() { Value = false };
+    private readonly ReferenceWrap<bool> _isRegionLoaderTaskRunning = new() { Value = false };
     private Task _regionLoaderTask = new(() => { });
 
-    private readonly StructLock<bool> _isRedrawTaskRunning = new() { Value = false };
+    private readonly ReferenceWrap<bool> _isRedrawTaskRunning = new() { Value = false };
     private Task _redrawTask = new(() => { });
 
     private readonly int _chunkLoaderTasksLimit = 4;
     private readonly Dictionary<uint, Task> _chunkLoaderTasks = new(Environment.ProcessorCount);
-    private readonly StructLock<uint> _newChunkLoaderTaskId = new() { Value = 0 };
+    private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = 0 };
 
     // Manager States ---------------------------------------------------------
-    private readonly StructLock<Point2ZRange<int>> _visibleRegionRange = new() { Value = new Point2ZRange<int>() };
-    private readonly StructLock<Point2ZRange<int>> _visibleChunkRange = new() { Value = new Point2ZRange<int>() };
+    private readonly ReferenceWrap<Point2ZRange<int>> _visibleRegionRange = new() { Value = new Point2ZRange<int>() };
+    private readonly ReferenceWrap<Point2ZRange<int>> _visibleChunkRange = new() { Value = new Point2ZRange<int>() };
 
     private readonly Dictionary<Point2Z<int>, RegionModel> _loadedRegions = new(s_regionBufferSize);
     private readonly List<Point2Z<int>> _pendingRegions = new(s_regionBufferSize);
-    private readonly StructLock<Point2Z<int>?> _workedRegion = new() { Value = null };
+    private readonly ReferenceWrap<Point2Z<int>?> _workedRegion = new() { Value = null };
 
     private readonly Dictionary<Point2Z<int>, ChunkModel> _loadedChunks = new(s_chunkBufferSize);
     private readonly HashSet<Point2Z<int>> _pendingChunksSet = new(s_chunkBufferSize);
@@ -554,7 +554,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     // TODO we may be able to move out these two methods into separate class
     // since the definition is about threading and its out of this class responsibility scope
     // This is to conform SRP
-    private static void RunTaskNoDuplicate(Action method, ref Task task, StructLock<bool> isTaskRunning)
+    private static void RunTaskNoDuplicate(Action method, ref Task task, ReferenceWrap<bool> isTaskRunning)
     {
         lock (isTaskRunning)
         {
@@ -565,7 +565,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         }
     }
 
-    private static void RunTaskMethodWrapper(Action method, StructLock<bool> isTaskRunning)
+    private static void RunTaskMethodWrapper(Action method, ReferenceWrap<bool> isTaskRunning)
     {
         try
         {
