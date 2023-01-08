@@ -9,16 +9,12 @@ public partial class MainView : Window, IClosableView
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.View = this;
         Root.LocationChanged += OnLocationChanged;
         Root.SizeChanged += OnSizeChanged;
     }
 
     public event WindowPositionHandler? DebugViewSyncPositionRequested;
-
     private void OnSizeChanged(object sender, SizeChangedEventArgs e) => RequestDebugViewsSyncPosition();
-
     private void OnLocationChanged(object? sender, System.EventArgs e) => RequestDebugViewsSyncPosition();
-
     public void RequestDebugViewsSyncPosition() => DebugViewSyncPositionRequested?.Invoke(Top, Left + ActualWidth);
 }

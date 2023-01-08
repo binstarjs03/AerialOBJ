@@ -52,7 +52,7 @@ public partial class DefinitionManagerViewModel
                 FileName = ""
             });
             path = dialogResult.SelectedFilePath;
-            return dialogResult.Result;
+            return dialogResult.Confirmed;
         }
 
         void handleException(Exception e)

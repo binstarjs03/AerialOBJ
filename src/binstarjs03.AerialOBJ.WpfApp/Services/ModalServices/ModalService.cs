@@ -53,7 +53,7 @@ public class ModalService : IModalService
         return new FileDialogResult()
         {
             SelectedFilePath = dialog.FileName,
-            Result = result == true,
+            Confirmed = result == true,
         };
     }
 
@@ -69,7 +69,7 @@ public class ModalService : IModalService
         return new FileDialogResult()
         {
             SelectedFilePath = dialog.FileName,
-            Result = result == true,
+            Confirmed = result == true,
         };
     }
 
@@ -79,7 +79,7 @@ public class ModalService : IModalService
         bool? result = dialog.ShowDialog();
         return new FolderDialogResult()
         {
-            Result = result == true,
+            Confirmed = result == true,
             SelectedDirectoryPath = dialog.SelectedPath,
         };
     }

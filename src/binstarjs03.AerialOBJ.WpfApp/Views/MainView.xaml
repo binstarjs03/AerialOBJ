@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
         xmlns:reusables="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels" 
         mc:Ignorable="d"
@@ -17,8 +16,7 @@
     <!--Control name is required for code-behind-->
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction Command="{Binding CloseCommand}"
-                                   CommandParameter="{x:Static viewmodels:CloseViewSender.WindowCloseButton}"/>
+            <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
@@ -40,14 +38,12 @@
                           Command="{Binding OpenSavegameCommand}"/>
                 <MenuItem Header="Close"
                           Command="{Binding CloseSavegameCommand}"
-                          CommandParameter="{x:Static viewmodels:CloseSavegameSender.MenuCloseButton}"
                           IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                 <MenuItem Header="Setting"/>
                 <MenuItem Header="Manage Definitions.."
                           Command="{Binding ShowDefinitionManagerModalCommand}"/>
                 <MenuItem Header="Exit"
-                          Command="{Binding CloseCommand}"
-                          CommandParameter="{x:Static viewmodels:CloseViewSender.MenuExitButton}"/>
+                          Command="{Binding CloseCommand}"/>
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Chunk Grid"

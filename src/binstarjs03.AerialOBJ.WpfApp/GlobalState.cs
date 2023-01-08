@@ -2,9 +2,15 @@
 
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace binstarjs03.AerialOBJ.WpfApp;
-public class GlobalState
+
+[ObservableObject]
+public partial class GlobalState
 {
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSavegameLoaded))]
     private SavegameLoadInfo? _savegameLoadInfo = null;
 
     public GlobalState(DateTime launchTime, string version, string currentPath, string definitionsPath)
@@ -15,8 +21,7 @@ public class GlobalState
         DefinitionsPath = definitionsPath;
     }
 
-    public event Action<string>? PropertyChanged;
-    public event Action<SavegameLoadState>? SavegameLoadChanged;
+    public event Action<SavegameLoadState>? SavegameLoadInfoChanged;
 
     public static string AppName => "AerialOBJ";
     public string Version { get; }
@@ -25,23 +30,13 @@ public class GlobalState
     public string DefinitionsPath { get; }
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
 
-    public SavegameLoadInfo? SavegameLoadInfo
+    partial void OnSavegameLoadInfoChanged(SavegameLoadInfo? value)
     {
-        get => _savegameLoadInfo;
-
-        set
-        {
-            if (value == _savegameLoadInfo)
-                return;
-            _savegameLoadInfo = value;
-            SavegameLoadState loadState = value is null ?
-                SavegameLoadState.Closed : SavegameLoadState.Opened;
-            SavegameLoadChanged?.Invoke(loadState);
-            if (loadState == SavegameLoadState.Closed)
-                GC.Collect();
-            OnPropertyChanged();
-        }
+        SavegameLoadState state;
+        if (value is null)
+            state = SavegameLoadState.Closed;
+        else
+            state = SavegameLoadState.Opened;
+        SavegameLoadInfoChanged?.Invoke(state);
     }
-
-    private void OnPropertyChanged() => PropertyChanged?.Invoke(nameof(GlobalState));
 }

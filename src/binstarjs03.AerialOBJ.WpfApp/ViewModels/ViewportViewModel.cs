@@ -70,8 +70,8 @@ public partial class ViewportViewModel
         _logService = logService;
         _definitionManager = definitionManager;
 
-        GlobalState.PropertyChanged += OnPropertyChanged;
-        GlobalState.SavegameLoadChanged += OnGlobalState_SavegameLoadChanged;
+        //GlobalState.PropertyChanged += OnPropertyChanged;
+        GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadInfoChanged;
         _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
         _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionLoaded;
         _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionUnloaded;
@@ -101,12 +101,10 @@ public partial class ViewportViewModel
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
     partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManagerService();
 
-    private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
+    private void OnGlobalState_SavegameLoadInfoChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Opened)
-        {
             ReinitializeOnSavegameOpened();
-        }
         else if (state == SavegameLoadState.Closed)
             ReinitializeOnSavegameClosed();
         else

@@ -33,18 +33,18 @@ public partial class MainViewModel
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
 
-        GlobalState.PropertyChanged += OnPropertyChanged;
-        GlobalState.SavegameLoadChanged += GlobalState_SavegameLoadChanged;
+        GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadChanged;
         ViewState.PropertyChanged += OnPropertyChanged;
         ViewportView = viewportView;
     }
 
+    public event Action? RequestCloseView;
+
     public GlobalState GlobalState { get; }
     public ViewState ViewState { get; }
     public IView ViewportView { get; }
-    public IClosableView? View { get; set; }
 
-    private void GlobalState_SavegameLoadChanged(SavegameLoadState state)
+    private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         Title = state switch
         {
@@ -64,7 +64,7 @@ public partial class MainViewModel
             SavegameLoadInfo loadInfo = _savegameLoaderService.LoadSavegame(path);
             // close savegame if already loaded
             if (GlobalState.HasSavegameLoaded)
-                CloseSavegame(CloseSavegameSender.OpenSavegameCommand);
+                CloseSavegame();
             GlobalState.SavegameLoadInfo = loadInfo;
         }
         catch (Exception e) { handleException(e); }
@@ -73,7 +73,7 @@ public partial class MainViewModel
         {
             FolderDialogResult result = _modalService.ShowFolderBrowserDialog();
             path = result.SelectedDirectoryPath;
-            return result.Result;
+            return result.Confirmed;
         }
 
         void handleException(Exception e)
@@ -88,35 +88,21 @@ public partial class MainViewModel
     }
 
     [RelayCommand]
-    private void CloseSavegame(CloseSavegameSender sender)
+    private void CloseSavegame() => GlobalState.SavegameLoadInfo = null;
+
+    [RelayCommand]
+    private void Close()
     {
-        GlobalState.SavegameLoadInfo = null;
+        OnClosing();
+        RequestCloseView?.Invoke();
     }
 
     [RelayCommand]
-    private void OnClose(CloseViewSender sender)
-    {
-        GlobalState.SavegameLoadInfo = null;
-        if (sender == CloseViewSender.MenuExitButton)
-            View?.Close();
-    }
+    private void OnClosing() => CloseSavegame();
 
     [RelayCommand]
     private void ShowAboutModal() => _modalService.ShowAboutView();
 
     [RelayCommand]
     private void ShowDefinitionManagerModal() => _modalService.ShowDefinitionManagerView();
-
-}
-
-public enum CloseSavegameSender
-{
-    OpenSavegameCommand,
-    MenuCloseButton,
-}
-
-public enum CloseViewSender
-{
-    WindowCloseButton,
-    MenuExitButton,
 }

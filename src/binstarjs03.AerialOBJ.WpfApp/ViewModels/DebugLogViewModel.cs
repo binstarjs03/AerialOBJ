@@ -25,7 +25,7 @@ public partial class DebugLogViewModel
         _modalService = modalService;
         _iOService = iOService;
 
-        GlobalState.PropertyChanged += OnPropertyChanged;
+        //GlobalState.PropertyChanged += OnPropertyChanged;
         ViewState.PropertyChanged += OnPropertyChanged;
         LogService.Logging += OnLogServiceLogging;
     }
@@ -70,7 +70,7 @@ public partial class DebugLogViewModel
                 FileExtensionFilter = "Text Document|*.txt",
             });
             path = dialogResult.SelectedFilePath;
-            return dialogResult.Result;
+            return dialogResult.Confirmed;
         }
 
         void handleException(Exception e)
