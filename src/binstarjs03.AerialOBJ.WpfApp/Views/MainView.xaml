@@ -49,7 +49,7 @@
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Debug Log" 
                               IsCheckable="True"
-                              IsChecked="{Binding ViewState.IsDebugLogWindowVisible, Mode=TwoWay}"/>
+                              IsChecked="{Binding ViewState.IsDebugLogViewVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="About..."

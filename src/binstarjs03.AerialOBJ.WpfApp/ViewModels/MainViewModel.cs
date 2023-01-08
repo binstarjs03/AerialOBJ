@@ -38,7 +38,6 @@ public partial class MainViewModel : IMainViewModel
         _savegameLoaderService = savegameLoaderService;
 
         GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadChanged;
-        ViewState.PropertyChanged += OnPropertyChanged;
         ViewportView = viewportView;
     }
 

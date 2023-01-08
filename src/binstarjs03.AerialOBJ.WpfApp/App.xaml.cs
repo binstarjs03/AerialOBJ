@@ -46,7 +46,7 @@ public partial class App : Application
     {
 #if DEBUG // TODO refactor if "debug" is in command-line arg
         ViewState viewState = ServiceProvider.GetRequiredService<ViewState>();
-        viewState.IsDebugLogWindowVisible = true;
+        viewState.IsDebugLogViewVisible = true;
 #endif
     }
 

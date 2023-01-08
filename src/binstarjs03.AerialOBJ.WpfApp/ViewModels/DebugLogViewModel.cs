@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
+
 [ObservableObject]
 public partial class DebugLogViewModel
 {
@@ -25,8 +26,6 @@ public partial class DebugLogViewModel
         _modalService = modalService;
         _iOService = iOService;
 
-        //GlobalState.PropertyChanged += OnPropertyChanged;
-        ViewState.PropertyChanged += OnPropertyChanged;
         LogService.Logging += OnLogServiceLogging;
     }
 

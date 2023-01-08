@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
+
 [ObservableObject]
 public partial class AbstractViewModel
 {

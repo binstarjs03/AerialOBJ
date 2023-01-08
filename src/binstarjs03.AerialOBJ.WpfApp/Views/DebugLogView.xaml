@@ -12,7 +12,7 @@
         Width="600" Height="400"
         d:Width="400" d:Height="300"
         MinWidth="300" MinHeight="300"
-        Visibility="{Binding ViewState.IsDebugLogWindowVisible, Mode=TwoWay, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}"
+        Visibility="{Binding ViewState.IsDebugLogViewVisible, Mode=TwoWay, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}"
         d:Visibility="Visible"
         Background="{StaticResource Background}">
     <Grid>

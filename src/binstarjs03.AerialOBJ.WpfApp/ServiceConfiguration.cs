@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
-
 internal static class ServiceConfiguration
 {
     internal static IServiceProvider Configure()
