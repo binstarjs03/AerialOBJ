@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-using binstarjs03.AerialOBJ.Core.ArrayPooling;
+using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Models;

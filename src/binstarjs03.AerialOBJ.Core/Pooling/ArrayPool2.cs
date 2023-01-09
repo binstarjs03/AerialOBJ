@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace binstarjs03.AerialOBJ.Core.ArrayPooling;
+namespace binstarjs03.AerialOBJ.Core.Pooling;
 public class ArrayPool2<T>
 {
     private readonly int _length1;
