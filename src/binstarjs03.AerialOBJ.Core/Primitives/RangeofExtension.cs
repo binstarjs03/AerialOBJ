@@ -138,4 +138,31 @@ public static class RangeofExtension
     {
         return ExpandContract(coordsRange, -distance, false, direction);
     }
+
+    public static bool CanIntersect<TNumber>(this Rangeof<TNumber> self, Rangeof<TNumber> other) where TNumber : struct, INumber<TNumber>
+    {
+        return self.Max > other.Min || self.Max > other.Min;
+    }
+
+    public static bool CanIntersect<TNumber>(this Point2ZRange<TNumber> self, Point2ZRange<TNumber> other) where TNumber : struct, INumber<TNumber>
+    {
+        return self.XRange.CanIntersect(other.XRange) 
+            && self.ZRange.CanIntersect(other.ZRange);
+    }
+
+    public static Rangeof<TNumber> Intersect<TNumber>(this Rangeof<TNumber> self, Rangeof<TNumber> other) where TNumber : struct, INumber<TNumber>
+    {
+        TNumber min = selectMin(self.Min, other.Min);
+        TNumber max = selectMax(self.Max, other.Max);
+        return new Rangeof<TNumber>(min, max);
+        TNumber selectMin(TNumber minA, TNumber minB) => minA > minB ? minA : minB;
+        TNumber selectMax(TNumber maxA, TNumber maxB) => maxA < maxB ? maxA : maxB;
+    }
+
+    public static Point2ZRange<TNumber> Intersect<TNumber>(this Point2ZRange<TNumber> self, Point2ZRange<TNumber> other) where TNumber : struct, INumber<TNumber>
+    {
+        Rangeof<TNumber> xRange = self.XRange.Intersect(other.XRange);
+        Rangeof<TNumber> zRange = self.ZRange.Intersect(other.ZRange);
+        return new Point2ZRange<TNumber>(xRange, zRange);
+    }
 }
