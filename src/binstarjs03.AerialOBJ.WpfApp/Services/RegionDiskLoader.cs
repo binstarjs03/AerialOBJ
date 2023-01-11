@@ -10,12 +10,12 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
-public class RegionLoaderService : IRegionLoaderService
+public class RegionDiskLoader : IRegionDiskLoader
 {
     private readonly GlobalState _globalState;
     private readonly Dictionary<Point2Z<int>, Region> _cachedRegions = new(100);
 
-    public RegionLoaderService(GlobalState globalState)
+    public RegionDiskLoader(GlobalState globalState)
     {
         _globalState = globalState;
     }

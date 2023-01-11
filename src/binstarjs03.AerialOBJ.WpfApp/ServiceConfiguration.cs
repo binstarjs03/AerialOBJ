@@ -72,7 +72,7 @@ internal static class ServiceConfiguration
         services.AddSingleton<IIOService, IOService>();
         services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
         services.AddTransient<IChunkRegionManagerService, ConcurrentChunkRegionManagerService>();
-        services.AddSingleton<IRegionLoaderService, RegionLoaderService>();
+        services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddSingleton<IChunkRenderService, ChunkRenderService>(x =>
         {
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.

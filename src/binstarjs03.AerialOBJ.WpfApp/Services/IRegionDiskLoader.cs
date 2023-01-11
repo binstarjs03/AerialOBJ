@@ -5,7 +5,7 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
-public interface IRegionLoaderService
+public interface IRegionDiskLoader
 {
     Region? LoadRegion(Point2Z<int> regionCoords, CancellationToken cancellationToken);
     void PurgeCache();

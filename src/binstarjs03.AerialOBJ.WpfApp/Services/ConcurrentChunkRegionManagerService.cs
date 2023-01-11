@@ -21,7 +21,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly Random _rng = new();
 
     // Dependencies -----------------------------------------------------------
-    private readonly IRegionLoaderService _regionLoaderService;
+    private readonly IRegionDiskLoader _regionLoaderService;
     private readonly RegionModelFactory _regionModelFactory;
     private readonly IChunkRenderService _chunkRenderService;
 
@@ -56,7 +56,7 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly List<Point2Z<int>> _workedChunks = new(Environment.ProcessorCount);
 
     public ConcurrentChunkRegionManagerService(
-        IRegionLoaderService regionLoaderService,
+        IRegionDiskLoader regionLoaderService,
         RegionModelFactory regionImageModelFactory,
         IChunkRenderService chunkRenderService)
     {
