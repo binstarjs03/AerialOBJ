@@ -33,7 +33,7 @@ public struct Rangeof<TNumber> :
         }
     }
 
-    public TNumber Sum => Min + Max + TNumber.One;
+    public TNumber Sum => Max - Min + TNumber.One;
 
     public Rangeof()
     {
