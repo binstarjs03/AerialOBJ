@@ -22,7 +22,6 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     // Dependencies -----------------------------------------------------------
     private readonly IRegionLoaderService _regionLoaderService;
-    private readonly IChunkRegionManagerErrorMemory _crmErrorMemoryService;
     private readonly RegionModelFactory _regionModelFactory;
     private readonly IChunkRenderService _chunkRenderService;
 
@@ -40,6 +39,9 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = 0 };
 
     // Manager States ---------------------------------------------------------
+    private readonly List<Point2Z<int>> _errorRegions = new();
+    private readonly HashSet<Point2Z<int>> _errorChunks = new();
+
     private readonly ReferenceWrap<Point2ZRange<int>> _visibleRegionRange = new() { Value = new Point2ZRange<int>() };
     private readonly ReferenceWrap<Point2ZRange<int>> _visibleChunkRange = new() { Value = new Point2ZRange<int>() };
 
@@ -55,12 +57,10 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
     public ConcurrentChunkRegionManagerService(
         IRegionLoaderService regionLoaderService,
-        IChunkRegionManagerErrorMemory errorMemory,
         RegionModelFactory regionImageModelFactory,
         IChunkRenderService chunkRenderService)
     {
         _regionLoaderService = regionLoaderService;
-        _crmErrorMemoryService = errorMemory;
         _regionModelFactory = regionImageModelFactory;
         _chunkRenderService = chunkRenderService;
     }
@@ -275,10 +275,10 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
         void handleRegionLoadingError(Point2Z<int> regionCoords, Exception e)
         {
-            if (_crmErrorMemoryService.CheckHasRegionError(regionCoords))
+            if (_errorRegions.Contains(regionCoords))
                 return;
             App.Current.Dispatcher.InvokeAsync(() => RegionLoadingError?.Invoke(regionCoords, e), DispatcherPriority.Background);
-            _crmErrorMemoryService.StoreRegionError(regionCoords);
+            _errorRegions.Add(regionCoords);
         }
 
         void cleanupWorkedRegion()
@@ -481,12 +481,12 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
 
         void handleChunkLoadingError(Point2Z<int> chunkCoords, Exception e)
         {
-            lock (_crmErrorMemoryService)
+            lock (_errorChunks)
             {
-                if (_crmErrorMemoryService.CheckHasChunkError(chunkCoords))
+                if (_errorRegions.Contains(chunkCoords))
                     return;
                 App.Current.Dispatcher.InvokeAsync(() => ChunkLoadingError?.Invoke(chunkCoords, e), DispatcherPriority.Background);
-                _crmErrorMemoryService.StoreChunkError(chunkCoords);
+                _errorChunks.Add(chunkCoords);
             }
         }
 
@@ -650,7 +650,8 @@ public class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
         _pendingChunks.Clear();
         _pendingChunksSet.Clear();
 
-        _crmErrorMemoryService.Reinitialize();
+        _errorChunks.Clear();
+        _errorRegions.Clear();
         _regionLoaderService.PurgeCache();
 
         _cts.Dispose();
