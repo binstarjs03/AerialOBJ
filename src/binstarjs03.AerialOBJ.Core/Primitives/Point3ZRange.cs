@@ -12,6 +12,8 @@ public struct Point3Range<TNumber> :
     public Rangeof<TNumber> YRange { get; set; }
     public Rangeof<TNumber> ZRange { get; set; }
 
+    public TNumber Sum => XRange.Sum * YRange.Sum * ZRange.Sum;
+
     public Point3Range()
     {
         XRange = new();

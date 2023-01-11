@@ -10,6 +10,7 @@ public struct Point2ZRange<TNumber> :
 {
     public Rangeof<TNumber> XRange { get; set; }
     public Rangeof<TNumber> ZRange { get; set; }
+    public TNumber Sum => XRange.Sum * ZRange.Sum;
 
     public Point2ZRange()
     {

@@ -33,6 +33,8 @@ public struct Rangeof<TNumber> :
         }
     }
 
+    public TNumber Sum => Min + Max + TNumber.One;
+
     public Rangeof()
     {
         _min = TNumber.Zero;
