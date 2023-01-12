@@ -1,7 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -155,6 +153,8 @@ public partial class ViewportViewModel
         if (GetViewViewportSize is not null)
             ScreenSize = GetViewViewportSize();
         UpdateChunkRegionManager();
+        IsChunkGridVisible = true;
+        IsInfoPanelVisible = true;
     }
 
     private void ReinitializeOnSavegameClosed()

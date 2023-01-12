@@ -29,6 +29,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     // Dependencies -----------------------------------------------------------
     private readonly IRegionDiskLoader _regionProvider;
     private readonly RegionDataImageModelFactory _regionDataImageModelFactory;
+    private readonly IRegionImagePooler _regionImagePooler;
     private readonly IChunkRenderer _chunkRenderer;
     private readonly IDispatcher _dispatcher;
 
@@ -69,11 +70,13 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     public ConcurrentChunkRegionManagerService(
         IRegionDiskLoader regionProvider,
         RegionDataImageModelFactory regionImageModelFactory,
+        IRegionImagePooler regionImagePooler,
         IChunkRenderer chunkRenderer,
         IDispatcher dispatcher)
     {
         _regionProvider = regionProvider;
         _regionDataImageModelFactory = regionImageModelFactory;
+        _regionImagePooler = regionImagePooler;
         _chunkRenderer = chunkRenderer;
         _dispatcher = dispatcher;
     }
@@ -209,12 +212,20 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
 
     private void QueuePendingRegions()
     {
+
         // this section of code may looks slow but mostly
         // only few regions are visible to the screen at a time
         for (int x = _visibleRegionRange.XRange.Min; x <= _visibleRegionRange.XRange.Max; x++)
             for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
             {
+                // load cached region instantly without having to go through pending queue
                 Point2Z<int> regionCoords = new(x, z);
+                lock (_cachedRegions)
+                    if (_cachedRegions.TryGetValue(regionCoords, out RegionDataImageModel? regionDataImageModel))
+                    {
+                        LoadRegion(regionDataImageModel, true);
+                        continue;
+                    }
                 lock (_loadedRegions)
                     lock (_pendingRegions)
                         lock (_workedRegion)
@@ -229,6 +240,9 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
 
     private void RunPendingRegionTask()
     {
+        lock (_pendingRegions)
+            if (_pendingRegions.Count == 0)
+                return;
         lock (_isPendingRegionTaskRunning)
         {
             if (_isPendingRegionTaskRunning.Value)
@@ -326,9 +340,15 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         }
     }
 
-    private void LoadRegion(RegionDataImageModel region)
+    private void LoadRegion(RegionDataImageModel region, bool isMainThread = false)
     {
-        _dispatcher.Invoke(() =>
+        if (isMainThread)
+            loadRegion();
+        else
+            _dispatcher.Invoke(loadRegion, DispatcherPriority.Background, _reinitializingCts.Token);
+        OnPropertyChanged(nameof(LoadedRegionsCount));
+
+        void loadRegion()
         {
             lock (_loadedRegions)
             {
@@ -339,8 +359,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
                 _loadedRegions.Add(region.Data.Coords, region);
                 RegionLoaded?.Invoke(region);
             }
-        }, DispatcherPriority.Background, _reinitializingCts.Token);
-        OnPropertyChanged(nameof(LoadedRegionsCount));
+        }
     }
 
     private void UnloadRegion(RegionDataImageModel regionModel)
@@ -348,6 +367,14 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         // locking is already done before this method called
         _loadedRegions.Remove(regionModel.Data.Coords);
         RegionUnloaded?.Invoke(regionModel);
+        SwapRegionImage(regionModel);
+    }
+
+    // swap dirty (has rendered chunks) region image with new one
+    private void SwapRegionImage(RegionDataImageModel regionModel)
+    {
+        _regionImagePooler.Return(regionModel.Image);
+        regionModel.Image = _regionImagePooler.Rent(regionModel.Data.Coords, _reinitializingCts.Token);
     }
 
     private void ManageChunks()
@@ -607,8 +634,8 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         }
         finally
         {
-            lock (_isPendingRegionTaskRunning)
-                _isPendingRegionTaskRunning.Value = false;
+            lock (_isRedrawTaskRunning)
+                _isRedrawTaskRunning.Value = false;
         }
     }
 

@@ -1,17 +1,18 @@
 ﻿using System;
+using System.IO;
+using System.Threading;
 
 using binstarjs03.AerialOBJ.WpfApp.Factories;
+using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionProvider;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Services.SavegameLoaderServices;
-using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
-using System.IO;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionProvider;
-using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 internal static class ServiceConfiguration
@@ -61,7 +62,7 @@ internal static class ServiceConfiguration
         services.AddTransient<DefinitionManagerViewModel>();
 
         // configure services
-        services.AddSingleton<IDispatcher, WpfDispatcher>(x=>new WpfDispatcher(App.Current.Dispatcher));
+        services.AddSingleton<IDispatcher, WpfDispatcher>(x => new WpfDispatcher(App.Current.Dispatcher));
         services.AddSingleton<IModalService, ModalService>(x =>
         {
             IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
@@ -83,6 +84,10 @@ internal static class ServiceConfiguration
             return new ChunkRenderer(shader);
         });
         services.AddSingleton<IViewportDefinitionLoaderService, ViewportDefinitionLoaderService>();
+        services.AddSingleton<IRegionImagePooler, RegionImagePooler>(x =>
+        {
+            return new RegionImagePooler(x.GetRequiredService<IRegionImageFactory>(), CancellationToken.None);
+        });
 
         return services.BuildServiceProvider();
     }
