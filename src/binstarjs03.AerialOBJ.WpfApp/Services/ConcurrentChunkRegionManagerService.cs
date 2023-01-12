@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -36,6 +37,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _stoppingCts = new(); // use this when pausing
     private CancellationTokenSource _reinitializingCts = new(); // use this when reinitializing
+    private readonly ManualResetEventSlim _updateChunkHighestBlockEvent = new(true);
 
     private readonly ReferenceWrap<bool> _isPendingRegionTaskRunning = new() { Value = false };
     private Task _pendingRegionTask = Task.CompletedTask;
@@ -43,13 +45,14 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     private readonly ReferenceWrap<bool> _isRedrawTaskRunning = new() { Value = false };
     private Task _redrawTask = Task.CompletedTask;
 
-    private readonly int _pendingChunkTasksLimit = Math.Max(1, 4);
+    private readonly int _pendingChunkTasksLimit = Math.Max(1, 12);
     private readonly Dictionary<uint, Task> _pendingChunkTasks = new(Environment.ProcessorCount);
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
     // Manager States ---------------------------------------------------------
     private readonly List<Point2Z<int>> _errorRegions = new();
     private readonly HashSet<Point2Z<int>> _errorChunks = new();
+    private int _heightLevel;
 
     private Point2ZRange<int> _visibleRegionRange = default;
     private Point2ZRange<int> _visibleChunkRange = default;
@@ -106,6 +109,15 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
             if (IsVisibleRegionRangeChanged())
                 ManageRegions();
             ManageChunks();
+        }
+    }
+
+    public void UpdateHeightLevel(int heightLevel)
+    {
+        if (_heightLevel != heightLevel)
+        {
+            _heightLevel = heightLevel;
+            UpdateChunkHighestBlock();
         }
     }
 
@@ -573,8 +585,9 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
 
     private void LoadChunk(IChunk chunkData, RegionDataImageModel regionModel)
     {
+        _updateChunkHighestBlockEvent.Wait();
         ChunkModel chunk = new() { Data = chunkData };
-        chunk.LoadHighestBlock();
+        chunk.LoadHighestBlock(_heightLevel);
         _chunkRenderer.RenderChunk(regionModel.Image, chunk.HighestBlocks, chunk.Data.CoordsRel);
         _visibleChunkRangeLock.EnterReadLock();
         try
@@ -649,6 +662,45 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
                 return null;
         Point2Z<int> blockCoordsRel = MinecraftWorldMathUtils.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
+    }
+
+    private void UpdateChunkHighestBlock()
+    {
+        _updateChunkHighestBlockEvent.Reset();
+        try
+        {
+            Queue<ChunkModel> chunks = new(_loadedChunks.Values);
+            if (chunks.Count == 0)
+                return;
+            Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount, 0, chunks.Count)];
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                tasks[i] = new Task(()=>updateChunkHighestBlock(chunks));
+                tasks[i].Start();
+            }
+            Task.WaitAll(tasks);
+        }
+        finally
+        {
+            _updateChunkHighestBlockEvent.Set();
+        }
+
+        void updateChunkHighestBlock(Queue<ChunkModel> chunkModels)
+        {
+            while (true)
+            {
+                ChunkModel? chunkModel;
+                lock (chunkModels)
+                    // stop when all chunks are updated (empty queue)
+                    if (!chunkModels.TryDequeue(out chunkModel))
+                        return;
+                chunkModel.LoadHighestBlock(_heightLevel);
+                RegionDataImageModel? regionDataImageModel = GetRegionModelForChunk(chunkModel.Data.CoordsAbs, out _);
+                if (regionDataImageModel is null)
+                    continue;
+                _chunkRenderer.RenderChunk(regionDataImageModel.Image, chunkModel.HighestBlocks, chunkModel.Data.CoordsRel);
+            }
+        }
     }
 
     public void StartBackgroundThread()

@@ -13,5 +13,5 @@ public interface IChunk : IDisposable
     Point2Z<int> CoordsAbs { get; }
     Point2Z<int> CoordsRel { get; }
 
-    void GetHighestBlock(Block[,] buffer);
+    void GetHighestBlock(Block[,] buffer, int heightLimit);
 }

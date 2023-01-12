@@ -53,7 +53,7 @@ public class Chunk2860 : IChunk, IDisposable
     public int DataVersion => 2860;
     public string ReleaseVersion => "1.18";
 
-    public void GetHighestBlock(Block[,] highestBlockBuffer)
+    public void GetHighestBlock(Block[,] highestBlockBuffer, int heightLimit)
     {
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
@@ -74,6 +74,11 @@ public class Chunk2860 : IChunk, IDisposable
                         break;
 
                     int sectionY = _sectionsY[index];
+
+                    int heightAtSection = sectionY * IChunk.BlockCount;
+                    if (heightAtSection > heightLimit)
+                        continue;
+
                     Section section = _sections[sectionY];
                     if (section.IsAir)
                         continue;
@@ -82,6 +87,9 @@ public class Chunk2860 : IChunk, IDisposable
                     {
                         if (foundHighestBlock)
                             break;
+
+                        if (heightAtSection + y > heightLimit)
+                            continue;
 
                         Point3<int> blockCoordsRel = new(x, y, z);
                         Block? block = section.GetBlock(blockCoordsRel);

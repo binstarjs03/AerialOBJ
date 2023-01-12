@@ -12,7 +12,7 @@ public class ChunkModel : IDisposable
     public required IChunk Data { get; init; }
     public Block[,] HighestBlocks { get; } = s_highestBlockPooler.Rent();
 
-    public void LoadHighestBlock() => Data.GetHighestBlock(HighestBlocks);
+    public void LoadHighestBlock(int heightLimit) => Data.GetHighestBlock(HighestBlocks, heightLimit);
 
     protected virtual void Dispose(bool disposing)
     {
