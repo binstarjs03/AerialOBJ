@@ -42,7 +42,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     private readonly ReferenceWrap<bool> _isRedrawTaskRunning = new() { Value = false };
     private Task _redrawTask = Task.CompletedTask;
 
-    private readonly int _pendingChunkTasksLimit = 12;
+    private readonly int _pendingChunkTasksLimit = Math.Max(1, Environment.ProcessorCount - 1);
     private readonly Dictionary<uint, Task> _pendingChunkTasks = new(Environment.ProcessorCount);
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
@@ -50,8 +50,10 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     private readonly List<Point2Z<int>> _errorRegions = new();
     private readonly HashSet<Point2Z<int>> _errorChunks = new();
 
-    private readonly ReferenceWrap<Point2ZRange<int>> _visibleRegionRange = new() { Value = default };
-    private readonly ReferenceWrap<Point2ZRange<int>> _visibleChunkRange = new() { Value = default };
+    private Point2ZRange<int> _visibleRegionRange = default;
+    private Point2ZRange<int> _visibleChunkRange = default;
+    private readonly ReaderWriterLockSlim _visibleRegionRangeLock = new();
+    private readonly ReaderWriterLockSlim _visibleChunkRangeLock = new();
 
     private readonly Dictionary<Point2Z<int>, RegionDataImageModel> _loadedRegions = new(s_initialRegionBufferSize);
     private readonly Dictionary<Point2Z<int>, RegionDataImageModel> _cachedRegions = new(s_initialRegionBufferSize);
@@ -76,14 +78,14 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         _dispatcher = dispatcher;
     }
 
-    public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange.Value;
+    public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange;
     public int VisibleRegionsCount => VisibleRegionRange.Sum;
     public int LoadedRegionsCount => _loadedRegions.Count;
     public int CachedRegionsCount => _cachedRegions.Count;
     public int PendingRegionsCount => _pendingRegions.Count;
     public Point2Z<int>? WorkedRegion => _workedRegion.Value;
 
-    public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange.Value;
+    public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange;
     public int VisibleChunksCount => VisibleChunkRange.Sum;
     public int LoadedChunksCount => _loadedChunks.Count;
     public int PendingChunksCount => _pendingChunks.Count;
@@ -106,32 +108,36 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
 
     private bool IsVisibleChunkRangeChanged(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
-        lock (_visibleChunkRange)
+        _visibleChunkRangeLock.EnterWriteLock();
+        try
         {
-            Point2ZRange<int> oldVisibleChunkRange = _visibleChunkRange.Value;
+            Point2ZRange<int> oldVisibleChunkRange = _visibleChunkRange;
             Point2ZRange<int> newVisibleChunkRange = CalculateVisibleChunkRange(cameraPos, unitMultiplier, screenSize);
             if (newVisibleChunkRange == oldVisibleChunkRange)
                 return false;
-            _visibleChunkRange.Value = newVisibleChunkRange;
+            _visibleChunkRange = newVisibleChunkRange;
             OnPropertyChanged(nameof(VisibleChunkRange));
             OnPropertyChanged(nameof(VisibleChunksCount));
             return true;
         }
+        finally { _visibleChunkRangeLock.ExitWriteLock(); }
     }
 
     private bool IsVisibleRegionRangeChanged()
     {
-        lock (_visibleRegionRange)
+        _visibleRegionRangeLock.EnterWriteLock();
+        try
         {
-            Point2ZRange<int> oldVisibleRegionRange = _visibleRegionRange.Value;
-            Point2ZRange<int> newVisibleRegionRange = CalculateVisibleRegionRange(_visibleChunkRange.Value);
+            Point2ZRange<int> oldVisibleRegionRange = _visibleRegionRange;
+            Point2ZRange<int> newVisibleRegionRange = CalculateVisibleRegionRange(_visibleChunkRange);
             if (newVisibleRegionRange == oldVisibleRegionRange)
                 return false;
-            _visibleRegionRange.Value = newVisibleRegionRange;
+            _visibleRegionRange = newVisibleRegionRange;
             OnPropertyChanged(nameof(VisibleRegionRange));
             OnPropertyChanged(nameof(VisibleRegionsCount));
             return true;
         }
+        finally { _visibleRegionRangeLock.ExitWriteLock(); }
     }
 
     private static Point2ZRange<int> CalculateVisibleChunkRange(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
@@ -192,39 +198,33 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     {
         // perform boundary range checking for regions outside display frame
         // unload loaded and cancel pending region if outside
-        lock (_visibleRegionRange)
-        {
-            lock (_loadedRegions)
-                foreach ((Point2Z<int> regionCoords, RegionDataImageModel regionModel) in _loadedRegions)
-                    if (_visibleRegionRange.Value.IsOutside(regionCoords))
-                        UnloadRegion(regionModel);
-            // remove all pending region list that is no longer visible
-            lock (_pendingRegions)
-                _pendingRegions.RemoveAll(_visibleRegionRange.Value.IsOutside);
-        }
+        lock (_loadedRegions)
+            foreach ((Point2Z<int> regionCoords, RegionDataImageModel regionModel) in _loadedRegions)
+                if (_visibleRegionRange.IsOutside(regionCoords))
+                    UnloadRegion(regionModel);
+        // remove all pending region list that is no longer visible
+        lock (_pendingRegions)
+            _pendingRegions.RemoveAll(_visibleRegionRange.IsOutside);
     }
 
     private void QueuePendingRegions()
     {
         // this section of code may looks slow but mostly
         // only few regions are visible to the screen at a time
-        lock (_visibleRegionRange)
-        {
-            for (int x = _visibleRegionRange.Value.XRange.Min; x <= _visibleRegionRange.Value.XRange.Max; x++)
-                for (int z = _visibleRegionRange.Value.ZRange.Min; z <= _visibleRegionRange.Value.ZRange.Max; z++)
-                {
-                    Point2Z<int> regionCoords = new(x, z);
-                    lock (_loadedRegions)
-                        lock (_pendingRegions)
-                            lock (_workedRegion)
-                                if (_loadedRegions.ContainsKey(regionCoords)
-                                    || _pendingRegions.Contains(regionCoords)
-                                    || _workedRegion.Value == regionCoords)
-                                    continue;
-                                else
-                                    _pendingRegions.Add(regionCoords);
-                }
-        }
+        for (int x = _visibleRegionRange.XRange.Min; x <= _visibleRegionRange.XRange.Max; x++)
+            for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
+            {
+                Point2Z<int> regionCoords = new(x, z);
+                lock (_loadedRegions)
+                    lock (_pendingRegions)
+                        lock (_workedRegion)
+                            if (_loadedRegions.ContainsKey(regionCoords)
+                                || _pendingRegions.Contains(regionCoords)
+                                || _workedRegion.Value == regionCoords)
+                                continue;
+                            else
+                                _pendingRegions.Add(regionCoords);
+            }
     }
 
     private void RunPendingRegionTask()
@@ -298,6 +298,8 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
                     lock (_cachedRegions)
                         _cachedRegions.Add(regionCoords, regionDataImageModel);
                     OnPropertyChanged(nameof(CachedRegionsCount));
+                    //_chunkRenderer.RenderRandomNoise(regionDataImageModel.Image, Random.Shared.NextColor(), 64);
+                    //regionDataImageModel.Image.Redraw();
                     return true;
                 }
             }
@@ -328,16 +330,15 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     {
         _dispatcher.Invoke(() =>
         {
-            lock (_visibleRegionRange)
-                lock (_loadedRegions)
-                {
-                    if (_visibleRegionRange.Value.IsOutside(region.Data.Coords)
-                        || _loadedRegions.ContainsKey(region.Data.Coords)
-                        || _stoppingCts.IsCancellationRequested)
-                        return;
-                    _loadedRegions.Add(region.Data.Coords, region);
-                    RegionLoaded?.Invoke(region);
-                }
+            lock (_loadedRegions)
+            {
+                if (_visibleRegionRange.IsOutside(region.Data.Coords)
+                    || _loadedRegions.ContainsKey(region.Data.Coords)
+                    || _stoppingCts.IsCancellationRequested)
+                    return;
+                _loadedRegions.Add(region.Data.Coords, region);
+                RegionLoaded?.Invoke(region);
+            }
         }, DispatcherPriority.Background, _reinitializingCts.Token);
         OnPropertyChanged(nameof(LoadedRegionsCount));
     }
@@ -362,17 +363,14 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     {
         // perform boundary range checking for regions outside display frame
         // unload loaded / cancel pending chunk if outside
-        lock (_visibleChunkRange)
+        lock (_loadedChunks)
+            foreach ((Point2Z<int> chunkCoords, ChunkModel chunk) in _loadedChunks)
+                if (_visibleChunkRange.IsOutside(chunkCoords))
+                    UnloadChunk(chunk);
+        lock (_pendingChunkLock)
         {
-            lock (_loadedChunks)
-                foreach ((Point2Z<int> chunkCoords, ChunkModel chunk) in _loadedChunks)
-                    if (_visibleChunkRange.Value.IsOutside(chunkCoords))
-                        UnloadChunk(chunk);
-            lock (_pendingChunkLock)
-            {
-                _pendingChunks.RemoveAll(_visibleChunkRange.Value.IsOutside);
-                _pendingChunksSet.RemoveWhere(_visibleChunkRange.Value.IsOutside);
-            }
+            _pendingChunks.RemoveAll(_visibleChunkRange.IsOutside);
+            _pendingChunksSet.RemoveWhere(_visibleChunkRange.IsOutside);
         }
 
     }
@@ -381,28 +379,25 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     {
         // this section of code may have lots of overheads as hundreds even tens of hundreds chunks
         // may visible to the screen at a time, plus there are quadruple of locks combined
-        lock (_visibleChunkRange)
-        {
-            for (int x = _visibleChunkRange.Value.XRange.Min; x <= _visibleChunkRange.Value.XRange.Max; x++)
-                for (int z = _visibleChunkRange.Value.ZRange.Min; z <= _visibleChunkRange.Value.ZRange.Max; z++)
-                {
-                    Point2Z<int> chunkCoords = new(x, z);
-                    lock (_loadedChunks)
-                        lock (_pendingChunkLock)
-                            lock (_workedChunks)
+        for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
+            for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
+            {
+                Point2Z<int> chunkCoords = new(x, z);
+                lock (_loadedChunks)
+                    lock (_pendingChunkLock)
+                        lock (_workedChunks)
+                        {
+                            if (_loadedChunks.ContainsKey(chunkCoords)
+                                || _pendingChunksSet.Contains(chunkCoords)
+                                || _workedChunks.Contains(chunkCoords))
+                                continue;
+                            else
                             {
-                                if (_loadedChunks.ContainsKey(chunkCoords)
-                                    || _pendingChunksSet.Contains(chunkCoords)
-                                    || _workedChunks.Contains(chunkCoords))
-                                    continue;
-                                else
-                                {
-                                    _pendingChunks.Add(chunkCoords);
-                                    _pendingChunksSet.Add(chunkCoords);
-                                }
+                                _pendingChunks.Add(chunkCoords);
+                                _pendingChunksSet.Add(chunkCoords);
                             }
-                }
-        }
+                        }
+            }
     }
 
     // TODO we may be able to create new class that manages and track pool of tasks
@@ -554,16 +549,20 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         ChunkModel chunk = new() { Data = chunkData };
         chunk.LoadHighestBlock();
         _chunkRenderer.RenderChunk(regionModel.Image, chunk.HighestBlocks, chunk.Data.CoordsRel);
-        lock (_visibleChunkRange)
+        _visibleChunkRangeLock.EnterReadLock();
+        try
+        {
             lock (_loadedChunks)
             {
-                if (_visibleChunkRange.Value.IsOutside(chunkData.CoordsAbs)
+                if (_visibleChunkRange.IsOutside(chunkData.CoordsAbs)
                     || _loadedChunks.ContainsKey(chunkData.CoordsAbs)
                     || _reinitializingCts.IsCancellationRequested)
                     return;
                 _loadedChunks.Add(chunkData.CoordsAbs, chunk);
             }
-        OnPropertyChanged(nameof(LoadedChunksCount));
+            OnPropertyChanged(nameof(LoadedChunksCount));
+        }
+        finally { _visibleChunkRangeLock.ExitReadLock(); }
     }
 
     private void UnloadChunk(ChunkModel chunk)
@@ -603,7 +602,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
                         foreach (RegionDataImageModel region in _loadedRegions.Values)
                             region.Image.Redraw();
                 }, DispatcherPriority.BackgroundHigh, _stoppingCts.Token);
-                Thread.Sleep(1000 / 15);
+                Thread.Sleep(1000 / 30);
             }
         }
         finally
@@ -654,8 +653,8 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         _reinitializingCts.Dispose();
         _reinitializingCts = new CancellationTokenSource();
 
-        _visibleRegionRange.Value = default;
-        _visibleChunkRange.Value = default;
+        _visibleRegionRange = default;
+        _visibleChunkRange = default;
 
         foreach (RegionDataImageModel region in _loadedRegions.Values)
             UnloadRegion(region);

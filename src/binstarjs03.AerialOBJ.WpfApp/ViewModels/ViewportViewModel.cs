@@ -153,7 +153,7 @@ public partial class ViewportViewModel
         ChunkRegionManager.StartBackgroundThread();
         if (GetViewViewportSize is not null)
             ScreenSize = GetViewViewportSize();
-        //UpdateChunkRegionManager();
+        UpdateChunkRegionManager();
     }
 
     private void ReinitializeOnSavegameClosed()
