@@ -1,6 +1,5 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
@@ -11,6 +10,8 @@ using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionProvider;
+using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 internal static class ServiceConfiguration
@@ -27,13 +28,12 @@ internal static class ServiceConfiguration
             return new GlobalState(DateTime.Now, "Alpha", currentDirectory, definitionDirectoryPath);
         });
         services.AddSingleton<ViewState>();
-        services.AddTransient<IChunkRegionManagerErrorMemory, ChunkRegionManagerErrorMemory>();
 
         // configure models
         // models configuration goes here
 
         // configure factories
-        services.AddSingleton<RegionModelFactory>();
+        services.AddSingleton<RegionDataImageModelFactory>();
         services.AddSingleton<IRegionImageFactory, RegionImageFactory>();
 
         // configure views
@@ -61,6 +61,7 @@ internal static class ServiceConfiguration
         services.AddTransient<DefinitionManagerViewModel>();
 
         // configure services
+        services.AddSingleton<IDispatcher, WpfDispatcher>(x=>new WpfDispatcher(App.Current.Dispatcher));
         services.AddSingleton<IModalService, ModalService>(x =>
         {
             IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
@@ -70,16 +71,16 @@ internal static class ServiceConfiguration
         services.AddSingleton<IDefinitionManagerService, DefinitionManagerService>();
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IIOService, IOService>();
+        services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
         services.AddTransient<IChunkRegionManagerService, ConcurrentChunkRegionManagerService>();
-        services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
-        services.AddSingleton<IChunkRenderService, ChunkRenderService>(x =>
+        services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
             // For now default chunk shader is fixed to FlatChunkShader.
             IDefinitionManagerService definitionManager = x.GetRequiredService<IDefinitionManagerService>();
             IChunkShader shader = new FlatChunkShader(definitionManager);
-            return new ChunkRenderService(shader);
+            return new ChunkRenderer(shader);
         });
         services.AddSingleton<IViewportDefinitionLoaderService, ViewportDefinitionLoaderService>();
 

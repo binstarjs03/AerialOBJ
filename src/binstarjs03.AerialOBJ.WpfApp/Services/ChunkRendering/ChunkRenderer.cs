@@ -6,12 +6,12 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
-public class ChunkRenderService : IChunkRenderService
+public class ChunkRenderer : IChunkRenderer
 {
     private IChunkShader _shader;
     private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
-    public ChunkRenderService(IChunkShader initialChunkShader)
+    public ChunkRenderer(IChunkShader initialChunkShader)
     {
         _shader = initialChunkShader;
     }

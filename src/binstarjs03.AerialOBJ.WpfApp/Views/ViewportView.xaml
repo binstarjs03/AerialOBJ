@@ -59,14 +59,14 @@
             </Grid.Resources>
                     
             <!--Minecraft Region Image-->
-            <ItemsControl ItemsSource="{Binding RegionModels}">
+            <ItemsControl ItemsSource="{Binding RegionDataImageModels}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas ClipToBounds="True"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="models:RegionModel">
+                    <DataTemplate DataType="models:RegionDataImageModel">
                         <Grid>
                             <!--Region Image-->
                             <ContentControl Content="{Binding Image}" 
@@ -76,7 +76,7 @@
                                     <MultiBinding Converter="{StaticResource UnitMultiplier}">
                                         <Binding Path="Image.Size.Width"/>
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" 
-                                                    Path="DataContext.UnitMultiplier"/>
+                                                 Path="DataContext.UnitMultiplier"/>
                                     </MultiBinding>
                                 </ContentControl.Width>
                             </ContentControl>
@@ -215,21 +215,23 @@
                     <Separator Style="{StaticResource SubtleSeparator}"/>
 
                     <TextBlock Text="Visible Region Range:"/>
-                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleRegionRange.XRange}"/>
-                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleRegionRange.ZRange}"/>
-                    <reusables:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding LoadedRegionsCount}"/>
-                    <!--local:PropertyValuePairView PropertyText="Cached Region Count" ValueText="{Binding CachedRegionsCount}"/-->
-                    <reusables:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding PendingRegionsCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding WorkedRegion}"/>
+                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.XRange}"/>
+                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.ZRange}"/>
+                    <reusables:PropertyValuePairView PropertyText="Visible Region Count: " ValueText="{Binding ChunkRegionManager.VisibleRegionsCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding ChunkRegionManager.LoadedRegionsCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Cached Region Count: " ValueText="{Binding ChunkRegionManager.CachedRegionsCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding ChunkRegionManager.PendingRegionsCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding ChunkRegionManager.WorkedRegion}"/>
 
                     <Separator Style="{StaticResource SubtleSeparator}"/>
 
                     <TextBlock Text="Visible Chunk Range:"/>
-                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding VisibleChunkRange.XRange}"/>
-                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding VisibleChunkRange.ZRange}"/>
-                    <reusables:PropertyValuePairView PropertyText="Loaded Chunk Count : " ValueText="{Binding LoadedChunksCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Pending Chunk Count : " ValueText="{Binding PendingChunksCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Worked Chunk Count : " ValueText="{Binding WorkedChunksCount}"/>
+                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.XRange}"/>
+                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.ZRange}"/>
+                    <reusables:PropertyValuePairView PropertyText="Visible Chunk Count : " ValueText="{Binding ChunkRegionManager.VisibleChunksCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Loaded Chunk Count : " ValueText="{Binding ChunkRegionManager.LoadedChunksCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Pending Chunk Count : " ValueText="{Binding ChunkRegionManager.PendingChunksCount}"/>
+                    <reusables:PropertyValuePairView PropertyText="Worked Chunk Count : " ValueText="{Binding ChunkRegionManager.WorkedChunksCount}"/>
                 </StackPanel>
             </Border>
         </Grid>

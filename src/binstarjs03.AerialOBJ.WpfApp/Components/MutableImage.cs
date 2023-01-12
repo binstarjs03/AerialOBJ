@@ -67,6 +67,13 @@ public class MutableImage : Image, IMutableImage
             Dispatcher.InvokeAsync(AddFullDirtyRect, DispatcherPriority.Render);
     }
 
+    public void ForeachPixels(ForeachPixelDelegate callback)
+    {
+        for (int x = 0; x < Size.Width; x++)
+            for (int y = 0; y < Size.Height; y++)
+                callback(this, x, y);
+    }
+
     private void AddFullDirtyRect()
     {
         _writeableBitmap.Lock();

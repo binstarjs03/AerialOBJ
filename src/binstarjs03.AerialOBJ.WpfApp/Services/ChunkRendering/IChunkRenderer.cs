@@ -3,7 +3,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
-public interface IChunkRenderService
+public interface IChunkRenderer
 {
     IChunkShader Shader { get; set; }
     void RenderRandomNoise(IRegionImage regionImage, Color color, byte distance);

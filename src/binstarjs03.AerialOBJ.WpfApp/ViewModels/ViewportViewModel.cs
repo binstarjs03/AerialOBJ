@@ -22,7 +22,6 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public partial class ViewportViewModel
 {
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
-    private readonly IChunkRegionManagerService _chunkRegionManagerService;
     private readonly ILogService _logService;
     private readonly IDefinitionManagerService _definitionManager;
 
@@ -59,24 +58,23 @@ public partial class ViewportViewModel
     [ObservableProperty] private string _mouseBlockDisplayName = "";
 
     // Region Images
-    [ObservableProperty] private ObservableCollection<RegionModel> _regionModels = new();
+    [ObservableProperty] private ObservableCollection<RegionDataImageModel> _regionDataImageModels = new();
 
     public ViewportViewModel(GlobalState globalState,
-                             IChunkRegionManagerService chunkRegionManagerService,
+                             IChunkRegionManagerService chunkRegionManager,
                              ILogService logService,
                              IDefinitionManagerService definitionManager)
     {
         GlobalState = globalState;
-        _chunkRegionManagerService = chunkRegionManagerService;
-        _logService = logService;
+        ChunkRegionManager = chunkRegionManager;
         _definitionManager = definitionManager;
+        _logService = logService;
 
-        //GlobalState.PropertyChanged += OnPropertyChanged;
         GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadInfoChanged;
-        _chunkRegionManagerService.PropertyChanged += OnPropertyChanged;
-        _chunkRegionManagerService.RegionLoaded += OnChunkRegionManagerService_RegionLoaded;
-        _chunkRegionManagerService.RegionUnloaded += OnChunkRegionManagerService_RegionUnloaded;
-        _chunkRegionManagerService.RegionLoadingError += OnChunkRegionManagerService_RegionReadingError;
+        ChunkRegionManager.RegionLoaded += ShowRegionDataImageModel;
+        ChunkRegionManager.RegionUnloaded += RemoveRegionDataImageModel;
+        ChunkRegionManager.RegionLoadingException += OnRegionLoadingException;
+        ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
         _definitionManager.OnViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
         _definitionManager.OnViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
     }
@@ -86,21 +84,13 @@ public partial class ViewportViewModel
     public float UnitMultiplier => _zoomTable[ZoomLevel];
     public bool IsRegionTextVisible => ZoomLevel == 0 && IsChunkGridVisible;
 
-    // TODO we can encapsulate these properties bindings into separate class
-    public Point2ZRange<int> VisibleRegionRange => _chunkRegionManagerService.VisibleRegionRange;
-    public int LoadedRegionsCount => _chunkRegionManagerService.LoadedRegionsCount;
-    public int PendingRegionsCount => _chunkRegionManagerService.PendingRegionsCount;
-    public Point2Z<int>? WorkedRegion => _chunkRegionManagerService.WorkedRegion;
-    public Point2ZRange<int> VisibleChunkRange => _chunkRegionManagerService.VisibleChunkRange;
-    public int LoadedChunksCount => _chunkRegionManagerService.LoadedChunksCount;
-    public int PendingChunksCount => _chunkRegionManagerService.PendingChunksCount;
-    public int WorkedChunksCount => _chunkRegionManagerService.WorkedChunksCount;
+    public IChunkRegionManagerService ChunkRegionManager { get; }
 
     #region Event Handlers
 
-    partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManagerService();
-    partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManagerService();
-    partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManagerService();
+    partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
+    partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManager();
+    partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManager();
 
     private void OnGlobalState_SavegameLoadInfoChanged(SavegameLoadState state)
     {
@@ -112,28 +102,25 @@ public partial class ViewportViewModel
             throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
 
-    private void OnChunkRegionManagerService_RegionLoaded(RegionModel regionModel)
+    private void ShowRegionDataImageModel(RegionDataImageModel regionModel)
     {
         if (GlobalState.HasSavegameLoaded)
-            _regionModels.Add(regionModel);
+            _regionDataImageModels.Add(regionModel);
     }
 
-    private void OnChunkRegionManagerService_RegionUnloaded(RegionModel regionModel)
+    private void RemoveRegionDataImageModel(RegionDataImageModel regionModel)
     {
-        _regionModels.Remove(regionModel);
+        _regionDataImageModels.Remove(regionModel);
     }
 
-    private void OnChunkRegionManagerService_RegionReadingError(Point2Z<int> regionCoords, Exception e)
+    private void OnRegionLoadingException(Point2Z<int> regionCoords, Exception e)
     {
-        if (e is RegionNoDataException)
-            _logService.Log($"Skipped Region {regionCoords}: file contains no data", useSeparator: true);
-        else if (e is InvalidDataException)
-            _logService.Log($"Skipped Region {regionCoords}: file is corrupted", LogStatus.Warning, useSeparator: true);
-        else
-        {
-            _logService.Log($"Skipped Region {regionCoords}: Unhandled exception occured:", LogStatus.Error);
-            _logService.Log(e.ToString(), useSeparator: true);
-        }
+        _logService.LogException($"Cannot load region {regionCoords}", e);
+    }
+
+    private void OnChunkLoadingException(Point2Z<int> chunkCoords, Exception e)
+    {
+        _logService.LogException($"Cannot load chunk {chunkCoords}", e);
     }
 
     private void OnDefinitionManager_ViewportDefinitionChanging()
@@ -145,15 +132,15 @@ public partial class ViewportViewModel
         // which is not run yet so deadblock will occur)
         if (!GlobalState.HasSavegameLoaded)
             return;
-        _chunkRegionManagerService.RequestStop();
+        ChunkRegionManager.StopBackgroundThread();
     }
 
     private void OnDefinitionManager_ViewportDefinitionChanged()
     {
         if (!GlobalState.HasSavegameLoaded)
             return;
-        _chunkRegionManagerService.RequestStart();
-        UpdateChunkRegionManagerService();
+        ChunkRegionManager.StartBackgroundThread();
+        UpdateChunkRegionManager();
     }
 
     #endregion Event Handlers
@@ -163,15 +150,15 @@ public partial class ViewportViewModel
         LowHeightLimit = GlobalState.SavegameLoadInfo!.LowHeightLimit;
         HighHeightLimit = GlobalState.SavegameLoadInfo!.HighHeightLimit;
         HeightLevel = HighHeightLimit;
-        _chunkRegionManagerService.RequestStart();
+        ChunkRegionManager.StartBackgroundThread();
         if (GetViewViewportSize is not null)
             ScreenSize = GetViewViewportSize();
-        UpdateChunkRegionManagerService();
+        //UpdateChunkRegionManager();
     }
 
     private void ReinitializeOnSavegameClosed()
     {
-        _chunkRegionManagerService.RequestStop();
+        ChunkRegionManager.Reinitialize();
         CameraPos = new Point2Z<float>(0, 0);
         ZoomLevel = 0;
         ScreenSize = new Size<int>(0, 0);
@@ -182,10 +169,10 @@ public partial class ViewportViewModel
         IsInfoPanelVisible = false;
     }
 
-    private void UpdateChunkRegionManagerService()
+    private void UpdateChunkRegionManager()
     {
         if (GlobalState.HasSavegameLoaded)
-            _chunkRegionManagerService.Update(CameraPos, UnitMultiplier, ScreenSize);
+            ChunkRegionManager.Update(CameraPos, UnitMultiplier, ScreenSize);
     }
 
     #region Commands
@@ -227,7 +214,7 @@ public partial class ViewportViewModel
             Point2<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
             Point2Z<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
             Point2Z<int> mouseBlockCoords2 = new(MathUtils.Floor(mouseWorldPos.X), MathUtils.Floor(mouseWorldPos.Z));
-            Block? block = _chunkRegionManagerService.GetBlock(mouseBlockCoords2);
+            Block? block = ChunkRegionManager.GetHighestBlockAt(mouseBlockCoords2);
 
             MouseChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(mouseBlockCoords2);
             MouseRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(MouseChunkCoords);

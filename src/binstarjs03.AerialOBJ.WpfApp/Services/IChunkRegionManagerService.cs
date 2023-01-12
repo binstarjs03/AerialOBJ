@@ -9,23 +9,26 @@ public delegate void ChunkRegionReadingErrorHandler(Point2Z<int> coords, Excepti
 public interface IChunkRegionManagerService
 {
     Point2ZRange<int> VisibleRegionRange { get; }
+    int VisibleRegionsCount { get; }
     int LoadedRegionsCount { get; }
+    int CachedRegionsCount { get; }
     int PendingRegionsCount { get; }
     Point2Z<int>? WorkedRegion { get; }
 
     Point2ZRange<int> VisibleChunkRange { get; }
+    int VisibleChunksCount { get; }
     int LoadedChunksCount { get; }
     int PendingChunksCount { get; }
     int WorkedChunksCount { get; }
 
-    event Action<RegionModel> RegionLoaded;
-    event Action<RegionModel> RegionUnloaded;
-    event ChunkRegionReadingErrorHandler RegionLoadingError;
-    event ChunkRegionReadingErrorHandler ChunkLoadingError;
-    event Action<string> PropertyChanged;
+    event Action<RegionDataImageModel> RegionLoaded;
+    event Action<RegionDataImageModel> RegionUnloaded;
+    event ChunkRegionReadingErrorHandler RegionLoadingException;
+    event ChunkRegionReadingErrorHandler ChunkLoadingException;
 
     void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize);
-    Block? GetBlock(Point2Z<int> blockCoords);
-    void RequestStart();
-    void RequestStop();
+    Block? GetHighestBlockAt(Point2Z<int> blockCoords);
+    void StartBackgroundThread();
+    void StopBackgroundThread();
+    void Reinitialize();
 }

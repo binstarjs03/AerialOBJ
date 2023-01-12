@@ -3,5 +3,6 @@
 namespace binstarjs03.AerialOBJ.WpfApp.Components;
 public interface IRegionImage: IMutableImage
 {
-    public Point2<float> ImagePosition { get; }
+    Point2Z<int> RegionCoords { get; set; }
+    Point2<float> ImagePosition { get; }
 }
