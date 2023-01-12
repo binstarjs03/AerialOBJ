@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -240,13 +241,10 @@ public partial class ViewportViewModel
     [RelayCommand]
     private void OnMouseWheel(MouseWheelEventArgs e)
     {
-        int newZoomLevel = ZoomLevel;
         if (e.Delta > 0)
-            newZoomLevel++;
+            ZoomIn();
         else
-            newZoomLevel--;
-        newZoomLevel = int.Clamp(newZoomLevel, 0, _zoomTable.Length - 1);
-        ZoomLevel = newZoomLevel;
+            ZoomOut();
     }
 
     [RelayCommand]
@@ -277,6 +275,70 @@ public partial class ViewportViewModel
     {
         MouseIsInside = false;
         MouseClickHolding = false;
+    }
+
+    [RelayCommand]
+    private void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.Key == Key.Up)
+        {
+            TranslateCamera(new Point2Z<int>(0, -200));
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Down)
+        {
+            TranslateCamera(new Point2Z<int>(0, 200));
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Left)
+        {
+            TranslateCamera(new Point2Z<int>(-200, 0));
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Right)
+        {
+            TranslateCamera(new Point2Z<int>(200, 0));
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Add)
+        {
+            ZoomIn();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Subtract)
+        {
+            ZoomOut();
+            e.Handled = true;
+        }
+        else
+            return;
+    }
+
+    private void TranslateCamera(Point2Z<int> direction)
+    {
+        CameraPos = new Point2Z<float>(CameraPos.X + direction.X / UnitMultiplier, CameraPos.Z + direction.Z / UnitMultiplier);
+    }
+
+    private void ZoomIn() => Zoom(ZoomDirection.In);
+    private void ZoomOut() => Zoom(ZoomDirection.Out);
+
+    private void Zoom(ZoomDirection direction)
+    {
+        int newZoomLevel = ZoomLevel;
+        if (direction == ZoomDirection.In)
+            newZoomLevel++;
+        else if (direction == ZoomDirection.Out)
+            newZoomLevel--;
+        else
+            throw new NotImplementedException();
+        newZoomLevel = int.Clamp(newZoomLevel, 0, _zoomTable.Length - 1);
+        ZoomLevel = newZoomLevel;
+    }
+
+    private enum ZoomDirection
+    {
+        In,
+        Out,
     }
 
     #endregion Commands

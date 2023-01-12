@@ -9,44 +9,49 @@
              xmlns:models="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Models"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
-             d:DesignWidth="500" d:DesignHeight="550">
+             d:DesignWidth="500" d:DesignHeight="550" 
+             MouseDown="UserControl_MouseDown">
+
+    <!--Input Handler Bindings-->
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="MouseMove">
+            <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                                    PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseWheel">
+            <i:InvokeCommandAction Command="{Binding MouseWheelCommand}"
+                                    PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseUp">
+            <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
+                                    PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseDown">
+            <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
+                                    PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseEnter">
+            <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseLeave">
+            <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="SizeChanged">
+            <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
+                                    PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding KeyDownCommand}"
+                                    PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
     <Grid Background="{StaticResource Background}"
-            Focusable="True"
-            ClipToBounds="True"
-            x:Name="Viewport">
+          ClipToBounds="True"
+          Focusable="True"
+          x:Name="Viewport">
         <!--Control name is required for code-behind-->
 
-        <!--Input Handler Bindings-->
-        <i:Interaction.Triggers>
-            <i:EventTrigger EventName="MouseMove">
-                <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
-                                        PassEventArgsToCommand="True"/>
-            </i:EventTrigger>
-            <i:EventTrigger EventName="MouseWheel">
-                <i:InvokeCommandAction Command="{Binding MouseWheelCommand}"
-                                        PassEventArgsToCommand="True"/>
-            </i:EventTrigger>
-            <i:EventTrigger EventName="MouseUp">
-                <i:InvokeCommandAction Command="{Binding MouseUpCommand}"
-                                        PassEventArgsToCommand="True"/>
-            </i:EventTrigger>
-            <i:EventTrigger EventName="MouseDown">
-                <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
-                                        PassEventArgsToCommand="True"/>
-            </i:EventTrigger>
-            <i:EventTrigger EventName="MouseEnter">
-                <i:InvokeCommandAction Command="{Binding MouseEnterCommand}"/>
-            </i:EventTrigger>
-            <i:EventTrigger EventName="MouseLeave">
-                <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
-            </i:EventTrigger>
-            <i:EventTrigger EventName="SizeChanged">
-                <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
-                                        PassEventArgsToCommand="True"/>
-            </i:EventTrigger>
-        </i:Interaction.Triggers>
-
-        <!--Disable events for all controls inside this grid-->
         <Grid IsHitTestVisible="False">
             <Grid.Resources>
                 <Style TargetType="reusables:PropertyValuePairView">
@@ -57,9 +62,9 @@
                     <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
                 </Style>
             </Grid.Resources>
-                    
+
             <!--Minecraft Region Image-->
-            <ItemsControl ItemsSource="{Binding RegionDataImageModels}">
+            <ItemsControl ItemsSource="{Binding RegionDataImageModels}" Focusable="False">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas ClipToBounds="True"/>
@@ -69,7 +74,7 @@
                     <DataTemplate DataType="models:RegionDataImageModel">
                         <Grid>
                             <!--Region Image-->
-                            <ContentControl Content="{Binding Image}" 
+                            <ContentControl Content="{Binding Image}" Focusable="False"
                                             RenderOptions.BitmapScalingMode="NearestNeighbor"
                                             RenderOptions.EdgeMode="Aliased">
                                 <ContentControl.Width>

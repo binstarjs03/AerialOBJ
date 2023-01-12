@@ -42,7 +42,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     private readonly ReferenceWrap<bool> _isRedrawTaskRunning = new() { Value = false };
     private Task _redrawTask = Task.CompletedTask;
 
-    private readonly int _pendingChunkTasksLimit = Math.Max(1, Environment.ProcessorCount - 1);
+    private readonly int _pendingChunkTasksLimit = Math.Max(1, 4);
     private readonly Dictionary<uint, Task> _pendingChunkTasks = new(Environment.ProcessorCount);
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
