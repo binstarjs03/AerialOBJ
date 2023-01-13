@@ -6,16 +6,11 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
-public class StandardChunkShader : IChunkShader
+public class StandardChunkShader : ChunkShaderBase
 {
-    private readonly IDefinitionManagerService _definitionManager;
+    public StandardChunkShader(IDefinitionManagerService definitionManager) : base(definitionManager) { }
 
-    public StandardChunkShader(IDefinitionManagerService definitionManager)
-    {
-        _definitionManager = definitionManager;
-    }
-
-    public void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public override void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
         // pretend the sun is coming from northwest side
 
@@ -71,13 +66,5 @@ public class StandardChunkShader : IChunkShader
                 lastYRow[x] = block.Coords.Y;
             }
         }
-    }
-
-    private Color GetBlockColor(in Block block)
-    {
-        if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Name, out ViewportBlockDefinition? bd))
-            return bd.Color;
-        else
-            return _definitionManager.CurrentViewportDefinition.MissingBlockDefinition.Color;
     }
 }
