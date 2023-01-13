@@ -80,7 +80,7 @@ internal static class ServiceConfiguration
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
             // For now default chunk shader is fixed to FlatChunkShader.
             IDefinitionManagerService definitionManager = x.GetRequiredService<IDefinitionManagerService>();
-            IChunkShader shader = new FlatChunkShader(definitionManager);
+            IChunkShader shader = new StandardChunkShader(definitionManager);
             return new ChunkRenderer(shader);
         });
         services.AddSingleton<IViewportDefinitionLoaderService, ViewportDefinitionLoaderService>();
