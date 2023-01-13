@@ -45,7 +45,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     private readonly ReferenceWrap<bool> _isRedrawTaskRunning = new() { Value = false };
     private Task _redrawTask = Task.CompletedTask;
 
-    private readonly int _pendingChunkTasksLimit = Math.Max(1, 12);
+    private readonly int _pendingChunkTasksLimit = Math.Max(1, 8);
     private readonly Dictionary<uint, Task> _pendingChunkTasks = new(Environment.ProcessorCount);
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
@@ -669,16 +669,19 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
         _updateChunkHighestBlockEvent.Reset();
         try
         {
-            Queue<ChunkModel> chunks = new(_loadedChunks.Values);
-            if (chunks.Count == 0)
-                return;
-            Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount, 0, chunks.Count)];
-            for (int i = 0; i < tasks.Length; i++)
+            lock (_loadedChunks)
             {
-                tasks[i] = new Task(()=>updateChunkHighestBlock(chunks));
-                tasks[i].Start();
+                Queue<ChunkModel> chunks = new(_loadedChunks.Values);
+                if (chunks.Count == 0)
+                    return;
+                Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount, 0, chunks.Count)];
+                for (int i = 0; i < tasks.Length; i++)
+                {
+                    tasks[i] = new Task(() => updateChunkHighestBlock(chunks));
+                    tasks[i].Start();
+                }
+                Task.WaitAll(tasks);
             }
-            Task.WaitAll(tasks);
         }
         finally
         {
