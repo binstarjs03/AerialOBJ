@@ -32,11 +32,19 @@ public class RegionDiskLoader : IRegionDiskLoader
         if (!File.Exists(regionPath))
             return false;
 
+        // Previously we were using File.ReadAllBytes but this API can't read file 
+        // if other processes opening that file too, so we refactored it to File.Open
+        // with sharing access set to Read and Write so we can access the file,
+        // even though we are playing the savegame in Minecraft
+        FileStream fs = File.Open(regionPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
         // some region files have intentionally zero-length data
         // and make sure to check that before instantiating Region
-        byte[] regionData = File.ReadAllBytes(regionPath);
-        if (regionData.Length == 0)
+        if (fs.Length == 0)
             return false;
+
+        byte[] regionData = new byte[fs.Length];
+        fs.Read(regionData, 0, regionData.Length);
 
         region = new Region(regionData, regionCoords);
         return true;
