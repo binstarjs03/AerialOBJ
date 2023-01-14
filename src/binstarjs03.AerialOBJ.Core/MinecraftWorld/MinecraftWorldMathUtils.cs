@@ -47,7 +47,7 @@ public class MinecraftWorldMathUtils
     {
         int blockCoordsAbsX = sectionCoordsAbs.X * IChunk.BlockCount + blockCoordsRel.X;
         int blockCoordsAbsY = sectionCoordsAbs.Y * IChunk.BlockCount + blockCoordsRel.Y;
-        int blockCoordsAbsZ = sectionCoordsAbs.Y * IChunk.BlockCount + blockCoordsRel.Z;
+        int blockCoordsAbsZ = sectionCoordsAbs.Z * IChunk.BlockCount + blockCoordsRel.Z;
         return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
     }
 
