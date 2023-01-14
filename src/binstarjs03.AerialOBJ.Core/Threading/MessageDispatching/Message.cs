@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using System;
+﻿using System;
+using System.Threading;
 
 namespace binstarjs03.AerialOBJ.Core.Threading.MessageDispatching;
 public class Message : IMessage, IEquatable<Message>

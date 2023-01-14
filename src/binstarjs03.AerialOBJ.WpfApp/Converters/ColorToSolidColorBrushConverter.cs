@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
-using WPFColor = System.Windows.Media.Color;
+using System.Windows.Media;
 
 using CoreColor = binstarjs03.AerialOBJ.Core.Primitives.Color;
-using System.Windows.Media;
-using System.Windows;
+using WPFColor = System.Windows.Media.Color;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class ColorToSolidColorBrushConverter : IValueConverter

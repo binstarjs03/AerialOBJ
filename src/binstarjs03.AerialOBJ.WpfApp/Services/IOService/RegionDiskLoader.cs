@@ -7,7 +7,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionProvider;
+namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 public class RegionDiskLoader : IRegionDiskLoader
 {
     private readonly GlobalState _globalState;

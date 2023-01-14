@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
+using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public class DefinitionManagerService : IDefinitionManagerService
 {
     private readonly ViewportDefinition _defaultViewportDefinition = ViewportDefinition.GetDefaultDefinition();
-    private readonly IViewportDefinitionLoaderService _viewportDefinitionLoaderService;
+    private readonly IViewportDefinitionLoader _viewportDefinitionLoaderService;
     private readonly ILogService _logService;
     private readonly IModalService _modalService;
     private ViewportDefinition _currentDefinition;
 
-    public DefinitionManagerService(IViewportDefinitionLoaderService viewportDefinitionLoaderService,
+    public DefinitionManagerService(IViewportDefinitionLoader viewportDefinitionLoaderService,
                                     ILogService logService,
                                     IModalService modalService)
     {

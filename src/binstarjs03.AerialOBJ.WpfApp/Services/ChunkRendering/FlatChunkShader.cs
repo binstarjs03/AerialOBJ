@@ -18,7 +18,7 @@ public class FlatChunkShader : ChunkShaderBase
             {
                 Point2Z<int> blockCoordsRel = new(x, z);
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
-                Color color = GetBlockColor(in highestBlocks[x,z]);
+                Color color = GetBlockColor(in highestBlocks[x, z]);
                 regionImage[pixelCoords.X, pixelCoords.Y] = color;
             }
     }

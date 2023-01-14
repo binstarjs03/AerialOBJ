@@ -1,7 +1,7 @@
 using System;
 
-using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.Pooling;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Models;
 public class ChunkModel : IDisposable

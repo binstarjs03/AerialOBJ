@@ -1,6 +1,5 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
@@ -28,7 +27,7 @@ public class StandardChunkShader : ChunkShaderBase
                 // no copying struct!
                 ref Block block = ref highestBlocks[x, z];
                 Color color = GetBlockColor(in block);
-                
+
                 // since the sun is coming from northwest side, if y is higher than last
                 // set shade to brighter, else dimmer if lower, else keep it as is if same
                 int difference = 0;

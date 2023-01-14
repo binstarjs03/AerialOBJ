@@ -2,9 +2,9 @@
 using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
-public struct Point3<TNumber> : 
-    IEquatable<Point3<TNumber>>, 
-    IEqualityOperators<Point3<TNumber>, Point3<TNumber>, bool> 
+public struct Point3<TNumber> :
+    IEquatable<Point3<TNumber>>,
+    IEqualityOperators<Point3<TNumber>, Point3<TNumber>, bool>
     where TNumber : struct, INumber<TNumber>
 {
     public static Point3<TNumber> Zero => new();

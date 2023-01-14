@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+
 using binstarjs03.AerialOBJ.Core.IO;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt;
@@ -16,7 +17,7 @@ public class NbtReader : BinaryReaderEndian
     public INbt Parse()
     {
         ReadNbtType(out NbtType type);
-            return ReadNbtSwitch(type, insideList: false);
+        return ReadNbtSwitch(type, insideList: false);
     }
 
     private INbt ReadNbtSwitch(NbtType type, bool insideList)

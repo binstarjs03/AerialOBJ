@@ -60,7 +60,7 @@ public partial class ViewportViewModel
     [ObservableProperty] private ObservableCollection<RegionDataImageModel> _regionDataImageModels = new();
 
     public ViewportViewModel(GlobalState globalState,
-                             IChunkRegionManagerService chunkRegionManager,
+                             IChunkRegionManager chunkRegionManager,
                              ILogService logService,
                              IDefinitionManagerService definitionManager)
     {
@@ -83,7 +83,7 @@ public partial class ViewportViewModel
     public float UnitMultiplier => _zoomTable[ZoomLevel];
     public bool IsRegionTextVisible => ZoomLevel == 0 && IsChunkGridVisible;
 
-    public IChunkRegionManagerService ChunkRegionManager { get; }
+    public IChunkRegionManager ChunkRegionManager { get; }
 
     #region Event Handlers
 
