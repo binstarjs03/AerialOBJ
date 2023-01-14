@@ -16,6 +16,7 @@ public class Chunk2860 : IChunk, IDisposable
     {
         CoordsAbs = getChunkCoordsAbs(chunkNbt);
         CoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(CoordsAbs);
+        StartBlockCoords = new Point3<int>(CoordsAbs.X * IChunk.BlockCount, 0, CoordsAbs.X * IChunk.BlockCount);
         (_sections, _sectionsY) = readSections(chunkNbt);
         Array.Sort(_sectionsY);
 
@@ -53,6 +54,9 @@ public class Chunk2860 : IChunk, IDisposable
     public int DataVersion => 2860;
     public string ReleaseVersion => "1.18";
 
+    // cache for GetHighestBlock to avoid recalculating coords
+    private Point3<int> StartBlockCoords { get; } 
+
     public void GetHighestBlock(Block[,] highestBlockBuffer, int heightLimit)
     {
         for (int z = 0; z < IChunk.BlockCount; z++)
@@ -63,7 +67,7 @@ public class Chunk2860 : IChunk, IDisposable
                 int lowestBlock = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
                 highestBlockBuffer[x, z] = new Block()
                 {
-                    Coords = new Point3<int>(x, lowestBlock, z),
+                    Coords = new Point3<int>(StartBlockCoords.X + x, 0, StartBlockCoords.Z + z),
                     Name = "minecraft:air"
                 };
 
@@ -105,6 +109,7 @@ public class Chunk2860 : IChunk, IDisposable
 
     private class Section : IDisposable
     {
+        // TODO inject an instance of arraypool instead as static, this makes purging pool instances difficult if it is static!!!
         private static readonly ArrayPool3<int> _blockPaletteIndexTablePooler = new(IChunk.BlockCount, IChunk.BlockCount, IChunk.BlockCount);
         private readonly int[,,]? _blockPaletteIndexTable;
         private readonly Block[]? _blockPalette;
