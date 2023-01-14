@@ -5,7 +5,7 @@ public delegate void LoggingEventHandler(string message, LogStatus status);
 public interface ILogService
 {
     string LogContent { get; }
-    
+
     event LoggingEventHandler Logging;
 
     void Clear();

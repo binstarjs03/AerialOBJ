@@ -146,7 +146,7 @@ public static class RangeofExtension
 
     public static bool CanIntersect<TNumber>(this Point2ZRange<TNumber> self, Point2ZRange<TNumber> other) where TNumber : struct, INumber<TNumber>
     {
-        return self.XRange.CanIntersect(other.XRange) 
+        return self.XRange.CanIntersect(other.XRange)
             && self.ZRange.CanIntersect(other.ZRange);
     }
 

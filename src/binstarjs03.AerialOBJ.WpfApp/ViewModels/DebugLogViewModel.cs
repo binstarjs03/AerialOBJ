@@ -1,6 +1,7 @@
 ﻿using System;
 
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -12,13 +13,13 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public partial class DebugLogViewModel
 {
     private readonly IModalService _modalService;
-    private readonly IIOService _iOService;
+    private readonly IAbstractIO _iOService;
 
     public DebugLogViewModel(GlobalState globalState,
                              ViewState viewState,
                              ILogService logService,
                              IModalService modalService,
-                             IIOService iOService)
+                             IAbstractIO iOService)
     {
         GlobalState = globalState;
         ViewState = viewState;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;

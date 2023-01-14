@@ -1,4 +1,5 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
+
 using static binstarjs03.AerialOBJ.Core.MathUtils;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;

@@ -1591,7 +1591,7 @@ public class ViewportDefinition : IRootDefinition
                     "DisplayName": "Cobweb"
                 },
                 "minecraft:grass": {
-                    "Color": "#81B24C",
+                    "Color": "#5D923A",
                     "DisplayName": "Grass"
                 },
                 "minecraft:fern": {
@@ -1679,7 +1679,7 @@ public class ViewportDefinition : IRootDefinition
                     "DisplayName": "Peony"
                 },
                 "minecraft:tall_grass": {
-                    "Color": "#6FA535",
+                    "Color": "#5D923A",
                     "DisplayName": "Tall Grash"
                 },
                 "minecraft:large_fern": {

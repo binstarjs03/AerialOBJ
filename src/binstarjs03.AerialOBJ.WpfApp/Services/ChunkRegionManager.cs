@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -12,16 +11,16 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Models;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionProvider;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
+using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 
 [ObservableObject]
-public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerService
+public partial class ChunkRegionManager : IChunkRegionManager
 {
     private const int s_initialRegionBufferSize = 15;
     private const int s_initialChunkBufferSize = s_initialRegionBufferSize * Region.TotalChunkCount;
@@ -70,7 +69,7 @@ public partial class ConcurrentChunkRegionManagerService : IChunkRegionManagerSe
     private readonly object _pendingChunkLock = new();
     private readonly List<Point2Z<int>> _workedChunks = new(Environment.ProcessorCount);
 
-    public ConcurrentChunkRegionManagerService(
+    public ChunkRegionManager(
         IRegionDiskLoader regionProvider,
         RegionDataImageModelFactory regionImageModelFactory,
         IRegionImagePooler regionImagePooler,

@@ -5,13 +5,13 @@ using System.Text.Json;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 public delegate void LoadDefinitionFileExceptionHandler(Exception e, string definitionFileName);
-public class ViewportDefinitionLoaderService : IViewportDefinitionLoaderService
+public class ViewportDefinitionLoader : IViewportDefinitionLoader
 {
     private readonly GlobalState _globalState;
 
-    public ViewportDefinitionLoaderService(GlobalState globalState)
+    public ViewportDefinitionLoader(GlobalState globalState)
     {
         _globalState = globalState;
     }
@@ -44,7 +44,7 @@ public class ViewportDefinitionLoaderService : IViewportDefinitionLoaderService
     {
         List<ViewportDefinition> definitions = new();
         Directory.CreateDirectory(_globalState.DefinitionsPath);
-        DirectoryInfo definitionDirectory = new (_globalState.DefinitionsPath);
+        DirectoryInfo definitionDirectory = new(_globalState.DefinitionsPath);
         foreach (FileInfo definitionFile in definitionDirectory.GetFiles("*.json"))
         {
             try

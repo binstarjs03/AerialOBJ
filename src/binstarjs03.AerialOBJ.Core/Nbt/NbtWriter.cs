@@ -23,6 +23,7 @@ SOFTWARE.
 
 using System;
 using System.IO;
+
 using binstarjs03.AerialOBJ.Core.IO;
 
 namespace binstarjs03.AerialOBJ.Core.Nbt;

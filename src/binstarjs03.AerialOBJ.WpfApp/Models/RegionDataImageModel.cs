@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+﻿using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Models;

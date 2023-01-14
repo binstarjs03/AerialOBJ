@@ -6,7 +6,7 @@ using binstarjs03.AerialOBJ.WpfApp.Models;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public delegate void ChunkRegionReadingErrorHandler(Point2Z<int> coords, Exception e);
-public interface IChunkRegionManagerService
+public interface IChunkRegionManager
 {
     Point2ZRange<int> VisibleRegionRange { get; }
     int VisibleRegionsCount { get; }

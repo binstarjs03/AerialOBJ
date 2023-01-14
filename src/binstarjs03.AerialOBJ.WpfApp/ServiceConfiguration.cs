@@ -4,11 +4,11 @@ using System.Threading;
 
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionProvider;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
+using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
+using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoaderServices;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
-using binstarjs03.AerialOBJ.WpfApp.Services.SavegameLoaderServices;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
@@ -71,10 +71,10 @@ internal static class ServiceConfiguration
         });
         services.AddSingleton<IDefinitionManagerService, DefinitionManagerService>();
         services.AddSingleton<ILogService, LogService>();
-        services.AddSingleton<IIOService, IOService>();
+        services.AddSingleton<IAbstractIO, AbstractIO>();
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
-        services.AddTransient<IChunkRegionManagerService, ConcurrentChunkRegionManagerService>();
+        services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
@@ -83,7 +83,7 @@ internal static class ServiceConfiguration
             IChunkShader shader = new StandardChunkShader(definitionManager);
             return new ChunkRenderer(shader);
         });
-        services.AddSingleton<IViewportDefinitionLoaderService, ViewportDefinitionLoaderService>();
+        services.AddSingleton<IViewportDefinitionLoader, ViewportDefinitionLoader>();
         services.AddSingleton<IRegionImagePooler, RegionImagePooler>(x =>
         {
             return new RegionImagePooler(x.GetRequiredService<IRegionImageFactory>(), CancellationToken.None);

@@ -3,8 +3,8 @@ using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
 
-public struct Point2<TNumber> : 
-    IEquatable<Point2<TNumber>>, 
+public struct Point2<TNumber> :
+    IEquatable<Point2<TNumber>>,
     IEqualityOperators<Point2<TNumber>, Point2<TNumber>, bool>,
     IAdditionOperators<Point2<TNumber>, Point2<TNumber>, Point2<TNumber>>,
     ISubtractionOperators<Point2<TNumber>, Point2<TNumber>, Point2<TNumber>>,

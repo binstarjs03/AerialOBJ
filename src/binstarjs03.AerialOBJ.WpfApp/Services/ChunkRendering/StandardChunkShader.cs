@@ -1,21 +1,15 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
-public class StandardChunkShader : IChunkShader
+public class StandardChunkShader : ChunkShaderBase
 {
-    private readonly IDefinitionManagerService _definitionManager;
+    public StandardChunkShader(IDefinitionManagerService definitionManager) : base(definitionManager) { }
 
-    public StandardChunkShader(IDefinitionManagerService definitionManager)
-    {
-        _definitionManager = definitionManager;
-    }
-
-    public void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public override void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
         // pretend the sun is coming from northwest side
 
@@ -32,23 +26,36 @@ public class StandardChunkShader : IChunkShader
             {
                 // no copying struct!
                 ref Block block = ref highestBlocks[x, z];
-                Color color = GetBlockColor(block);
+                Color color = GetBlockColor(in block);
 
                 // since the sun is coming from northwest side, if y is higher than last
                 // set shade to brighter, else dimmer if lower, else keep it as is if same
-                int differenceConstant = 20;
-                if (block.Coords.Y > lastY || block.Coords.Y > lastYRow[x])
+                int difference = 0;
+                int y = block.Coords.Y;
+                int lastYrow = lastYRow[x];
+
+                // TODO check if block is foliage instead of hardcoding grass!!!
+                if (block.Name == "minecraft:grass" || block.Name == "minecraft:tall_grass")
+                    y -= 1;
+
+                if (y > lastY || y > lastYRow[x])
                 {
-                    color.Red = (byte)Math.Clamp(color.Red + differenceConstant, 0, 255);
-                    color.Green = (byte)Math.Clamp(color.Green + differenceConstant, 0, 255);
-                    color.Blue = (byte)Math.Clamp(color.Blue + differenceConstant, 0, 255);
+                    if (y > lastY && y > lastYRow[x])
+                        difference = 30;
+                    else
+                        difference = 15;
                 }
-                else if (block.Coords.Y < lastY || block.Coords.Y < lastYRow[x])
+                else if (y < lastY || y < lastYRow[x])
                 {
-                    color.Red = (byte)Math.Clamp(color.Red - differenceConstant, 0, 255);
-                    color.Green = (byte)Math.Clamp(color.Green - differenceConstant, 0, 255);
-                    color.Blue = (byte)Math.Clamp(color.Blue - differenceConstant, 0, 255);
+                    if (y < lastY && y < lastYRow[x])
+                        difference = -30;
+                    else
+                        difference = -15;
                 }
+
+                color.Red = (byte)Math.Clamp(color.Red + difference, 0, 255);
+                color.Green = (byte)Math.Clamp(color.Green + difference, 0, 255);
+                color.Blue = (byte)Math.Clamp(color.Blue + difference, 0, 255);
 
                 Point2Z<int> blockCoordsRel = new(x, z);
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
@@ -58,13 +65,5 @@ public class StandardChunkShader : IChunkShader
                 lastYRow[x] = block.Coords.Y;
             }
         }
-    }
-
-    private Color GetBlockColor(Block block)
-    {
-        if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Name, out ViewportBlockDefinition? bd))
-            return bd.Color;
-        else
-            return _definitionManager.CurrentViewportDefinition.MissingBlockDefinition.Color;
     }
 }
