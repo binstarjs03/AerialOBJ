@@ -150,13 +150,19 @@ public partial class ViewportViewModel
         LowHeightLimit = GlobalState.SavegameLoadInfo!.LowHeightLimit;
         HighHeightLimit = GlobalState.SavegameLoadInfo!.HighHeightLimit;
         HeightLevel = HighHeightLimit;
-        ChunkRegionManager.StartBackgroundThread();
-        ChunkRegionManager.UpdateHeightLevel(HeightLevel);
+
         if (GetViewViewportSize is not null)
             ScreenSize = GetViewViewportSize();
+
+        ChunkRegionManager.StartBackgroundThread();
+        ChunkRegionManager.UpdateHeightLevel(HeightLevel);
         UpdateChunkRegionManager();
-        IsChunkGridVisible = true;
-        IsInfoPanelVisible = true;
+
+        if (GlobalState.IsDebugEnabled)
+        {
+            IsChunkGridVisible = true;
+            IsInfoPanelVisible = true;
+        }
     }
 
     private void ReinitializeOnSavegameClosed()

@@ -28,7 +28,9 @@ public partial class GlobalState
     public DateTime LaunchTime { get; }
     public string CurrentPath { get; } // current path to "AerialOBJ.exe"
     public string DefinitionsPath { get; }
+    public string[]? Arguments { get; set; } = null;
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
+    public bool IsDebugEnabled => Arguments is not null && Array.Exists(Arguments, arg => arg.ToLower() == "debug");
 
     partial void OnSavegameLoadInfoChanged(SavegameLoadInfo? value)
     {

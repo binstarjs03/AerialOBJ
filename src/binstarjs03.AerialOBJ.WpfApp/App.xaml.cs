@@ -16,6 +16,8 @@ public partial class App : Application
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
+        SaveCommandLineArguments(e.Args);
+
         MainWindow = GetMainWindow();
         MainWindow.Show();
         if (MainWindow is MainView mainView)
@@ -36,6 +38,11 @@ public partial class App : Application
         mainView.SyncDebugViewPosition();
     }
 
+    private void SaveCommandLineArguments(string[] args)
+    {
+        ServiceProvider.GetRequiredService<GlobalState>().Arguments = args;
+    }
+
     private void InitializeLogService()
     {
         ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
@@ -44,10 +51,14 @@ public partial class App : Application
 
     private void InitializeViewState()
     {
-#if DEBUG // TODO refactor if "debug" is in command-line arg
-        ViewState viewState = ServiceProvider.GetRequiredService<ViewState>();
-        viewState.IsDebugLogViewVisible = true;
-#endif
+        GlobalState globalState = ServiceProvider.GetRequiredService<GlobalState>();
+
+        // immediately set debug log window to visible if debug enabled
+        if (globalState.IsDebugEnabled)
+        {
+            ViewState viewState = ServiceProvider.GetRequiredService<ViewState>();
+            viewState.IsDebugLogViewVisible = true;
+        }
     }
 
     private void InitializeDefinitions()
