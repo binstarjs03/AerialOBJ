@@ -31,9 +31,7 @@ public static class BinaryUtils
     {
         int bitLength = 0;
         for (; num > 0; num >>= 1)
-        {
             bitLength++;
-        }
         return bitLength;
     }
 
@@ -163,7 +161,7 @@ public static class BinaryUtils
     // no if statements are exist as checkings are disabled.
     // Invoking this method have greater risk of generating bugs
     // unless if your arguments are pre-checked before and calling this will be done
-    // thousand times, check is only done once so speed is improved greatly
+    // many ten millions times, check is only done once so speed is improved greatly
     public static void SplitSubnumberFastNoCheck(this long num, Span<int> buffer, int bitLength)
     {
         int totalSubnumberCount = 64 / bitLength;

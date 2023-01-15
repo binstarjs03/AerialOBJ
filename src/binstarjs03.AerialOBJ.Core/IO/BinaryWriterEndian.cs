@@ -127,7 +127,7 @@ public class BinaryWriterEndian : IDisposable
             throw new ArgumentOutOfRangeException(nameof(value), "String length is too long to write");
 
         // allocate buffer in stack if string size is less than 1KiB, else allocate in heap.
-        // This is to guard from stackoverflow exception
+        // This is to guard from stackoverflow exception while maintaining stack memory speed
         Span<byte> buff = length < 1024 ? stackalloc byte[length] : new byte[length];
         Encoding.UTF8.GetBytes(value, buff);
         WriteUShortBE((ushort)length);

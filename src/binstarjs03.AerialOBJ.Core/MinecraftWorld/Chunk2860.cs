@@ -55,7 +55,7 @@ public class Chunk2860 : IChunk, IDisposable
     public string ReleaseVersion => "1.18";
 
     // cache for GetHighestBlock to avoid recalculating coords
-    private Point3<int> StartBlockCoords { get; } 
+    private Point3<int> StartBlockCoords { get; }
 
     public void GetHighestBlock(Block[,] highestBlockBuffer, int heightLimit)
     {
@@ -63,15 +63,17 @@ public class Chunk2860 : IChunk, IDisposable
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
                 // assign initial highest block to air of lowest section
-                Section lowestSection = _sections[0];
-                int lowestBlock = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
+                Section lowestSection = _sections[_sectionsY[0]];
+                int lowestBlockY = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
                 highestBlockBuffer[x, z] = new Block()
                 {
-                    Coords = new Point3<int>(StartBlockCoords.X + x, 0, StartBlockCoords.Z + z),
+                    Coords = new Point3<int>(StartBlockCoords.X + x, lowestBlockY, StartBlockCoords.Z + z),
                     Name = "minecraft:air"
                 };
 
                 bool foundHighestBlock = false;
+
+                // scan block from top to bottom sections
                 for (int index = _sectionsY.Length - 1; index >= 0; index--)
                 {
                     if (foundHighestBlock)
@@ -79,14 +81,17 @@ public class Chunk2860 : IChunk, IDisposable
 
                     int sectionY = _sectionsY[index];
 
+                    // skip if section is higher than limit
                     int heightAtSection = sectionY * IChunk.BlockCount;
                     if (heightAtSection > heightLimit)
                         continue;
 
+                    // skip if section is entirely filled with air
                     Section section = _sections[sectionY];
                     if (section.IsAir)
                         continue;
 
+                    // scan block from top to bottom relative to section
                     for (int y = IChunk.BlockRange; y >= 0; y--)
                     {
                         if (foundHighestBlock)
@@ -142,17 +147,11 @@ public class Chunk2860 : IChunk, IDisposable
         }
 
         public required Point3<int> CoordsAbs { get; init; }
-        public bool IsAir // whether section is completely filled with air block
-        {
-            get
-            {
-                if (_blockPalette is null)
-                    return true;
-                if (_blockPalette.Length == 1 && _blockPalette[0].IsAir)
-                    return true;
-                return false;
-            }
-        }
+
+        // whether section is completely filled with air block,
+        // an optimization for finding highest (non-air) block
+        public bool IsAir => _blockPalette is null 
+                          || (_blockPalette.Length == 1 && _blockPalette[0].IsAir);
 
         private int[,,]? ReadNbtLongData(NbtLongArray dataNbt, int paletteLength)
         {
@@ -162,7 +161,7 @@ public class Chunk2860 : IChunk, IDisposable
             int bitsInByte = 8;
             int longBitLength = sizeof(long) * bitsInByte;
 
-            // maximum count of blocks can fit within single 'long' value
+            // maximum count of blocks that can fit within single 'long' value
             int blockCount = longBitLength / blockBitLength;
 
             // 3D table, order is XZY
@@ -212,7 +211,7 @@ public class Chunk2860 : IChunk, IDisposable
             int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.X,
                                                        blockCoordsRel.Y,
                                                        blockCoordsRel.Z];
-            // avoid creating new block, we just need to access the name
+            // no struct copying, we just need to access the name
             ref Block blockPalette = ref _blockPalette[paletteIndex];
             return new Block()
             {
