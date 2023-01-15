@@ -6,7 +6,7 @@ public class RegionImage : MutableImage, IRegionImage
 {
     private Point2Z<int> _regionCoords;
 
-    public RegionImage(Point2Z<int> regionCoords) : base(new Size<int>(Region.BlockCount, Region.BlockCount))
+    public RegionImage(Point2Z<int> regionCoords) : base(new Size<int>(IRegion.BlockCount, IRegion.BlockCount))
     {
         RegionCoords = regionCoords;
     }
@@ -17,7 +17,7 @@ public class RegionImage : MutableImage, IRegionImage
         set
         {
             _regionCoords = value;
-            ImagePosition = new Point2<float>(_regionCoords.X * Region.BlockCount, _regionCoords.Z * Region.BlockCount);
+            ImagePosition = new Point2<float>(_regionCoords.X * IRegion.BlockCount, _regionCoords.Z * IRegion.BlockCount);
         }
     }
     public Point2<float> ImagePosition { get; private set; }

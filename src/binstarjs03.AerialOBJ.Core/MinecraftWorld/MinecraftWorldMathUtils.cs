@@ -10,8 +10,8 @@ public class MinecraftWorldMathUtils
     /// </summary>
     public static Point2Z<int> ConvertChunkCoordsAbsToRel(Point2Z<int> coords)
     {
-        int chunkCoordsRelX = Mod(coords.X, Region.ChunkCount);
-        int chunkCoordsRelZ = Mod(coords.Z, Region.ChunkCount);
+        int chunkCoordsRelX = Mod(coords.X, IRegion.ChunkCount);
+        int chunkCoordsRelZ = Mod(coords.Z, IRegion.ChunkCount);
         return new Point2Z<int>(chunkCoordsRelX, chunkCoordsRelZ);
     }
 
@@ -56,12 +56,12 @@ public class MinecraftWorldMathUtils
     /// </summary>
     public static Point2ZRange<int> CalculateChunkRangeAbsForRegion(Point2Z<int> regionCoords)
     {
-        int chunkRangeAbsMinX = regionCoords.X * Region.ChunkCount;
-        int chunkRangeAbsMaxX = chunkRangeAbsMinX + Region.ChunkRange;
+        int chunkRangeAbsMinX = regionCoords.X * IRegion.ChunkCount;
+        int chunkRangeAbsMaxX = chunkRangeAbsMinX + IRegion.ChunkRange;
         Rangeof<int> chunkRangeAbsX = new(chunkRangeAbsMinX, chunkRangeAbsMaxX);
 
-        int chunkRangeAbsMinZ = regionCoords.Z * Region.ChunkCount;
-        int chunkRangeAbsMaxZ = chunkRangeAbsMinZ + Region.ChunkRange;
+        int chunkRangeAbsMinZ = regionCoords.Z * IRegion.ChunkCount;
+        int chunkRangeAbsMaxZ = chunkRangeAbsMinZ + IRegion.ChunkRange;
         Rangeof<int> chunkRangeAbsZ = new(chunkRangeAbsMinZ, chunkRangeAbsMaxZ);
 
         return new Point2ZRange<int>(chunkRangeAbsX, chunkRangeAbsZ);
@@ -90,7 +90,7 @@ public class MinecraftWorldMathUtils
     /// </summary>
     public static Point2Z<int> GetRegionCoordsFromChunkCoordsAbs(Point2Z<int> chunkCoordsAbs)
     {
-        return new(DivFloor(chunkCoordsAbs.X, Region.ChunkCount),
-                   DivFloor(chunkCoordsAbs.Z, Region.ChunkCount));
+        return new(DivFloor(chunkCoordsAbs.X, IRegion.ChunkCount),
+                   DivFloor(chunkCoordsAbs.Z, IRegion.ChunkCount));
     }
 }

@@ -10,19 +10,11 @@ namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 /// <summary>
 /// Region is a wrapper around byte-array data that holds chunk NBT data structure.
 /// Region was implemented for easier getting chunk data from raw byte array of r.x.z.mca file
+/// without having to fiddling around with byte offset
 /// </summary>
 public class Region : IRegion
 {
-    public const int BlockCount = ChunkCount * IChunk.BlockCount;
-
-    public const int ChunkCount = 32;
-    public const int TotalChunkCount = ChunkCount * ChunkCount;
-    public const int ChunkRange = ChunkCount - 1;
-    public static readonly Point2ZRange<int> ChunkRangeRel = new(Point2Z<int>.Zero, new Point2Z<int>(ChunkRange, ChunkRange));
-
-    public const int SectorDataLength = 4096;
-    public const int ChunkSectorTableSize = SectorDataLength;
-    public const int ChunkSectorTableEntrySize = 4;
+    public static readonly Point2ZRange<int> ChunkRangeRel = new(Point2Z<int>.Zero, new Point2Z<int>(IRegion.ChunkRange, IRegion.ChunkRange));
 
     private readonly byte[] _data;
 
@@ -37,7 +29,7 @@ public class Region : IRegion
         {
             if (dataLength == 0)
                 throw new RegionNoDataException();
-            if (dataLength < ChunkSectorTableSize)
+            if (dataLength < IRegion.ChunkSectorTableSize)
                 throw new InvalidDataException("Region data is smaller than chunk sector table data");
         }
     }
@@ -60,7 +52,7 @@ public class Region : IRegion
 
         (int dataStartPos, int dataLength) getChunkNbtData(ChunkSectorTableEntry cste)
         {
-            int startSectorData = cste.SectorPos * SectorDataLength;
+            int startSectorData = cste.SectorPos * IRegion.SectorDataLength;
             int chunkNbtLength = BinaryPrimitives.ReadInt32BigEndian(Read(startSectorData, 4)) - 1;
             int chunkNbtDataStart = startSectorData + 5;
             return (chunkNbtDataStart, chunkNbtLength);
@@ -78,8 +70,8 @@ public class Region : IRegion
     private ChunkSectorTableEntry GetChunkSectorTableEntry(Point2Z<int> chunkCoordsRel)
     {
         ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
-        int startData = (chunkCoordsRel.X + chunkCoordsRel.Z * ChunkCount) * ChunkSectorTableEntrySize;
-        Span<byte> tableEntryData = Read(startData, ChunkSectorTableEntrySize);
+        int startData = (chunkCoordsRel.X + chunkCoordsRel.Z * IRegion.ChunkCount) * IRegion.ChunkSectorTableEntrySize;
+        Span<byte> tableEntryData = Read(startData, IRegion.ChunkSectorTableEntrySize);
         int sectorPos = 0;
         // non human-friendly converting arbitary bytes into integer
         for (int i = 0; i < 3; i++)

@@ -23,7 +23,7 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public partial class ChunkRegionManager : IChunkRegionManager
 {
     private const int s_initialRegionBufferSize = 15;
-    private const int s_initialChunkBufferSize = s_initialRegionBufferSize * Region.TotalChunkCount;
+    private const int s_initialChunkBufferSize = s_initialRegionBufferSize * IRegion.TotalChunkCount;
     private readonly Random _random = new();
 
     // Dependencies -----------------------------------------------------------
@@ -193,8 +193,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
         {
             // Calculating region range is easier since we only need to
             // divide the range by how many chunks in region (in single axis)
-            int regionMinX = MathUtils.DivFloor(visibleChunkRange.Min, Region.ChunkCount);
-            int regionMaxX = MathUtils.DivFloor(visibleChunkRange.Max, Region.ChunkCount);
+            int regionMinX = MathUtils.DivFloor(visibleChunkRange.Min, IRegion.ChunkCount);
+            int regionMaxX = MathUtils.DivFloor(visibleChunkRange.Max, IRegion.ChunkCount);
             return new Rangeof<int>(regionMinX, regionMaxX);
         }
     }
