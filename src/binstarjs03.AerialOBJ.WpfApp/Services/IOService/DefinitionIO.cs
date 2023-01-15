@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services;
-public interface IDefinitionIO
-{
-    IRootDefinition ImportDefinition(string path);
-    void DeleteDefinition(IRootDefinition definition);
-    List<IRootDefinition> LoadDefinitionFolder(LoadDefinitionFileExceptionHandler exceptionHandler);
-}
+namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService;
+
+public delegate void LoadDefinitionFileExceptionHandler(Exception e, string definitionFileName);
 
 public class DefinitionIO : IDefinitionIO
 {

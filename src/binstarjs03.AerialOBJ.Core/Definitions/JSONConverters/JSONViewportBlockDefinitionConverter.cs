@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,45 +11,22 @@ public class JSONViewportBlockDefinitionConverter : JsonConverter<ViewportBlockD
     {
         try
         {
-            // advance to property name "Color"
-            reader.Read();
+            JsonDocument doc = JsonDocument.ParseValue(ref reader);
+            JsonElement root = doc.RootElement;
 
-            // advance to "Color" string value
-            reader.Read();
-            string colorStr = reader.GetString()!;
-
-            // advance to property name "Alpha"
-            reader.Read();
-
-            // advance to "Alpha" number value
-            reader.Read();
-            byte alpha = reader.GetByte();
-
-            // advance to property name "DisplayName"
-            reader.Read();
-
-            // advance to "DisplayName" string value
-            reader.Read();
-            string displayName = reader.GetString()!;
-
-            // advance to end object
-            reader.Read();
+            string colorStr = root.GetProperty("Color").GetString()!;
+            byte alpha = root.GetProperty("Alpha").GetByte();
+            string displayName = root.GetProperty("DisplayName").GetString()!;
 
             return new ViewportBlockDefinition()
             {
-                Color = new Color
-                {
-                    Alpha = alpha,
-                    Red = byte.Parse(colorStr[1..3], NumberStyles.HexNumber),
-                    Green = byte.Parse(colorStr[3..5], NumberStyles.HexNumber),
-                    Blue = byte.Parse(colorStr[5..7], NumberStyles.HexNumber),
-                },
+                Color = Color.Parse(colorStr, alpha),
                 DisplayName = displayName,
             };
         }
         catch (Exception e)
         {
-            throw new JsonException("Invalid JSON format", e);
+            throw new FormatException($"Invalid JSON format for {nameof(ViewportBlockDefinition)}", e);
         }
     }
 

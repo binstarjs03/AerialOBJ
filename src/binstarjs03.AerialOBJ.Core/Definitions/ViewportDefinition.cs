@@ -3239,7 +3239,6 @@ public class ViewportDefinition : IRootDefinition
         }
         
         """;
-
         ViewportDefinition result = DefinitionDeserializer.Deserialize<ViewportDefinition>(input);
         result.IsDefault = true;
         return result;

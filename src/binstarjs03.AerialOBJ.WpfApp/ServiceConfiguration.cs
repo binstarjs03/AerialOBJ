@@ -83,7 +83,6 @@ internal static class ServiceConfiguration
             IChunkShader shader = new StandardChunkShader();
             return new ChunkRenderer(shader, definitionManager);
         });
-        services.AddSingleton<IViewportDefinitionLoader, ViewportDefinitionLoader>();
         services.AddSingleton<IRegionImagePooler, RegionImagePooler>(x =>
         {
             return new RegionImagePooler(x.GetRequiredService<IRegionImageFactory>(), CancellationToken.None);

@@ -73,7 +73,7 @@ public class Region : IRegion
         int startData = (chunkCoordsRel.X + chunkCoordsRel.Z * IRegion.ChunkCount) * IRegion.ChunkSectorTableEntrySize;
         Span<byte> tableEntryData = Read(startData, IRegion.ChunkSectorTableEntrySize);
         int sectorPos = 0;
-        // non human-friendly converting arbitary bytes into integer
+        // non human-friendly converting arbitrary bytes into integer
         for (int i = 0; i < 3; i++)
         {
             int buff = tableEntryData[i];
