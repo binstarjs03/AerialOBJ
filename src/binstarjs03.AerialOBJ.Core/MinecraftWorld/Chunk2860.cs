@@ -111,6 +111,10 @@ public class Chunk2860 : IChunk, IDisposable
                 }
             }
     }
+    public override string ToString()
+    {
+        return $"Chunk {CoordsAbs}, DataVersion: {DataVersion}";
+    }
 
     private class Section : IDisposable
     {

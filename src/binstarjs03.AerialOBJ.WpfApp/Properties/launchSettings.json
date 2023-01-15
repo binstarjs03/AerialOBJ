@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "binstarjs03.AerialOBJ.WpfApp": {
+      "commandName": "Project",
+      "commandLineArgs": "debug"
+    }
+  }
+}

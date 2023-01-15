@@ -26,6 +26,8 @@ using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
 
+// TODO bug in the implementation, remember that a struct is a value-type
+// so arguments passed in are copy of struct, and we just modifying the COPY OF IT!!!
 public static class RangeofExtension
 {
     public enum Direction

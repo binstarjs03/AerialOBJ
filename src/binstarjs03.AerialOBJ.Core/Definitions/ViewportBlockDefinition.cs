@@ -13,6 +13,6 @@ public class ViewportBlockDefinition
 
     public override string ToString()
     {
-        return Color.ToString();
+        return $"{DisplayName} - {Color}";
     }
 }

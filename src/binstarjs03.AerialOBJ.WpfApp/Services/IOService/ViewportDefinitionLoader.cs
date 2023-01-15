@@ -46,7 +46,6 @@ public class ViewportDefinitionLoader : IViewportDefinitionLoader
         Directory.CreateDirectory(_globalState.DefinitionsPath);
         DirectoryInfo definitionDirectory = new(_globalState.DefinitionsPath);
         foreach (FileInfo definitionFile in definitionDirectory.GetFiles("*.json"))
-        {
             try
             {
                 string jsonInput = File.ReadAllText(definitionFile.FullName);
@@ -54,7 +53,6 @@ public class ViewportDefinitionLoader : IViewportDefinitionLoader
                 definitions.Add(definition);
             }
             catch (Exception e) { exceptionHandler(e, definitionFile.Name); }
-        }
         return definitions;
     }
 }

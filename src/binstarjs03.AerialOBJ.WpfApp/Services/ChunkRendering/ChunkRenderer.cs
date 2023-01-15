@@ -9,11 +9,13 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class ChunkRenderer : IChunkRenderer
 {
     private IChunkShader _shader;
+    private readonly IDefinitionManagerService _definitionManager;
     private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
-    public ChunkRenderer(IChunkShader initialChunkShader)
+    public ChunkRenderer(IChunkShader initialChunkShader, IDefinitionManagerService definitionManager)
     {
         _shader = initialChunkShader;
+        _definitionManager = definitionManager;
     }
 
     // TODO lock chunkShader if there are reading threads
@@ -26,7 +28,7 @@ public class ChunkRenderer : IChunkRenderer
 
     public void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
-        Shader.RenderChunk(regionImage, highestBlocks, chunkCoordsRel);
+        Shader.RenderChunk(_definitionManager.CurrentViewportDefinition, regionImage, highestBlocks, chunkCoordsRel);
     }
 
     public void EraseChunk(IRegionImage regionImage, Point2Z<int> chunkCoordsRel)

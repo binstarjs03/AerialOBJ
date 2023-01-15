@@ -1,6 +1,11 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
+
+/// <summary>
+/// Abstraction for <see cref="Region"/>. 
+/// Defined for easier unit testing
+/// </summary>
 public interface IRegion
 {
     const int ChunkCount = 32;

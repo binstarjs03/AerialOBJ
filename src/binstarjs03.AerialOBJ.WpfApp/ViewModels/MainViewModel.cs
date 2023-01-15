@@ -2,7 +2,7 @@
 
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoaderServices;
+using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
@@ -17,7 +17,7 @@ public partial class MainViewModel : IMainViewModel
     private readonly AbstractViewModel _abstractViewModel;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
-    private readonly ISavegameLoaderService _savegameLoaderService;
+    private readonly ISavegameLoader _savegameLoaderService;
 
     [ObservableProperty]
     private string _title = GlobalState.AppName;
@@ -27,7 +27,7 @@ public partial class MainViewModel : IMainViewModel
                          AbstractViewModel abstractViewModel,
                          IModalService modalService,
                          ILogService logService,
-                         ISavegameLoaderService savegameLoaderService,
+                         ISavegameLoader savegameLoaderService,
                          IView viewportView)
     {
         GlobalState = globalState;

@@ -21,6 +21,8 @@ public class RegionDiskLoader : IRegionDiskLoader
 
     public bool TryGetRegion(Point2Z<int> regionCoords, CancellationToken ct, [NotNullWhen(true)] out IRegion? region)
     {
+        // Do not handle exception here, throw it and let caller decide what to do
+
         region = null;
         string? regionPath = getRegionPath(regionCoords);
         if (regionPath is null)
@@ -32,7 +34,7 @@ public class RegionDiskLoader : IRegionDiskLoader
         if (!File.Exists(regionPath))
             return false;
 
-        // Previously we were using File.ReadAllBytes but this API can't read file 
+        // Previously we were using File.ReadAllBytes but that API can't read file 
         // if other processes opening that file too, so we refactored it to File.Open
         // with sharing access set to Read and Write so we can access the file,
         // even though we are playing the savegame in Minecraft

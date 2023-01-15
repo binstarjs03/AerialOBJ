@@ -71,8 +71,9 @@ public class DefinitionManagerService : IDefinitionManagerService
                 _modalService.ShowErrorMessageBox(new MessageBoxArg()
                 {
                     Caption = caption,
-                    Message = $"An exception occured during loading definition {definitionFileName}." +
-                              $"Any further exception during definition folder loading will be logged to Debug Log window instead"
+                    Message = $"An exception occured during loading definition {definitionFileName}. " +
+                              $"See the Debug Log window for detailed information." +
+                              $"Any further exception during definition folder loading will be logged to Debug Log window"
                 });
             hasErrorMessageBoxShown = true;
         }

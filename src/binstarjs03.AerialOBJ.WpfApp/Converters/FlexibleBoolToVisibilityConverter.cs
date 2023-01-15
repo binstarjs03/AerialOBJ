@@ -22,7 +22,7 @@ public class FlexibleBoolToVisibilityConverter : IValueConverter
         return visibility == trueVisibility;
     }
 
-    private Visibility VisibilityFromParameter(string parameter, bool value)
+    private static Visibility VisibilityFromParameter(string parameter, bool value)
     {
         string[] visibilities = parameter.Split("|");
         string visibility = value ? visibilities[0] : visibilities[1];

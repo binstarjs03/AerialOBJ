@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoaderServices;
+namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 [Serializable]
 internal class LevelDatNotImplementedParserException : Exception
 {

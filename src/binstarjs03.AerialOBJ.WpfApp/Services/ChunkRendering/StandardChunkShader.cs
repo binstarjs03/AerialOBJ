@@ -1,5 +1,6 @@
 ﻿using System;
 
+using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
@@ -7,13 +8,21 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class StandardChunkShader : ChunkShaderBase
 {
-    public StandardChunkShader(IDefinitionManagerService definitionManager) : base(definitionManager) { }
-
-    public override void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
-        // pretend the sun is coming from northwest side
+        // pretend the sun is coming from northwest side/
+        // for example, lets say we have block arranged like so,
+        // and we want to decide the shade for block center (surrounded in brackets):
 
-        // initialize row of blocks to the first row (X = X, Z = 1)
+        /*      77,  75 , 78
+         *      76, [74], 73
+         *      75,  75 , 76
+         */
+
+        // since block bracket Y = 74 is lower than both of its north and west block (75 and 76 respectively),
+        // then block bracket is darker because the sun shine from northwest, so the shadow cast to southeast
+
+        // initialize row of blocks to the first row (X = X, Z = 0)
         Span<int> lastYRow = stackalloc int[IChunk.BlockCount];
         for (int x = 0; x < IChunk.BlockCount; x++)
             lastYRow[x] = highestBlocks[x, 0].Coords.Y;
@@ -24,11 +33,12 @@ public class StandardChunkShader : ChunkShaderBase
             int lastY = highestBlocks[0, z].Coords.Y;
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
-                // no copying struct!
+                // no struct copying!
                 ref Block block = ref highestBlocks[x, z];
-                Color color = GetBlockColor(in block);
+                Color color = GetBlockColor(vd, in block);
 
-                // since the sun is coming from northwest side, if y is higher than last
+                // since the sun is coming from northwest side, if y of this block is higher
+                // than either west block (last y) or north block (last y row at this index)
                 // set shade to brighter, else dimmer if lower, else keep it as is if same
                 int difference = 0;
                 int y = block.Coords.Y;

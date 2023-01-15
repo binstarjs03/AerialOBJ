@@ -39,7 +39,7 @@ public enum NbtType
     NbtIntArray = 11,
     NbtLongArray = 12,
 
-    // AerialOBJ specific enumeration
+    // AerialOBJ specific enumeration (still unused up until now, maybe we should remove it?)
     InvalidOrUnknown = -1,
     AnyNbtType = -10,
     AnyNbtArrayType = -11,

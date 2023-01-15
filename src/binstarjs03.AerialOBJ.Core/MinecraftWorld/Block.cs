@@ -12,4 +12,9 @@ public struct Block
     // of air blocks instead of hardcoding it to some string literal
     public bool IsAir => Name == "minecraft:air"
                       || Name == "minecraft:cave_air";
+
+    public override string ToString()
+    {
+        return $"Block {Name} - {Coords}";
+    }
 }

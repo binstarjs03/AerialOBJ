@@ -10,6 +10,10 @@ public class ChunkModel : IDisposable
     private bool _disposed;
 
     public required IChunk Data { get; init; }
+
+    // TODO maybe we should refactor it to not hold buffer unless if we really need it
+    // This way, memory usage is reduced because there are only handful of blocks pool object
+    // instead of more than 10K (loaded chunks) buffers are being held
     public Block[,] HighestBlocks { get; } = s_highestBlockPooler.Rent();
 
     public void LoadHighestBlock(int heightLimit) => Data.GetHighestBlock(HighestBlocks, heightLimit);

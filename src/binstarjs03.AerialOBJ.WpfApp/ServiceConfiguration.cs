@@ -7,7 +7,7 @@ using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
-using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoaderServices;
+using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
@@ -53,7 +53,7 @@ internal static class ServiceConfiguration
             AbstractViewModel abstractViewModel = x.GetRequiredService<AbstractViewModel>();
             IModalService modalService = x.GetRequiredService<IModalService>();
             ILogService logService = x.GetRequiredService<ILogService>();
-            ISavegameLoaderService savegameLoaderService = x.GetRequiredService<ISavegameLoaderService>();
+            ISavegameLoader savegameLoaderService = x.GetRequiredService<ISavegameLoader>();
             IView viewportView = x.GetRequiredService<ViewportView>();
             return new MainViewModel(globalState, viewState, abstractViewModel, modalService, logService, savegameLoaderService, viewportView);
         });
@@ -73,15 +73,15 @@ internal static class ServiceConfiguration
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
-        services.AddSingleton<ISavegameLoaderService, SavegameLoaderService>();
+        services.AddSingleton<ISavegameLoader, SavegameLoader>();
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
             // For now default chunk shader is fixed to FlatChunkShader.
             IDefinitionManagerService definitionManager = x.GetRequiredService<IDefinitionManagerService>();
-            IChunkShader shader = new StandardChunkShader(definitionManager);
-            return new ChunkRenderer(shader);
+            IChunkShader shader = new StandardChunkShader();
+            return new ChunkRenderer(shader, definitionManager);
         });
         services.AddSingleton<IViewportDefinitionLoader, ViewportDefinitionLoader>();
         services.AddSingleton<IRegionImagePooler, RegionImagePooler>(x =>
