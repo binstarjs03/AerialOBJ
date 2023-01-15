@@ -22,7 +22,7 @@ public partial class ViewportViewModel
 {
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly ILogService _logService;
-    private readonly IDefinitionManagerService _definitionManager;
+    private readonly IDefinitionManager _definitionManager;
 
     // viewport UI states
     [ObservableProperty]
@@ -62,7 +62,7 @@ public partial class ViewportViewModel
     public ViewportViewModel(GlobalState globalState,
                              IChunkRegionManager chunkRegionManager,
                              ILogService logService,
-                             IDefinitionManagerService definitionManager)
+                             IDefinitionManager definitionManager)
     {
         GlobalState = globalState;
         ChunkRegionManager = chunkRegionManager;
@@ -74,8 +74,8 @@ public partial class ViewportViewModel
         ChunkRegionManager.RegionUnloaded += RemoveRegionDataImageModel;
         ChunkRegionManager.RegionLoadingException += OnRegionLoadingException;
         ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
-        _definitionManager.OnViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
-        _definitionManager.OnViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
+        _definitionManager.ViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
+        _definitionManager.ViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
     }
 
     public GlobalState GlobalState { get; }

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 
+using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -61,9 +64,34 @@ public partial class App : Application
         }
     }
 
+    // TODO we may move out the logic of this method into separate class, maybe "IDefinitionInitializer"
+    // load all definitions in definition folder
     private void InitializeDefinitions()
     {
-        IDefinitionManagerService definitionManagerService = ServiceProvider.GetRequiredService<IDefinitionManagerService>();
-        definitionManagerService.LoadDefinitionFolder();
+        IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
+        IDefinitionIO definitionIO = ServiceProvider.GetRequiredService<IDefinitionIO>();
+
+        ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
+        IModalService modalService = ServiceProvider.GetRequiredService<IModalService>();
+        bool hasErrorMessageBoxShown = false;
+
+        List<IRootDefinition> definitions = definitionIO.LoadDefinitionFolder(exceptionHandler);
+        foreach (IRootDefinition definition in definitions)
+            definitionManager.LoadDefinition(definition);
+
+        void exceptionHandler(Exception e, string definitionFilename)
+        {
+            string caption = "Cannot load definition";
+            logService.LogException($"{caption} {definitionFilename}", e);
+            if (!hasErrorMessageBoxShown)
+                modalService.ShowErrorMessageBox(new MessageBoxArg()
+                {
+                    Caption = caption,
+                    Message = $"An exception occured during loading definition {definitionFilename}.\n" +
+                              $"See the Debug Log window for detailed information.\n" +
+                              $"Any further exception during definition folder loading will be logged to Debug Log window"
+                });
+            hasErrorMessageBoxShown = true;
+        }
     }
 }

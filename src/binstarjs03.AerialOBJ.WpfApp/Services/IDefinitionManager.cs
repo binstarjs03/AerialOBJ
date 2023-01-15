@@ -4,16 +4,15 @@ using System.Collections.ObjectModel;
 using binstarjs03.AerialOBJ.Core.Definitions;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
-public interface IDefinitionManagerService
+public interface IDefinitionManager
 {
     ViewportDefinition CurrentViewportDefinition { get; set; }
     ViewportDefinition DefaultViewportDefinition { get; }
     ObservableCollection<ViewportDefinition> LoadedViewportDefinitions { get; }
 
-    event Action? OnViewportDefinitionChanging;
-    event Action? OnViewportDefinitionChanged;
+    event Action? ViewportDefinitionChanging;
+    event Action? ViewportDefinitionChanged;
 
-    void ImportDefinitionFile(string path);
-    void LoadDefinitionFolder();
-    void LoadViewportDefinition(ViewportDefinition definition);
+    void LoadDefinition(IRootDefinition definition);
+    void UnloadDefinition(IRootDefinition definition);
 }

@@ -9,10 +9,10 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class ChunkRenderer : IChunkRenderer
 {
     private IChunkShader _shader;
-    private readonly IDefinitionManagerService _definitionManager;
+    private readonly IDefinitionManager _definitionManager;
     private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
-    public ChunkRenderer(IChunkShader initialChunkShader, IDefinitionManagerService definitionManager)
+    public ChunkRenderer(IChunkShader initialChunkShader, IDefinitionManager definitionManager)
     {
         _shader = initialChunkShader;
         _definitionManager = definitionManager;

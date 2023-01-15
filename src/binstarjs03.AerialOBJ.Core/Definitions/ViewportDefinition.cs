@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text.Json;
 
 namespace binstarjs03.AerialOBJ.Core.Definitions;
 public class ViewportDefinition : IRootDefinition
@@ -7,8 +6,10 @@ public class ViewportDefinition : IRootDefinition
     public required string Name { get; set; }
     public required int FormatVersion { get; set; }
     public required string MinecraftVersion { get; set; }
+    public string? OriginalFilename { get; set; }
     public required ViewportBlockDefinition MissingBlockDefinition { get; set; }
     public required Dictionary<string, ViewportBlockDefinition> BlockDefinitions { get; set; }
+    public bool IsDefault { get; set; }
 
     public override string ToString()
     {
@@ -19,7 +20,8 @@ public class ViewportDefinition : IRootDefinition
     {
         string input = /*lang=json*/ """
         {
-            "Name": "Default Definitions",
+            "Name": "Default Viewport Definition",
+            "Kind": "Viewport Definition",
             "FormatVersion": 1,
             "MinecraftVersion": "1.18",
             "MissingBlockDefinition": {
@@ -3238,6 +3240,8 @@ public class ViewportDefinition : IRootDefinition
         
         """;
 
-        return JsonSerializer.Deserialize<ViewportDefinition>(input)!;
+        ViewportDefinition result = DefinitionDeserializer.Deserialize<ViewportDefinition>(input);
+        result.IsDefault = true;
+        return result;
     }
 }

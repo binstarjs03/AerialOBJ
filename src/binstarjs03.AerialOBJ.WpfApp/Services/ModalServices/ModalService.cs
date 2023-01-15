@@ -37,6 +37,12 @@ public class ModalService : IModalService
         return result == MessageBoxResult.OK;
     }
 
+    public bool ShowWarningConfirmationBox(MessageBoxArg dialogArg)
+    {
+        MessageBoxResult result = MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+        return result == MessageBoxResult.OK;
+    }
+
     public void ShowAboutView() => _aboutViewFactory().ShowDialog();
 
     public void ShowDefinitionManagerView() => _definitionManagerViewFactory().ShowDialog();

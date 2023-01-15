@@ -13,21 +13,24 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class DefinitionManagerViewModel
 {
-    private readonly IDefinitionManagerService _definitionManager;
+    private readonly IDefinitionManager _definitionManager;
+    private readonly IDefinitionIO _definitionIO;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanDeleteDefinition))]
     private ViewportDefinition _selectedDefinition;
 
-    public DefinitionManagerViewModel(IDefinitionManagerService definitionManager,
+    public DefinitionManagerViewModel(IDefinitionManager definitionManager,
                                       IModalService modalService,
-                                      ILogService logService)
+                                      ILogService logService,
+                                      IDefinitionIO definitionIO)
     {
         _definitionManager = definitionManager;
         _modalService = modalService;
         _logService = logService;
         _selectedDefinition = definitionManager.CurrentViewportDefinition;
+        _definitionIO = definitionIO;
     }
 
     public ObservableCollection<ViewportDefinition> LoadedViewportDefinitions => _definitionManager.LoadedViewportDefinitions;
@@ -40,7 +43,8 @@ public partial class DefinitionManagerViewModel
             return;
         try
         {
-            _definitionManager.ImportDefinitionFile(path);
+            IRootDefinition definition = _definitionIO.ImportDefinition(path);
+            _definitionManager.LoadDefinition(definition);
         }
         catch (Exception e) { handleException(e); }
 
@@ -70,15 +74,19 @@ public partial class DefinitionManagerViewModel
     [RelayCommand]
     private void DeleteDefinition()
     {
-        bool result = _modalService.ShowConfirmationBox(new MessageBoxArg()
+        bool result = _modalService.ShowWarningConfirmationBox(new MessageBoxArg()
         {
             Caption = "Confirm Deleting Definition",
-            Message = $"Are you sure to delete definition {SelectedDefinition.Name}?\n" +
+            Message = $"Are you sure to delete definition \"{SelectedDefinition.Name}\"?\n" +
                        "This cannot be undone"
         });
         if (result)
-            LoadedViewportDefinitions.Remove(SelectedDefinition);
-        SelectedDefinition = _definitionManager.DefaultViewportDefinition;
+        {
+            IRootDefinition definition = SelectedDefinition;
+            SelectedDefinition = _definitionManager.DefaultViewportDefinition;
+            _definitionManager.UnloadDefinition(definition);
+            _definitionIO.DeleteDefinition(definition);
+        }
     }
 
     [RelayCommand]

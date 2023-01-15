@@ -69,7 +69,7 @@ internal static class ServiceConfiguration
             IDialogView definitionManagerViewFactory() => x.GetRequiredService<DefinitionManagerView>();
             return new ModalService(aboutViewFactory, definitionManagerViewFactory);
         });
-        services.AddSingleton<IDefinitionManagerService, DefinitionManagerService>();
+        services.AddSingleton<IDefinitionManager, DefinitionManager>();
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
@@ -78,8 +78,8 @@ internal static class ServiceConfiguration
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
-            // For now default chunk shader is fixed to FlatChunkShader.
-            IDefinitionManagerService definitionManager = x.GetRequiredService<IDefinitionManagerService>();
+            // For now default chunk shader is fixed.
+            IDefinitionManager definitionManager = x.GetRequiredService<IDefinitionManager>();
             IChunkShader shader = new StandardChunkShader();
             return new ChunkRenderer(shader, definitionManager);
         });
@@ -88,6 +88,7 @@ internal static class ServiceConfiguration
         {
             return new RegionImagePooler(x.GetRequiredService<IRegionImageFactory>(), CancellationToken.None);
         });
+        services.AddSingleton<IDefinitionIO, DefinitionIO>();
 
         return services.BuildServiceProvider();
     }

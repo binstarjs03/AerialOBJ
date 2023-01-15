@@ -8,7 +8,9 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:DefinitionManagerViewModel}}"
-        Title="DefinitionManager" Height="300" Width="400">
+        Title="DefinitionManager" 
+        Width="500" Height="300" 
+        MinWidth="400" MinHeight="300">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding CloseCommand}"/>
@@ -43,6 +45,8 @@
                                         Binding="{Binding FormatVersion}"/>
                     <DataGridTextColumn Header="Minecraft Version" 
                                         Binding="{Binding MinecraftVersion}"/>
+                    <DataGridTextColumn Header="Filename" 
+                                        Binding="{Binding OriginalFilename}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
@@ -61,10 +65,10 @@
                 <Button Grid.Column="0" 
                         Content="Import Definition..."
                         Command="{Binding ImportDefinitionCommand}"/>
-                <!--Button Grid.Column="1" 
+                <Button Grid.Column="1" 
                         Content="Delete Definition..."
                         Command="{Binding DeleteDefinitionCommand}"
-                        IsEnabled="{Binding CanDeleteDefinition}"/-->
+                        IsEnabled="{Binding CanDeleteDefinition}"/>
             </Grid>
         </Border>
     </Grid>
