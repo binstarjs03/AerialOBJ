@@ -112,16 +112,17 @@ public partial class ChunkRegionManager : IChunkRegionManager
         }
     }
 
-    public void UpdateHeightLevel(int heightLevel)
+    public void UpdateHeightLevel(int heightLevel, HeightSliderSetting setting)
     {
         _heightLevelLock.EnterWriteLock();
         try
         {
             if (_heightLevel != heightLevel)
-            {
                 _heightLevel = heightLevel;
-                UpdateChunkHighestBlock();
-            }
+            if (setting == HeightSliderSetting.Responsive)
+                UpdateChunkHighestBlockResponsive();
+            else
+                UpdateChunkHighestBlockBlocking();
         }
         finally { _heightLevelLock.ExitWriteLock(); }
     }
@@ -674,7 +675,22 @@ public partial class ChunkRegionManager : IChunkRegionManager
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
     }
 
-    private void UpdateChunkHighestBlock()
+    private void UpdateChunkHighestBlockResponsive()
+    {
+        lock (_loadedChunks)
+            foreach (var item in _loadedChunks.Values)
+            {
+                UnloadChunk(item);
+                lock (_pendingChunkLock)
+                {
+                    _pendingChunks.Add(item.Data.CoordsAbs);
+                    _pendingChunksSet.Add(item.Data.CoordsAbs);
+                }
+            }
+        RunPendingChunkTasks();
+    }
+
+    private void UpdateChunkHighestBlockBlocking()
     {
         _updateChunkHighestBlockEvent.Reset();
         try

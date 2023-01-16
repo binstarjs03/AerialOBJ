@@ -90,7 +90,7 @@ public partial class ViewportViewModel
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
     partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManager();
     partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManager();
-    partial void OnHeightLevelChanged(int value) => ChunkRegionManager.UpdateHeightLevel(HeightLevel);
+    partial void OnHeightLevelChanged(int value) => ChunkRegionManager.UpdateHeightLevel(HeightLevel, GlobalState.Setting.HeightSlider);
 
     private void OnGlobalState_SavegameLoadInfoChanged(SavegameLoadState state)
     {
@@ -155,7 +155,7 @@ public partial class ViewportViewModel
             ScreenSize = GetViewViewportSize();
 
         ChunkRegionManager.StartBackgroundThread();
-        ChunkRegionManager.UpdateHeightLevel(HeightLevel);
+        ChunkRegionManager.UpdateHeightLevel(HeightLevel, GlobalState.Setting.HeightSlider);
         UpdateChunkRegionManager();
 
         if (GlobalState.IsDebugEnabled)

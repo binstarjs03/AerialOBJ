@@ -30,9 +30,6 @@
                     <MenuItem Header="Close"
                               Command="{Binding CloseSavegameCommand}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
-                    <MenuItem Header="Setting"/>
-                    <MenuItem Header="Manage Definitions.."
-                              Command="{Binding ShowDefinitionManagerModalCommand}"/>
                     <MenuItem Header="Exit"
                               Command="{Binding CloseCommand}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -52,6 +49,9 @@
                               IsChecked="{Binding ViewState.IsDebugLogViewVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
+                    <MenuItem Header="Manage Definitions.."
+                              Command="{Binding ShowDefinitionManagerModalCommand}"/>
+                    <MenuItem Header="Settings"/>
                     <MenuItem Header="About..."
                               Command="{Binding ShowAboutModalCommand}"/>
                 </MenuItem>
