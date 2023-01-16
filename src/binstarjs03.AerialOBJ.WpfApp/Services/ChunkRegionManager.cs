@@ -52,6 +52,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly List<Point2Z<int>> _errorRegions = new();
     private readonly HashSet<Point2Z<int>> _errorChunks = new();
     private int _heightLevel;
+    private readonly ReaderWriterLockSlim _heightLevelLock = new();
 
     private Point2ZRange<int> _visibleRegionRange = default;
     private Point2ZRange<int> _visibleChunkRange = default;
@@ -113,11 +114,16 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
     public void UpdateHeightLevel(int heightLevel)
     {
-        if (_heightLevel != heightLevel)
+        _heightLevelLock.EnterWriteLock();
+        try
         {
-            _heightLevel = heightLevel;
-            UpdateChunkHighestBlock();
+            if (_heightLevel != heightLevel)
+            {
+                _heightLevel = heightLevel;
+                UpdateChunkHighestBlock();
+            }
         }
+        finally { _heightLevelLock.ExitWriteLock(); }
     }
 
     private bool IsVisibleChunkRangeChanged(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
@@ -586,7 +592,12 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         _updateChunkHighestBlockEvent.Wait();
         ChunkModel chunk = new() { Data = chunkData };
-        chunk.LoadHighestBlock(_heightLevel);
+        _heightLevelLock.EnterReadLock();
+        try
+        {
+            chunk.LoadHighestBlock(_heightLevel);
+        }
+        finally { _heightLevelLock.ExitReadLock(); }
         _chunkRenderer.RenderChunk(regionModel.Image, chunk.HighestBlocks, chunk.Data.CoordsRel);
         _visibleChunkRangeLock.EnterReadLock();
         try
