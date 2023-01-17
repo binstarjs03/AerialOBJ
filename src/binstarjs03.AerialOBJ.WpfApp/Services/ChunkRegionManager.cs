@@ -37,6 +37,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private CancellationTokenSource _stoppingCts = new(); // use this when pausing
     private CancellationTokenSource _reinitializingCts = new(); // use this when reinitializing
     private readonly ManualResetEventSlim _updateChunkHighestBlockEvent = new(true);
+    private readonly ManualResetEventSlim _redrawEvent = new(false);
 
     private readonly ReferenceWrap<bool> _isPendingRegionTaskRunning = new() { Value = false };
     private Task _pendingRegionTask = Task.CompletedTask;
@@ -432,7 +433,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 lock (_loadedChunks)
                     lock (_pendingChunkLock)
                         lock (_workedChunks)
-                        {
                             if (_loadedChunks.ContainsKey(chunkCoords)
                                 || _pendingChunksSet.Contains(chunkCoords)
                                 || _workedChunks.Contains(chunkCoords))
@@ -442,7 +442,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
                                 _pendingChunks.Add(chunkCoords);
                                 _pendingChunksSet.Add(chunkCoords);
                             }
-                        }
             }
     }
 
@@ -602,6 +601,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         finally { _heightLevelLock.ExitReadLock(); }
         chunk.Dispose();
         _chunkRenderer.RenderChunk(regionModel.Image, chunkModel.HighestBlocks, chunkModel.CoordsRel);
+        _redrawEvent.Set();
         _visibleChunkRangeLock.EnterReadLock();
         try
         {
@@ -654,14 +654,24 @@ public partial class ChunkRegionManager : IChunkRegionManager
                     lock (_loadedRegions)
                         foreach (RegionDataImageModel region in _loadedRegions.Values)
                             region.Image.Redraw();
+                    checkIfRedrawNeeded();
                 }, DispatcherPriority.BackgroundHigh, _stoppingCts.Token);
                 Thread.Sleep(1000 / 30);
+                _redrawEvent.Wait();
             }
         }
         finally
         {
             lock (_isRedrawTaskRunning)
                 _isRedrawTaskRunning.Value = false;
+        }
+
+        void checkIfRedrawNeeded()
+        {
+            lock (_pendingChunkLock)
+                lock (_workedChunks)
+                    if (_pendingChunks.Count == 0 && _workedChunks.Count == 0)
+                        _redrawEvent.Reset();
         }
     }
 
@@ -755,6 +765,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         lock (_pendingChunkTasks)
             chunkLoaderTasks = _pendingChunkTasks.Values.ToArray();
         Task.WaitAll(chunkLoaderTasks);
+        _redrawEvent.Set();
         _redrawTask.Wait();
 
         _stoppingCts.Dispose();
