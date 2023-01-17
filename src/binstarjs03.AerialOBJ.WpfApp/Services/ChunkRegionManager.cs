@@ -589,42 +589,43 @@ public partial class ChunkRegionManager : IChunkRegionManager
         return null;
     }
 
-    private void LoadChunk(IChunk chunkData, RegionDataImageModel regionModel)
+    private void LoadChunk(IChunk chunk, RegionDataImageModel regionModel)
     {
         _updateChunkHighestBlockEvent.Wait();
-        ChunkModel chunk = new() { Data = chunkData };
+        ChunkModel chunkModel = new(chunk.CoordsAbs, chunk.CoordsRel);
         _heightLevelLock.EnterReadLock();
         try
         {
-            chunk.LoadHighestBlock(_heightLevel);
+            chunk.GetHighestBlockSlim(chunkModel.HighestBlocks, _heightLevel, null);
         }
         finally { _heightLevelLock.ExitReadLock(); }
-        _chunkRenderer.RenderChunk(regionModel.Image, chunk.HighestBlocks, chunk.Data.CoordsRel);
+        chunk.Dispose();
+        _chunkRenderer.RenderChunk(regionModel.Image, chunkModel.HighestBlocks, chunkModel.CoordsRel);
         _visibleChunkRangeLock.EnterReadLock();
         try
         {
             lock (_loadedChunks)
             {
-                if (_visibleChunkRange.IsOutside(chunkData.CoordsAbs)
-                    || _loadedChunks.ContainsKey(chunkData.CoordsAbs)
+                if (_visibleChunkRange.IsOutside(chunk.CoordsAbs)
+                    || _loadedChunks.ContainsKey(chunk.CoordsAbs)
                     || _reinitializingCts.IsCancellationRequested)
                     return;
-                _loadedChunks.Add(chunkData.CoordsAbs, chunk);
+                _loadedChunks.Add(chunk.CoordsAbs, chunkModel);
             }
             OnPropertyChanged(nameof(LoadedChunksCount));
         }
         finally { _visibleChunkRangeLock.ExitReadLock(); }
     }
 
-    private void UnloadChunk(ChunkModel chunk)
+    private void UnloadChunk(ChunkModel chunkModel)
     {
-        _loadedChunks.Remove(chunk.Data.CoordsAbs);
+        _loadedChunks.Remove(chunkModel.CoordsAbs);
         // before returning, we want to erase region image part for this chunk,
         // but if region is not loaded, well, just move on cause it doesn't even exist
-        RegionDataImageModel? region = GetRegionModelForChunk(chunk.Data.CoordsAbs, out _);
+        RegionDataImageModel? region = GetRegionModelForChunk(chunkModel.CoordsAbs, out _);
         if (region is not null)
-            _chunkRenderer.EraseChunk(region.Image, chunk.Data.CoordsRel);
-        chunk.Dispose();
+            _chunkRenderer.EraseChunk(region.Image, chunkModel.CoordsRel);
+        chunkModel.Dispose();
     }
 
     private void RunRedrawLoopTask()
@@ -678,13 +679,13 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private void UpdateChunkHighestBlockResponsive()
     {
         lock (_loadedChunks)
-            foreach (var item in _loadedChunks.Values)
+            foreach (ChunkModel chunkModel in _loadedChunks.Values)
             {
-                UnloadChunk(item);
+                UnloadChunk(chunkModel);
                 lock (_pendingChunkLock)
                 {
-                    _pendingChunks.Add(item.Data.CoordsAbs);
-                    _pendingChunksSet.Add(item.Data.CoordsAbs);
+                    _pendingChunks.Add(chunkModel.CoordsAbs);
+                    _pendingChunksSet.Add(chunkModel.CoordsAbs);
                 }
             }
         RunPendingChunkTasks();
@@ -692,6 +693,11 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
     private void UpdateChunkHighestBlockBlocking()
     {
+        // chunks are soon released after loaded so there is no way
+        // to update highest block if chunk do not exist. This feature is
+        // marked as wip until chunk management have been refactored again
+        throw new NotImplementedException();
+        /*
         _updateChunkHighestBlockEvent.Reset();
         try
         {
@@ -723,13 +729,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
                     // stop when all chunks are updated (empty queue)
                     if (!chunkModels.TryDequeue(out chunkModel))
                         return;
-                chunkModel.LoadHighestBlock(_heightLevel);
-                RegionDataImageModel? regionDataImageModel = GetRegionModelForChunk(chunkModel.Data.CoordsAbs, out _);
+                //chunkModel.LoadHighestBlock(_heightLevel);
+                RegionDataImageModel? regionDataImageModel = GetRegionModelForChunk(chunkModel.CoordsAbs, out _);
                 if (regionDataImageModel is null)
                     continue;
-                _chunkRenderer.RenderChunk(regionDataImageModel.Image, chunkModel.HighestBlocks, chunkModel.Data.CoordsRel);
+                _chunkRenderer.RenderChunk(regionDataImageModel.Image, chunkModel.HighestBlocks, chunkModel.CoordsRel);
             }
         }
+        */
     }
 
     public void StartBackgroundThread()
