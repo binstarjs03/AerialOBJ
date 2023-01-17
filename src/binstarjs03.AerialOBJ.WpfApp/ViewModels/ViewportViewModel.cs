@@ -223,13 +223,13 @@ public partial class ViewportViewModel
             Point2<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
             Point2Z<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
             Point2Z<int> mouseBlockCoords2 = new(MathUtils.Floor(mouseWorldPos.X), MathUtils.Floor(mouseWorldPos.Z));
-            Block? block = ChunkRegionManager.GetHighestBlockAt(mouseBlockCoords2);
+            BlockSlim? block = ChunkRegionManager.GetHighestBlockAt(mouseBlockCoords2);
 
             MouseChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(mouseBlockCoords2);
             MouseRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(MouseChunkCoords);
             if (block is not null)
             {
-                MouseBlockCoords = block.Value.Coords;
+                MouseBlockCoords = new Point3<int>(mouseBlockCoords2.X, block.Value.Height, mouseBlockCoords2.Z);
                 MouseBlockName = block.Value.Name;
                 if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Value.Name, out ViewportBlockDefinition? bd))
                     MouseBlockDisplayName = bd.DisplayName;

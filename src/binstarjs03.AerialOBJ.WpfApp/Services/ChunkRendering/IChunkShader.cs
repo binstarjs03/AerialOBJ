@@ -9,5 +9,5 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 /// </summary>
 public interface IChunkShader
 {
-    void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel);
+    void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, BlockSlim[,] highestBlocks, Point2Z<int> chunkCoordsRel);
 }

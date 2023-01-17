@@ -7,9 +7,9 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 
 public abstract class ChunkShaderBase : IChunkShader
 {
-    public abstract void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel);
+    public abstract void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, BlockSlim[,] highestBlocks, Point2Z<int> chunkCoordsRel);
 
-    protected Color GetBlockColor(ViewportDefinition vd, in Block block)
+    protected static Color GetBlockColor(ViewportDefinition vd, in BlockSlim block)
     {
         // try get color from block definition else return missing block color
         string blockName = block.Name;

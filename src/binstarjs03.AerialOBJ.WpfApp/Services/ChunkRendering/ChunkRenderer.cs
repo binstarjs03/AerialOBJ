@@ -26,7 +26,7 @@ public class ChunkRenderer : IChunkRenderer
         set => throw new NotImplementedException();
     }
 
-    public void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public void RenderChunk(IRegionImage regionImage, BlockSlim[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
         Shader.RenderChunk(_definitionManager.CurrentViewportDefinition, regionImage, highestBlocks, chunkCoordsRel);
     }

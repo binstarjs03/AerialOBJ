@@ -7,6 +7,6 @@ public interface IChunkRenderer
 {
     IChunkShader Shader { get; set; }
     void RenderRandomNoise(IRegionImage regionImage, Color color, byte distance);
-    void RenderChunk(IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel);
+    void RenderChunk(IRegionImage regionImage, BlockSlim[,] highestBlocks, Point2Z<int> chunkCoordsRel);
     void EraseChunk(IRegionImage regionImage, Point2Z<int> chunkCoordsRel);
 }

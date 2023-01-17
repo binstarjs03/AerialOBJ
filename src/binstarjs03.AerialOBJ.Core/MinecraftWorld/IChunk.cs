@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 
@@ -13,5 +14,5 @@ public interface IChunk : IDisposable
     Point2Z<int> CoordsAbs { get; }
     Point2Z<int> CoordsRel { get; }
 
-    void GetHighestBlock(Block[,] buffer, int heightLimit);
+    void GetHighestBlockSlim(BlockSlim[,] buffer, int heightLimit, List<string>? exclusions);
 }

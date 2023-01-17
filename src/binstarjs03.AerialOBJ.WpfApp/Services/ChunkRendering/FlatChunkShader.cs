@@ -10,7 +10,7 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 /// </summary>
 public class FlatChunkShader : ChunkShaderBase
 {
-    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, BlockSlim[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)

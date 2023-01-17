@@ -8,7 +8,7 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class StandardChunkShader : ChunkShaderBase
 {
-    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, Block[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, BlockSlim[,] highestBlocks, Point2Z<int> chunkCoordsRel)
     {
         // pretend the sun is coming from northwest side/
         // for example, lets say we have block arranged like so,
@@ -25,23 +25,22 @@ public class StandardChunkShader : ChunkShaderBase
         // initialize row of blocks to the first row (X = X, Z = 0)
         Span<int> lastYRow = stackalloc int[IChunk.BlockCount];
         for (int x = 0; x < IChunk.BlockCount; x++)
-            lastYRow[x] = highestBlocks[x, 0].Coords.Y;
+            lastYRow[x] = highestBlocks[x, 0].Height;
 
         for (int z = 0; z < IChunk.BlockCount; z++)
         {
             // initialize lastY to the first block
-            int lastY = highestBlocks[0, z].Coords.Y;
+            int lastY = highestBlocks[0, z].Height;
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
-                // no struct copying!
-                ref Block block = ref highestBlocks[x, z];
+                ref BlockSlim block = ref highestBlocks[x, z];
                 Color color = GetBlockColor(vd, in block);
 
                 // since the sun is coming from northwest side, if y of this block is higher
                 // than either west block (last y) or north block (last y row at this index)
                 // set shade to brighter, else dimmer if lower, else keep it as is if same
                 int difference = 0;
-                int y = block.Coords.Y;
+                int y = block.Height;
                 int lastYrow = lastYRow[x];
 
                 // TODO check if block is foliage instead of hardcoding grass!!!
@@ -71,8 +70,8 @@ public class StandardChunkShader : ChunkShaderBase
                 Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
                 regionImage[pixelCoords.X, pixelCoords.Y] = color;
 
-                lastY = block.Coords.Y;
-                lastYRow[x] = block.Coords.Y;
+                lastY = block.Height;
+                lastYRow[x] = block.Height;
             }
         }
     }

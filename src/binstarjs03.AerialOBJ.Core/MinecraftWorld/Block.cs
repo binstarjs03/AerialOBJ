@@ -3,8 +3,15 @@
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public struct Block
 {
+    private static readonly Block s_air = new()
+    {
+        Name = "minecraft:air",
+        Coords = new Point3<int>(0, 0, 0)
+    };
+
     public Block() { }
 
+    public static ref readonly Block Air => ref s_air;
     public required string Name { get; set; } = "minecraft:air";
     public required Point3<int> Coords { get; set; } = Point3<int>.Zero;
 

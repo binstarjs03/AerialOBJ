@@ -663,7 +663,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         }
     }
 
-    public Block? GetHighestBlockAt(Point2Z<int> blockCoords)
+    public BlockSlim? GetHighestBlockAt(Point2Z<int> blockCoords)
     {
         // get chunk for this block
         Point2Z<int> chunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
