@@ -72,11 +72,11 @@ public static class RangeofExtension
         return ExpandContract(range, -distance, false);
     }
 
-    private static Point2ZRange<TNumber> ExpandContract<TNumber>(this Point2ZRange<TNumber> coordsRange, TNumber distance, bool positiveDistance, Direction direction) where TNumber : struct, INumber<TNumber>
+    private static PointZRange<TNumber> ExpandContract<TNumber>(this PointZRange<TNumber> coordsRange, TNumber distance, bool positiveDistance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         CheckDistance(distance, positiveDistance);
         if (direction == Direction.Vertical)
-            throw new ArgumentException($"{nameof(Point2ZRange<TNumber>)} is two dimensional horizontal plane so it doesn't have vertical axis");
+            throw new ArgumentException($"{nameof(PointZRange<TNumber>)} is two dimensional horizontal plane so it doesn't have vertical axis");
         switch (direction)
         {
             case Direction.NorthSouth:
@@ -94,12 +94,12 @@ public static class RangeofExtension
         return coordsRange;
     }
 
-    public static Point2ZRange<TNumber> Expand<TNumber>(this Point2ZRange<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
+    public static PointZRange<TNumber> Expand<TNumber>(this PointZRange<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(coordsRange, distance, true, direction);
     }
 
-    public static Point2ZRange<TNumber> Contract<TNumber>(this Point2ZRange<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
+    public static PointZRange<TNumber> Contract<TNumber>(this PointZRange<TNumber> coordsRange, TNumber distance, Direction direction) where TNumber : struct, INumber<TNumber>
     {
         return ExpandContract(coordsRange, -distance, false, direction);
     }
@@ -146,7 +146,7 @@ public static class RangeofExtension
         return self.Max > other.Min || self.Max > other.Min;
     }
 
-    public static bool CanIntersect<TNumber>(this Point2ZRange<TNumber> self, Point2ZRange<TNumber> other) where TNumber : struct, INumber<TNumber>
+    public static bool CanIntersect<TNumber>(this PointZRange<TNumber> self, PointZRange<TNumber> other) where TNumber : struct, INumber<TNumber>
     {
         return self.XRange.CanIntersect(other.XRange)
             && self.ZRange.CanIntersect(other.ZRange);
@@ -161,10 +161,10 @@ public static class RangeofExtension
         TNumber selectMax(TNumber maxA, TNumber maxB) => maxA < maxB ? maxA : maxB;
     }
 
-    public static Point2ZRange<TNumber> Intersect<TNumber>(this Point2ZRange<TNumber> self, Point2ZRange<TNumber> other) where TNumber : struct, INumber<TNumber>
+    public static PointZRange<TNumber> Intersect<TNumber>(this PointZRange<TNumber> self, PointZRange<TNumber> other) where TNumber : struct, INumber<TNumber>
     {
         Rangeof<TNumber> xRange = self.XRange.Intersect(other.XRange);
         Rangeof<TNumber> zRange = self.ZRange.Intersect(other.ZRange);
-        return new Point2ZRange<TNumber>(xRange, zRange);
+        return new PointZRange<TNumber>(xRange, zRange);
     }
 }

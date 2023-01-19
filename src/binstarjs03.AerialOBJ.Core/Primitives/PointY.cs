@@ -3,22 +3,19 @@ using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
 
-public struct Vector2<TNumber> :
-    IEquatable<Vector2<TNumber>>,
-    IEqualityOperators<Vector2<TNumber>, Vector2<TNumber>, bool>
-    where TNumber : struct, INumber<TNumber>
+public struct PointY<TNumber> : IEquatable<PointY<TNumber>> where TNumber : struct, INumber<TNumber>
 {
-    public static Vector2<TNumber> Zero => new();
+    public static PointY<TNumber> Zero => new();
     public TNumber X { get; set; }
     public TNumber Y { get; set; }
 
-    public Vector2()
+    public PointY()
     {
         X = TNumber.Zero;
         Y = TNumber.Zero;
     }
 
-    public Vector2(TNumber x, TNumber y)
+    public PointY(TNumber x, TNumber y)
     {
         X = x;
         Y = y;
@@ -35,29 +32,24 @@ public struct Vector2<TNumber> :
 
     public override bool Equals(object? obj)
     {
-        if (obj is Vector2<TNumber> o)
+        if (obj is PointY<TNumber> o)
             return Equals(o);
         return false;
     }
 
-    public bool Equals(Vector2<TNumber> other)
+    public bool Equals(PointY<TNumber> other)
     {
         return X == other.X
             && Y == other.Y;
     }
 
-    public static bool operator ==(Vector2<TNumber> left, Vector2<TNumber> right)
+    public static bool operator ==(PointY<TNumber> left, PointY<TNumber> right)
     {
         return left.Equals(right);
     }
 
-    public static bool operator !=(Vector2<TNumber> left, Vector2<TNumber> right)
+    public static bool operator !=(PointY<TNumber> left, PointY<TNumber> right)
     {
         return !(left == right);
-    }
-
-    public static implicit operator Vector2<TNumber>(Point2<TNumber> point)
-    {
-        return new Vector2<TNumber>(point.X, point.Y);
     }
 }

@@ -3,8 +3,8 @@
 namespace binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 public static class Point2Extension
 {
-    public static Point2<float> Floor(this Point2<float> point)
+    public static PointY<float> Floor(this PointY<float> point)
     {
-        return new Point2<float>(point.X.Floor(), point.Y.Floor());
+        return new PointY<float>(point.X.Floor(), point.Y.Floor());
     }
 }

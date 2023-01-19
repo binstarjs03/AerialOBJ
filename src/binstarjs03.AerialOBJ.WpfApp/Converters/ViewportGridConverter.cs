@@ -14,13 +14,13 @@ public class ViewportGridConverter : IMultiValueConverter
         try
         {
             float gridSize = (float)values[0];
-            Point2Z<float> cameraPos = (Point2Z<float>)values[1];
+            PointZ<float> cameraPos = (PointZ<float>)values[1];
             float unitMultiplier = (float)values[2];
             Size<int> screenSize = (Size<int>)values[3];
 
-            Point2Z<float> worldPos = new(0f, 0f);
+            PointZ<float> worldPos = new(0f, 0f);
             Size<float> floatScreenSize = new(screenSize.Width, screenSize.Height);
-            Point2<float> screenPos = PointSpaceConversion.ConvertWorldPosToScreenPos(worldPos, cameraPos, unitMultiplier, floatScreenSize);
+            PointY<float> screenPos = PointSpaceConversion.ConvertWorldPosToScreenPos(worldPos, cameraPos, unitMultiplier, floatScreenSize);
             float screenGridSize = gridSize * unitMultiplier;
             return new Rect(screenPos.X, screenPos.Y, screenGridSize, screenGridSize);
         }

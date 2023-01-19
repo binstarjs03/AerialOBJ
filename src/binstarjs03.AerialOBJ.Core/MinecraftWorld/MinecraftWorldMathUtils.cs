@@ -8,11 +8,11 @@ public class MinecraftWorldMathUtils
     /// <summary>
     /// Returns the relative coordinate version of absolute chunk coordinate (relative to its region)
     /// </summary>
-    public static Point2Z<int> ConvertChunkCoordsAbsToRel(Point2Z<int> coords)
+    public static PointZ<int> ConvertChunkCoordsAbsToRel(PointZ<int> coords)
     {
         int chunkCoordsRelX = Mod(coords.X, IRegion.ChunkCount);
         int chunkCoordsRelZ = Mod(coords.Z, IRegion.ChunkCount);
-        return new Point2Z<int>(chunkCoordsRelX, chunkCoordsRelZ);
+        return new PointZ<int>(chunkCoordsRelX, chunkCoordsRelZ);
     }
 
     /// <summary>
@@ -28,11 +28,11 @@ public class MinecraftWorldMathUtils
         return new Point3<int>(blockCoordsAbsX, blockCoordsAbsY, blockCoordsAbsZ);
     }
 
-    public static Point2Z<int> ConvertBlockCoordsAbsToRelToChunk(Point2Z<int> coords)
+    public static PointZ<int> ConvertBlockCoordsAbsToRelToChunk(PointZ<int> coords)
     {
         int blockCoordsAbsX = Mod(coords.X, IChunk.BlockCount);
         int blockCoordsAbsZ = Mod(coords.Z, IChunk.BlockCount);
-        return new Point2Z<int>(blockCoordsAbsX, blockCoordsAbsZ);
+        return new PointZ<int>(blockCoordsAbsX, blockCoordsAbsZ);
     }
 
     public static Point3<int> ConvertBlockCoordsAbsToRelToSection(Point3<int> coords)
@@ -54,7 +54,7 @@ public class MinecraftWorldMathUtils
     /// <summary>
     /// Calculates range of absolute chunk coords for given region coords
     /// </summary>
-    public static Point2ZRange<int> CalculateChunkRangeAbsForRegion(Point2Z<int> regionCoords)
+    public static PointZRange<int> CalculateChunkRangeAbsForRegion(PointZ<int> regionCoords)
     {
         int chunkRangeAbsMinX = regionCoords.X * IRegion.ChunkCount;
         int chunkRangeAbsMaxX = chunkRangeAbsMinX + IRegion.ChunkRange;
@@ -64,31 +64,31 @@ public class MinecraftWorldMathUtils
         int chunkRangeAbsMaxZ = chunkRangeAbsMinZ + IRegion.ChunkRange;
         Rangeof<int> chunkRangeAbsZ = new(chunkRangeAbsMinZ, chunkRangeAbsMaxZ);
 
-        return new Point2ZRange<int>(chunkRangeAbsX, chunkRangeAbsZ);
+        return new PointZRange<int>(chunkRangeAbsX, chunkRangeAbsZ);
     }
 
     /// <summary>
     /// Returns absolute chunk coords for given absolute 2D block coords
     /// </summary>
-    public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point2Z<int> blockCoordsAbs)
+    public static PointZ<int> GetChunkCoordsAbsFromBlockCoordsAbs(PointZ<int> blockCoordsAbs)
     {
-        return new Point2Z<int>(DivFloor(blockCoordsAbs.X, IChunk.BlockCount),
+        return new PointZ<int>(DivFloor(blockCoordsAbs.X, IChunk.BlockCount),
                                 DivFloor(blockCoordsAbs.Z, IChunk.BlockCount));
     }
 
     /// <summary>
     /// Returns absolute chunk coords for given absolute 3D block coords
     /// </summary>
-    public static Point2Z<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point3<int> blockCoordsAbs)
+    public static PointZ<int> GetChunkCoordsAbsFromBlockCoordsAbs(Point3<int> blockCoordsAbs)
     {
-        return new Point2Z<int>(DivFloor(blockCoordsAbs.X, IChunk.BlockCount),
+        return new PointZ<int>(DivFloor(blockCoordsAbs.X, IChunk.BlockCount),
                                 DivFloor(blockCoordsAbs.Z, IChunk.BlockCount));
     }
 
     /// <summary>
     /// Returns region coords for given absolute chunk coords
     /// </summary>
-    public static Point2Z<int> GetRegionCoordsFromChunkCoordsAbs(Point2Z<int> chunkCoordsAbs)
+    public static PointZ<int> GetRegionCoordsFromChunkCoordsAbs(PointZ<int> chunkCoordsAbs)
     {
         return new(DivFloor(chunkCoordsAbs.X, IRegion.ChunkCount),
                    DivFloor(chunkCoordsAbs.Z, IRegion.ChunkCount));

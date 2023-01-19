@@ -18,9 +18,9 @@ public interface IRegion
     const int ChunkSectorTableSize = SectorDataLength;
     const int ChunkSectorTableEntrySize = 4;
 
-    Point2ZRange<int> ChunkRangeAbs { get; }
-    Point2Z<int> Coords { get; }
+    PointZRange<int> ChunkRangeAbs { get; }
+    PointZ<int> Coords { get; }
 
-    IChunk GetChunk(Point2Z<int> chunkCoordsRel);
-    bool HasChunkGenerated(Point2Z<int> chunkCoordsRel);
+    IChunk GetChunk(PointZ<int> chunkCoordsRel);
+    bool HasChunkGenerated(PointZ<int> chunkCoordsRel);
 }

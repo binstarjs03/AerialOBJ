@@ -3,10 +3,7 @@ using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
 
-public struct Rangeof<TNumber> :
-    IEquatable<Rangeof<TNumber>>,
-    IEqualityOperators<Rangeof<TNumber>, Rangeof<TNumber>, bool>
-    where TNumber : struct, INumber<TNumber>
+public struct Rangeof<TNumber> : IEquatable<Rangeof<TNumber>> where TNumber : struct, INumber<TNumber>
 {
     private TNumber _min;
     private TNumber _max;

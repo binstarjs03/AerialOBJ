@@ -11,14 +11,14 @@ public class ChunkModel : IDisposable
     private bool _disposed;
 
     //public required IChunk Data { get; init; }
-    public ChunkModel(Point2Z<int> coordsAbs, Point2Z<int> coordsRel)
+    public ChunkModel(PointZ<int> coordsAbs, PointZ<int> coordsRel)
     {
         CoordsAbs = coordsAbs;
         CoordsRel = coordsRel;
     }
 
-    public Point2Z<int> CoordsAbs { get; }
-    public Point2Z<int> CoordsRel { get; }
+    public PointZ<int> CoordsAbs { get; }
+    public PointZ<int> CoordsRel { get; }
 
     // TODO maybe we should refactor it to not hold buffer unless if we really need it
     // This way, memory usage is reduced because there are only handful of blocks pool object

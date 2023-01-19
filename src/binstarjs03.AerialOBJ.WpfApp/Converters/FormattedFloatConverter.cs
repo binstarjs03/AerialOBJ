@@ -11,7 +11,7 @@ public class FormattedFloatConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is Point2Z<float> point)
+        if (value is PointZ<float> point)
             return $"({point.X.Round()}, {point.Z.Round()})";
         else
             return DependencyProperty.UnsetValue;

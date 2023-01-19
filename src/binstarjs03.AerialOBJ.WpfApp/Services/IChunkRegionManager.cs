@@ -5,17 +5,17 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
-public delegate void ChunkRegionReadingErrorHandler(Point2Z<int> coords, Exception e);
+public delegate void ChunkRegionReadingErrorHandler(PointZ<int> coords, Exception e);
 public interface IChunkRegionManager
 {
-    Point2ZRange<int> VisibleRegionRange { get; }
+    PointZRange<int> VisibleRegionRange { get; }
     int VisibleRegionsCount { get; }
     int LoadedRegionsCount { get; }
     int CachedRegionsCount { get; }
     int PendingRegionsCount { get; }
-    Point2Z<int>? WorkedRegion { get; }
+    PointZ<int>? WorkedRegion { get; }
 
-    Point2ZRange<int> VisibleChunkRange { get; }
+    PointZRange<int> VisibleChunkRange { get; }
     int VisibleChunksCount { get; }
     int LoadedChunksCount { get; }
     int PendingChunksCount { get; }
@@ -26,9 +26,9 @@ public interface IChunkRegionManager
     event ChunkRegionReadingErrorHandler RegionLoadingException;
     event ChunkRegionReadingErrorHandler ChunkLoadingException;
 
-    void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize);
+    void Update(PointZ<float> cameraPos, float unitMultiplier, Size<int> screenSize);
     void UpdateHeightLevel(int heightLevel, HeightSliderSetting setting);
-    BlockSlim? GetHighestBlockAt(Point2Z<int> blockCoords);
+    BlockSlim? GetHighestBlockAt(PointZ<int> blockCoords);
     void StartBackgroundThread();
     void StopBackgroundThread();
     void Reinitialize();

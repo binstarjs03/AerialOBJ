@@ -20,12 +20,12 @@ public class RegionImagePooler : IRegionImagePooler
         // prepare 30 premade region images
         for (int i = 0; i < 30; i++)
         {
-            IRegionImage regionImage = _regionImageFactory.Create(Point2Z<int>.Zero, ct);
+            IRegionImage regionImage = _regionImageFactory.Create(PointZ<int>.Zero, ct);
             _pool.Return(regionImage);
         }
     }
 
-    public IRegionImage Rent(Point2Z<int> regionCoords, CancellationToken ct)
+    public IRegionImage Rent(PointZ<int> regionCoords, CancellationToken ct)
     {
         lock (_pool)
             if (_pool.Rent(out IRegionImage? result))

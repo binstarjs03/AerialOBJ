@@ -8,7 +8,7 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class StandardChunkShader : ChunkShaderBase
 {
-    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, BlockSlim[,] highestBlocks, Point2Z<int> chunkCoordsRel)
+    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, BlockSlim[,] highestBlocks, PointZ<int> chunkCoordsRel)
     {
         // initialize row of blocks to the first row (X = X, Z = 0)
         Span<int> lastYRow = stackalloc int[IChunk.BlockCount];
@@ -24,7 +24,7 @@ public class StandardChunkShader : ChunkShaderBase
                 ref BlockSlim block = ref highestBlocks[x, z];
                 Color color = RenderBlock(vd, in block, lastY, lastYRow[x]);
 
-                Point2Z<int> blockCoordsRel = new(x, z);
+                PointZ<int> blockCoordsRel = new(x, z);
                 SetBlockPixelColorToImage(regionImage, color, blockCoordsRel, chunkCoordsRel);
 
                 lastY = block.Height;
@@ -81,9 +81,9 @@ public class StandardChunkShader : ChunkShaderBase
         return color;
     }
 
-    private static void SetBlockPixelColorToImage(IRegionImage regionImage, Color color, Point2Z<int> blockCoordsRelToChunk, Point2Z<int> chunkCoordsRel)
+    private static void SetBlockPixelColorToImage(IRegionImage regionImage, Color color, PointZ<int> blockCoordsRelToChunk, PointZ<int> chunkCoordsRel)
     {
-        Point2<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRelToChunk);
+        PointY<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRelToChunk);
         regionImage[pixelCoords.X, pixelCoords.Y] = color;
     }
 }

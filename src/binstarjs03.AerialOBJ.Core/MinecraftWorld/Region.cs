@@ -14,11 +14,11 @@ namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 /// </summary>
 public class Region : IRegion
 {
-    public static readonly Point2ZRange<int> ChunkRangeRel = new(Point2Z<int>.Zero, new Point2Z<int>(IRegion.ChunkRange, IRegion.ChunkRange));
+    public static readonly PointZRange<int> ChunkRangeRel = new(PointZ<int>.Zero, new PointZ<int>(IRegion.ChunkRange, IRegion.ChunkRange));
 
     private readonly byte[] _data;
 
-    public Region(byte[] data, Point2Z<int> regionCoords)
+    public Region(byte[] data, PointZ<int> regionCoords)
     {
         verifyDataLength(data.Length);
         _data = data;
@@ -34,10 +34,10 @@ public class Region : IRegion
         }
     }
 
-    public Point2Z<int> Coords { get; }
-    public Point2ZRange<int> ChunkRangeAbs { get; }
+    public PointZ<int> Coords { get; }
+    public PointZRange<int> ChunkRangeAbs { get; }
 
-    public IChunk GetChunk(Point2Z<int> chunkCoordsRel)
+    public IChunk GetChunk(PointZ<int> chunkCoordsRel)
     {
         ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
         if (!HasChunkGenerated(chunkCoordsRel))
@@ -59,7 +59,7 @@ public class Region : IRegion
         }
     }
 
-    public bool HasChunkGenerated(Point2Z<int> chunkCoordsRel)
+    public bool HasChunkGenerated(PointZ<int> chunkCoordsRel)
     {
         ChunkSectorTableEntry cste = GetChunkSectorTableEntry(chunkCoordsRel);
         return cste.SectorPos != 0 && cste.SectorSize != 0;
@@ -67,7 +67,7 @@ public class Region : IRegion
 
     private Span<byte> Read(int pos, int length) => new(_data, pos, length);
 
-    private ChunkSectorTableEntry GetChunkSectorTableEntry(Point2Z<int> chunkCoordsRel)
+    private ChunkSectorTableEntry GetChunkSectorTableEntry(PointZ<int> chunkCoordsRel)
     {
         ChunkRangeRel.ThrowIfOutside(chunkCoordsRel);
         int startData = (chunkCoordsRel.X + chunkCoordsRel.Z * IRegion.ChunkCount) * IRegion.ChunkSectorTableEntrySize;

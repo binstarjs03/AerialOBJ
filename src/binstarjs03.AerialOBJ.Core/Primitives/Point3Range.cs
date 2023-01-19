@@ -2,10 +2,7 @@
 using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
-public struct Point3Range<TNumber> :
-    IEquatable<Point3Range<TNumber>>,
-    IEqualityOperators<Point3Range<TNumber>, Point3Range<TNumber>, bool>
-    where TNumber : struct, INumber<TNumber>
+public struct Point3Range<TNumber> : IEquatable<Point3Range<TNumber>> where TNumber : struct, INumber<TNumber>
 {
     public Rangeof<TNumber> XRange { get; set; }
     public Rangeof<TNumber> YRange { get; set; }

@@ -21,14 +21,14 @@ public partial class GridDrawerView : UserControl
     public static readonly DependencyProperty GridSizeProperty =
         DependencyProperty.Register(nameof(GridSize), typeof(float), typeof(GridDrawerView), new PropertyMetadata(0f));
 
-    public Point2Z<float> CameraPos
+    public PointZ<float> CameraPos
     {
-        get { return (Point2Z<float>)GetValue(CameraPosProperty); }
+        get { return (PointZ<float>)GetValue(CameraPosProperty); }
         set { SetValue(CameraPosProperty, value); }
     }
 
     public static readonly DependencyProperty CameraPosProperty =
-        DependencyProperty.Register(nameof(CameraPos), typeof(Point2Z<float>), typeof(GridDrawerView), new PropertyMetadata(new Point2Z<float>(0, 0)));
+        DependencyProperty.Register(nameof(CameraPos), typeof(PointZ<float>), typeof(GridDrawerView), new PropertyMetadata(new PointZ<float>(0, 0)));
 
     public float UnitMultiplier
     {

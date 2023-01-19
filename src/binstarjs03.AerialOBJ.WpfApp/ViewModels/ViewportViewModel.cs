@@ -32,7 +32,7 @@ public partial class ViewportViewModel
 
     // viewport states
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
-    [ObservableProperty] private Point2Z<float> _cameraPos = Point2Z<float>.Zero;
+    [ObservableProperty] private PointZ<float> _cameraPos = PointZ<float>.Zero;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UnitMultiplier))]
     [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))]
@@ -43,16 +43,16 @@ public partial class ViewportViewModel
     [ObservableProperty] private int _highHeightLimit = 0;
 
     // mouse states
-    [ObservableProperty] private Point2<int> _mouseScreenPos = Point2<int>.Zero;
-    [ObservableProperty] private Vector2<int> _mousePosDelta = Vector2<int>.Zero;
+    [ObservableProperty] private PointY<int> _mouseScreenPos = PointY<int>.Zero;
+    [ObservableProperty] private PointY<int> _mousePosDelta = PointY<int>.Zero;
     [ObservableProperty] private bool _mouseClickHolding = false;
     [ObservableProperty] private bool _mouseInitClickDrag = true;
     [ObservableProperty] private bool _mouseIsInside = false;
 
     // mouse block states
     [ObservableProperty] private Point3<int> _mouseBlockCoords = Point3<int>.Zero;
-    [ObservableProperty] private Point2Z<int> _mouseChunkCoords = Point2Z<int>.Zero;
-    [ObservableProperty] private Point2Z<int> _mouseRegionCoords = Point2Z<int>.Zero;
+    [ObservableProperty] private PointZ<int> _mouseChunkCoords = PointZ<int>.Zero;
+    [ObservableProperty] private PointZ<int> _mouseRegionCoords = PointZ<int>.Zero;
     [ObservableProperty] private string _mouseBlockName = "";
     [ObservableProperty] private string _mouseBlockDisplayName = "";
 
@@ -88,7 +88,7 @@ public partial class ViewportViewModel
     #region Event Handlers
 
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
-    partial void OnCameraPosChanged(Point2Z<float> value) => UpdateChunkRegionManager();
+    partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
     partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManager();
     partial void OnHeightLevelChanged(int value) => ChunkRegionManager.UpdateHeightLevel(HeightLevel, GlobalState.Setting.HeightSlider);
 
@@ -113,12 +113,12 @@ public partial class ViewportViewModel
         _regionDataImageModels.Remove(regionModel);
     }
 
-    private void OnRegionLoadingException(Point2Z<int> regionCoords, Exception e)
+    private void OnRegionLoadingException(PointZ<int> regionCoords, Exception e)
     {
         _logService.LogException($"Cannot load region {regionCoords}", e);
     }
 
-    private void OnChunkLoadingException(Point2Z<int> chunkCoords, Exception e)
+    private void OnChunkLoadingException(PointZ<int> chunkCoords, Exception e)
     {
         _logService.LogException($"Cannot load chunk {chunkCoords}", e);
     }
@@ -168,7 +168,7 @@ public partial class ViewportViewModel
     private void ReinitializeOnSavegameClosed()
     {
         ChunkRegionManager.Reinitialize();
-        CameraPos = new Point2Z<float>(0, 0);
+        CameraPos = new PointZ<float>(0, 0);
         ZoomLevel = 0;
         ScreenSize = new Size<int>(0, 0);
         LowHeightLimit = 0;
@@ -198,31 +198,31 @@ public partial class ViewportViewModel
     {
         // check if this is initial mouse click and dragging, we don't want the delta to be very large
         // during initial click & drag, which will cause the viewport to teleporting to somewhere
-        (MouseScreenPos, Vector2<int> updatedMousePosDelta) = updateMouseScreenPosAndDelta();
-        MousePosDelta = MouseInitClickDrag && MouseClickHolding ? Vector2<int>.Zero : updatedMousePosDelta;
+        (MouseScreenPos, PointY<int> updatedMousePosDelta) = updateMouseScreenPosAndDelta();
+        MousePosDelta = MouseInitClickDrag && MouseClickHolding ? PointY<int>.Zero : updatedMousePosDelta;
         if (MouseClickHolding)
         {
-            Vector2Z<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
-            CameraPos += cameraPosDelta;
+            PointZ<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
+            CameraPos = new PointZ<float>(CameraPos.X + cameraPosDelta.X, CameraPos.Z + cameraPosDelta.Z);
             MouseInitClickDrag = false;
         }
         updateMouseWorldInformation();
 
-        (Point2<int> newMousePos, Vector2<int> newMousePosDelta) updateMouseScreenPosAndDelta()
+        (PointY<int> newMousePos, PointY<int> newMousePosDelta) updateMouseScreenPosAndDelta()
         {
             Point point = e.GetPosition(e.Source as IInputElement);
-            Point2<int> oldMousePos = MouseScreenPos;
-            Point2<int> newMousePos = new(point.X.Floor(), point.Y.Floor());
-            Vector2<int> newMousePosDelta = newMousePos - oldMousePos;
+            PointY<int> oldMousePos = MouseScreenPos;
+            PointY<int> newMousePos = new(point.X.Floor(), point.Y.Floor());
+            PointY<int> newMousePosDelta = new(newMousePos.X - oldMousePos.X, newMousePos.Y - oldMousePos.Y);
             return (newMousePos, newMousePosDelta);
         }
 
         void updateMouseWorldInformation()
         {
             Size<float> floatScreenSize = new(ScreenSize.Width, ScreenSize.Height);
-            Point2<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
-            Point2Z<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
-            Point2Z<int> mouseBlockCoords2 = new(MathUtils.Floor(mouseWorldPos.X), MathUtils.Floor(mouseWorldPos.Z));
+            PointY<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
+            PointZ<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
+            PointZ<int> mouseBlockCoords2 = new(MathUtils.Floor(mouseWorldPos.X), MathUtils.Floor(mouseWorldPos.Z));
             BlockSlim? block = ChunkRegionManager.GetHighestBlockAt(mouseBlockCoords2);
 
             MouseChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(mouseBlockCoords2);
@@ -290,22 +290,22 @@ public partial class ViewportViewModel
     {
         if (e.Key == Key.Up)
         {
-            TranslateCamera(new Point2Z<int>(0, -200));
+            TranslateCamera(new PointZ<int>(0, -200));
             e.Handled = true;
         }
         else if (e.Key == Key.Down)
         {
-            TranslateCamera(new Point2Z<int>(0, 200));
+            TranslateCamera(new PointZ<int>(0, 200));
             e.Handled = true;
         }
         else if (e.Key == Key.Left)
         {
-            TranslateCamera(new Point2Z<int>(-200, 0));
+            TranslateCamera(new PointZ<int>(-200, 0));
             e.Handled = true;
         }
         else if (e.Key == Key.Right)
         {
-            TranslateCamera(new Point2Z<int>(200, 0));
+            TranslateCamera(new PointZ<int>(200, 0));
             e.Handled = true;
         }
         else if (e.Key == Key.Add)
@@ -322,9 +322,9 @@ public partial class ViewportViewModel
             return;
     }
 
-    private void TranslateCamera(Point2Z<int> direction)
+    private void TranslateCamera(PointZ<int> direction)
     {
-        CameraPos = new Point2Z<float>(CameraPos.X + direction.X / UnitMultiplier, CameraPos.Z + direction.Z / UnitMultiplier);
+        CameraPos = new PointZ<float>(CameraPos.X + direction.X / UnitMultiplier, CameraPos.Z + direction.Z / UnitMultiplier);
     }
 
     private void ZoomIn() => Zoom(ZoomDirection.In);

@@ -19,7 +19,7 @@ public class RegionDiskLoader : IRegionDiskLoader
         _dispatcher = dispatcher;
     }
 
-    public bool TryGetRegion(Point2Z<int> regionCoords, CancellationToken ct, [NotNullWhen(true)] out IRegion? region)
+    public bool TryGetRegion(PointZ<int> regionCoords, CancellationToken ct, [NotNullWhen(true)] out IRegion? region)
     {
         // Do not handle exception here, throw it and let caller decide what to do
 
@@ -51,7 +51,7 @@ public class RegionDiskLoader : IRegionDiskLoader
         region = new Region(regionData, regionCoords);
         return true;
 
-        string? getRegionPath(Point2Z<int> regionCoords)
+        string? getRegionPath(PointZ<int> regionCoords)
         {
             SavegameLoadInfo? loadInfo = _dispatcher.Invoke(() => _globalState.SavegameLoadInfo, DispatcherPriority.Normal, ct);
             if (loadInfo is null)

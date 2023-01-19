@@ -8,7 +8,7 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 namespace binstarjs03.AerialOBJ.WpfApp.Factories;
 public class RegionImageFactory : IRegionImageFactory
 {
-    public IRegionImage Create(Point2Z<int> regionCoords, CancellationToken cancellationToken)
+    public IRegionImage Create(PointZ<int> regionCoords, CancellationToken cancellationToken)
     {
         if (App.Current.CheckAccess())
             return new RegionImage(regionCoords);

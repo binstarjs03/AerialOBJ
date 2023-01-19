@@ -51,26 +51,26 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
     // Manager States ---------------------------------------------------------
-    private readonly List<Point2Z<int>> _errorRegions = new();
-    private readonly HashSet<Point2Z<int>> _errorChunks = new();
+    private readonly List<PointZ<int>> _errorRegions = new();
+    private readonly HashSet<PointZ<int>> _errorChunks = new();
     private int _heightLevel;
     private readonly ReaderWriterLockSlim _heightLevelLock = new();
 
-    private Point2ZRange<int> _visibleRegionRange = default;
-    private Point2ZRange<int> _visibleChunkRange = default;
+    private PointZRange<int> _visibleRegionRange = default;
+    private PointZRange<int> _visibleChunkRange = default;
     private readonly ReaderWriterLockSlim _visibleRegionRangeLock = new();
     private readonly ReaderWriterLockSlim _visibleChunkRangeLock = new();
 
-    private readonly Dictionary<Point2Z<int>, RegionDataImageModel> _loadedRegions = new(s_initialRegionBufferSize);
-    private readonly Dictionary<Point2Z<int>, RegionDataImageModel> _cachedRegions = new(s_initialRegionBufferSize);
-    private readonly List<Point2Z<int>> _pendingRegions = new(s_initialRegionBufferSize);
-    private readonly ReferenceWrap<Point2Z<int>?> _workedRegion = new() { Value = null };
+    private readonly Dictionary<PointZ<int>, RegionDataImageModel> _loadedRegions = new(s_initialRegionBufferSize);
+    private readonly Dictionary<PointZ<int>, RegionDataImageModel> _cachedRegions = new(s_initialRegionBufferSize);
+    private readonly List<PointZ<int>> _pendingRegions = new(s_initialRegionBufferSize);
+    private readonly ReferenceWrap<PointZ<int>?> _workedRegion = new() { Value = null };
 
-    private readonly Dictionary<Point2Z<int>, ChunkModel> _loadedChunks = new(s_initialChunkBufferSize);
-    private readonly HashSet<Point2Z<int>> _pendingChunksSet = new(s_initialChunkBufferSize);
-    private readonly List<Point2Z<int>> _pendingChunks = new(s_initialChunkBufferSize);
+    private readonly Dictionary<PointZ<int>, ChunkModel> _loadedChunks = new(s_initialChunkBufferSize);
+    private readonly HashSet<PointZ<int>> _pendingChunksSet = new(s_initialChunkBufferSize);
+    private readonly List<PointZ<int>> _pendingChunks = new(s_initialChunkBufferSize);
     private readonly object _pendingChunkLock = new();
-    private readonly List<Point2Z<int>> _workedChunks = new(Environment.ProcessorCount);
+    private readonly List<PointZ<int>> _workedChunks = new(Environment.ProcessorCount);
 
     public ChunkRegionManager(
         IRegionDiskLoader regionProvider,
@@ -86,14 +86,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
         _dispatcher = dispatcher;
     }
 
-    public Point2ZRange<int> VisibleRegionRange => _visibleRegionRange;
+    public PointZRange<int> VisibleRegionRange => _visibleRegionRange;
     public int VisibleRegionsCount => VisibleRegionRange.Sum;
     public int LoadedRegionsCount => _loadedRegions.Count;
     public int CachedRegionsCount => _cachedRegions.Count;
     public int PendingRegionsCount => _pendingRegions.Count;
-    public Point2Z<int>? WorkedRegion => _workedRegion.Value;
+    public PointZ<int>? WorkedRegion => _workedRegion.Value;
 
-    public Point2ZRange<int> VisibleChunkRange => _visibleChunkRange;
+    public PointZRange<int> VisibleChunkRange => _visibleChunkRange;
     public int VisibleChunksCount => VisibleChunkRange.Sum;
     public int LoadedChunksCount => _loadedChunks.Count;
     public int PendingChunksCount => _pendingChunks.Count;
@@ -104,7 +104,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     public event ChunkRegionReadingErrorHandler? RegionLoadingException;
     public event ChunkRegionReadingErrorHandler? ChunkLoadingException;
 
-    public void Update(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
+    public void Update(PointZ<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
         if (IsVisibleChunkRangeChanged(cameraPos, unitMultiplier, screenSize))
         {
@@ -129,13 +129,13 @@ public partial class ChunkRegionManager : IChunkRegionManager
         finally { _heightLevelLock.ExitWriteLock(); }
     }
 
-    private bool IsVisibleChunkRangeChanged(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
+    private bool IsVisibleChunkRangeChanged(PointZ<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
         _visibleChunkRangeLock.EnterWriteLock();
         try
         {
-            Point2ZRange<int> oldVisibleChunkRange = _visibleChunkRange;
-            Point2ZRange<int> newVisibleChunkRange = CalculateVisibleChunkRange(cameraPos, unitMultiplier, screenSize);
+            PointZRange<int> oldVisibleChunkRange = _visibleChunkRange;
+            PointZRange<int> newVisibleChunkRange = CalculateVisibleChunkRange(cameraPos, unitMultiplier, screenSize);
             if (newVisibleChunkRange == oldVisibleChunkRange)
                 return false;
             _visibleChunkRange = newVisibleChunkRange;
@@ -151,8 +151,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
         _visibleRegionRangeLock.EnterWriteLock();
         try
         {
-            Point2ZRange<int> oldVisibleRegionRange = _visibleRegionRange;
-            Point2ZRange<int> newVisibleRegionRange = CalculateVisibleRegionRange(_visibleChunkRange);
+            PointZRange<int> oldVisibleRegionRange = _visibleRegionRange;
+            PointZRange<int> newVisibleRegionRange = CalculateVisibleRegionRange(_visibleChunkRange);
             if (newVisibleRegionRange == oldVisibleRegionRange)
                 return false;
             _visibleRegionRange = newVisibleRegionRange;
@@ -163,12 +163,12 @@ public partial class ChunkRegionManager : IChunkRegionManager
         finally { _visibleRegionRangeLock.ExitWriteLock(); }
     }
 
-    private static Point2ZRange<int> CalculateVisibleChunkRange(Point2Z<float> cameraPos, float unitMultiplier, Size<int> screenSize)
+    private static PointZRange<int> CalculateVisibleChunkRange(PointZ<float> cameraPos, float unitMultiplier, Size<int> screenSize)
     {
         float pixelPerChunk = unitMultiplier * IChunk.BlockCount; // one unit (or pixel) equal to one block
         Rangeof<int> visibleChunkXRange = calculateSingleAxis(screenSize.Width, pixelPerChunk, cameraPos.X);
         Rangeof<int> visibleChunkZRange = calculateSingleAxis(screenSize.Height, pixelPerChunk, cameraPos.Z);
-        return new Point2ZRange<int>(visibleChunkXRange, visibleChunkZRange);
+        return new PointZRange<int>(visibleChunkXRange, visibleChunkZRange);
 
         static Rangeof<int> calculateSingleAxis(int screenSize, float pixelPerChunk, float cameraPos)
         {
@@ -192,11 +192,11 @@ public partial class ChunkRegionManager : IChunkRegionManager
         }
     }
 
-    private static Point2ZRange<int> CalculateVisibleRegionRange(Point2ZRange<int> visibleChunkRange)
+    private static PointZRange<int> CalculateVisibleRegionRange(PointZRange<int> visibleChunkRange)
     {
         Rangeof<int> visibleRegionXRange = calculateSingleAxis(visibleChunkRange.XRange);
         Rangeof<int> visibleRegionZRange = calculateSingleAxis(visibleChunkRange.ZRange);
-        return new Point2ZRange<int>(visibleRegionXRange, visibleRegionZRange);
+        return new PointZRange<int>(visibleRegionXRange, visibleRegionZRange);
 
         static Rangeof<int> calculateSingleAxis(Rangeof<int> visibleChunkRange)
         {
@@ -222,7 +222,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         // perform boundary range checking for regions outside display frame
         // unload loaded and cancel pending region if outside
         lock (_loadedRegions)
-            foreach ((Point2Z<int> regionCoords, RegionDataImageModel regionModel) in _loadedRegions)
+            foreach ((PointZ<int> regionCoords, RegionDataImageModel regionModel) in _loadedRegions)
                 if (_visibleRegionRange.IsOutside(regionCoords))
                     UnloadRegion(regionModel);
         // remove all pending region list that is no longer visible
@@ -239,7 +239,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
             {
                 // load cached region instantly without having to go through pending queue
-                Point2Z<int> regionCoords = new(x, z);
+                PointZ<int> regionCoords = new(x, z);
                 lock (_cachedRegions)
                     if (_cachedRegions.TryGetValue(regionCoords, out RegionDataImageModel? regionDataImageModel))
                     {
@@ -282,7 +282,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             while (!_stoppingCts.IsCancellationRequested)
             {
                 // get random pending region then assign it to worked region
-                if (!tryGetRandomPendingRegion(out Point2Z<int> regionCoords))
+                if (!tryGetRandomPendingRegion(out PointZ<int> regionCoords))
                     return;
 
                 // update worked region, this is to prevent adding current coords to pending again
@@ -301,9 +301,9 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 _isPendingRegionTaskRunning.Value = false;
         }
 
-        bool tryGetRandomPendingRegion(out Point2Z<int> result)
+        bool tryGetRandomPendingRegion(out PointZ<int> result)
         {
-            result = new Point2Z<int>();
+            result = new PointZ<int>();
             lock (_pendingRegions)
             {
                 if (_pendingRegions.Count == 0)
@@ -316,7 +316,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             return true;
         }
 
-        bool tryGetRegion(Point2Z<int> regionCoords, [NotNullWhen(true)] out RegionDataImageModel? regionDataImageModel)
+        bool tryGetRegion(PointZ<int> regionCoords, [NotNullWhen(true)] out RegionDataImageModel? regionDataImageModel)
         {
             regionDataImageModel = null;
 
@@ -342,7 +342,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             return false;
         }
 
-        void handleException(Point2Z<int> regionCoords, Exception e)
+        void handleException(PointZ<int> regionCoords, Exception e)
         {
             if (_errorRegions.Contains(regionCoords))
                 return;
@@ -352,7 +352,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             _errorRegions.Add(regionCoords);
         }
 
-        void setWorkedRegionTo(Point2Z<int>? regionCoords)
+        void setWorkedRegionTo(PointZ<int>? regionCoords)
         {
             lock (_workedRegion)
                 _workedRegion.Value = regionCoords;
@@ -411,7 +411,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         // perform boundary range checking for regions outside display frame
         // unload loaded / cancel pending chunk if outside
         lock (_loadedChunks)
-            foreach ((Point2Z<int> chunkCoords, ChunkModel chunk) in _loadedChunks)
+            foreach ((PointZ<int> chunkCoords, ChunkModel chunk) in _loadedChunks)
                 if (_visibleChunkRange.IsOutside(chunkCoords))
                     UnloadChunk(chunk);
         lock (_pendingChunkLock)
@@ -429,7 +429,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         for (int x = _visibleChunkRange.XRange.Min; x <= _visibleChunkRange.XRange.Max; x++)
             for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
             {
-                Point2Z<int> chunkCoords = new(x, z);
+                PointZ<int> chunkCoords = new(x, z);
                 lock (_loadedChunks)
                     lock (_pendingChunkLock)
                         lock (_workedChunks)
@@ -470,7 +470,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             while (!_stoppingCts.IsCancellationRequested)
             {
                 // get random pending chunk then assign it to worked chunk
-                if (!tryGetRandomPendingChunk(out Point2Z<int> chunkCoords))
+                if (!tryGetRandomPendingChunk(out PointZ<int> chunkCoords))
                     return;
                 lock (_workedChunks)
                     _workedChunks.Add(chunkCoords);
@@ -495,9 +495,9 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 _pendingChunkTasks.Remove(taskId);
         }
 
-        bool tryGetRandomPendingChunk(out Point2Z<int> result)
+        bool tryGetRandomPendingChunk(out PointZ<int> result)
         {
-            result = new Point2Z<int>();
+            result = new PointZ<int>();
             lock (_pendingChunkLock)
             {
                 if (_pendingChunks.Count == 0)
@@ -511,7 +511,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             return true;
         }
 
-        (IChunk? chunk, RegionDataImageModel? region) getChunkAndRegion(Point2Z<int> chunkCoords)
+        (IChunk? chunk, RegionDataImageModel? region) getChunkAndRegion(PointZ<int> chunkCoords)
         {
             // get the underlying region
             RegionDataImageModel? region = GetRegionModelForChunk(chunkCoords, out RegionStatus status);
@@ -529,7 +529,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 OnPropertyChanged(nameof(PendingChunksCount));
                 return (null, null);
             }
-            Point2Z<int> chunkCoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
+            PointZ<int> chunkCoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
             try
             {
                 if (!region.Data.HasChunkGenerated(chunkCoordsRel))
@@ -543,7 +543,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             }
         }
 
-        void handleChunkLoadingError(Point2Z<int> chunkCoords, Exception e)
+        void handleChunkLoadingError(PointZ<int> chunkCoords, Exception e)
         {
             lock (_errorChunks)
             {
@@ -556,7 +556,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             }
         }
 
-        void cleanupWorkedChunk(Point2Z<int> chunkCoords)
+        void cleanupWorkedChunk(PointZ<int> chunkCoords)
         {
             lock (_workedChunks)
                 _workedChunks.Remove(chunkCoords);
@@ -564,9 +564,9 @@ public partial class ChunkRegionManager : IChunkRegionManager
         }
     }
 
-    private RegionDataImageModel? GetRegionModelForChunk(Point2Z<int> chunkCoords, out RegionStatus regionStatus)
+    private RegionDataImageModel? GetRegionModelForChunk(PointZ<int> chunkCoords, out RegionStatus regionStatus)
     {
-        Point2Z<int> regionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(chunkCoords);
+        PointZ<int> regionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(chunkCoords);
         lock (_loadedRegions)
             lock (_pendingRegions)
                 lock (_workedRegion)
@@ -675,15 +675,15 @@ public partial class ChunkRegionManager : IChunkRegionManager
         }
     }
 
-    public BlockSlim? GetHighestBlockAt(Point2Z<int> blockCoords)
+    public BlockSlim? GetHighestBlockAt(PointZ<int> blockCoords)
     {
         // get chunk for this block
-        Point2Z<int> chunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
+        PointZ<int> chunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
         ChunkModel? chunk;
         lock (_loadedChunks)
             if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
                 return null;
-        Point2Z<int> blockCoordsRel = MinecraftWorldMathUtils.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
+        PointZ<int> blockCoordsRel = MinecraftWorldMathUtils.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
     }
 

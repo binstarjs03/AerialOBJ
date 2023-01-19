@@ -11,8 +11,8 @@ public interface IChunk : IDisposable
 
     int DataVersion { get; }
     string ReleaseVersion { get; } // example: "1.18.2"
-    Point2Z<int> CoordsAbs { get; }
-    Point2Z<int> CoordsRel { get; }
+    PointZ<int> CoordsAbs { get; }
+    PointZ<int> CoordsRel { get; }
 
     void GetHighestBlockSlim(BlockSlim[,] buffer, int heightLimit, List<string>? exclusions);
 }

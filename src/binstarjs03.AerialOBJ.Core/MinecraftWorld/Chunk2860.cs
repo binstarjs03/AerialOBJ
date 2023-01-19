@@ -23,11 +23,11 @@ public class Chunk2860 : IChunk, IDisposable
         Array.Sort(_sectionsY);
         StartNonAirSectionIndex = getAndFindStartNonAirSectionIndex();
 
-        static Point2Z<int> getChunkCoordsAbs(NbtCompound chunkNbt)
+        static PointZ<int> getChunkCoordsAbs(NbtCompound chunkNbt)
         {
             int chunkCoordsAbsX = chunkNbt.Get<NbtInt>("xPos").Value;
             int chunkCoordsAbsZ = chunkNbt.Get<NbtInt>("zPos").Value;
-            return new Point2Z<int>(chunkCoordsAbsX, chunkCoordsAbsZ);
+            return new PointZ<int>(chunkCoordsAbsX, chunkCoordsAbsZ);
         }
 
         (Dictionary<int, Section>, int[]) readSections(NbtCompound chunkNbt)
@@ -67,8 +67,8 @@ public class Chunk2860 : IChunk, IDisposable
         }
     }
 
-    public Point2Z<int> CoordsAbs { get; }
-    public Point2Z<int> CoordsRel { get; }
+    public PointZ<int> CoordsAbs { get; }
+    public PointZ<int> CoordsRel { get; }
     public int DataVersion => 2860;
     public string ReleaseVersion => "1.18";
 
