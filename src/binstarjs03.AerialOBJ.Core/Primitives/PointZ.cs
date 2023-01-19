@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace binstarjs03.AerialOBJ.Core.Primitives;
 
-public struct PointZ<TNumber> : IEquatable<PointZ<TNumber>> where TNumber : struct, INumber<TNumber>
+public struct PointZ<TNumber> : IEquatable<PointZ<TNumber>>, IComparable<PointZ<TNumber>> where TNumber : struct, INumber<TNumber>
 {
     public static PointZ<TNumber> Zero => new();
     public TNumber X { get; set; }
@@ -41,6 +41,14 @@ public struct PointZ<TNumber> : IEquatable<PointZ<TNumber>> where TNumber : stru
     {
         return X == other.X
             && Z == other.Z;
+    }
+
+    public int CompareTo(PointZ<TNumber> other)
+    {
+        int xval = X.CompareTo(other.X);
+        int zval = Z.CompareTo(other.Z);
+        int sum = xval * 2 + zval;
+        return sum;
     }
 
     public static bool operator ==(PointZ<TNumber> left, PointZ<TNumber> right)
