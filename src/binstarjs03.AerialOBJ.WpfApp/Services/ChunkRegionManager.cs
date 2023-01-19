@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
@@ -121,10 +122,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         {
             if (_heightLevel != heightLevel)
                 _heightLevel = heightLevel;
-            if (setting == HeightSliderSetting.Responsive)
-                UpdateChunkHighestBlockResponsive();
-            else
-                UpdateChunkHighestBlockBlocking();
+            UpdateChunkHighestBlockResponsive();
         }
         finally { _heightLevelLock.ExitWriteLock(); }
     }
@@ -380,6 +378,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
     private void LoadRegion(RegionDataImageModel region, bool isMainThread = false)
     {
+        // Always load region from main thread to synchronize both crm (this class) and viewport vm state
         if (isMainThread)
             loadRegion();
         else
@@ -388,15 +387,17 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
         void loadRegion()
         {
-            lock (_loadedRegions)
+            // both main and pending region threads are synchronized, no need to lock
+            // also don't check if region is already loaded, let the exception reveal itself, 
+            // because if so, that is definitely a bug in queue method we have to fix
+            try
             {
-                if (_visibleRegionRange.IsOutside(region.Data.Coords)
-                    || _loadedRegions.ContainsKey(region.Data.Coords)
-                    || _stoppingCts.IsCancellationRequested)
+                if (_visibleRegionRange.IsOutside(region.Data.Coords))
                     return;
                 _loadedRegions.Add(region.Data.Coords, region);
-                RegionLoaded?.Invoke(region);
             }
+            catch (ArgumentException) { throw; } // thrown from adding to loadedRegions
+            RegionLoaded?.Invoke(region);
         }
     }
 
@@ -409,27 +410,20 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
     private void ManageChunks()
     {
-        UnloadCulledChunks();
+        CancelPendingChunks();
         QueuePendingChunks();
         RunPendingChunkTasks();
         OnPropertyChanged(nameof(LoadedChunksCount));
         OnPropertyChanged(nameof(PendingChunksCount));
     }
 
-    private void UnloadCulledChunks()
+    private void CancelPendingChunks()
     {
-        // perform boundary range checking for regions outside display frame
-        // unload loaded / cancel pending chunk if outside
-        lock (_loadedChunks)
-            foreach ((PointZ<int> chunkCoords, ChunkModel chunk) in _loadedChunks)
-                if (_visibleChunkRange.IsOutside(chunkCoords))
-                    UnloadChunk(chunk);
         lock (_pendingChunkLock)
         {
             _pendingChunks.RemoveAll(_visibleChunkRange.IsOutside);
             _pendingChunksSet.RemoveWhere(_visibleChunkRange.IsOutside);
         }
-
     }
 
     private void QueuePendingChunks()
@@ -477,26 +471,21 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         try
         {
-            while (!_stoppingCts.IsCancellationRequested)
+            while (!_stoppingCts.IsCancellationRequested || !_reinitializingCts.IsCancellationRequested)
             {
-                // get random pending chunk then assign it to worked chunk
-                if (!tryGetRandomPendingChunk(out PointZ<int> chunkCoords))
-                    return;
-                lock (_workedChunks)
-                    _workedChunks.Add(chunkCoords);
-                OnPropertyChanged(nameof(WorkedChunksCount));
-
-                // get both chunk and region
-                (IChunk? chunk, RegionDataImageModel? region) = getChunkAndRegion(chunkCoords);
-                if (chunk is null || region is null)
+                PointZ<int>? chunkCoords = null;
+                try
                 {
-                    cleanupWorkedChunk(chunkCoords);
-                    continue;
-                }
+                    if (!tryGetRandomPendingChunk(out PointZ<int> chunkCoordsOut))
+                        return;
+                    chunkCoords = chunkCoordsOut;
 
-                // load it
-                LoadChunk(chunk, region);
-                cleanupWorkedChunk(chunkCoords);
+                    // get both chunk and region, then load it if succeed
+                    if (!tryGetChunkAndRegion(chunkCoords.Value, out IChunk? chunk, out RegionDataImageModel? regionModel))
+                        continue;
+                    LoadChunk(chunk, regionModel);
+                }
+                finally { cleanupWorkedChunk(chunkCoords); }
             }
         }
         finally
@@ -505,51 +494,55 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 _pendingChunkTasks.Remove(taskId);
         }
 
-        bool tryGetRandomPendingChunk(out PointZ<int> result)
+        bool tryGetRandomPendingChunk(out PointZ<int> chunkCoords)
         {
-            result = new PointZ<int>();
+            chunkCoords = default;
             lock (_pendingChunkLock)
             {
                 if (_pendingChunks.Count == 0)
                     return false;
                 int randomIndex = _random.Next(0, _pendingChunks.Count);
-                result = _pendingChunks[randomIndex];
+                chunkCoords = _pendingChunks[randomIndex];
+                lock (_workedChunks)
+                    _workedChunks.Add(chunkCoords);
                 _pendingChunks.RemoveAt(randomIndex);
-                _pendingChunksSet.Remove(result);
+                _pendingChunksSet.Remove(chunkCoords);
             }
             OnPropertyChanged(nameof(PendingChunksCount));
+            OnPropertyChanged(nameof(WorkedChunksCount));
             return true;
         }
 
-        (IChunk? chunk, RegionDataImageModel? region) getChunkAndRegion(PointZ<int> chunkCoords)
+        bool tryGetChunkAndRegion(PointZ<int> chunkCoords, [NotNullWhen(true)] out IChunk? chunk, [NotNullWhen(true)] out RegionDataImageModel? regionModel)
         {
             // get the underlying region
-            RegionDataImageModel? region = GetRegionModelForChunk(chunkCoords, out RegionStatus status);
-            if (region is null)
+            chunk = null;
+            regionModel = GetRegionModelForChunk(chunkCoords, out RegionStatus status);
+            if (regionModel is null)
             {
-                // can't get region because it isn't loaded yet,
-                // put chunk back to pending list and "lets hope" in next encounter,
-                // region is loaded. We may refactor this to make it more optimal
-                if (status == RegionStatus.Worked || status == RegionStatus.Pending)
+                // can't get region because it isn't loaded yet, put chunk back to pending list and
+                // "lets hope" in next encounter, region is loaded. We may refactor this to make it more optimal
+                if (status == RegionStatus.Pending)
                     lock (_pendingChunkLock)
                     {
                         _pendingChunks.Add(chunkCoords);
                         _pendingChunksSet.Add(chunkCoords);
                     }
                 OnPropertyChanged(nameof(PendingChunksCount));
-                return (null, null);
+                return false;
             }
-            PointZ<int> chunkCoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
             try
             {
-                if (!region.Data.HasChunkGenerated(chunkCoordsRel))
-                    return (null, null);
-                return (region.Data.GetChunk(chunkCoordsRel), region);
+                PointZ<int> chunkCoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(chunkCoords);
+                if (!regionModel.Data.HasChunkGenerated(chunkCoordsRel))
+                    return false;
+                chunk = regionModel.Data.GetChunk(chunkCoordsRel);
+                return true;
             }
             catch (Exception e)
             {
                 handleChunkLoadingError(chunkCoords, e);
-                return (null, null);
+                return false;
             }
         }
 
@@ -566,10 +559,12 @@ public partial class ChunkRegionManager : IChunkRegionManager
             }
         }
 
-        void cleanupWorkedChunk(PointZ<int> chunkCoords)
+        void cleanupWorkedChunk(PointZ<int>? chunkCoords)
         {
+            if (chunkCoords is null)
+                return;
             lock (_workedChunks)
-                _workedChunks.Remove(chunkCoords);
+                _workedChunks.Remove(chunkCoords.Value);
             OnPropertyChanged(nameof(WorkedChunksCount));
         }
     }
@@ -585,12 +580,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
                         regionStatus = RegionStatus.Loaded;
                         return region;
                     }
-                    else if (_workedRegion.Value == regionCoords)
-                    {
-                        regionStatus = RegionStatus.Worked;
-                        return null;
-                    }
-                    else if (_pendingRegions.Contains(regionCoords))
+                    else if (_pendingRegions.Contains(regionCoords)
+                            || _workedRegion.Value == regionCoords)
                     {
                         regionStatus = RegionStatus.Pending;
                         return null;
@@ -610,32 +601,18 @@ public partial class ChunkRegionManager : IChunkRegionManager
         }
         finally { _heightLevelLock.ExitReadLock(); }
         chunk.Dispose();
-        _chunkRenderer.RenderChunk(regionModel.Image, chunkModel.HighestBlocks, chunkModel.CoordsRel);
+
+        PointZ<int> chunkCoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(chunk.CoordsAbs);
+        _chunkRenderer.RenderChunk(regionModel.Image, chunkModel.HighestBlocks, chunkCoordsRel);
         _redrawEvent.Set();
-        _visibleChunkRangeLock.EnterReadLock();
-        try
-        {
-            lock (_loadedChunks)
-            {
-                if (_visibleChunkRange.IsOutside(chunk.CoordsAbs)
-                    || _loadedChunks.ContainsKey(chunk.CoordsAbs)
-                    || _reinitializingCts.IsCancellationRequested)
-                    return;
-                _loadedChunks.Add(chunk.CoordsAbs, chunkModel);
-            }
-            OnPropertyChanged(nameof(LoadedChunksCount));
-        }
-        finally { _visibleChunkRangeLock.ExitReadLock(); }
+        lock (_loadedChunks)
+            _loadedChunks.Add(chunk.CoordsAbs, chunkModel);
+        OnPropertyChanged(nameof(LoadedChunksCount));
     }
 
     private void UnloadChunk(ChunkModel chunkModel)
     {
         _loadedChunks.Remove(chunkModel.CoordsAbs);
-        // before returning, we want to erase region image part for this chunk,
-        // but if region is not loaded, well, just move on cause it doesn't even exist
-        RegionDataImageModel? region = GetRegionModelForChunk(chunkModel.CoordsAbs, out _);
-        if (region is not null)
-            _chunkRenderer.EraseChunk(region.Image, chunkModel.CoordsRel);
         chunkModel.Dispose();
     }
 
@@ -645,11 +622,11 @@ public partial class ChunkRegionManager : IChunkRegionManager
         {
             if (_isRedrawTaskRunning.Value)
                 return;
-            _redrawTask = new Task(RedrawLoop,
-                                   _stoppingCts.Token,
-                                   TaskCreationOptions.LongRunning);
             _isRedrawTaskRunning.Value = true;
-            _redrawTask.Start();
+            _redrawTask = Task.Factory.StartNew(RedrawLoop,
+                                                _stoppingCts.Token,
+                                                TaskCreationOptions.LongRunning,
+                                                TaskScheduler.Default);
         }
     }
 
@@ -703,6 +680,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
             foreach (ChunkModel chunkModel in _loadedChunks.Values)
             {
                 UnloadChunk(chunkModel);
+                if (_visibleChunkRange.IsOutside(chunkModel.CoordsAbs))
+                    continue;
                 lock (_pendingChunkLock)
                 {
                     _pendingChunks.Add(chunkModel.CoordsAbs);
@@ -710,54 +689,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 }
             }
         RunPendingChunkTasks();
-    }
-
-    private void UpdateChunkHighestBlockBlocking()
-    {
-        // chunks are soon released after loaded so there is no way
-        // to update highest block if chunk do not exist. This feature is
-        // marked as wip until chunk management have been refactored again
-        throw new NotImplementedException();
-        /*
-        _updateChunkHighestBlockEvent.Reset();
-        try
-        {
-            lock (_loadedChunks)
-            {
-                Queue<ChunkModel> chunks = new(_loadedChunks.Values);
-                if (chunks.Count == 0)
-                    return;
-                Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount, 0, chunks.Count)];
-                for (int i = 0; i < tasks.Length; i++)
-                {
-                    tasks[i] = new Task(() => updateChunkHighestBlock(chunks));
-                    tasks[i].Start();
-                }
-                Task.WaitAll(tasks);
-            }
-        }
-        finally
-        {
-            _updateChunkHighestBlockEvent.Set();
-        }
-
-        void updateChunkHighestBlock(Queue<ChunkModel> chunkModels)
-        {
-            while (true)
-            {
-                ChunkModel? chunkModel;
-                lock (chunkModels)
-                    // stop when all chunks are updated (empty queue)
-                    if (!chunkModels.TryDequeue(out chunkModel))
-                        return;
-                //chunkModel.LoadHighestBlock(_heightLevel);
-                RegionDataImageModel? regionDataImageModel = GetRegionModelForChunk(chunkModel.CoordsAbs, out _);
-                if (regionDataImageModel is null)
-                    continue;
-                _chunkRenderer.RenderChunk(regionDataImageModel.Image, chunkModel.HighestBlocks, chunkModel.CoordsRel);
-            }
-        }
-        */
     }
 
     public void StartBackgroundThread()
@@ -770,13 +701,21 @@ public partial class ChunkRegionManager : IChunkRegionManager
     public void StopBackgroundThread()
     {
         _stoppingCts.Cancel();
-        _pendingRegionTask.Wait();
-        Task[] chunkLoaderTasks;
-        lock (_pendingChunkTasks)
-            chunkLoaderTasks = _pendingChunkTasks.Values.ToArray();
-        Task.WaitAll(chunkLoaderTasks);
         _redrawEvent.Set();
-        _redrawTask.Wait();
+        try
+        {
+            _pendingRegionTask.Wait();
+            Task[] chunkLoaderTasks;
+            lock (_pendingChunkTasks)
+                chunkLoaderTasks = _pendingChunkTasks.Values.ToArray();
+            Task.WaitAll(chunkLoaderTasks);
+            _redrawTask.Wait();
+        }
+        catch (AggregateException e)
+        {
+            if (e.InnerException is not TaskCanceledException)
+                throw;
+        }
 
         _stoppingCts.Dispose();
         _stoppingCts = new CancellationTokenSource();
@@ -817,7 +756,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         Loaded,
         Pending,
-        Worked,
         Missing
     }
 }
