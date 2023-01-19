@@ -27,7 +27,7 @@ public interface IChunkRegionManager
     event ChunkRegionReadingErrorHandler ChunkLoadingException;
 
     void Update(PointZ<float> cameraPos, float unitMultiplier, Size<int> screenSize);
-    void UpdateHeightLevel(int heightLevel, HeightSliderSetting setting);
+    void UpdateHeightLevel(int heightLevel);
     BlockSlim? GetHighestBlockAt(PointZ<int> blockCoords);
     void StartBackgroundThread();
     void StopBackgroundThread();

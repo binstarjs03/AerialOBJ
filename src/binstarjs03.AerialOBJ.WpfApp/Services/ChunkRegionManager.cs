@@ -115,7 +115,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         }
     }
 
-    public void UpdateHeightLevel(int heightLevel, HeightSliderSetting setting)
+    public void UpdateHeightLevel(int heightLevel)
     {
         _heightLevelLock.EnterWriteLock();
         try
