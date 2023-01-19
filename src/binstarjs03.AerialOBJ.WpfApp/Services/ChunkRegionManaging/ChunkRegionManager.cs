@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
-using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Models;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
@@ -32,6 +32,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly RegionDataImageModelFactory _regionDataImageModelFactory;
     private readonly IChunkRenderer _chunkRenderer;
     private readonly IDispatcher _dispatcher;
+    private readonly IChunkLoadingPattern _chunkPattern;
 
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _stoppingCts = new(); // use this when pausing
@@ -75,12 +76,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
         IRegionDiskLoader regionProvider,
         RegionDataImageModelFactory regionImageModelFactory,
         IChunkRenderer chunkRenderer,
-        IDispatcher dispatcher)
+        IDispatcher dispatcher,
+        IChunkLoadingPattern chunkPattern)
     {
         _regionProvider = regionProvider;
         _regionDataImageModelFactory = regionImageModelFactory;
         _chunkRenderer = chunkRenderer;
         _dispatcher = dispatcher;
+        _chunkPattern = chunkPattern;
     }
 
     public PointZRange<int> VisibleRegionRange => _visibleRegionRange;
@@ -443,6 +446,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
                                 _pendingChunksSet.Add(chunkCoords);
                             }
             }
+        lock (_pendingChunkLock)
+            _pendingChunks.Sort();
     }
 
     // TODO we may be able to create new class that manages and track pool of tasks
@@ -497,11 +502,11 @@ public partial class ChunkRegionManager : IChunkRegionManager
             {
                 if (_pendingChunks.Count == 0)
                     return false;
-                int randomIndex = _random.Next(0, _pendingChunks.Count);
-                chunkCoords = _pendingChunks[randomIndex];
+                int index = _chunkPattern.GetPendingChunkIndex(_pendingChunks.Count);
+                chunkCoords = _pendingChunks[index];
                 lock (_workedChunks)
                     _workedChunks.Add(chunkCoords);
-                _pendingChunks.RemoveAt(randomIndex);
+                _pendingChunks.RemoveAt(index);
                 _pendingChunksSet.Remove(chunkCoords);
             }
             OnPropertyChanged(nameof(PendingChunksCount));
@@ -683,6 +688,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
                     _pendingChunksSet.Add(chunkModel.CoordsAbs);
                 }
             }
+        lock (_pendingChunkLock)
+            _pendingChunks.Sort();
         RunPendingChunkTasks();
     }
 

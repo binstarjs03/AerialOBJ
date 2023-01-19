@@ -4,7 +4,7 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 public delegate void ChunkRegionReadingErrorHandler(PointZ<int> coords, Exception e);
 public interface IChunkRegionManager
 {

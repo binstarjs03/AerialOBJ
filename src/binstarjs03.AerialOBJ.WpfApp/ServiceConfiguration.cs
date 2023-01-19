@@ -4,6 +4,7 @@ using System.Threading;
 
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
@@ -75,6 +76,7 @@ internal static class ServiceConfiguration
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddSingleton<ISavegameLoader, SavegameLoader>();
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
+        services.AddTransient<IChunkLoadingPattern, RandomChunkLoadingPattern>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.

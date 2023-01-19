@@ -11,7 +11,7 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Services;
-
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
