@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -30,14 +30,12 @@ public partial class ChunkRegionManager : IChunkRegionManager
     // Dependencies -----------------------------------------------------------
     private readonly IRegionDiskLoader _regionProvider;
     private readonly RegionDataImageModelFactory _regionDataImageModelFactory;
-    private readonly IRegionImagePooler _regionImagePooler;
     private readonly IChunkRenderer _chunkRenderer;
     private readonly IDispatcher _dispatcher;
 
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _stoppingCts = new(); // use this when pausing
     private CancellationTokenSource _reinitializingCts = new(); // use this when reinitializing
-    private readonly ManualResetEventSlim _updateChunkHighestBlockEvent = new(true);
     private readonly ManualResetEventSlim _redrawEvent = new(false);
 
     private readonly ReferenceWrap<bool> _isPendingRegionTaskRunning = new() { Value = false };
@@ -76,13 +74,11 @@ public partial class ChunkRegionManager : IChunkRegionManager
     public ChunkRegionManager(
         IRegionDiskLoader regionProvider,
         RegionDataImageModelFactory regionImageModelFactory,
-        IRegionImagePooler regionImagePooler,
         IChunkRenderer chunkRenderer,
         IDispatcher dispatcher)
     {
         _regionProvider = regionProvider;
         _regionDataImageModelFactory = regionImageModelFactory;
-        _regionImagePooler = regionImagePooler;
         _chunkRenderer = chunkRenderer;
         _dispatcher = dispatcher;
     }
@@ -592,7 +588,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
     private void LoadChunk(IChunk chunk, RegionDataImageModel regionModel)
     {
-        _updateChunkHighestBlockEvent.Wait();
         ChunkModel chunkModel = new(chunk.CoordsAbs, chunk.CoordsRel);
         _heightLevelLock.EnterReadLock();
         try
