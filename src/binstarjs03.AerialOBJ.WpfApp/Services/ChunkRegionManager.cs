@@ -238,23 +238,30 @@ public partial class ChunkRegionManager : IChunkRegionManager
         for (int x = _visibleRegionRange.XRange.Min; x <= _visibleRegionRange.XRange.Max; x++)
             for (int z = _visibleRegionRange.ZRange.Min; z <= _visibleRegionRange.ZRange.Max; z++)
             {
-                // load cached region instantly without having to go through pending queue
+                // skip if already loaded
                 PointZ<int> regionCoords = new(x, z);
+                lock (_loadedRegions)
+                    if (_loadedRegions.ContainsKey(regionCoords))
+                        continue;
+
+                // load cached region instantly without having to go through pending queue
                 lock (_cachedRegions)
                     if (_cachedRegions.TryGetValue(regionCoords, out RegionDataImageModel? regionDataImageModel))
                     {
                         LoadRegion(regionDataImageModel, true);
                         continue;
                     }
-                lock (_loadedRegions)
-                    lock (_pendingRegions)
-                        lock (_workedRegion)
-                            if (_loadedRegions.ContainsKey(regionCoords)
-                                || _pendingRegions.Contains(regionCoords)
-                                || _workedRegion.Value == regionCoords)
-                                continue;
-                            else
-                                _pendingRegions.Add(regionCoords);
+
+                // fail to fetch from cache, proceed to add it to pending queue,
+                // though skip adding to pending queue if it is already there
+                lock (_pendingRegions)
+                    lock (_workedRegion)
+                        if (_loadedRegions.ContainsKey(regionCoords)
+                            || _pendingRegions.Contains(regionCoords)
+                            || _workedRegion.Value == regionCoords)
+                            continue;
+                        else
+                            _pendingRegions.Add(regionCoords);
             }
     }
 
@@ -267,11 +274,11 @@ public partial class ChunkRegionManager : IChunkRegionManager
         {
             if (_isPendingRegionTaskRunning.Value)
                 return;
-            _pendingRegionTask = new Task(ProcessPendingRegion,
-                                          _stoppingCts.Token,
-                                          TaskCreationOptions.LongRunning);
             _isPendingRegionTaskRunning.Value = true;
-            _pendingRegionTask.Start();
+            _pendingRegionTask = Task.Factory.StartNew(ProcessPendingRegion,
+                                                       CancellationToken.None,
+                                                       TaskCreationOptions.LongRunning,
+                                                       TaskScheduler.Default);
         }
     }
 
@@ -279,65 +286,68 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         try
         {
-            while (!_stoppingCts.IsCancellationRequested)
+            while (!_stoppingCts.IsCancellationRequested || !_reinitializingCts.IsCancellationRequested)
             {
-                // get random pending region then assign it to worked region
-                if (!tryGetRandomPendingRegion(out PointZ<int> regionCoords))
-                    return;
+                // wrap whole iteration inside try/finally clause,
+                // ensure worked region will always be cleaned no matter what
+                try
+                {
+                    // get random pending region then assign it to worked region
+                    if (!tryGetRandomPendingRegion(out PointZ<int> regionCoords))
+                        return;
 
-                // update worked region, this is to prevent adding current coords to pending again
-                setWorkedRegionTo(regionCoords);
+                    // get region and load it if succeed
+                    if (!tryGetRegion(regionCoords, out RegionDataImageModel? region))
+                        continue;
 
-                // get region and load it if succeed
-                if (tryGetRegion(regionCoords, out RegionDataImageModel? region))
                     LoadRegion(region);
-                setWorkedRegionTo(null);
+                    addRegionToCache(region);
+                }
+                finally { cleanupWorkedRegion(); }
             }
         }
         finally
         {
-            setWorkedRegionTo(null);
             lock (_isPendingRegionTaskRunning)
                 _isPendingRegionTaskRunning.Value = false;
         }
 
-        bool tryGetRandomPendingRegion(out PointZ<int> result)
+        bool tryGetRandomPendingRegion(out PointZ<int> regionCoords)
         {
-            result = new PointZ<int>();
+            regionCoords = default;
+            // get pending region and set it to worked region atomically, this is
+            // to prevent the main thread from corrupting pending region state
+            // (e.g after its no longer in pending queue, the main thread adds it
+            // back during queue invocation because it does not exist in both
+            // pending and worked)
             lock (_pendingRegions)
             {
                 if (_pendingRegions.Count == 0)
                     return false;
+
                 int randomIndex = _random.Next(0, _pendingRegions.Count);
-                result = _pendingRegions[randomIndex];
+                regionCoords = _pendingRegions[randomIndex];
+
+                lock (_workedRegion)
+                    _workedRegion.Value = regionCoords;
                 _pendingRegions.RemoveAt(randomIndex);
             }
             OnPropertyChanged(nameof(PendingRegionsCount));
+            OnPropertyChanged(nameof(WorkedRegion));
             return true;
         }
 
-        bool tryGetRegion(PointZ<int> regionCoords, [NotNullWhen(true)] out RegionDataImageModel? regionDataImageModel)
+        bool tryGetRegion(PointZ<int> regionCoords, [NotNullWhen(true)] out RegionDataImageModel? regionModel)
         {
-            regionDataImageModel = null;
-
-            // try get region from cache, else proceed to get it from disk
-            lock (_cachedRegions)
-                if (_cachedRegions.TryGetValue(regionCoords, out regionDataImageModel))
-                    return true;
+            regionModel = null;
             try
             {
-                if (_regionProvider.TryGetRegion(regionCoords, _reinitializingCts.Token, out IRegion? region))
-                {
-                    regionDataImageModel = _regionDataImageModelFactory.Create(region, _reinitializingCts.Token);
-                    lock (_cachedRegions)
-                        _cachedRegions.Add(regionCoords, regionDataImageModel);
-                    OnPropertyChanged(nameof(CachedRegionsCount));
-                    //_chunkRenderer.RenderRandomNoise(regionDataImageModel.Image, Random.Shared.NextColor(), 64);
-                    //regionDataImageModel.Image.Redraw();
-                    return true;
-                }
+                if (!_regionProvider.TryGetRegion(regionCoords, _reinitializingCts.Token, out IRegion? region))
+                    return false;
+                regionModel = _regionDataImageModelFactory.Create(region, _reinitializingCts.Token);
+                return true;
             }
-            catch (TaskCanceledException) { }
+            catch (TaskCanceledException) { throw; } // quickly terminate if we are reinitializing
             catch (Exception e) { handleException(regionCoords, e); }
             return false;
         }
@@ -352,10 +362,18 @@ public partial class ChunkRegionManager : IChunkRegionManager
             _errorRegions.Add(regionCoords);
         }
 
-        void setWorkedRegionTo(PointZ<int>? regionCoords)
+        void addRegionToCache(RegionDataImageModel regionModel)
+        {
+            lock (_cachedRegions)
+                _cachedRegions.Add(regionModel.Data.Coords, regionModel);
+            OnPropertyChanged(nameof(CachedRegionsCount));
+
+        }
+
+        void cleanupWorkedRegion()
         {
             lock (_workedRegion)
-                _workedRegion.Value = regionCoords;
+                _workedRegion.Value = null;
             OnPropertyChanged(nameof(WorkedRegion));
         }
     }
@@ -387,14 +405,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
         // locking is already done before this method called
         _loadedRegions.Remove(regionModel.Data.Coords);
         RegionUnloaded?.Invoke(regionModel);
-        SwapRegionImage(regionModel);
-    }
-
-    // swap dirty (has rendered chunks) region image with new one
-    private void SwapRegionImage(RegionDataImageModel regionModel)
-    {
-        _regionImagePooler.Return(regionModel.Image);
-        regionModel.Image = _regionImagePooler.Rent(regionModel.Data.Coords, _reinitializingCts.Token);
     }
 
     private void ManageChunks()
