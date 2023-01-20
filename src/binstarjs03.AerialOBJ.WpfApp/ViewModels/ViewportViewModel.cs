@@ -94,9 +94,9 @@ public partial class ViewportViewModel
     private void OnGlobalState_SavegameLoadInfoChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Opened)
-            ReinitializeOnSavegameOpened();
+            InitializeOnSavegameOpened();
         else if (state == SavegameLoadState.Closed)
-            ReinitializeOnSavegameClosed();
+            CleanupOnSavegameClosed();
         else
             throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
@@ -124,11 +124,7 @@ public partial class ViewportViewModel
 
     private void OnDefinitionManager_ViewportDefinitionChanging()
     {
-        // We want to request for CRM service to stop so we can safely swap definition.
-
-        // if there is no open savegame, then there is no reason to stop
-        // CRM service (current implementation will wait on background thread,
-        // which is not run yet so deadblock will occur)
+        // We want to request for crm to stop so we can safely swap definition.
         if (!GlobalState.HasSavegameLoaded)
             return;
         ChunkRegionManager.StopBackgroundThread();
@@ -136,6 +132,7 @@ public partial class ViewportViewModel
 
     private void OnDefinitionManager_ViewportDefinitionChanged()
     {
+        // continue working for crm
         if (!GlobalState.HasSavegameLoaded)
             return;
         ChunkRegionManager.StartBackgroundThread();
@@ -144,7 +141,7 @@ public partial class ViewportViewModel
 
     #endregion Event Handlers
 
-    private void ReinitializeOnSavegameOpened()
+    private void InitializeOnSavegameOpened()
     {
         LowHeightLimit = GlobalState.SavegameLoadInfo!.LowHeightLimit;
         HighHeightLimit = GlobalState.SavegameLoadInfo!.HighHeightLimit;
@@ -164,7 +161,7 @@ public partial class ViewportViewModel
         }
     }
 
-    private void ReinitializeOnSavegameClosed()
+    private void CleanupOnSavegameClosed()
     {
         ChunkRegionManager.Reinitialize();
         CameraPos = new PointZ<float>(0, 0);
@@ -197,7 +194,7 @@ public partial class ViewportViewModel
         if (MouseReceiver.IsMouseLeft)
         {
             PointZ<float> cameraPosDelta = -(mouseDelta.ToFloat() / UnitMultiplier);
-            TranslateCameraAbsolute(cameraPosDelta);
+            TranslateCamera(cameraPosDelta);
         }
 
         PointZ<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(
@@ -241,48 +238,41 @@ public partial class ViewportViewModel
     [RelayCommand]
     private void OnKeyDown(KeyEventArgs e)
     {
-        if (e.Key == Key.Up)
-        {
-            TranslateCameraRelative(new PointZ<int>(0, -200));
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Down)
-        {
-            TranslateCameraRelative(new PointZ<int>(0, 200));
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Left)
-        {
-            TranslateCameraRelative(new PointZ<int>(-200, 0));
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Right)
-        {
-            TranslateCameraRelative(new PointZ<int>(200, 0));
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Add)
-        {
-            Zoom(ZoomDirection.In);
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Subtract)
-        {
-            Zoom(ZoomDirection.Out);
-            e.Handled = true;
-        }
+        if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
+            handleDirectionalKey();
+        else if (e.Key == Key.Add || e.Key == Key.Subtract)
+            handleZoomKey();
         else
             return;
+
+        void handleDirectionalKey()
+        {
+            PointY<int> direction = new(0, 0);
+            if (e.Key == Key.Up)
+                direction.Y -= 1;
+            if (e.Key == Key.Down)
+                direction.Y += 1;
+            if (e.Key == Key.Left)
+                direction.X -= 1;
+            if (e.Key == Key.Right)
+                direction.X += 1;
+            TranslateCamera(direction.ToFloat() / UnitMultiplier * 200);
+            e.Handled = true;
+        }
+
+        void handleZoomKey()
+        {
+            if (e.Key == Key.Add)
+                Zoom(ZoomDirection.In);
+            else
+                Zoom(ZoomDirection.Out);
+            e.Handled = true;
+        }
     }
 
-    private void TranslateCameraAbsolute(PointZ<float> displacement)
+    private void TranslateCamera(PointZ<float> displacement)
     {
         CameraPos += displacement;
-    }
-
-    private void TranslateCameraRelative(PointZ<int> direction)
-    {
-        CameraPos = new PointZ<float>(CameraPos.X + direction.X / UnitMultiplier, CameraPos.Z + direction.Z / UnitMultiplier);
     }
 
     private void Zoom(ZoomDirection direction)
