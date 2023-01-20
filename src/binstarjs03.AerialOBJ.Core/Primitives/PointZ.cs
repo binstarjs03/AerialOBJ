@@ -60,4 +60,14 @@ public struct PointZ<TNumber> : IEquatable<PointZ<TNumber>>, IComparable<PointZ<
     {
         return !(left == right);
     }
+
+    public static implicit operator PointZ<TNumber>(PointY<TNumber> point)
+    {
+        return new PointZ<TNumber>(point.X, point.Y);
+    }
+
+    public static PointZ<TNumber> operator +(PointZ<TNumber> left, PointZ<TNumber> right)
+    {
+        return new PointZ<TNumber>(left.X + right.X, left.Z + right.Z);
+    }
 }

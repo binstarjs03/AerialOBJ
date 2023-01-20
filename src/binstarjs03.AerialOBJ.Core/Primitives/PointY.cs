@@ -52,4 +52,19 @@ public struct PointY<TNumber> : IEquatable<PointY<TNumber>> where TNumber : stru
     {
         return !(left == right);
     }
+
+    public static PointY<TNumber> operator -(PointY<TNumber> self)
+    {
+        return new PointY<TNumber>(-self.X, -self.Y);
+    }
+
+    public static PointY<TNumber> operator -(PointY<TNumber> left, PointY<TNumber> right)
+    {
+        return new PointY<TNumber>(left.X - right.X, left.Y - right.Y);
+    }
+
+    public static PointY<TNumber> operator /(PointY<TNumber> left, TNumber right)
+    {
+        return new PointY<TNumber>(left.X / right, left.Y / right);
+    }
 }

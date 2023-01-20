@@ -27,6 +27,11 @@ public static class MathUtils
         return (int)Math.Floor(num);
     }
 
+    public static int Floor(this float num)
+    {
+        return (int)MathF.Floor(num);
+    }
+
     public static float Round(this float num)
     {
         return (float)Math.Round(num, 2);

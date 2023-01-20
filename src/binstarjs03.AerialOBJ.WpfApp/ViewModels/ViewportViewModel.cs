@@ -12,6 +12,7 @@ using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -42,19 +43,12 @@ public partial class ViewportViewModel
     [ObservableProperty] private int _lowHeightLimit = 0;
     [ObservableProperty] private int _highHeightLimit = 0;
 
-    // mouse states
-    [ObservableProperty] private PointY<int> _mouseScreenPos = PointY<int>.Zero;
-    [ObservableProperty] private PointY<int> _mousePosDelta = PointY<int>.Zero;
-    [ObservableProperty] private bool _mouseClickHolding = false;
-    [ObservableProperty] private bool _mouseInitClickDrag = true;
-    [ObservableProperty] private bool _mouseIsInside = false;
-
-    // mouse block states
-    [ObservableProperty] private Point3<int> _mouseBlockCoords = Point3<int>.Zero;
-    [ObservableProperty] private PointZ<int> _mouseChunkCoords = PointZ<int>.Zero;
-    [ObservableProperty] private PointZ<int> _mouseRegionCoords = PointZ<int>.Zero;
-    [ObservableProperty] private string _mouseBlockName = "";
-    [ObservableProperty] private string _mouseBlockDisplayName = "";
+    // context world states
+    [ObservableProperty] private Point3<int> _contextBlockCoords = Point3<int>.Zero;
+    [ObservableProperty] private PointZ<int> _contextChunkCoords = PointZ<int>.Zero;
+    [ObservableProperty] private PointZ<int> _contextRegionCoords = PointZ<int>.Zero;
+    [ObservableProperty] private string _contextBlockName = "";
+    [ObservableProperty] private string _contextBlockDisplayName = "";
 
     // Region Images
     [ObservableProperty] private ObservableCollection<RegionDataImageModel> _regionDataImageModels = new();
@@ -76,14 +70,19 @@ public partial class ViewportViewModel
         ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
         _definitionManager.ViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
         _definitionManager.ViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
+
+        MouseReceiver = new MouseReceiver();
+        MouseReceiver.MouseMove += MouseReceiver_MouseMove;
+        MouseReceiver.MouseWheel += MouseReceiver_MouseWheel;
     }
 
     public GlobalState GlobalState { get; }
     public Func<Size<int>>? GetViewViewportSize { get; set; }
+    public MouseReceiver MouseReceiver { get; } // TODO abstract this into interface
+    public IChunkRegionManager ChunkRegionManager { get; }
+
     public float UnitMultiplier => _zoomTable[ZoomLevel];
     public bool IsRegionTextVisible => ZoomLevel == 0 && IsChunkGridVisible;
-
-    public IChunkRegionManager ChunkRegionManager { get; }
 
     #region Event Handlers
 
@@ -193,96 +192,50 @@ public partial class ViewportViewModel
         ScreenSize = new Size<int>(newSize.Width.Floor(), newSize.Height.Floor());
     }
 
-    [RelayCommand]
-    private void OnMouseMove(MouseEventArgs e)
+    private void MouseReceiver_MouseMove(PointY<int> mousePos, PointY<int> mouseDelta)
     {
-        // check if this is initial mouse click and dragging, we don't want the delta to be very large
-        // during initial click & drag, which will cause the viewport to teleporting to somewhere
-        (MouseScreenPos, PointY<int> updatedMousePosDelta) = updateMouseScreenPosAndDelta();
-        MousePosDelta = MouseInitClickDrag && MouseClickHolding ? PointY<int>.Zero : updatedMousePosDelta;
-        if (MouseClickHolding)
+        if (MouseReceiver.IsMouseLeft)
         {
-            PointZ<float> cameraPosDelta = new(-MousePosDelta.X / UnitMultiplier, -MousePosDelta.Y / UnitMultiplier);
-            CameraPos = new PointZ<float>(CameraPos.X + cameraPosDelta.X, CameraPos.Z + cameraPosDelta.Z);
-            MouseInitClickDrag = false;
-        }
-        updateMouseWorldInformation();
-
-        (PointY<int> newMousePos, PointY<int> newMousePosDelta) updateMouseScreenPosAndDelta()
-        {
-            Point point = e.GetPosition(e.Source as IInputElement);
-            PointY<int> oldMousePos = MouseScreenPos;
-            PointY<int> newMousePos = new(point.X.Floor(), point.Y.Floor());
-            PointY<int> newMousePosDelta = new(newMousePos.X - oldMousePos.X, newMousePos.Y - oldMousePos.Y);
-            return (newMousePos, newMousePosDelta);
+            PointZ<float> cameraPosDelta = -(mouseDelta.ToFloat() / UnitMultiplier);
+            TranslateCameraAbsolute(cameraPosDelta);
         }
 
-        void updateMouseWorldInformation()
-        {
-            Size<float> floatScreenSize = new(ScreenSize.Width, ScreenSize.Height);
-            PointY<float> floatMouseScreenPos = new(MouseScreenPos.X, MouseScreenPos.Y);
-            PointZ<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(floatMouseScreenPos, CameraPos, UnitMultiplier, floatScreenSize);
-            PointZ<int> mouseBlockCoords2 = new(MathUtils.Floor(mouseWorldPos.X), MathUtils.Floor(mouseWorldPos.Z));
-            BlockSlim? block = ChunkRegionManager.GetHighestBlockAt(mouseBlockCoords2);
-
-            MouseChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(mouseBlockCoords2);
-            MouseRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(MouseChunkCoords);
-            if (block is not null)
-            {
-                MouseBlockCoords = new Point3<int>(mouseBlockCoords2.X, block.Value.Height, mouseBlockCoords2.Z);
-                MouseBlockName = block.Value.Name;
-                if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Value.Name, out ViewportBlockDefinition? bd))
-                    MouseBlockDisplayName = bd.DisplayName;
-                else
-                    MouseBlockDisplayName = _definitionManager.CurrentViewportDefinition.MissingBlockDefinition.DisplayName;
-            }
-            else
-            {
-                MouseBlockCoords = new Point3<int>(mouseBlockCoords2.X, 0, mouseBlockCoords2.Z);
-                MouseBlockName = "";
-                MouseBlockDisplayName = "Unknown (Unloaded Chunk)";
-            }
-
-        }
+        PointZ<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(
+            mousePos.ToFloat(),
+            CameraPos,
+            UnitMultiplier,
+            ScreenSize.ToFloat());
+        UpdateContextWorldInformation(mouseWorldPos.Floor());
     }
 
-    [RelayCommand]
-    private void OnMouseWheel(MouseWheelEventArgs e)
+    private void MouseReceiver_MouseWheel(int delta)
     {
-        if (e.Delta > 0)
-            ZoomIn();
+        if (delta > 0)
+            Zoom(ZoomDirection.In);
         else
-            ZoomOut();
+            Zoom(ZoomDirection.Out);
     }
 
-    [RelayCommand]
-    private void OnMouseUp(MouseButtonEventArgs e)
+    private void UpdateContextWorldInformation(PointZ<int> worldPos)
     {
-        if (e.LeftButton == MouseButtonState.Released)
+        ContextChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(worldPos);
+        ContextRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(ContextChunkCoords);
+        BlockSlim? block = ChunkRegionManager.GetHighestBlockAt(worldPos);
+        if (block is not null)
         {
-            MouseClickHolding = false;
-            MouseInitClickDrag = true;
+            ContextBlockCoords = new Point3<int>(worldPos.X, block.Value.Height, worldPos.Z);
+            ContextBlockName = block.Value.Name;
+            if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Value.Name, out ViewportBlockDefinition? bd))
+                ContextBlockDisplayName = bd.DisplayName;
+            else
+                ContextBlockDisplayName = _definitionManager.CurrentViewportDefinition.MissingBlockDefinition.DisplayName;
         }
-    }
-
-    [RelayCommand]
-    private void OnMouseDown(MouseButtonEventArgs e)
-    {
-        if (e.LeftButton == MouseButtonState.Pressed)
-            MouseClickHolding = true;
-    }
-
-    [RelayCommand]
-    private void OnMouseEnter()
-    {
-        MouseIsInside = true;
-    }
-
-    [RelayCommand]
-    private void OnMouseLeave()
-    {
-        MouseIsInside = false;
-        MouseClickHolding = false;
+        else
+        {
+            ContextBlockCoords = new Point3<int>(worldPos.X, 0, worldPos.Z);
+            ContextBlockName = "";
+            ContextBlockDisplayName = "Unknown (Unloaded Chunk)";
+        }
     }
 
     [RelayCommand]
@@ -290,45 +243,47 @@ public partial class ViewportViewModel
     {
         if (e.Key == Key.Up)
         {
-            TranslateCamera(new PointZ<int>(0, -200));
+            TranslateCameraRelative(new PointZ<int>(0, -200));
             e.Handled = true;
         }
         else if (e.Key == Key.Down)
         {
-            TranslateCamera(new PointZ<int>(0, 200));
+            TranslateCameraRelative(new PointZ<int>(0, 200));
             e.Handled = true;
         }
         else if (e.Key == Key.Left)
         {
-            TranslateCamera(new PointZ<int>(-200, 0));
+            TranslateCameraRelative(new PointZ<int>(-200, 0));
             e.Handled = true;
         }
         else if (e.Key == Key.Right)
         {
-            TranslateCamera(new PointZ<int>(200, 0));
+            TranslateCameraRelative(new PointZ<int>(200, 0));
             e.Handled = true;
         }
         else if (e.Key == Key.Add)
         {
-            ZoomIn();
+            Zoom(ZoomDirection.In);
             e.Handled = true;
         }
         else if (e.Key == Key.Subtract)
         {
-            ZoomOut();
+            Zoom(ZoomDirection.Out);
             e.Handled = true;
         }
         else
             return;
     }
 
-    private void TranslateCamera(PointZ<int> direction)
+    private void TranslateCameraAbsolute(PointZ<float> displacement)
+    {
+        CameraPos += displacement;
+    }
+
+    private void TranslateCameraRelative(PointZ<int> direction)
     {
         CameraPos = new PointZ<float>(CameraPos.X + direction.X / UnitMultiplier, CameraPos.Z + direction.Z / UnitMultiplier);
     }
-
-    private void ZoomIn() => Zoom(ZoomDirection.In);
-    private void ZoomOut() => Zoom(ZoomDirection.Out);
 
     private void Zoom(ZoomDirection direction)
     {

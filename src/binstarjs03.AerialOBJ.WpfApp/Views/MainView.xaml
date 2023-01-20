@@ -5,15 +5,16 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:reusables="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls"
-        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels" 
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:IMainViewModel}}"
         x:Name="Root"
-        
         Title="{Binding Title}"
         d:Title="AerialOBJ"
-        Width="800" Height="600"
-        MinWidth="450" MinHeight="400">
+        Width="800"
+        Height="600"
+        MinWidth="450"
+        MinHeight="400">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
@@ -22,11 +23,9 @@
 
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-            <Menu x:Name="MainMenu" 
-                  IsMainMenu="True">
+            <Menu x:Name="MainMenu" IsMainMenu="True">
                 <MenuItem Header="File">
-                    <MenuItem Header="Open..."
-                              Command="{Binding OpenSavegameCommand}"/>
+                    <MenuItem Header="Open..." Command="{Binding OpenSavegameCommand}"/>
                     <MenuItem Header="Close"
                               Command="{Binding CloseSavegameCommand}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
@@ -44,26 +43,23 @@
                               IsCheckable="True"
                               IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsInfoPanelVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
-                    <MenuItem Header="Debug Log" 
+                    <MenuItem Header="Debug Log"
                               IsCheckable="True"
                               IsChecked="{Binding ViewState.IsDebugLogViewVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
-                    <MenuItem Header="Manage Definitions.."
-                              Command="{Binding ShowDefinitionManagerModalCommand}"/>
+                    <MenuItem Header="Manage Definitions.." Command="{Binding ShowDefinitionManagerModalCommand}"/>
                     <MenuItem Header="Settings"/>
-                    <MenuItem Header="About..."
-                              Command="{Binding ShowAboutModalCommand}"/>
+                    <MenuItem Header="About..." Command="{Binding ShowAboutModalCommand}"/>
                 </MenuItem>
             </Menu>
             <Rectangle Height="1" Fill="LightGray"/>
-            <Grid Background="{Binding ElementName=MainMenu, Path=Background}"
-                  IsEnabled="{Binding GlobalState.HasSavegameLoaded}">
+            <Grid Background="{Binding ElementName=MainMenu, Path=Background}" IsEnabled="{Binding GlobalState.HasSavegameLoaded}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" 
+                <StackPanel Grid.Column="0"
                             Margin="10,5"
                             Orientation="Vertical"
                             HorizontalAlignment="Center">
@@ -81,8 +77,8 @@
                         Margin="0,0,10,0"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
-                        SmallChange="1" 
-                        IsSnapToTickEnabled="True" 
+                        SmallChange="1"
+                        IsSnapToTickEnabled="True"
                         Value="{Binding ElementName=Viewport, Path=Content.DataContext.HeightLevel}"
                         Minimum="{Binding ElementName=Viewport, Path=Content.DataContext.LowHeightLimit}"
                         Maximum="{Binding ElementName=Viewport, Path=Content.DataContext.HighHeightLimit}"/>
@@ -90,8 +86,7 @@
         </StackPanel>
 
         <Grid DockPanel.Dock="Bottom">
-            <StatusBar d:Visibility="Collapsed"
-                       Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+            <StatusBar d:Visibility="Collapsed" Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <StatusBar.Resources>
                     <Style TargetType="reusables:PropertyValuePairView">
                         <Setter Property="PropertyColor" Value="Black"/>
@@ -99,14 +94,14 @@
                     </Style>
                 </StatusBar.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockDisplayName}"/>
+                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockDisplayName}"/>
                     <TextBlock Text=" - "/>
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockName}"/>
+                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockName}"/>
                 </StackPanel>
                 <Separator/>
-                <reusables:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseRegionCoords}"/>
-                <reusables:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseChunkCoords}"/>
-                <reusables:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.MouseBlockCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextRegionCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextChunkCoords}"/>
+                <reusables:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords}"/>
             </StatusBar>
             <StatusBar Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>
@@ -116,7 +111,7 @@
         <Border BorderThickness="0,1" BorderBrush="LightGray">
             <ContentControl x:Name="Viewport"
                             Focusable="False"
-                            Content="{Binding ViewportView}" 
+                            Content="{Binding ViewportView}"
                             d:Background="{StaticResource Background}"
                             IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
         </Border>
