@@ -93,15 +93,23 @@
                         <Setter Property="ValueColor" Value="DarkBlue"/>
                     </Style>
                 </StatusBar.Resources>
+
+                <reusables:PropertyValuePairView PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.X}"/>
+                <reusables:PropertyValuePairView PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Y}"/>
+                <reusables:PropertyValuePairView PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Z}"/>
+
+                <Separator/>
+
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockDisplayName}"/>
                     <TextBlock Text=" - "/>
                     <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockName}"/>
                 </StackPanel>
+
                 <Separator/>
+
                 <reusables:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextRegionCoords}"/>
                 <reusables:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextChunkCoords}"/>
-                <reusables:PropertyValuePairView PropertyText="Block " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords}"/>
             </StatusBar>
             <StatusBar Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>
