@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 
@@ -84,10 +84,6 @@ internal static class ServiceConfiguration
             IDefinitionManager definitionManager = x.GetRequiredService<IDefinitionManager>();
             IChunkShader shader = new StandardChunkShader();
             return new ChunkRenderer(shader, definitionManager);
-        });
-        services.AddSingleton<IRegionImagePooler, RegionImagePooler>(x =>
-        {
-            return new RegionImagePooler(x.GetRequiredService<IRegionImageFactory>(), CancellationToken.None);
         });
         services.AddSingleton<IDefinitionIO, DefinitionIO>();
 
