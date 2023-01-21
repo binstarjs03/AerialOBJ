@@ -21,9 +21,12 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class ViewportViewModel
 {
-    private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 };
     private readonly ILogService _logService;
     private readonly IDefinitionManager _definitionManager;
+
+    private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 }; // fib. sequence
+    private readonly float _zoomLowLimit = 1f;
+    private readonly float _zoomHighLimit = 32f;
 
     // viewport UI states
     [ObservableProperty]
@@ -37,7 +40,7 @@ public partial class ViewportViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UnitMultiplier))]
     [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))]
-    private int _zoomLevel = 0;
+    private float _zoomMultiplier = 1f;
 
     [ObservableProperty] private int _heightLevel = 0;
     [ObservableProperty] private int _lowHeightLimit = 0;
@@ -81,14 +84,14 @@ public partial class ViewportViewModel
     public MouseReceiver MouseReceiver { get; } // TODO abstract this into interface
     public IChunkRegionManager ChunkRegionManager { get; }
 
-    public float UnitMultiplier => _zoomTable[ZoomLevel];
-    public bool IsRegionTextVisible => ZoomLevel == 0 && IsChunkGridVisible;
+    public float UnitMultiplier => ZoomMultiplier;
+    public bool IsRegionTextVisible => ZoomMultiplier <= 1f && IsChunkGridVisible;
 
     #region Event Handlers
 
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
     partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
-    partial void OnZoomLevelChanged(int value) => UpdateChunkRegionManager();
+    partial void OnZoomMultiplierChanged(float value) => UpdateChunkRegionManager();
     partial void OnHeightLevelChanged(int value) => ChunkRegionManager.UpdateHeightLevel(HeightLevel);
 
     private void OnGlobalState_SavegameLoadInfoChanged(SavegameLoadState state)
@@ -165,7 +168,7 @@ public partial class ViewportViewModel
     {
         ChunkRegionManager.Reinitialize();
         CameraPos = new PointZ<float>(0, 0);
-        ZoomLevel = 0;
+        ZoomMultiplier = _zoomTable[0];
         ScreenSize = new Size<int>(0, 0);
         LowHeightLimit = 0;
         HighHeightLimit = 0;
@@ -277,15 +280,29 @@ public partial class ViewportViewModel
 
     private void Zoom(ZoomDirection direction)
     {
-        int newZoomLevel = ZoomLevel;
+        int nearestIndex = 0;
+
+        // snaps to nearest table, find the index
+        for (int i = 0; i < _zoomTable.Length; i++)
+        {
+            if (_zoomTable[i] <= ZoomMultiplier)
+                nearestIndex = i;
+            else
+                // zoom is bigger than table index value, we got the nearest value
+                // to snap onto the table (which is the value on last index)
+                break;
+        }
+
+        // modify the index based on zooming direction
         if (direction == ZoomDirection.In)
-            newZoomLevel++;
-        else if (direction == ZoomDirection.Out)
-            newZoomLevel--;
+            nearestIndex++;
         else
-            throw new NotImplementedException();
-        newZoomLevel = int.Clamp(newZoomLevel, 0, _zoomTable.Length - 1);
-        ZoomLevel = newZoomLevel;
+            nearestIndex--;
+
+        // avoid index over/underflow before assignment, and clamp zoom to limit
+        nearestIndex = int.Clamp(nearestIndex, 0, _zoomTable.Length - 1);
+        float newZoomMultiplier = float.Clamp(_zoomTable[nearestIndex], _zoomLowLimit, _zoomHighLimit);
+        ZoomMultiplier = newZoomMultiplier;
     }
 
     private enum ZoomDirection

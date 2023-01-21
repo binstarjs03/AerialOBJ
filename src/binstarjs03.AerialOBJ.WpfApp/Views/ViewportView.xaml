@@ -211,7 +211,7 @@
                             Margin="5">
                     <reusables:PropertyValuePairView PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
                     <reusables:PropertyValuePairView PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
-                    <reusables:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/>
+                    <!--  reusables:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/  -->
                     <reusables:PropertyValuePairView PropertyText="Unit Multiplier : " ValueText="{Binding UnitMultiplier}"/>
                     <reusables:PropertyValuePairView PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
 
