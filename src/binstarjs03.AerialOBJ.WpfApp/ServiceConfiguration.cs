@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading;
 
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
@@ -89,6 +88,7 @@ internal static class ServiceConfiguration
         });
         services.AddSingleton<IDefinitionIO, DefinitionIO>();
         services.AddTransient<IKeyHandler, KeyHandler>();
+        services.AddTransient<IMouseHandler, MouseHandler>();
 
         return services.BuildServiceProvider();
     }

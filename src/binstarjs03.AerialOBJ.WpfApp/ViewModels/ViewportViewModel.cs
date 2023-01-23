@@ -69,31 +69,23 @@ public partial class ViewportViewModel : IViewportViewModel
         InputHandler = inputHandler;
         _logService = logService;
 
+        InputHandler.Viewport = this;
         GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadInfoChanged;
-        ChunkRegionManager.RegionLoaded += ShowRegionDataImageModel;
-        ChunkRegionManager.RegionUnloaded += RemoveRegionDataImageModel;
+        ChunkRegionManager.RegionLoaded += ShowRegionImage;
+        ChunkRegionManager.RegionUnloaded += RemoveRegionImage;
         ChunkRegionManager.RegionLoadingException += OnRegionLoadingException;
         ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
         _definitionManager.ViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
         _definitionManager.ViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
-
-        MouseReceiver = new MouseReceiver();
-        MouseReceiver.MouseMove += MouseReceiver_MouseMove;
-        MouseReceiver.MouseWheel += MouseReceiver_MouseWheel;
-
-        InputHandler.Context = this;
     }
 
     public GlobalState GlobalState { get; }
     public Func<Size<int>>? GetViewViewportSize { get; set; }
-    public MouseReceiver MouseReceiver { get; } // TODO abstract this into interface
     public IChunkRegionManager ChunkRegionManager { get; }
     public ViewportViewModelInputHandler InputHandler { get; }
 
     public float UnitMultiplier => ZoomMultiplier;
     public bool IsRegionTextVisible => ZoomMultiplier <= 1f && IsChunkGridVisible;
-
-    #region Event Handlers
 
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
     partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
@@ -110,13 +102,13 @@ public partial class ViewportViewModel : IViewportViewModel
             throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
 
-    private void ShowRegionDataImageModel(RegionDataImageModel regionModel)
+    private void ShowRegionImage(RegionDataImageModel regionModel)
     {
         if (GlobalState.HasSavegameLoaded)
             _regionDataImageModels.Add(regionModel);
     }
 
-    private void RemoveRegionDataImageModel(RegionDataImageModel regionModel)
+    private void RemoveRegionImage(RegionDataImageModel regionModel)
     {
         _regionDataImageModels.Remove(regionModel);
     }
@@ -148,8 +140,6 @@ public partial class ViewportViewModel : IViewportViewModel
         UpdateChunkRegionManager();
     }
 
-    #endregion Event Handlers
-
     private void InitializeOnSavegameOpened()
     {
         LowHeightLimit = GlobalState.SavegameLoadInfo!.LowHeightLimit;
@@ -173,12 +163,15 @@ public partial class ViewportViewModel : IViewportViewModel
     private void CleanupOnSavegameClosed()
     {
         ChunkRegionManager.Reinitialize();
+
         CameraPos = new PointZ<float>(0, 0);
         ZoomMultiplier = _zoomTable[0];
         ScreenSize = new Size<int>(0, 0);
+
         LowHeightLimit = 0;
         HighHeightLimit = 0;
         HeightLevel = 0;
+
         IsChunkGridVisible = false;
         IsInfoPanelVisible = false;
     }
@@ -189,8 +182,6 @@ public partial class ViewportViewModel : IViewportViewModel
             ChunkRegionManager.Update(CameraPos, UnitMultiplier, ScreenSize);
     }
 
-    #region Commands
-
     [RelayCommand]
     private void OnScreenSizeChanged(SizeChangedEventArgs e)
     {
@@ -198,31 +189,7 @@ public partial class ViewportViewModel : IViewportViewModel
         ScreenSize = new Size<int>(newSize.Width.Floor(), newSize.Height.Floor());
     }
 
-    private void MouseReceiver_MouseMove(PointY<int> mousePos, PointY<int> mouseDelta)
-    {
-        if (MouseReceiver.IsMouseLeft)
-        {
-            PointZ<float> cameraPosDelta = -(mouseDelta.ToFloat() / UnitMultiplier);
-            TranslateCamera(cameraPosDelta);
-        }
-
-        PointZ<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(
-            mousePos.ToFloat(),
-            CameraPos,
-            UnitMultiplier,
-            ScreenSize.ToFloat());
-        UpdateContextWorldInformation(mouseWorldPos.Floor());
-    }
-
-    private void MouseReceiver_MouseWheel(int delta)
-    {
-        if (delta > 0)
-            Zoom(ZoomDirection.In);
-        else
-            Zoom(ZoomDirection.Out);
-    }
-
-    private void UpdateContextWorldInformation(PointZ<int> worldPos)
+    public void UpdateContextWorldInformation(PointZ<int> worldPos)
     {
         ContextChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(worldPos);
         ContextRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(ContextChunkCoords);
@@ -283,6 +250,4 @@ public partial class ViewportViewModel : IViewportViewModel
         newHeightLevel = Math.Clamp(newHeightLevel, LowHeightLimit, HighHeightLimit);
         HeightLevel = newHeightLevel;
     }
-
-    #endregion Commands
 }

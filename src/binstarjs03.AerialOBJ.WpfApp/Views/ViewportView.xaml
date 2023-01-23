@@ -15,22 +15,22 @@
     <!--  Input Handler Bindings  -->
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="MouseMove">
-            <i:InvokeCommandAction Command="{Binding MouseReceiver.MouseMoveCommand}" PassEventArgsToCommand="True"/>
+            <i:InvokeCommandAction Command="{Binding InputHandler.MouseHandler.MouseMoveCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="MouseWheel">
-            <i:InvokeCommandAction Command="{Binding MouseReceiver.MouseWheelCommand}" PassEventArgsToCommand="True"/>
+            <i:InvokeCommandAction Command="{Binding InputHandler.MouseHandler.MouseWheelCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="MouseUp">
-            <i:InvokeCommandAction Command="{Binding MouseReceiver.MouseUpCommand}" PassEventArgsToCommand="True"/>
+            <i:InvokeCommandAction Command="{Binding InputHandler.MouseHandler.MouseUpCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="MouseDown">
-            <i:InvokeCommandAction Command="{Binding MouseReceiver.MouseDownCommand}" PassEventArgsToCommand="True"/>
+            <i:InvokeCommandAction Command="{Binding InputHandler.MouseHandler.MouseDownCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="MouseEnter">
-            <i:InvokeCommandAction Command="{Binding MouseReceiver.MouseEnterCommand}"/>
+            <i:InvokeCommandAction Command="{Binding InputHandler.MouseHandler.MouseEnterCommand}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="MouseLeave">
-            <i:InvokeCommandAction Command="{Binding MouseReceiver.MouseLeaveCommand}"/>
+            <i:InvokeCommandAction Command="{Binding InputHandler.MouseHandler.MouseLeaveCommand}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="SizeChanged">
             <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}" PassEventArgsToCommand="True"/>
@@ -41,7 +41,6 @@
           ClipToBounds="True"
           Focusable="True"
           x:Name="Viewport">
-        <!--  Control name is required for code-behind  -->
 
         <Grid IsHitTestVisible="False">
             <Grid.Resources>
