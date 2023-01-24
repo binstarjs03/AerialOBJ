@@ -6,6 +6,11 @@ namespace binstarjs03.AerialOBJ.Core.Primitives;
 public struct PointZ<TNumber> : IEquatable<PointZ<TNumber>>, IComparable<PointZ<TNumber>> where TNumber : struct, INumber<TNumber>
 {
     public static PointZ<TNumber> Zero => new();
+    public static PointZ<TNumber> Left => new(-TNumber.One, TNumber.Zero);
+    public static PointZ<TNumber> Front => new(TNumber.Zero, -TNumber.One);
+    public static PointZ<TNumber> Right => new(TNumber.One, TNumber.Zero);
+    public static PointZ<TNumber> Back => new(TNumber.Zero, TNumber.One);
+
     public TNumber X { get; set; }
     public TNumber Z { get; set; }
 

@@ -1,31 +1,41 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 
-using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Components;
-
-public delegate void MouseMoveHandler(PointY<int> mousePos, PointY<int> mouseDelta);
+namespace binstarjs03.AerialOBJ.WpfApp.Services.Input;
 
 [ObservableObject]
-public partial class MouseReceiver
+public partial class MouseHandler : IMouseHandler
 {
     [ObservableProperty] private PointY<int> _mousePos;
     [ObservableProperty] private PointY<int> _mouseDelta;
     [ObservableProperty] private bool _isMouseInside;
     [ObservableProperty] private bool _isMouseDown;
-    [ObservableProperty] private bool _initMouseFocus;
     [ObservableProperty] private bool _isMouseLeft;
     [ObservableProperty] private bool _isMouseRight;
 
-    public event MouseMoveHandler? MouseMove;
-    public event Action<int>? MouseWheel;
+    private readonly List<RegisteredHandler> _mouseMoveHandler = new();
+    private readonly List<RegisteredHandler> _mouseWheelHandler = new();
+
+    public int ScrollDelta { get; private set; }
+    private bool InitMouseFocus { get; set; }
+
+    public void RegisterHandler(Action<IMouseHandler> handler, MouseHandlerCondition condition, MouseHandlerWhen when)
+    {
+        if (when == MouseHandlerWhen.MouseMove)
+            _mouseMoveHandler.Add(new RegisteredHandler(handler, condition));
+        else if (when == MouseHandlerWhen.MouseWheel)
+            _mouseWheelHandler.Add(new RegisteredHandler(handler, condition));
+        else
+            throw new NotImplementedException();
+    }
 
     [RelayCommand]
     private void OnMouseMove(MouseEventArgs e)
@@ -35,7 +45,11 @@ public partial class MouseReceiver
         if (InitMouseFocus)
             InitMouseFocus = false;
         MousePos = mousePos;
-        MouseMove?.Invoke(MousePos, MouseDelta);
+
+        // invoke registered handlers
+        foreach (var handler in _mouseMoveHandler)
+            if (handler.Condition.Invoke(this))
+                handler.Handler.Invoke(this);
     }
 
     [RelayCommand]
@@ -69,7 +83,11 @@ public partial class MouseReceiver
     [RelayCommand]
     private void OnMouseWheel(MouseWheelEventArgs e)
     {
-        MouseWheel?.Invoke(e.Delta);
+        ScrollDelta = e.Delta;
+        // invoke registered handlers
+        foreach (var handler in _mouseWheelHandler)
+            if (handler.Condition.Invoke(this))
+                handler.Handler.Invoke(this);
     }
 
     partial void OnIsMouseInsideChanged(bool value)
@@ -80,5 +98,18 @@ public partial class MouseReceiver
         IsMouseDown = false;
         IsMouseLeft = false;
         IsMouseRight = false;
+    }
+
+    // only relevant for this class, encapsulate it as private
+    private class RegisteredHandler
+    {
+        public RegisteredHandler(Action<IMouseHandler> handler, MouseHandlerCondition condition)
+        {
+            Handler = handler;
+            Condition = condition;
+        }
+
+        public Action<IMouseHandler> Handler { get; }
+        public MouseHandlerCondition Condition { get; }
     }
 }
