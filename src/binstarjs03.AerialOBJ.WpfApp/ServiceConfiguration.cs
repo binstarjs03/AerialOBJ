@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 
+using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;

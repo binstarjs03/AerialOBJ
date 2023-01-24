@@ -20,6 +20,11 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
+		<ProjectReference Include="..\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Services\ChunkRendering\" />
 	</ItemGroup>
 
 </Project>

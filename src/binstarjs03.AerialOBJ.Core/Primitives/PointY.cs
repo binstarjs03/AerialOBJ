@@ -48,6 +48,11 @@ public struct PointY<TNumber> : IEquatable<PointY<TNumber>> where TNumber : stru
         return left.Equals(right);
     }
 
+    public static implicit operator PointY<TNumber>(PointZ<TNumber> point)
+    {
+        return new PointY<TNumber>(point.X, point.Z);
+    }
+
     public static bool operator !=(PointY<TNumber> left, PointY<TNumber> right)
     {
         return !(left == right);
