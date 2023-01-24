@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Core"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.WpfApp", "src\binstarjs03.AerialOBJ.WpfApp\binstarjs03.AerialOBJ.WpfApp.csproj", "{FC7E8122-3C92-42C9-A786-45906439279B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "binstarjs03.AerialOBJ.ObjExporting", "src\binstarjs03.AerialOBJ.ObjExporting\binstarjs03.AerialOBJ.ObjExporting.csproj", "{30A94F66-F25C-408B-ABFE-32A8D66A2531}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.ObjExporting", "src\binstarjs03.AerialOBJ.ObjExporting\binstarjs03.AerialOBJ.ObjExporting.csproj", "{30A94F66-F25C-408B-ABFE-32A8D66A2531}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "binstarjs03.AerialOBJ.Imaging", "src\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj", "{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{30A94F66-F25C-408B-ABFE-32A8D66A2531}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30A94F66-F25C-408B-ABFE-32A8D66A2531}.Release|x64.ActiveCfg = Release|Any CPU
 		{30A94F66-F25C-408B-ABFE-32A8D66A2531}.Release|x64.Build.0 = Release|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Debug|x64.Build.0 = Debug|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Release|x64.ActiveCfg = Release|Any CPU
+		{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
