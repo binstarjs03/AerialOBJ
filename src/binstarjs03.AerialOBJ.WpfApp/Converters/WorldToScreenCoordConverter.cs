@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Data;
 
 using binstarjs03.AerialOBJ.Core;
-using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Converters;
 public class WorldToScreenCoordConverter : IMultiValueConverter

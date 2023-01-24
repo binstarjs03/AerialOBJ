@@ -1,6 +1,8 @@
 ﻿using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
+
+// Abstraction for the input handler. we may abstract all viewmodels for consistency
 public interface IViewportViewModel
 {
     PointZ<float> CameraPos { get; }

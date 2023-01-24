@@ -2,7 +2,7 @@
 using System.IO;
 
 using binstarjs03.AerialOBJ.Core.Nbt;
-using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Models;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 public class SavegameLoader : ISavegameLoader

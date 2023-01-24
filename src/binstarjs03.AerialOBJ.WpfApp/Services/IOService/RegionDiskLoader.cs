@@ -4,7 +4,7 @@ using System.Threading;
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService;

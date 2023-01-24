@@ -2,7 +2,6 @@
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 using binstarjs03.AerialOBJ.WpfApp.Services.Input;
 
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;

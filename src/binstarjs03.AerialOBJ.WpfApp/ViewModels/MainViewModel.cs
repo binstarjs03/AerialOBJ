@@ -1,6 +1,6 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;

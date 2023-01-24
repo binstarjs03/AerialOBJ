@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfApp.Components;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Models;
 public class SavegameLoadInfo
 {
     public required string WorldName { get; init; }

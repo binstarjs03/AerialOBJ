@@ -2,8 +2,9 @@
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.WpfApp;
 
-namespace binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
+namespace binstarjs03.AerialOBJ.WpfApp;
 public static class CorePrimitivesExtension
 {
     public static PointY<float> Floor(this PointY<float> point)

@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfApp.Components;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Models;
 public enum SavegameLoadState
 {
     Opened,

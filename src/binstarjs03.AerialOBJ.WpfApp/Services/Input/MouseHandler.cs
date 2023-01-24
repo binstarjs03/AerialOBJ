@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Input;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;

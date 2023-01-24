@@ -1,6 +1,6 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Models;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
