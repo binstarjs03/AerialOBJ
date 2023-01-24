@@ -10,6 +10,8 @@ using System;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 
+// extend from Wpf image while implement the interface so we can display it directly to
+// wpf container controls (canvas, grid, stackpanel, etc)
 public class MutableImage : Image, IMutableImage
 {
     private readonly PixelFormat _pixelFormat = PixelFormats.Bgra32;
@@ -65,13 +67,6 @@ public class MutableImage : Image, IMutableImage
             AddFullDirtyRect();
         else
             Dispatcher.InvokeAsync(AddFullDirtyRect, DispatcherPriority.Render);
-    }
-
-    public void ForeachPixels(ForeachPixelDelegate callback)
-    {
-        for (int x = 0; x < Size.Width; x++)
-            for (int y = 0; y < Size.Height; y++)
-                callback(this, x, y);
     }
 
     private void AddFullDirtyRect()

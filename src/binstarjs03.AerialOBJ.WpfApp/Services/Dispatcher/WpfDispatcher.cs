@@ -15,6 +15,8 @@ public class WpfDispatcher : IDispatcher
         _wpfDispatcher = wpfDispatcher;
     }
 
+    public bool CheckAccess() => _wpfDispatcher.CheckAccess();
+
     public void Invoke(Action callback, DispatcherPriority priority, CancellationToken token)
     {
         try

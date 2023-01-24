@@ -1,11 +1,10 @@
-﻿using binstarjs03.AerialOBJ.Core.Primitives;
+﻿using binstarjs03.AerialOBJ.Imaging;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Components;
-public delegate void ForeachPixelDelegate(IMutableImage self, int x, int y);
-public interface IMutableImage
+
+// we want an IImage that has the ability to redraw itself since it uses
+// WriteableBitmap, which should add full dirtyrect when invoked
+public interface IMutableImage : IImage
 {
-    Size<int> Size { get; }
-    Color this[int x, int y] { get; set; }
     void Redraw();
-    void ForeachPixels(ForeachPixelDelegate callback);
 }

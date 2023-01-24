@@ -12,6 +12,7 @@ using binstarjs03.AerialOBJ.WpfApp.ExtensionMethods;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
+using binstarjs03.AerialOBJ.WpfApp.Services.Input;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,7 +20,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
 [ObservableObject]
-public partial class ViewportViewModel
+public partial class ViewportViewModel : IViewportViewModel
 {
     private readonly ILogService _logService;
     private readonly IDefinitionManager _definitionManager;
@@ -59,35 +60,32 @@ public partial class ViewportViewModel
     public ViewportViewModel(GlobalState globalState,
                              IChunkRegionManager chunkRegionManager,
                              ILogService logService,
-                             IDefinitionManager definitionManager)
+                             IDefinitionManager definitionManager,
+                             ViewportViewModelInputHandler inputHandler)
     {
         GlobalState = globalState;
         ChunkRegionManager = chunkRegionManager;
         _definitionManager = definitionManager;
+        InputHandler = inputHandler;
         _logService = logService;
 
+        InputHandler.Viewport = this;
         GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadInfoChanged;
-        ChunkRegionManager.RegionLoaded += ShowRegionDataImageModel;
-        ChunkRegionManager.RegionUnloaded += RemoveRegionDataImageModel;
+        ChunkRegionManager.RegionLoaded += ShowRegionImage;
+        ChunkRegionManager.RegionUnloaded += RemoveRegionImage;
         ChunkRegionManager.RegionLoadingException += OnRegionLoadingException;
         ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
         _definitionManager.ViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
         _definitionManager.ViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
-
-        MouseReceiver = new MouseReceiver();
-        MouseReceiver.MouseMove += MouseReceiver_MouseMove;
-        MouseReceiver.MouseWheel += MouseReceiver_MouseWheel;
     }
 
     public GlobalState GlobalState { get; }
     public Func<Size<int>>? GetViewViewportSize { get; set; }
-    public MouseReceiver MouseReceiver { get; } // TODO abstract this into interface
     public IChunkRegionManager ChunkRegionManager { get; }
+    public ViewportViewModelInputHandler InputHandler { get; }
 
     public float UnitMultiplier => ZoomMultiplier;
     public bool IsRegionTextVisible => ZoomMultiplier <= 1f && IsChunkGridVisible;
-
-    #region Event Handlers
 
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
     partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
@@ -104,13 +102,13 @@ public partial class ViewportViewModel
             throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
 
-    private void ShowRegionDataImageModel(RegionDataImageModel regionModel)
+    private void ShowRegionImage(RegionDataImageModel regionModel)
     {
         if (GlobalState.HasSavegameLoaded)
             _regionDataImageModels.Add(regionModel);
     }
 
-    private void RemoveRegionDataImageModel(RegionDataImageModel regionModel)
+    private void RemoveRegionImage(RegionDataImageModel regionModel)
     {
         _regionDataImageModels.Remove(regionModel);
     }
@@ -142,8 +140,6 @@ public partial class ViewportViewModel
         UpdateChunkRegionManager();
     }
 
-    #endregion Event Handlers
-
     private void InitializeOnSavegameOpened()
     {
         LowHeightLimit = GlobalState.SavegameLoadInfo!.LowHeightLimit;
@@ -167,12 +163,15 @@ public partial class ViewportViewModel
     private void CleanupOnSavegameClosed()
     {
         ChunkRegionManager.Reinitialize();
+
         CameraPos = new PointZ<float>(0, 0);
         ZoomMultiplier = _zoomTable[0];
         ScreenSize = new Size<int>(0, 0);
+
         LowHeightLimit = 0;
         HighHeightLimit = 0;
         HeightLevel = 0;
+
         IsChunkGridVisible = false;
         IsInfoPanelVisible = false;
     }
@@ -183,8 +182,6 @@ public partial class ViewportViewModel
             ChunkRegionManager.Update(CameraPos, UnitMultiplier, ScreenSize);
     }
 
-    #region Commands
-
     [RelayCommand]
     private void OnScreenSizeChanged(SizeChangedEventArgs e)
     {
@@ -192,31 +189,7 @@ public partial class ViewportViewModel
         ScreenSize = new Size<int>(newSize.Width.Floor(), newSize.Height.Floor());
     }
 
-    private void MouseReceiver_MouseMove(PointY<int> mousePos, PointY<int> mouseDelta)
-    {
-        if (MouseReceiver.IsMouseLeft)
-        {
-            PointZ<float> cameraPosDelta = -(mouseDelta.ToFloat() / UnitMultiplier);
-            TranslateCamera(cameraPosDelta);
-        }
-
-        PointZ<float> mouseWorldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(
-            mousePos.ToFloat(),
-            CameraPos,
-            UnitMultiplier,
-            ScreenSize.ToFloat());
-        UpdateContextWorldInformation(mouseWorldPos.Floor());
-    }
-
-    private void MouseReceiver_MouseWheel(int delta)
-    {
-        if (delta > 0)
-            Zoom(ZoomDirection.In);
-        else
-            Zoom(ZoomDirection.Out);
-    }
-
-    private void UpdateContextWorldInformation(PointZ<int> worldPos)
+    public void UpdateContextWorldInformation(PointZ<int> worldPos)
     {
         ContextChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(worldPos);
         ContextRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(ContextChunkCoords);
@@ -237,51 +210,14 @@ public partial class ViewportViewModel
             ContextBlockDisplayName = "Unknown (Unloaded Chunk)";
         }
     }
-
-    [RelayCommand]
-    private void OnKeyDown(KeyEventArgs e)
-    {
-        if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
-            handleDirectionalKey();
-        else if (e.Key == Key.Add || e.Key == Key.Subtract)
-            handleZoomKey();
-        else
-            return;
-
-        void handleDirectionalKey()
-        {
-            PointY<int> direction = new(0, 0);
-            if (e.Key == Key.Up)
-                direction.Y -= 1;
-            if (e.Key == Key.Down)
-                direction.Y += 1;
-            if (e.Key == Key.Left)
-                direction.X -= 1;
-            if (e.Key == Key.Right)
-                direction.X += 1;
-            TranslateCamera(direction.ToFloat() / UnitMultiplier * 200);
-            e.Handled = true;
-        }
-
-        void handleZoomKey()
-        {
-            if (e.Key == Key.Add)
-                Zoom(ZoomDirection.In);
-            else
-                Zoom(ZoomDirection.Out);
-            e.Handled = true;
-        }
-    }
-
-    private void TranslateCamera(PointZ<float> displacement)
+    public void TranslateCamera(PointZ<float> displacement)
     {
         CameraPos += displacement;
     }
 
-    private void Zoom(ZoomDirection direction)
+    public void Zoom(ZoomDirection direction)
     {
         int nearestIndex = 0;
-
         // snaps to nearest table, find the index
         for (int i = 0; i < _zoomTable.Length; i++)
         {
@@ -293,23 +229,25 @@ public partial class ViewportViewModel
                 break;
         }
 
-        // modify the index based on zooming direction
+        // modify the index based on zooming direction. out direction handling is a bit
+        // different, we are already zooming out from snapping, zoom out if equal to snap
         if (direction == ZoomDirection.In)
             nearestIndex++;
-        else
-            nearestIndex--;
+        else if (direction == ZoomDirection.Out)
+            if (ZoomMultiplier == _zoomTable[nearestIndex])
+                nearestIndex--;
 
-        // avoid index over/underflow before assignment, and clamp zoom to limit
+        // avoid index over/underflow before assignment
         nearestIndex = int.Clamp(nearestIndex, 0, _zoomTable.Length - 1);
         float newZoomMultiplier = float.Clamp(_zoomTable[nearestIndex], _zoomLowLimit, _zoomHighLimit);
         ZoomMultiplier = newZoomMultiplier;
     }
 
-    private enum ZoomDirection
+    public void MoveHeightLevel(HeightLevelDirection direction, int distance)
     {
-        In,
-        Out,
+        int difference = direction == HeightLevelDirection.Up ? 1 : -1;
+        int newHeightLevel = HeightLevel + distance * difference;
+        newHeightLevel = Math.Clamp(newHeightLevel, LowHeightLimit, HighHeightLimit);
+        HeightLevel = newHeightLevel;
     }
-
-    #endregion Commands
 }

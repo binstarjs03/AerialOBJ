@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
@@ -26,9 +28,19 @@ public class ChunkRenderer : IChunkRenderer
         set => throw new NotImplementedException();
     }
 
-    public void RenderChunk(IRegionImage regionImage, BlockSlim[,] highestBlocks, PointZ<int> chunkCoordsRel)
+    public void RenderChunk(IRegionImage regionImage, IChunk chunk, BlockSlim[,] highestBlocks, int heightLimit)
     {
-        Shader.RenderChunk(_definitionManager.CurrentViewportDefinition, regionImage, highestBlocks, chunkCoordsRel);
+        ChunkRenderSetting setting = new()
+        {
+            ViewportDefinition = _definitionManager.CurrentViewportDefinition,
+            Image = regionImage,
+            RenderPosition = new PointY<int>(0,0),
+            HeightLimit = heightLimit,
+            Chunk = chunk,
+            HighestBlocks = highestBlocks,
+            Exclusions = null, // not implemented for now
+        };
+        Shader.RenderChunk(setting);
     }
 
     public void EraseChunk(IRegionImage regionImage, PointZ<int> chunkCoordsRel)
@@ -36,8 +48,9 @@ public class ChunkRenderer : IChunkRenderer
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)
             {
+                // use chunk coords as rendering position also as the chunk coords rel too
                 PointZ<int> blockCoordsRel = new(x, z);
-                PointY<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRel);
+                PointY<int> pixelCoords = IChunkShader.GetPixelCoordsForBlock(chunkCoordsRel, chunkCoordsRel, blockCoordsRel);
                 regionImage[pixelCoords.X, pixelCoords.Y] = _transparent;
             }
     }

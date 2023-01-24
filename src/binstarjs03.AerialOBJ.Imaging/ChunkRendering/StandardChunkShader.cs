@@ -1,15 +1,15 @@
-﻿using System;
-
-using binstarjs03.AerialOBJ.Core.Definitions;
+﻿using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.WpfApp.Components;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 public class StandardChunkShader : ChunkShaderBase
 {
-    public override void RenderChunk(ViewportDefinition vd, IRegionImage regionImage, BlockSlim[,] highestBlocks, PointZ<int> chunkCoordsRel)
+    public override void RenderChunk(ChunkRenderSetting setting)
     {
+        BlockSlim[,] highestBlocks = setting.HighestBlocks ?? GetChunkHighestBlock(setting);
+
         // initialize row of blocks to the first row (X = X, Z = 0)
         Span<int> lastYRow = stackalloc int[IChunk.BlockCount];
         for (int x = 0; x < IChunk.BlockCount; x++)
@@ -22,10 +22,10 @@ public class StandardChunkShader : ChunkShaderBase
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
                 ref BlockSlim block = ref highestBlocks[x, z];
-                Color color = RenderBlock(vd, in block, lastY, lastYRow[x]);
+                Color color = RenderBlock(setting.ViewportDefinition, in block, lastY, lastYRow[x]);
 
                 PointZ<int> blockCoordsRel = new(x, z);
-                SetBlockPixelColorToImage(regionImage, color, blockCoordsRel, chunkCoordsRel);
+                SetBlockPixelColorToImage(setting.Image, color, setting.RenderPosition, setting.Chunk.CoordsRel, blockCoordsRel);
 
                 lastY = block.Height;
                 lastYRow[x] = block.Height;
@@ -79,11 +79,5 @@ public class StandardChunkShader : ChunkShaderBase
         color.Blue = (byte)Math.Clamp(color.Blue + difference, 0, 255);
 
         return color;
-    }
-
-    private static void SetBlockPixelColorToImage(IRegionImage regionImage, Color color, PointZ<int> blockCoordsRelToChunk, PointZ<int> chunkCoordsRel)
-    {
-        PointY<int> pixelCoords = ChunkRenderMath.GetRegionImagePixelCoords(chunkCoordsRel, blockCoordsRelToChunk);
-        regionImage[pixelCoords.X, pixelCoords.Y] = color;
     }
 }

@@ -1,12 +1,13 @@
 using System;
 using System.IO;
-using System.Threading;
 
+using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
+using binstarjs03.AerialOBJ.WpfApp.Services.Input;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
@@ -60,6 +61,7 @@ internal static class ServiceConfiguration
         });
         services.AddSingleton<DebugLogViewModel>();
         services.AddTransient<ViewportViewModel>();
+        services.AddTransient<ViewportViewModelInputHandler>();
         services.AddTransient<DefinitionManagerViewModel>();
 
         // configure services
@@ -86,6 +88,8 @@ internal static class ServiceConfiguration
             return new ChunkRenderer(shader, definitionManager);
         });
         services.AddSingleton<IDefinitionIO, DefinitionIO>();
+        services.AddTransient<IKeyHandler, KeyHandler>();
+        services.AddTransient<IMouseHandler, MouseHandler>();
 
         return services.BuildServiceProvider();
     }

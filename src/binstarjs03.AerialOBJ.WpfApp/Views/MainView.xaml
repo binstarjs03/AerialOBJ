@@ -21,7 +21,7 @@
             <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="KeyDown">
-            <i:InvokeCommandAction Command="{Binding ElementName=Viewport, Path=Content.DataContext.KeyDownCommand}" PassEventArgsToCommand="True"/>
+            <i:InvokeCommandAction Command="{Binding ElementName=Viewport, Path=Content.DataContext.InputHandler.KeyHandler.KeyDownCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
 

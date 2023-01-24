@@ -66,7 +66,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly List<PointZ<int>> _pendingRegions = new(s_initialRegionBufferSize);
     private readonly ReferenceWrap<PointZ<int>?> _workedRegion = new() { Value = null };
 
-    private readonly Dictionary<PointZ<int>, ChunkModel> _loadedChunks = new(s_initialChunkBufferSize);
+    private readonly Dictionary<PointZ<int>, ChunkModel> _renderedChunks = new(s_initialChunkBufferSize);
     private readonly HashSet<PointZ<int>> _pendingChunksSet = new(s_initialChunkBufferSize);
     private readonly List<PointZ<int>> _pendingChunks = new(s_initialChunkBufferSize);
     private readonly object _pendingChunkLock = new();
@@ -95,7 +95,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
     public PointZRange<int> VisibleChunkRange => _visibleChunkRange;
     public int VisibleChunksCount => VisibleChunkRange.Sum;
-    public int LoadedChunksCount => _loadedChunks.Count;
+    public int LoadedChunksCount => _renderedChunks.Count;
     public int PendingChunksCount => _pendingChunks.Count;
     public int WorkedChunksCount => _workedChunks.Count;
 
@@ -433,10 +433,10 @@ public partial class ChunkRegionManager : IChunkRegionManager
             for (int z = _visibleChunkRange.ZRange.Min; z <= _visibleChunkRange.ZRange.Max; z++)
             {
                 PointZ<int> chunkCoords = new(x, z);
-                lock (_loadedChunks)
+                lock (_renderedChunks)
                     lock (_pendingChunkLock)
                         lock (_workedChunks)
-                            if (_loadedChunks.ContainsKey(chunkCoords)
+                            if (_renderedChunks.ContainsKey(chunkCoords)
                                 || _pendingChunksSet.Contains(chunkCoords)
                                 || _workedChunks.Contains(chunkCoords))
                                 continue;
@@ -598,21 +598,21 @@ public partial class ChunkRegionManager : IChunkRegionManager
         try
         {
             chunk.GetHighestBlockSlim(chunkModel.HighestBlocks, _heightLevel, null);
+            _chunkRenderer.RenderChunk(regionModel.Image, chunk, chunkModel.HighestBlocks, _heightLevel);
         }
         finally { _heightLevelLock.ExitReadLock(); }
-        chunk.Dispose();
 
-        PointZ<int> chunkCoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(chunk.CoordsAbs);
-        _chunkRenderer.RenderChunk(regionModel.Image, chunkModel.HighestBlocks, chunkCoordsRel);
+        chunk.Dispose();
         _redrawEvent.Set();
-        lock (_loadedChunks)
-            _loadedChunks.Add(chunk.CoordsAbs, chunkModel);
+
+        lock (_renderedChunks)
+            _renderedChunks.Add(chunk.CoordsAbs, chunkModel);
         OnPropertyChanged(nameof(LoadedChunksCount));
     }
 
     private void UnloadChunk(ChunkModel chunkModel)
     {
-        _loadedChunks.Remove(chunkModel.CoordsAbs);
+        _renderedChunks.Remove(chunkModel.CoordsAbs);
         chunkModel.Dispose();
     }
 
@@ -667,8 +667,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
         // get chunk for this block
         PointZ<int> chunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(blockCoords);
         ChunkModel? chunk;
-        lock (_loadedChunks)
-            if (!_loadedChunks.TryGetValue(chunkCoords, out chunk))
+        lock (_renderedChunks)
+            if (!_renderedChunks.TryGetValue(chunkCoords, out chunk))
                 return null;
         PointZ<int> blockCoordsRel = MinecraftWorldMathUtils.ConvertBlockCoordsAbsToRelToChunk(blockCoords);
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
@@ -676,8 +676,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
     private void UpdateChunkHighestBlockResponsive()
     {
-        lock (_loadedChunks)
-            foreach (ChunkModel chunkModel in _loadedChunks.Values)
+        lock (_renderedChunks)
+            foreach (ChunkModel chunkModel in _renderedChunks.Values)
             {
                 UnloadChunk(chunkModel);
                 if (_visibleChunkRange.IsOutside(chunkModel.CoordsAbs))
@@ -739,7 +739,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         _cachedRegions.Clear();
         _pendingRegions.Clear();
 
-        foreach (ChunkModel chunk in _loadedChunks.Values)
+        foreach (ChunkModel chunk in _renderedChunks.Values)
             UnloadChunk(chunk);
         _pendingChunks.Clear();
         _pendingChunksSet.Clear();
