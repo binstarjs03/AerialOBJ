@@ -2,10 +2,10 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls;
-public partial class PropertyValuePairView : UserControl
+namespace binstarjs03.AerialOBJ.WpfApp.Components;
+public partial class PropertyValuePair : UserControl
 {
-    public PropertyValuePairView()
+    public PropertyValuePair()
     {
         InitializeComponent();
     }
@@ -19,7 +19,7 @@ public partial class PropertyValuePairView : UserControl
     public static readonly DependencyProperty PropertyColorProperty =
         DependencyProperty.Register(nameof(PropertyColor),
                                     typeof(SolidColorBrush),
-                                    typeof(PropertyValuePairView),
+                                    typeof(PropertyValuePair),
                                     new PropertyMetadata(new SolidColorBrush(Colors.White)));
 
     public SolidColorBrush ValueColor
@@ -31,7 +31,7 @@ public partial class PropertyValuePairView : UserControl
     public static readonly DependencyProperty ValueColorProperty =
         DependencyProperty.Register(nameof(ValueColor),
                                     typeof(SolidColorBrush),
-                                    typeof(PropertyValuePairView),
+                                    typeof(PropertyValuePair),
                                     new PropertyMetadata(new SolidColorBrush(Colors.White)));
 
     public string PropertyText
@@ -43,7 +43,7 @@ public partial class PropertyValuePairView : UserControl
     public static readonly DependencyProperty PropertyTextProperty =
         DependencyProperty.Register(nameof(PropertyText),
                                     typeof(string),
-                                    typeof(PropertyValuePairView),
+                                    typeof(PropertyValuePair),
                                     new PropertyMetadata(""));
 
     public string ValueText
@@ -55,6 +55,6 @@ public partial class PropertyValuePairView : UserControl
     public static readonly DependencyProperty ValueTextProperty =
         DependencyProperty.Register(nameof(ValueText),
                                     typeof(string),
-                                    typeof(PropertyValuePairView),
+                                    typeof(PropertyValuePair),
                                     new PropertyMetadata(""));
 }

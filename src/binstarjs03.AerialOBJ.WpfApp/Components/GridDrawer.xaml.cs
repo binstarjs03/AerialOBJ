@@ -4,10 +4,10 @@ using System.Windows.Media;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls;
-public partial class GridDrawerView : UserControl
+namespace binstarjs03.AerialOBJ.WpfApp.Components;
+public partial class GridDrawer : UserControl
 {
-    public GridDrawerView()
+    public GridDrawer()
     {
         InitializeComponent();
     }
@@ -19,7 +19,7 @@ public partial class GridDrawerView : UserControl
     }
 
     public static readonly DependencyProperty GridSizeProperty =
-        DependencyProperty.Register(nameof(GridSize), typeof(float), typeof(GridDrawerView), new PropertyMetadata(0f));
+        DependencyProperty.Register(nameof(GridSize), typeof(float), typeof(GridDrawer), new PropertyMetadata(0f));
 
     public PointZ<float> CameraPos
     {
@@ -28,7 +28,7 @@ public partial class GridDrawerView : UserControl
     }
 
     public static readonly DependencyProperty CameraPosProperty =
-        DependencyProperty.Register(nameof(CameraPos), typeof(PointZ<float>), typeof(GridDrawerView), new PropertyMetadata(new PointZ<float>(0, 0)));
+        DependencyProperty.Register(nameof(CameraPos), typeof(PointZ<float>), typeof(GridDrawer), new PropertyMetadata(new PointZ<float>(0, 0)));
 
     public float UnitMultiplier
     {
@@ -37,7 +37,7 @@ public partial class GridDrawerView : UserControl
     }
 
     public static readonly DependencyProperty UnitMultiplierProperty =
-        DependencyProperty.Register(nameof(UnitMultiplier), typeof(float), typeof(GridDrawerView), new PropertyMetadata(0f));
+        DependencyProperty.Register(nameof(UnitMultiplier), typeof(float), typeof(GridDrawer), new PropertyMetadata(0f));
 
     public Size<int> ScreenSize
     {
@@ -46,7 +46,7 @@ public partial class GridDrawerView : UserControl
     }
 
     public static readonly DependencyProperty ScreenSizeProperty =
-        DependencyProperty.Register(nameof(ScreenSize), typeof(Size<int>), typeof(GridDrawerView), new PropertyMetadata(new Size<int>(1, 1)));
+        DependencyProperty.Register(nameof(ScreenSize), typeof(Size<int>), typeof(GridDrawer), new PropertyMetadata(new Size<int>(1, 1)));
 
     public SolidColorBrush GridColor
     {
@@ -55,7 +55,7 @@ public partial class GridDrawerView : UserControl
     }
 
     public static readonly DependencyProperty GridColorProperty =
-        DependencyProperty.Register(nameof(GridColor), typeof(SolidColorBrush), typeof(GridDrawerView), new PropertyMetadata(new SolidColorBrush()));
+        DependencyProperty.Register(nameof(GridColor), typeof(SolidColorBrush), typeof(GridDrawer), new PropertyMetadata(new SolidColorBrush()));
 
     public double GridThickness
     {
@@ -64,5 +64,5 @@ public partial class GridDrawerView : UserControl
     }
 
     public static readonly DependencyProperty GridThicknessProperty =
-        DependencyProperty.Register(nameof(GridThickness), typeof(double), typeof(GridDrawerView), new PropertyMetadata(0d));
+        DependencyProperty.Register(nameof(GridThickness), typeof(double), typeof(GridDrawer), new PropertyMetadata(0d));
 }

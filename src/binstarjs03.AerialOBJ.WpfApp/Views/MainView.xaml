@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:reusables="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls"
+        xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:IMainViewModel}}"
@@ -92,15 +92,15 @@
         <Grid DockPanel.Dock="Bottom">
             <StatusBar d:Visibility="Collapsed" Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <StatusBar.Resources>
-                    <Style TargetType="reusables:PropertyValuePairView">
+                    <Style TargetType="components:PropertyValuePair">
                         <Setter Property="PropertyColor" Value="Black"/>
                         <Setter Property="ValueColor" Value="DarkBlue"/>
                     </Style>
                 </StatusBar.Resources>
 
-                <reusables:PropertyValuePairView PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.X}"/>
-                <reusables:PropertyValuePairView PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Y}"/>
-                <reusables:PropertyValuePairView PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Z}"/>
+                <components:PropertyValuePair PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.X}"/>
+                <components:PropertyValuePair PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Y}"/>
+                <components:PropertyValuePair PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Z}"/>
 
                 <Separator/>
 
@@ -112,8 +112,8 @@
 
                 <Separator/>
 
-                <reusables:PropertyValuePairView PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextRegionCoords}"/>
-                <reusables:PropertyValuePairView PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextChunkCoords}"/>
+                <components:PropertyValuePair PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextRegionCoords}"/>
+                <components:PropertyValuePair PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextChunkCoords}"/>
             </StatusBar>
             <StatusBar Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>

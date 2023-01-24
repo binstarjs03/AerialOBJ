@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:reusables="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views.ReusableControls"
+             xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
              xmlns:models="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Models"
              mc:Ignorable="d"
@@ -44,7 +44,7 @@
 
         <Grid IsHitTestVisible="False">
             <Grid.Resources>
-                <Style TargetType="reusables:PropertyValuePairView">
+                <Style TargetType="components:PropertyValuePair">
                     <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
                     <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
                 </Style>
@@ -84,7 +84,7 @@
                                         BorderThickness="1"
                                         BorderBrush="{StaticResource TextNormal}"
                                         Background="#88000000">
-                                    <reusables:PropertyValuePairView PropertyText="Region" ValueText="{Binding Data.Coords}"/>
+                                    <components:PropertyValuePair PropertyText="Region" ValueText="{Binding Data.Coords}"/>
                                 </Border>
                             </Grid>
                         </Grid>
@@ -122,19 +122,19 @@
                   RenderOptions.EdgeMode="Aliased"
                   Visibility="{Binding IsChunkGridVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <!--  Chunk Grid  -->
-                <reusables:GridDrawerView GridSize="16"
-                                          GridThickness="1"
-                                          GridColor="#20FFFFFF"
-                                          CameraPos="{Binding CameraPos}"
-                                          UnitMultiplier="{Binding UnitMultiplier}"
-                                          ScreenSize="{Binding ScreenSize}"/>
+                <components:GridDrawer GridSize="16"
+                                       GridThickness="1"
+                                       GridColor="#20FFFFFF"
+                                       CameraPos="{Binding CameraPos}"
+                                       UnitMultiplier="{Binding UnitMultiplier}"
+                                       ScreenSize="{Binding ScreenSize}"/>
                 <!--  Region Grid  -->
-                <reusables:GridDrawerView GridSize="512"
-                                          GridThickness="1"
-                                          GridColor="#60FFFFFF"
-                                          CameraPos="{Binding CameraPos}"
-                                          UnitMultiplier="{Binding UnitMultiplier}"
-                                          ScreenSize="{Binding ScreenSize}"/>
+                <components:GridDrawer GridSize="512"
+                                       GridThickness="1"
+                                       GridColor="#60FFFFFF"
+                                       CameraPos="{Binding CameraPos}"
+                                       UnitMultiplier="{Binding UnitMultiplier}"
+                                       ScreenSize="{Binding ScreenSize}"/>
                 <!--  Horizontal Line  -->
                 <Line Stroke="White"
                       StrokeThickness="1"
@@ -208,32 +208,32 @@
                 <StackPanel HorizontalAlignment="Left"
                             MinWidth="150"
                             Margin="5">
-                    <reusables:PropertyValuePairView PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
-                    <reusables:PropertyValuePairView PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
-                    <!--  reusables:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/  -->
-                    <reusables:PropertyValuePairView PropertyText="Unit Multiplier : " ValueText="{Binding UnitMultiplier}"/>
-                    <reusables:PropertyValuePairView PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
+                    <components:PropertyValuePair PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
+                    <components:PropertyValuePair PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
+                    <!--  components:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/  -->
+                    <components:PropertyValuePair PropertyText="Unit Multiplier : " ValueText="{Binding UnitMultiplier}"/>
+                    <components:PropertyValuePair PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
 
                     <Separator Style="{StaticResource SubtleSeparator}"/>
 
                     <TextBlock Text="Visible Region Range:"/>
-                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.XRange}"/>
-                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.ZRange}"/>
-                    <reusables:PropertyValuePairView PropertyText="Visible Region Count: " ValueText="{Binding ChunkRegionManager.VisibleRegionsCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Loaded Region Count: " ValueText="{Binding ChunkRegionManager.LoadedRegionsCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Cached Region Count: " ValueText="{Binding ChunkRegionManager.CachedRegionsCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Pending Region Count : " ValueText="{Binding ChunkRegionManager.PendingRegionsCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Worked Region : " ValueText="{Binding ChunkRegionManager.WorkedRegion}"/>
+                    <components:PropertyValuePair PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.XRange}"/>
+                    <components:PropertyValuePair PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.ZRange}"/>
+                    <components:PropertyValuePair PropertyText="Visible Region Count: " ValueText="{Binding ChunkRegionManager.VisibleRegionsCount}"/>
+                    <components:PropertyValuePair PropertyText="Loaded Region Count: " ValueText="{Binding ChunkRegionManager.LoadedRegionsCount}"/>
+                    <components:PropertyValuePair PropertyText="Cached Region Count: " ValueText="{Binding ChunkRegionManager.CachedRegionsCount}"/>
+                    <components:PropertyValuePair PropertyText="Pending Region Count : " ValueText="{Binding ChunkRegionManager.PendingRegionsCount}"/>
+                    <components:PropertyValuePair PropertyText="Worked Region : " ValueText="{Binding ChunkRegionManager.WorkedRegion}"/>
 
                     <Separator Style="{StaticResource SubtleSeparator}"/>
 
                     <TextBlock Text="Visible Chunk Range:"/>
-                    <reusables:PropertyValuePairView PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.XRange}"/>
-                    <reusables:PropertyValuePairView PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.ZRange}"/>
-                    <reusables:PropertyValuePairView PropertyText="Visible Chunk Count : " ValueText="{Binding ChunkRegionManager.VisibleChunksCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Loaded Chunk Count : " ValueText="{Binding ChunkRegionManager.LoadedChunksCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Pending Chunk Count : " ValueText="{Binding ChunkRegionManager.PendingChunksCount}"/>
-                    <reusables:PropertyValuePairView PropertyText="Worked Chunk Count : " ValueText="{Binding ChunkRegionManager.WorkedChunksCount}"/>
+                    <components:PropertyValuePair PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.XRange}"/>
+                    <components:PropertyValuePair PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.ZRange}"/>
+                    <components:PropertyValuePair PropertyText="Visible Chunk Count : " ValueText="{Binding ChunkRegionManager.VisibleChunksCount}"/>
+                    <components:PropertyValuePair PropertyText="Loaded Chunk Count : " ValueText="{Binding ChunkRegionManager.LoadedChunksCount}"/>
+                    <components:PropertyValuePair PropertyText="Pending Chunk Count : " ValueText="{Binding ChunkRegionManager.PendingChunksCount}"/>
+                    <components:PropertyValuePair PropertyText="Worked Chunk Count : " ValueText="{Binding ChunkRegionManager.WorkedChunksCount}"/>
                 </StackPanel>
             </Border>
         </Grid>
