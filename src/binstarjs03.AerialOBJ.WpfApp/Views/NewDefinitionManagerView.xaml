@@ -1,0 +1,101 @@
+﻿<Window x:Class="binstarjs03.AerialOBJ.WpfApp.Views.NewDefinitionManagerView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:DefinitionManagerViewModel}}"
+        Title="NewDefinitionManagerView"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterOwner"
+        Width="400"
+        Height="300"
+        MinWidth="400"
+        MinHeight="300">
+    <Window.Resources>
+        <ObjectDataProvider ObjectType="{x:Type sys:Enum}"
+                            MethodName="GetValues"
+                            x:Key="enumMembers">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="viewmodels:DefinitionContext"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.Resources>
+                <Style TargetType="TextBlock" x:Key="Right">
+                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="Margin" Value="0,0,10,0"/>
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Column="0"
+                       Grid.Row="0"
+                       Text="Definition:"
+                       Style="{StaticResource Right}"/>
+            <TextBlock Grid.Column="0"
+                       Grid.Row="1"
+                       Text="Selected Definition:"
+                       Style="{StaticResource Right}"/>
+            <ComboBox Grid.Column="1"
+                      Grid.Row="0"
+                      ItemsSource="{Binding Source={StaticResource enumMembers}}"
+                      SelectedItem="{Binding Context}"/>
+            <TextBlock Grid.Column="1"
+                       Grid.Row="1"
+                       Text="{Binding ContextDefinition.Name}"/>
+        </Grid>
+        <DataGrid Grid.Row="1"
+                  Margin="0,5,0,10"
+                  x:Name="ViewportDefinitionGrid"
+                  ItemsSource="{Binding ContextLoadedDefinitions}"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectedValue="{Binding ContextDefinition}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Format Version" Binding="{Binding FormatVersion}"/>
+                <DataGridTextColumn Header="Minecraft Version" Binding="{Binding MinecraftVersion}"/>
+                <DataGridTextColumn Header="Filename" Binding="{Binding OriginalFilename}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="2">
+            <Grid.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Width" Value="150"/>
+                    <Setter Property="Padding" Value="2"/>
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0"
+                    Content="Import Definition..."
+                    Command="{Binding ImportDefinitionCommand}"/>
+            <Button Grid.Column="1"
+                    Content="Delete Definition..."
+                    Command="{Binding DeleteDefinitionCommand}"
+                    IsEnabled="{Binding CanDeleteDefinition}"/>
+        </Grid>
+    </Grid>
+</Window>

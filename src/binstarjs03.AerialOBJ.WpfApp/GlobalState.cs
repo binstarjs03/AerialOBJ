@@ -13,12 +13,14 @@ public partial class GlobalState
     [NotifyPropertyChangedFor(nameof(HasSavegameLoaded))]
     private SavegameLoadInfo? _savegameLoadInfo = null;
 
-    public GlobalState(DateTime launchTime, string version, string currentPath, string definitionsPath)
+    public GlobalState(DateTime launchTime, string version, string currentPath, string definitionsPath, string[]? arguments, SettingState setting)
     {
         LaunchTime = launchTime;
         Version = version;
         CurrentPath = currentPath;
         DefinitionsPath = definitionsPath;
+        Arguments = arguments;
+        Setting = setting;
     }
 
     public event Action<SavegameLoadState>? SavegameLoadInfoChanged;
@@ -28,10 +30,10 @@ public partial class GlobalState
     public DateTime LaunchTime { get; }
     public string CurrentPath { get; } // current path to "AerialOBJ.exe"
     public string DefinitionsPath { get; }
-    public string[]? Arguments { get; set; } = null;
+    public string[]? Arguments { get; }
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
     public bool IsDebugEnabled => Arguments is not null && Array.Exists(Arguments, arg => arg.ToLower() == "debug");
-    public SettingState Setting { get; } = new();
+    public SettingState Setting { get; }
 
     partial void OnSavegameLoadInfoChanged(SavegameLoadInfo? value)
     {

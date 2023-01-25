@@ -10,14 +10,14 @@ using binstarjs03.AerialOBJ.WpfApp.Components;
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class ChunkRenderer : IChunkRenderer
 {
-    private IChunkShader _shader;
-    private readonly IDefinitionManager _definitionManager;
+    private readonly IChunkShader _shader;
+    private readonly DefinitionSetting _definitionSetting;
     private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
-    public ChunkRenderer(IChunkShader initialChunkShader, IDefinitionManager definitionManager)
+    public ChunkRenderer(IChunkShader initialChunkShader, SettingState setting)
     {
         _shader = initialChunkShader;
-        _definitionManager = definitionManager;
+        _definitionSetting = setting.DefinitionSetting;
     }
 
     // TODO lock chunkShader if there are reading threads
@@ -32,7 +32,7 @@ public class ChunkRenderer : IChunkRenderer
     {
         ChunkRenderSetting setting = new()
         {
-            ViewportDefinition = _definitionManager.CurrentViewportDefinition,
+            ViewportDefinition = _definitionSetting.CurrentViewportDefinition,
             Image = regionImage,
             RenderPosition = new PointY<int>(0,0),
             HeightLimit = heightLimit,

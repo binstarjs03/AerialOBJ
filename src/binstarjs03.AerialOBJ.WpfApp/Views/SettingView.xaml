@@ -1,0 +1,62 @@
+﻿<Window x:Class="binstarjs03.AerialOBJ.WpfApp.Views.SettingView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
+        mc:Ignorable="d"
+        Title="SettingView"
+        Height="400"
+        Width="400">
+    <Window.Resources>
+        <Style TargetType="RadioButton">
+            <Setter Property="Margin" Value="0,3"/>
+        </Style>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource SquareBox}">
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="20">
+        <StackPanel>
+            <GroupBox Header="Viewport">
+                <Grid>
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="Margin" Value="0,0,10,0"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Chunk Shading Style:"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1">
+                        <RadioButton Content="Flat"/>
+                        <RadioButton Content="Standard"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0"
+                               Text="Chunk Threads:"/>
+                    <DockPanel Grid.Row="1" Grid.Column="1">
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="8"
+                                   Margin="5,0"/>
+                        <Slider Value="8"
+                                Minimum="1"
+                                Maximum="12"
+                                SmallChange="1"
+                                IsSnapToTickEnabled="True"
+                                TickPlacement="BottomRight"/>
+                    </DockPanel>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</Window>

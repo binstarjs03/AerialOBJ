@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
@@ -13,14 +14,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
 {
-    public IServiceProvider ServiceProvider { get; } = ServiceConfiguration.Configure();
+#pragma warning disable CS8618 // nullable warning
     public static new App Current => (Application.Current as App)!;
+    public IServiceProvider ServiceProvider { get; private set; }
+    public GlobalState GlobalState { get; private set; }
+#pragma warning restore CS8618
 
     protected override void OnStartup(StartupEventArgs e)
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
-
-        SaveCommandLineArguments(e.Args);
+        
+        GlobalState = ConfigureGlobalState(e.Args);
+        ServiceProvider = ServiceConfiguration.Configure(GlobalState);
 
         MainWindow = GetMainWindow();
         MainWindow.Show();
@@ -30,6 +35,27 @@ public partial class App : Application
         InitializeLogService();
         InitializeViewState();
         InitializeDefinitions();
+    }
+
+    private static GlobalState ConfigureGlobalState(string[] args)
+    {
+        DateTime lauchTime = DateTime.Now;
+        string version = "Alpha";
+        string currentPath = AppDomain.CurrentDomain.BaseDirectory;
+        string definitionsPath = Path.Combine(currentPath, "Definitions");
+        SettingState setting = ConfigureSettings();
+        return new GlobalState(lauchTime, version, currentPath, definitionsPath, args, setting);
+    }
+
+    private static SettingState ConfigureSettings()
+    {
+        ViewportSetting viewportSetting = new(ViewportSetting.DefaultChunkShadingStyle, ViewportSetting.DefaultChunkThreads);
+        DefinitionSetting definitionSetting = new(DefinitionSetting.DefaultViewportDefinition);
+        return new SettingState()
+        {
+            DefinitionSetting = definitionSetting,
+            ViewportSetting = viewportSetting
+        };
     }
 
     private MainView GetMainWindow() => ServiceProvider.GetRequiredService<MainView>();
@@ -42,11 +68,6 @@ public partial class App : Application
         mainView.SyncDebugViewPosition();
     }
 
-    private void SaveCommandLineArguments(string[] args)
-    {
-        ServiceProvider.GetRequiredService<GlobalState>().Arguments = args;
-    }
-
     private void InitializeLogService()
     {
         ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
@@ -55,10 +76,8 @@ public partial class App : Application
 
     private void InitializeViewState()
     {
-        GlobalState globalState = ServiceProvider.GetRequiredService<GlobalState>();
-
         // immediately set debug log window to visible if debug enabled
-        if (globalState.IsDebugEnabled)
+        if (GlobalState.IsDebugEnabled)
         {
             ViewState viewState = ServiceProvider.GetRequiredService<ViewState>();
             viewState.IsDebugLogViewVisible = true;

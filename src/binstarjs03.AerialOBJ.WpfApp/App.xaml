@@ -11,16 +11,17 @@
 
                 <ResourceDictionary>
                     <sys:Single x:Key="Zero">0</sys:Single>
-                    <viewmodels:ViewModelLocator x:Key="ViewModelLocator"/>
                 </ResourceDictionary>
-                
+
+                <!--  Colors  -->
                 <ResourceDictionary>
                     <SolidColorBrush x:Key="Background" Color="#303030"/>
                     <SolidColorBrush x:Key="TextNormal" Color="#A0A0A0"/>
                     <SolidColorBrush x:Key="TextHighlighted" Color="#D0D0D0"/>
                     <SolidColorBrush x:Key="TextHyperlink" Color="#759eff"/>
                 </ResourceDictionary>
-                
+
+                <!--  Converters  -->
                 <ResourceDictionary>
                     <converters:FlexibleBoolToVisibilityConverter x:Key="FlexibleBoolToVisibility"/>
                     <converters:FormattedFloatConverter x:Key="FormattedFloat"/>
@@ -30,7 +31,8 @@
                     <converters:ViewportGridConverter x:Key="ViewportGrid"/>
                     <converters:ViewportGridRectConverter x:Key="ViewportGridRect"/>
                 </ResourceDictionary>
-                
+
+                <!--  Styles  -->
                 <ResourceDictionary>
                     <Style x:Key="TransparentSeparator" TargetType="Separator">
                         <Setter Property="Background" Value="Transparent"/>
@@ -39,7 +41,10 @@
                         <Setter Property="Background" Value="#44FFFFFF"/>
                     </Style>
                 </ResourceDictionary>
-                
+
+                <!--  Templates  -->
+                <ResourceDictionary Source="Templates/SquareBox.xaml"/>
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

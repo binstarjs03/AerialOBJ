@@ -17,12 +17,14 @@ public partial class DebugLogViewModel
 
     public DebugLogViewModel(GlobalState globalState,
                              ViewState viewState,
+                             AbstractViewModel abstractViewModel,
                              ILogService logService,
                              IModalService modalService,
                              IAbstractIO iOService)
     {
         GlobalState = globalState;
         ViewState = viewState;
+        AbstractViewModel = abstractViewModel;
         LogService = logService;
         _modalService = modalService;
         _iOService = iOService;
@@ -32,6 +34,7 @@ public partial class DebugLogViewModel
 
     public GlobalState GlobalState { get; }
     public ViewState ViewState { get; }
+    public AbstractViewModel AbstractViewModel { get; }
     public ILogService LogService { get; }
 
     public event Action? RequestScrollToEnd;

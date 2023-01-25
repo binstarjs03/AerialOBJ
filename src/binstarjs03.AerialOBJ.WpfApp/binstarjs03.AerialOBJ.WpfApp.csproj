@@ -24,7 +24,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Services\ChunkRendering\" />
+		<Folder Include="Services\ChunkRendering\" />
 	</ItemGroup>
 
 </Project>

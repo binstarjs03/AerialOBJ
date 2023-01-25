@@ -11,10 +11,10 @@ public class ViewportDefinition : IRootDefinition
     public required Dictionary<string, ViewportBlockDefinition> BlockDefinitions { get; set; }
     public bool IsDefault { get; set; }
 
-    public override string ToString()
-    {
-        return $"{Name}, Format Version: {FormatVersion}, Minecraft Version: {MinecraftVersion}";
-    }
+    //public override string ToString()
+    //{
+    //    return $"{Name}, Format Version: {FormatVersion}, Minecraft Version: {MinecraftVersion}";
+    //}
 
     public static ViewportDefinition GetDefaultDefinition()
     {

@@ -5,11 +5,11 @@ using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
-public partial class AboutView : Window, IDialogView
+public partial class NewDefinitionManagerView : Window, IDialogView
 {
-    public AboutView()
+    public NewDefinitionManagerView()
     {
         InitializeComponent();
-        DataContext = App.Current.ServiceProvider.GetRequiredService<AbstractViewModel>();
+        DataContext = App.Current.ServiceProvider.GetRequiredService<DefinitionManagerViewModel>();
     }
 }

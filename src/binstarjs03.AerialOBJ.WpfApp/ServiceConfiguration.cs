@@ -19,17 +19,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace binstarjs03.AerialOBJ.WpfApp;
 internal static class ServiceConfiguration
 {
-    internal static IServiceProvider Configure()
+    internal static IServiceProvider Configure(GlobalState globalState)
     {
         IServiceCollection services = new ServiceCollection();
 
-        // configure components
-        services.AddSingleton<GlobalState>(x =>
-        {
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string definitionDirectoryPath = Path.Combine(currentDirectory, "Definitions");
-            return new GlobalState(DateTime.Now, "Alpha", currentDirectory, definitionDirectoryPath);
-        });
+        services.AddSingleton<GlobalState>(globalState);
+        services.AddSingleton<SettingState>(globalState.Setting);
         services.AddSingleton<ViewState>();
 
         // configure models
@@ -44,6 +39,7 @@ internal static class ServiceConfiguration
         services.AddSingleton<DebugLogView>();
         services.AddTransient<AboutView>();
         services.AddTransient<DefinitionManagerView>();
+        services.AddTransient<NewDefinitionManagerView>();
         services.AddTransient<ViewportView>();
 
         // configure viewmodels
@@ -69,7 +65,7 @@ internal static class ServiceConfiguration
         services.AddSingleton<IModalService, ModalService>(x =>
         {
             IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
-            IDialogView definitionManagerViewFactory() => x.GetRequiredService<DefinitionManagerView>();
+            IDialogView definitionManagerViewFactory() => x.GetRequiredService<NewDefinitionManagerView>();
             return new ModalService(aboutViewFactory, definitionManagerViewFactory);
         });
         services.AddSingleton<IDefinitionManager, DefinitionManager>();
@@ -83,9 +79,9 @@ internal static class ServiceConfiguration
         {
             // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
             // For now default chunk shader is fixed.
-            IDefinitionManager definitionManager = x.GetRequiredService<IDefinitionManager>();
+            SettingState setting = x.GetRequiredService<SettingState>();
             IChunkShader shader = new StandardChunkShader();
-            return new ChunkRenderer(shader, definitionManager);
+            return new ChunkRenderer(shader, setting);
         });
         services.AddSingleton<IDefinitionIO, DefinitionIO>();
         services.AddTransient<IKeyHandler, KeyHandler>();
