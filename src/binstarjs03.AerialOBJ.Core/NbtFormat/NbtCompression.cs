@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.IO.Compression;
 
-namespace binstarjs03.AerialOBJ.Core.Nbt;
+namespace binstarjs03.AerialOBJ.Core.NbtFormat;
 
 public static class NbtCompression
 {
