@@ -20,4 +20,5 @@ you can DM me in my social medias:
 - Facebook: https://www.facebook.com/bin.starjs/
 - Twitter: https://www.twitter.com/bin_starjs/
 - Discord username (without quotes): "Bin Starjs#3947"
+
 Or you can just simply create a new issue and we can discuss it from there
