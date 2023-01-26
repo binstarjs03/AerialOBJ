@@ -16,6 +16,6 @@ public partial class ViewportSetting
         _chunkThreads = chunkThreads;
     }
 
-    public static ChunkShadingStyle DefaultChunkShadingStyle { get; }= ChunkShadingStyle.Standard;
+    public static ChunkShadingStyle DefaultChunkShadingStyle { get; } = ChunkShadingStyle.Standard;
     public static int DefaultChunkThreads { get; } = Math.Max(1, Environment.ProcessorCount - 1);
 }

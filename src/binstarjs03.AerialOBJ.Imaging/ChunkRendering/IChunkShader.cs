@@ -9,8 +9,8 @@ public interface IChunkShader
 
     static PointY<int> GetPixelCoordsForBlock(PointY<int> renderPosition, PointZ<int> chunkCoordsRel, PointZ<int> blockCoordsRel)
     {
-        int pixelX = renderPosition.X 
-                   + (chunkCoordsRel.X * IChunk.BlockCount) 
+        int pixelX = renderPosition.X
+                   + (chunkCoordsRel.X * IChunk.BlockCount)
                    + blockCoordsRel.X;
 
         int pixelY = renderPosition.Y

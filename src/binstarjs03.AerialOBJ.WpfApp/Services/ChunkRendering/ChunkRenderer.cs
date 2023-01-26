@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
@@ -34,7 +33,7 @@ public class ChunkRenderer : IChunkRenderer
         {
             ViewportDefinition = _definitionSetting.CurrentViewportDefinition,
             Image = regionImage,
-            RenderPosition = new PointY<int>(0,0),
+            RenderPosition = new PointY<int>(0, 0),
             HeightLimit = heightLimit,
             Chunk = chunk,
             HighestBlocks = highestBlocks,

@@ -23,7 +23,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
-        
+
         GlobalState = ConfigureGlobalState(e.Args);
         ServiceProvider = ServiceConfiguration.Configure(GlobalState);
 
