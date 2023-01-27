@@ -28,9 +28,9 @@ public class DefinitionIO : IDefinitionIO
 
     private void CopyToDefinitionFolder(string originalPath)
     {
-        Directory.CreateDirectory(_globalState.DefinitionsPath);
+        Directory.CreateDirectory(_globalState.Path.DefinitionsPath);
         string originalFilename = Path.GetFileName(originalPath);
-        string copyPath = Path.Combine(_globalState.DefinitionsPath, originalFilename);
+        string copyPath = Path.Combine(_globalState.Path.DefinitionsPath, originalFilename);
         if (File.Exists(copyPath))
             throw new OverwriteException();
         File.Copy(originalPath, copyPath);
@@ -41,14 +41,14 @@ public class DefinitionIO : IDefinitionIO
         string? originalFilename = definition.OriginalFilename;
         if (originalFilename is null)
             throw new InvalidOperationException();
-        string deletePath = Path.Combine(_globalState.DefinitionsPath, originalFilename);
+        string deletePath = Path.Combine(_globalState.Path.DefinitionsPath, originalFilename);
         File.Delete(deletePath);
     }
 
     public List<IRootDefinition> LoadDefinitionFolder(LoadDefinitionFileExceptionHandler exceptionHandler)
     {
         List<IRootDefinition> definitions = new();
-        DirectoryInfo definitionDirectory = Directory.CreateDirectory(_globalState.DefinitionsPath);
+        DirectoryInfo definitionDirectory = Directory.CreateDirectory(_globalState.Path.DefinitionsPath);
         foreach (FileInfo definitionFile in definitionDirectory.GetFiles("*.json"))
             try
             {

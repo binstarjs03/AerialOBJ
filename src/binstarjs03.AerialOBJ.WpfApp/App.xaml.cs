@@ -25,28 +25,38 @@ public partial class App : Application
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-        SettingState setting = SettingState.GetDefaultSetting();
-        GlobalState = ConfigureGlobalState(e.Args, setting);
+        // current path to "AerialOBJ.exe"
+        string currentPath = AppDomain.CurrentDomain.BaseDirectory;
+        ConstantPath path = ConfigurePath(currentPath);
+        SettingState setting = ConfigureSetting();
+        GlobalState = ConfigureGlobalState(e.Args, path, setting);
         ServiceProvider = ServiceConfiguration.Configure(GlobalState);
 
+        InitializeLogService();
+        LoadDefinitions();
+        LoadSettings();
+
+        InitializeViewState();
         MainWindow = GetMainWindow();
         MainWindow.Show();
         if (MainWindow is MainView mainView)
             ConfigureDebugLogWindow(mainView);
-
-        InitializeLogService();
-        InitializeViewState();
-        LoadDefinitions();
-        LoadSettings();
     }
 
-    private static GlobalState ConfigureGlobalState(string[] args, SettingState setting)
+    private static ConstantPath ConfigurePath(string currentPath)
+    {
+        string definitionsPath = Path.Combine(currentPath, "Definitions");
+        string settingPath = Path.Combine(currentPath, "setting.json");
+        return new ConstantPath(currentPath, definitionsPath, settingPath);
+    }
+
+    private static SettingState ConfigureSetting() => SettingState.GetDefaultSetting();
+
+    private static GlobalState ConfigureGlobalState(string[] args, ConstantPath path, SettingState setting)
     {
         DateTime lauchTime = DateTime.Now;
         string version = "Alpha";
-        string currentPath = AppDomain.CurrentDomain.BaseDirectory;
-        string definitionsPath = Path.Combine(currentPath, "Definitions");
-        return new GlobalState(lauchTime, version, currentPath, definitionsPath, args, setting);
+        return new GlobalState(lauchTime, version, args, path, setting);
     }
 
     private MainView GetMainWindow() => ServiceProvider.GetRequiredService<MainView>();
@@ -114,7 +124,7 @@ public partial class App : Application
         IModalService modalService = ServiceProvider.GetRequiredService<IModalService>();
         IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
 
-        string settingPath = Path.Combine(GlobalState.CurrentPath, "setting.json");
+        string settingPath = GlobalState.Path.SettingPath;
         if (!File.Exists(settingPath))
         {
             SettingIO.SaveDefaultSetting(settingPath);
