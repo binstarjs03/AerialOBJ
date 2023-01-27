@@ -1,6 +1,9 @@
 ﻿using System;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
+
+// TODO refactor string _logContent member into more efficient one,
+// maybe stream-based buffer, or stringbuilder, etc
 public class LogService : ILogService
 {
     private string _logContent = "";

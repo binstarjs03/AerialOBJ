@@ -10,11 +10,8 @@ namespace binstarjs03.AerialOBJ.WpfApp.Services;
 [ObservableObject]
 public partial class DefinitionManager : IDefinitionManager
 {
-    private readonly DefinitionSetting _definitionSetting;
-
-    public DefinitionManager(SettingState setting)
+    public DefinitionManager()
     {
-        _definitionSetting = setting.DefinitionSetting;
         LoadedViewportDefinitions = new ObservableCollection<ViewportDefinition> { DefinitionSetting.DefaultViewportDefinition, };
     }
 
@@ -28,11 +25,10 @@ public partial class DefinitionManager : IDefinitionManager
             throw new NotImplementedException();
     }
 
-    public void UnloadDefinition(IRootDefinition definition)
+    public void UnloadDefinition(IRootDefinition definition, DefinitionSetting setting)
     {
         if (definition.IsDefault)
             throw new InvalidOperationException("Attempting to unload default definition");
-        DefinitionSetting setting = _definitionSetting;
 
         if (definition is ViewportDefinition viewportDefinition)
         {

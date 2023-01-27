@@ -28,24 +28,35 @@ internal static class ServiceConfiguration
         services.AddSingleton<SettingState>(globalState.Setting);
         services.AddSingleton<ViewState>();
 
-        // configure models
-        // models configuration goes here
+        services.ConfigureFactories();
+        services.ConfigureViews();
+        services.ConfigureViewModels();
+        services.ConfigureServices(globalState);
 
-        // configure factories
+        return services.BuildServiceProvider();
+    }
+
+    internal static void ConfigureFactories(this IServiceCollection services)
+    {
         services.AddSingleton<RegionDataImageModelFactory>();
         services.AddSingleton<IRegionImageFactory, RegionImageFactory>();
+    }
 
-        // configure views
+    internal static void ConfigureViews(this IServiceCollection services)
+    {
         services.AddSingleton<MainView>();
         services.AddSingleton<DebugLogView>();
+
         services.AddTransient<AboutView>();
         services.AddTransient<DefinitionManagerView>();
         services.AddTransient<NewDefinitionManagerView>();
         services.AddTransient<ViewportView>();
+    }
 
-        // configure viewmodels
+    internal static void ConfigureViewModels(this IServiceCollection services)
+    {
         services.AddSingleton<AbstractViewModel>();
-        services.AddSingleton<IMainViewModel, MainViewModel>(x =>
+        services.AddSingleton<MainViewModel>(x =>
         {
             GlobalState globalState = x.GetRequiredService<GlobalState>();
             ViewState viewState = x.GetRequiredService<ViewState>();
@@ -57,11 +68,14 @@ internal static class ServiceConfiguration
             return new MainViewModel(globalState, viewState, abstractViewModel, modalService, logService, savegameLoaderService, viewportView);
         });
         services.AddSingleton<DebugLogViewModel>();
+
         services.AddTransient<ViewportViewModel>();
         services.AddTransient<ViewportViewModelInputHandler>();
         services.AddTransient<DefinitionManagerViewModel>();
+    }
 
-        // configure services
+    internal static void ConfigureServices(this IServiceCollection services, GlobalState globalState)
+    {
         services.AddSingleton<IDispatcher, WpfDispatcher>(x => new WpfDispatcher(App.Current.Dispatcher));
         services.AddSingleton<IModalService, ModalService>(x =>
         {
@@ -74,20 +88,17 @@ internal static class ServiceConfiguration
         services.AddSingleton<IAbstractIO, AbstractIO>();
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddSingleton<ISavegameLoader, SavegameLoader>();
+        services.AddSingleton<IDefinitionIO, DefinitionIO>(x => new DefinitionIO(globalState.Path.DefinitionsPath));
+
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddTransient<IChunkLoadingPattern, RandomChunkLoadingPattern>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
-            // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
-            // For now default chunk shader is fixed.
             SettingState setting = x.GetRequiredService<SettingState>();
             IChunkShader shader = new StandardChunkShader();
             return new ChunkRenderer(shader, setting);
         });
-        services.AddSingleton<IDefinitionIO, DefinitionIO>();
         services.AddTransient<IKeyHandler, KeyHandler>();
         services.AddTransient<IMouseHandler, MouseHandler>();
-
-        return services.BuildServiceProvider();
     }
 }

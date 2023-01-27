@@ -10,11 +10,11 @@ public delegate void LoadDefinitionFileExceptionHandler(Exception e, string defi
 
 public class DefinitionIO : IDefinitionIO
 {
-    private readonly GlobalState _globalState;
+    private readonly string _definitionPath;
 
-    public DefinitionIO(GlobalState globalState)
+    public DefinitionIO(string definitionPath)
     {
-        _globalState = globalState;
+        _definitionPath = definitionPath;
     }
 
     public IRootDefinition ImportDefinition(string path)
@@ -28,9 +28,9 @@ public class DefinitionIO : IDefinitionIO
 
     private void CopyToDefinitionFolder(string originalPath)
     {
-        Directory.CreateDirectory(_globalState.Path.DefinitionsPath);
+        Directory.CreateDirectory(_definitionPath);
         string originalFilename = Path.GetFileName(originalPath);
-        string copyPath = Path.Combine(_globalState.Path.DefinitionsPath, originalFilename);
+        string copyPath = Path.Combine(_definitionPath, originalFilename);
         if (File.Exists(copyPath))
             throw new OverwriteException();
         File.Copy(originalPath, copyPath);
@@ -41,14 +41,14 @@ public class DefinitionIO : IDefinitionIO
         string? originalFilename = definition.OriginalFilename;
         if (originalFilename is null)
             throw new InvalidOperationException();
-        string deletePath = Path.Combine(_globalState.Path.DefinitionsPath, originalFilename);
+        string deletePath = Path.Combine(_definitionPath, originalFilename);
         File.Delete(deletePath);
     }
 
     public List<IRootDefinition> LoadDefinitionFolder(LoadDefinitionFileExceptionHandler exceptionHandler)
     {
         List<IRootDefinition> definitions = new();
-        DirectoryInfo definitionDirectory = Directory.CreateDirectory(_globalState.Path.DefinitionsPath);
+        DirectoryInfo definitionDirectory = Directory.CreateDirectory(_definitionPath);
         foreach (FileInfo definitionFile in definitionDirectory.GetFiles("*.json"))
             try
             {

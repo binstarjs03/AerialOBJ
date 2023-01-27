@@ -3,12 +3,15 @@ using System.Windows;
 
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class DebugLogView : Window, IClosableView
 {
-    public DebugLogView(DebugLogViewModel viewModel)
+    public DebugLogView()
     {
         InitializeComponent();
+        DebugLogViewModel viewModel = App.Current.ServiceProvider.GetRequiredService<DebugLogViewModel>();
         DataContext = viewModel;
         viewModel.RequestScrollToEnd += OnViewModelScrollToEndRequested;
     }

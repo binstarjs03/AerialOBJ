@@ -130,10 +130,10 @@ public partial class App : Application
             SettingIO.SaveDefaultSetting(settingPath);
             return;
         }
-        SettingState setting;
+        SettingState newSetting;
         try
         {
-            setting = SettingIO.LoadSetting(settingPath, definitionManager);
+            newSetting = SettingIO.LoadSetting(settingPath, definitionManager);
         }
         catch (Exception e)
         {
@@ -149,7 +149,14 @@ public partial class App : Application
             return;
         }
 
-        // overwrite default setting with setting from file
-        GlobalState.Setting = setting;
+        // overwrite default setting with setting from file. Note that we cannot replace whole instance,
+        // because that will break the dependencies in client (client is still using old, default setting)
+        SettingState setting = GlobalState.Setting;
+        setting.DefinitionSetting.CurrentViewportDefinition = newSetting.DefinitionSetting.CurrentViewportDefinition;
+        setting.ViewportSetting.ChunkShadingStyle = newSetting.ViewportSetting.ChunkShadingStyle;
+        setting.PerformanceSetting.ViewportChunkThreads= newSetting.PerformanceSetting.ViewportChunkThreads;
+        setting.PerformanceSetting.ViewportChunkLoading = newSetting.PerformanceSetting.ViewportChunkLoading;
+        setting.PerformanceSetting.ImageExporting = newSetting.PerformanceSetting.ImageExporting;
+        setting.PerformanceSetting.ModelExporting = newSetting.PerformanceSetting.ModelExporting;
     }
 }

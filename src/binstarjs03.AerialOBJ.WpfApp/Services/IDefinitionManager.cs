@@ -7,5 +7,5 @@ public interface IDefinitionManager
 {
     ObservableCollection<ViewportDefinition> LoadedViewportDefinitions { get; }
     void LoadDefinition(IRootDefinition definition);
-    void UnloadDefinition(IRootDefinition definition);
+    void UnloadDefinition(IRootDefinition definition, DefinitionSetting definitionSetting);
 }

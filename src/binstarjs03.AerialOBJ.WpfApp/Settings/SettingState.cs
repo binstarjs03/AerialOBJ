@@ -12,9 +12,9 @@ public partial class SettingState
         PerformanceSetting = performanceSetting;
     }
 
-    public DefinitionSetting DefinitionSetting { get; set; }
-    public ViewportSetting ViewportSetting { get; set; }
-    public PerformanceSetting PerformanceSetting { get; set; }
+    public DefinitionSetting DefinitionSetting { get; }
+    public ViewportSetting ViewportSetting { get; }
+    public PerformanceSetting PerformanceSetting { get; }
 
     public static SettingState GetDefaultSetting() => new(DefinitionSetting.GetDefaultSetting(),
                                                           ViewportSetting.GetDefaultSetting(),

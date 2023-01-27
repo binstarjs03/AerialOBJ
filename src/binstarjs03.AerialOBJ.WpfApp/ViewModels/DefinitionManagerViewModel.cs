@@ -135,7 +135,7 @@ public partial class DefinitionManagerViewModel
         if (result)
         {
             IRootDefinition deletedDefinition = ContextDefinition;
-            _definitionManager.UnloadDefinition(deletedDefinition);
+            _definitionManager.UnloadDefinition(deletedDefinition, _definitionSetting);
             _definitionIO.DeleteDefinition(deletedDefinition);
         }
     }

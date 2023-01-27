@@ -5,12 +5,15 @@ using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class ViewportView : UserControl, IView
 {
-    public ViewportView(ViewportViewModel viewModel)
+    public ViewportView()
     {
         InitializeComponent();
+        ViewportViewModel viewModel = App.Current.ServiceProvider.GetRequiredService<ViewportViewModel>();
         DataContext = viewModel;
         viewModel.GetViewViewportSize = GetViewportSize;
         Keyboard.Focus(Viewport);
