@@ -8,16 +8,48 @@ namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class ViewportSetting
 {
     [ObservableProperty] private ChunkShadingStyle _chunkShadingStyle;
-    [ObservableProperty] private int _chunkThreads;
 
-    public ViewportSetting(ChunkShadingStyle chunkShadingStyle, int chunkThreads)
+    public ViewportSetting(ChunkShadingStyle chunkShadingStyle)
     {
         _chunkShadingStyle = chunkShadingStyle;
-        _chunkThreads = chunkThreads;
     }
 
     public static ChunkShadingStyle DefaultChunkShadingStyle { get; } = ChunkShadingStyle.Standard;
-    public static int DefaultChunkThreads { get; } = Math.Max(1, Environment.ProcessorCount - 1);
 
-    public static ViewportSetting GetDefaultSetting() => new(DefaultChunkShadingStyle, DefaultChunkThreads);
+    public static ViewportSetting GetDefaultSetting() => new(DefaultChunkShadingStyle);
+}
+
+[ObservableObject]
+public partial class PerformanceSetting
+{
+    [ObservableProperty] private int _viewportChunkThreads;
+    [ObservableProperty] private PerformancePreference _viewportChunkLoading;
+    [ObservableProperty] private PerformancePreference _imageExporting;
+    [ObservableProperty] private PerformancePreference _modelExporting;
+    public PerformanceSetting(int viewportChunkThreads,
+                              PerformancePreference viewportChunkLoading,
+                              PerformancePreference imageExporting,
+                              PerformancePreference modelExporting)
+    {
+        _viewportChunkThreads = viewportChunkThreads;
+        _viewportChunkLoading = viewportChunkLoading;
+        _imageExporting = imageExporting;
+        _modelExporting = modelExporting;
+    }
+
+    public static int DefaultViewportChunkThreads => Math.Max(Environment.ProcessorCount - 1, 1);
+    public static PerformancePreference DefaultViewportChunkLoading => PerformancePreference.OptimalMemoryUsage;
+    public static PerformancePreference DefaultImageExporting => PerformancePreference.OptimalMemoryUsage;
+    public static PerformancePreference DefaultModelExporting => PerformancePreference.OptimalMemoryUsage;
+
+    public static PerformanceSetting GetDefaultSetting() => new(DefaultViewportChunkThreads,
+                                                                DefaultViewportChunkLoading,
+                                                                DefaultImageExporting,
+                                                                DefaultModelExporting);
+}
+
+public enum PerformancePreference
+{
+    OptimalMemoryUsage,
+    OptimalPerformance,
 }

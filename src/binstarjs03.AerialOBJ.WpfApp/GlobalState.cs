@@ -33,7 +33,7 @@ public partial class GlobalState
     public string[]? Arguments { get; }
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
     public bool IsDebugEnabled => Arguments is not null && Array.Exists(Arguments, arg => arg.ToLower() == "debug");
-    public SettingState Setting { get; }
+    public SettingState Setting { get; set; }
 
     partial void OnSavegameLoadInfoChanged(SavegameLoadInfo? value)
     {

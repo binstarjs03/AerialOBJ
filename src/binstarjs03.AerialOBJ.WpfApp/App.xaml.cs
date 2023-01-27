@@ -13,6 +13,8 @@ using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 using binstarjs03.AerialOBJ.WpfApp.Settings;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
@@ -116,30 +118,38 @@ public partial class App : Application
         IModalService modalService = ServiceProvider.GetRequiredService<IModalService>();
         IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
 
-        string settingPath = Path.Combine(GlobalState.CurrentPath, "setting.ini");
+        string settingPath = Path.Combine(GlobalState.CurrentPath, "setting.json");
         if (!File.Exists(settingPath))
-            SettingIO.SaveDefaultSetting(settingPath);
+            return;
 
         string settingContent = File.ReadAllText(settingPath);
-        IniDocument settingDoc = IniDeserializing.Deserialize(settingContent);
-
-        if (settingDoc.Subsections.TryGetValue("DefinitionSetting", out IniSection? definitionSettingDoc))
-            if (definitionSettingDoc.Properties.TryGetValue("ViewportDefinition", out string? vdName))
-                foreach (ViewportDefinition vd in definitionManager.LoadedViewportDefinitions
-                                                                   .Where(vd => vd.Name == vdName))
-                {
-                    GlobalState.Setting.DefinitionSetting.CurrentViewportDefinition = vd;
-                    break;
-                }
-
-        if (settingDoc.Subsections.TryGetValue("ViewportSetting", out IniSection? viewportSettingDoc))
+        SettingState? setting;
+        
+        JsonSerializerOptions options = new()
         {
-            if (viewportSettingDoc.Properties.TryGetValue("ChunkShadingStyle", out string? cssValue))
-                if (Enum.TryParse(cssValue, out ChunkShadingStyle css))
-                    GlobalState.Setting.ViewportSetting.ChunkShadingStyle = css;
-            if (viewportSettingDoc.Properties.TryGetValue("ChunkThreads", out string? ctValue))
-                if (int.TryParse(ctValue, out int ct))
-                    GlobalState.Setting.ViewportSetting.ChunkThreads = int.Clamp(ct, 1, Environment.ProcessorCount);
+            Converters = { new SettingJsonConverter(definitionManager) }
+        };
+
+        try
+        {
+            setting = JsonSerializer.Deserialize<SettingState>(settingContent, options);
         }
+        catch (Exception e)
+        {
+            string msg = $"An Exception occured when parsing setting file ({settingPath}).\n" +
+                         "Default setting was used instead.\n" +
+                         "Please see the debug log window for exception detail";
+            logService.LogException(msg, e);
+            modalService.ShowErrorMessageBox(new MessageBoxArg()
+            {
+                Caption = "Cannot read setting file",
+                Message = msg
+            });
+            return;
+        }
+
+        // overwrite default setting with setting from file
+        if (setting is not null)
+            GlobalState.Setting = setting;
     }
 }
