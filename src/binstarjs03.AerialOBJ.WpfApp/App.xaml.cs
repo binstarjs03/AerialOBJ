@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
+using System.Linq;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
+using binstarjs03.AerialOBJ.Core.IniFormat;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
+using binstarjs03.AerialOBJ.WpfApp.Settings;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
@@ -24,7 +27,8 @@ public partial class App : Application
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-        GlobalState = ConfigureGlobalState(e.Args);
+        SettingState setting = SettingState.GetDefaultSetting();
+        GlobalState = ConfigureGlobalState(e.Args, setting);
         ServiceProvider = ServiceConfiguration.Configure(GlobalState);
 
         MainWindow = GetMainWindow();
@@ -34,28 +38,17 @@ public partial class App : Application
 
         InitializeLogService();
         InitializeViewState();
-        InitializeDefinitions();
+        LoadDefinitions();
+        LoadSettings();
     }
 
-    private static GlobalState ConfigureGlobalState(string[] args)
+    private static GlobalState ConfigureGlobalState(string[] args, SettingState setting)
     {
         DateTime lauchTime = DateTime.Now;
         string version = "Alpha";
         string currentPath = AppDomain.CurrentDomain.BaseDirectory;
         string definitionsPath = Path.Combine(currentPath, "Definitions");
-        SettingState setting = ConfigureSettings();
         return new GlobalState(lauchTime, version, currentPath, definitionsPath, args, setting);
-    }
-
-    private static SettingState ConfigureSettings()
-    {
-        ViewportSetting viewportSetting = new(ViewportSetting.DefaultChunkShadingStyle, ViewportSetting.DefaultChunkThreads);
-        DefinitionSetting definitionSetting = new(DefinitionSetting.DefaultViewportDefinition);
-        return new SettingState()
-        {
-            DefinitionSetting = definitionSetting,
-            ViewportSetting = viewportSetting
-        };
     }
 
     private MainView GetMainWindow() => ServiceProvider.GetRequiredService<MainView>();
@@ -86,7 +79,7 @@ public partial class App : Application
 
     // TODO we may move out the logic of this method into separate class, maybe "IDefinitionInitializer"
     // load all definitions in definition folder
-    private void InitializeDefinitions()
+    private void LoadDefinitions()
     {
         IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
         IDefinitionIO definitionIO = ServiceProvider.GetRequiredService<IDefinitionIO>();
@@ -103,15 +96,50 @@ public partial class App : Application
         {
             string caption = "Cannot load definition";
             logService.LogException($"{caption} {definitionFilename}", e);
-            if (!hasErrorMessageBoxShown)
-                modalService.ShowErrorMessageBox(new MessageBoxArg()
-                {
-                    Caption = caption,
-                    Message = $"An exception occured during loading definition {definitionFilename}.\n" +
-                              $"See the Debug Log window for detailed information.\n" +
-                              $"Any further exception during definition folder loading will be logged to Debug Log window"
-                });
+            if (hasErrorMessageBoxShown)
+                return;
+            modalService.ShowErrorMessageBox(new MessageBoxArg()
+            {
+                Caption = caption,
+                Message = $"An exception occured during loading definition {definitionFilename}.\n" +
+                          $"See the Debug Log window for detailed information.\n" +
+                          $"Any further exception during definition folder loading will be logged to Debug Log window"
+            });
             hasErrorMessageBoxShown = true;
+        }
+    }
+
+    // TODO refactor binding IniDocument values into C# instance, do it automatically using attributes etc
+    private void LoadSettings()
+    {
+        ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
+        IModalService modalService = ServiceProvider.GetRequiredService<IModalService>();
+        IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
+
+        string settingPath = Path.Combine(GlobalState.CurrentPath, "setting.ini");
+        if (!File.Exists(settingPath))
+            SettingIO.SaveDefaultSetting(settingPath);
+
+        string settingContent = File.ReadAllText(settingPath);
+        IniDocument settingDoc = IniDeserializing.Deserialize(settingContent);
+
+        if (settingDoc.Subsections.TryGetValue("DefinitionSetting", out IniSection? definitionSettingDoc))
+            if (definitionSettingDoc.Properties.TryGetValue("ViewportDefinition", out string? vdName))
+                foreach (ViewportDefinition vd in definitionManager.LoadedViewportDefinitions
+                                                                   .Where(vd => vd.Name == vdName))
+                {
+                    GlobalState.Setting.DefinitionSetting.CurrentViewportDefinition = vd;
+                    break;
+                }
+
+        if (settingDoc.Subsections.TryGetValue("ViewportSetting", out IniSection? viewportSettingDoc))
+        {
+            if (viewportSettingDoc.Properties.TryGetValue("ChunkShadingStyle", out string? cssValue))
+                if (Enum.TryParse(cssValue, out ChunkShadingStyle css))
+                    GlobalState.Setting.ViewportSetting.ChunkShadingStyle = css;
+            if (viewportSettingDoc.Properties.TryGetValue("ChunkThreads", out string? ctValue))
+                if (int.TryParse(ctValue, out int ct))
+                    GlobalState.Setting.ViewportSetting.ChunkThreads = int.Clamp(ct, 1, Environment.ProcessorCount);
         }
     }
 }

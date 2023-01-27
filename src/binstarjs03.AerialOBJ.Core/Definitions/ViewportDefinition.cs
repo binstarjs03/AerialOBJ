@@ -9,7 +9,7 @@ public class ViewportDefinition : IRootDefinition
     public string? OriginalFilename { get; set; }
     public required ViewportBlockDefinition MissingBlockDefinition { get; set; }
     public required Dictionary<string, ViewportBlockDefinition> BlockDefinitions { get; set; }
-    public bool IsDefault { get; set; }
+    public bool IsDefault { get; private set; }
 
     //public override string ToString()
     //{

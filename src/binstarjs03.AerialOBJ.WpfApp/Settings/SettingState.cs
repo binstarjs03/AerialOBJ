@@ -5,6 +5,15 @@ namespace binstarjs03.AerialOBJ.WpfApp;
 [ObservableObject]
 public partial class SettingState
 {
-    public required DefinitionSetting DefinitionSetting { get; init; }
-    public required ViewportSetting ViewportSetting { get; init; }
+    public SettingState(DefinitionSetting definitionSetting, ViewportSetting viewportSetting)
+    {
+        DefinitionSetting = definitionSetting;
+        ViewportSetting = viewportSetting;
+    }
+
+    public DefinitionSetting DefinitionSetting { get; set; }
+    public ViewportSetting ViewportSetting { get; set; }
+
+    public static SettingState GetDefaultSetting() => new(DefinitionSetting.GetDefaultSetting(),
+                                                          ViewportSetting.GetDefaultSetting());
 }

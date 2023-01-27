@@ -18,10 +18,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace binstarjs03.AerialOBJ.WpfApp;
 internal static class ServiceConfiguration
 {
+    // For clarity, do not remove explicit type parameter for adding service!
     internal static IServiceProvider Configure(GlobalState globalState)
     {
         IServiceCollection services = new ServiceCollection();
-
+        
+        // configure application-wide state
         services.AddSingleton<GlobalState>(globalState);
         services.AddSingleton<SettingState>(globalState.Setting);
         services.AddSingleton<ViewState>();

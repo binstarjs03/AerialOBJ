@@ -21,6 +21,7 @@ public partial class DefinitionSetting
     public event Action? ViewportDefinitionChanging;
     public event Action? ViewportDefinitionChanged;
 
+    public static DefinitionSetting GetDefaultSetting() => new(DefaultViewportDefinition);
     partial void OnCurrentViewportDefinitionChanged(ViewportDefinition value) => ViewportDefinitionChanged?.Invoke();
     partial void OnCurrentViewportDefinitionChanging(ViewportDefinition value) => ViewportDefinitionChanging?.Invoke();
 }

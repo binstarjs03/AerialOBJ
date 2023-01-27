@@ -55,25 +55,37 @@ public static class IniDeserializing
             throw new IniInvalidKeyValueException();
         string[] keyValue = line.Split('=', StringSplitOptions.TrimEntries);
         ValidateString(keyValue[0]);
-        ValidateString(keyValue[1]);
+        ValidateString(keyValue[1], true);
         return (keyValue[0], keyValue[1]);
     }
 
-    private static void ValidateString(string identifier)
+    private static void ValidateString(string stringval, bool isKeyValue = false)
     {
-        int length = identifier.Length;
+        int length = stringval.Length;
         for (int i = 0; i < length; i++)
         {
-            char ch = identifier[i];
+            char ch = stringval[i];
             if (i == 0 || i == length - 1)
             {
-                if (!char.IsLetter(ch)
-                    && !char.IsDigit(ch))
+                if (!isKeyValue)
+                {
+                    if (!char.IsLetter(ch)
+                        && !char.IsDigit(ch))
+                        throw new IniInvalidStringException();
+                }
+                else
+                    if (!char.IsLetter(ch)
+                        && ch != '.'
+                        && ch != ' '
+                        && ch != '-'
+                        && ch != '_'
+                        && !char.IsDigit(ch))
                     throw new IniInvalidStringException();
             }
             if (!char.IsLetter(ch)
                 && ch != '.'
                 && ch != ' '
+                && ch != '-'
                 && ch != '_'
                 && !char.IsDigit(ch))
                 throw new IniInvalidStringException();
