@@ -9,12 +9,7 @@ using binstarjs03.AerialOBJ.WpfApp.Services;
 namespace binstarjs03.AerialOBJ.WpfApp.Settings;
 public class SettingJsonConverter : JsonConverter<SettingState>
 {
-    private readonly IDefinitionManager _definitionManager;
-
-    public SettingJsonConverter(IDefinitionManager definitionManager)
-    {
-        _definitionManager = definitionManager;
-    }
+    public IDefinitionManager? DefinitionManager { get; set; }
 
     public override SettingState? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -29,9 +24,9 @@ public class SettingJsonConverter : JsonConverter<SettingState>
             JsonElement definitionSettingElement = root.GetProperty(nameof(DefinitionSetting));
 
             string? vdName = definitionSettingElement.GetProperty(nameof(ViewportDefinition)).GetString();
-            if (vdName is not null)
+            if (vdName is not null && DefinitionManager is not null)
             {
-                foreach (ViewportDefinition vd in _definitionManager.LoadedViewportDefinitions
+                foreach (ViewportDefinition vd in DefinitionManager.LoadedViewportDefinitions
                                                                     .Where(vd => vd.Name == vdName))
                     return new DefinitionSetting(vd);
             }

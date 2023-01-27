@@ -22,7 +22,7 @@ internal static class ServiceConfiguration
     internal static IServiceProvider Configure(GlobalState globalState)
     {
         IServiceCollection services = new ServiceCollection();
-        
+
         // configure application-wide state
         services.AddSingleton<GlobalState>(globalState);
         services.AddSingleton<SettingState>(globalState.Setting);

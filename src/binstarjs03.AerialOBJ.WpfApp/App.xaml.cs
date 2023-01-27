@@ -2,19 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
-using System.Linq;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.Core.IniFormat;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
+using binstarjs03.AerialOBJ.WpfApp.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
-using binstarjs03.AerialOBJ.WpfApp.Settings;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
@@ -120,19 +116,14 @@ public partial class App : Application
 
         string settingPath = Path.Combine(GlobalState.CurrentPath, "setting.json");
         if (!File.Exists(settingPath))
-            return;
-
-        string settingContent = File.ReadAllText(settingPath);
-        SettingState? setting;
-        
-        JsonSerializerOptions options = new()
         {
-            Converters = { new SettingJsonConverter(definitionManager) }
-        };
-
+            SettingIO.SaveDefaultSetting(settingPath);
+            return;
+        }
+        SettingState setting;
         try
         {
-            setting = JsonSerializer.Deserialize<SettingState>(settingContent, options);
+            setting = SettingIO.LoadSetting(settingPath, definitionManager);
         }
         catch (Exception e)
         {
@@ -149,7 +140,6 @@ public partial class App : Application
         }
 
         // overwrite default setting with setting from file
-        if (setting is not null)
-            GlobalState.Setting = setting;
+        GlobalState.Setting = setting;
     }
 }
