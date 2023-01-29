@@ -29,4 +29,13 @@
 		<Folder Include="Services\ChunkRendering\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="setting.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="testDefinition.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

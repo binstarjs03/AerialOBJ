@@ -1,0 +1,15 @@
+{
+  "FormatDefinition": 1,
+  "DefinitionSetting": {
+    "ViewportDefinition": "Test Viewport Definition"
+  },
+  "ViewportSetting": {
+    "ChunkShadingStyle": "Flat"
+  },
+  "PerformanceSetting": {
+    "ViewportChunkThreads": 12,
+    "ViewportChunkLoading": "OptimalMemoryUsage",
+    "ImageExporting": "OptimalMemoryUsage",
+    "ModelExporting": "OptimalMemoryUsage"
+  }
+}

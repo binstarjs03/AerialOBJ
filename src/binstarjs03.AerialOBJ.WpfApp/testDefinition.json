@@ -1,0 +1,33 @@
+{
+	"Name": "Test Viewport Definition",
+	"Kind": "Viewport Definition",
+	"FormatVersion": 1,
+	"MinecraftVersion": "1.18",
+	"MissingBlockDefinition": {
+		"Color": "#FF00CC",
+		"Alpha": 255,
+		"DisplayName": "Unknown (Missing Definition)"
+	},
+	"BlockDefinitions": {
+		"minecraft:air": {
+			"Color": "#000000",
+			"Alpha": 0,
+			"DisplayName": "Air"
+		},
+		"minecraft:cave_air": {
+			"Color": "#000000",
+			"Alpha": 0,
+			"DisplayName": "Air (Cave)"
+		},
+		"minecraft:stone": {
+			"Color": "#737373",
+			"Alpha": 255,
+			"DisplayName": "Stone"
+		},
+			"minecraft:grass_block": {
+		"Color": "#5D923A",
+		"Alpha": 255,
+		"DisplayName": "Grass Block"
+		}
+	}
+}
