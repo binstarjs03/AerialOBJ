@@ -10,11 +10,11 @@ public delegate void LoadDefinitionFileExceptionHandler(Exception e, string defi
 
 public class DefinitionIO : IDefinitionIO
 {
-    private readonly string _definitionPath;
+    private readonly ConstantPath _path;
 
-    public DefinitionIO(string definitionPath)
+    public DefinitionIO(ConstantPath path)
     {
-        _definitionPath = definitionPath;
+        _path = path;
     }
 
     public IRootDefinition ImportDefinition(string path)
@@ -28,9 +28,9 @@ public class DefinitionIO : IDefinitionIO
 
     private void CopyToDefinitionFolder(string originalPath)
     {
-        Directory.CreateDirectory(_definitionPath);
+        Directory.CreateDirectory(_path.DefinitionsPath);
         string originalFilename = Path.GetFileName(originalPath);
-        string copyPath = Path.Combine(_definitionPath, originalFilename);
+        string copyPath = Path.Combine(_path.DefinitionsPath, originalFilename);
         if (File.Exists(copyPath))
             throw new OverwriteException();
         File.Copy(originalPath, copyPath);
@@ -41,14 +41,14 @@ public class DefinitionIO : IDefinitionIO
         string? originalFilename = definition.OriginalFilename;
         if (originalFilename is null)
             throw new InvalidOperationException();
-        string deletePath = Path.Combine(_definitionPath, originalFilename);
+        string deletePath = Path.Combine(_path.DefinitionsPath, originalFilename);
         File.Delete(deletePath);
     }
 
     public List<IRootDefinition> LoadDefinitionFolder(LoadDefinitionFileExceptionHandler exceptionHandler)
     {
         List<IRootDefinition> definitions = new();
-        DirectoryInfo definitionDirectory = Directory.CreateDirectory(_definitionPath);
+        DirectoryInfo definitionDirectory = Directory.CreateDirectory(_path.DefinitionsPath);
         foreach (FileInfo definitionFile in definitionDirectory.GetFiles("*.json"))
             try
             {

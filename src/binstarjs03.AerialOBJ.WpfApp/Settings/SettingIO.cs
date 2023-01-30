@@ -1,40 +1,70 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
+using binstarjs03.AerialOBJ.Core.Definitions;
+using binstarjs03.AerialOBJ.Core.JsonFormat;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Settings;
 public static class SettingIO
 {
-    public static SettingState LoadSetting(string settingPath, IDefinitionManager definitionManager)
+    public static void LoadSetting(Setting setting, string settingPath, IDefinitionManager definitionManager)
     {
-        string settingContent = File.ReadAllText(settingPath);
-        SettingState? setting;
-        SettingJsonConverter settingConverter = new() { DefinitionManager = definitionManager };
-        JsonSerializerOptions options = new() { Converters = { settingConverter } };
-        setting = JsonSerializer.Deserialize<SettingState>(settingContent, options);
-        if (setting is null)
-            throw new NullReferenceException();
-        return setting;
+        string settingJson = File.ReadAllText(settingPath);
+        JsonElement root = JsonDocument.Parse(settingJson).RootElement;
+
+        readDefinitionSetting();
+        readViewportSetting();
+        readPerformanceSetting();
+
+        void readDefinitionSetting()
+        {
+            if (!root.TryGetProperty(nameof(DefinitionSetting), out JsonElement definitionSettingSection))
+                return;
+            if (!JsonHelper.TryGetString(definitionSettingSection, nameof(ViewportDefinition), out string vdName))
+                return;
+            foreach (ViewportDefinition vd in definitionManager.LoadedViewportDefinitions
+                                                                .Where(vd => vd.Name == vdName))
+            {
+                setting.DefinitionSetting.CurrentViewportDefinition = vd;
+                break;
+            }
+        }
+
+        void readViewportSetting()
+        {
+            if (!root.TryGetProperty(nameof(ViewportSetting), out JsonElement viewportSettingSection))
+                return;
+            if (JsonHelper.TryGetEnumFromString(viewportSettingSection, nameof(ChunkShadingStyle), out ChunkShadingStyle shadingStyle))
+                setting.ViewportSetting.ChunkShadingStyle = shadingStyle;
+        }
+
+        void readPerformanceSetting()
+        {
+            if (!root.TryGetProperty(nameof(PerformanceSetting), out JsonElement performanceSettingSection))
+                return;
+            if (JsonHelper.TryGetInt(performanceSettingSection, nameof(PerformanceSetting.ViewportChunkThreads), out int viewportChunkThreads))
+                setting.PerformanceSetting.ViewportChunkThreads = viewportChunkThreads;
+            if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ViewportChunkLoading), out PerformancePreference viewportChunkLoading))
+                setting.PerformanceSetting.ViewportChunkLoading = viewportChunkLoading;
+            if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ImageExporting), out PerformancePreference imageExporting))
+                setting.PerformanceSetting.ImageExporting = imageExporting;
+            if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ModelExporting), out PerformancePreference modelExporting))
+                setting.PerformanceSetting.ModelExporting = modelExporting;
+        }
     }
 
-    public static void SaveSetting(string settingPath, SettingState setting)
+    public static void SaveSetting(string settingPath, Setting setting)
     {
-        using FileStream fs = File.Open(settingPath, FileMode.Create, FileAccess.Write, FileShare.Read);
-
-        JsonSerializerOptions options = new()
-        {
-            Converters = { new SettingJsonConverter() },
-            WriteIndented = true,
-
-        };
-        JsonSerializer.Serialize<SettingState>(fs, setting, options);
+        throw new NotImplementedException();
     }
 
     public static void SaveDefaultSetting(string settingPath)
     {
-        SettingState setting = SettingState.GetDefaultSetting();
-        SaveSetting(settingPath, setting);
+        throw new NotImplementedException();
+        //Setting setting = Setting.GetDefaultSetting();
+        //SaveSetting(settingPath, setting);
     }
 }

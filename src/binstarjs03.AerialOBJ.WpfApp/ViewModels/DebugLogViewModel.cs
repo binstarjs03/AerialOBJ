@@ -15,7 +15,7 @@ public partial class DebugLogViewModel
     private readonly IModalService _modalService;
     private readonly IAbstractIO _iOService;
 
-    public DebugLogViewModel(GlobalState globalState,
+    public DebugLogViewModel(AppInfo globalState,
                              ViewState viewState,
                              AbstractViewModel abstractViewModel,
                              ILogService logService,
@@ -32,7 +32,7 @@ public partial class DebugLogViewModel
         LogService.Logging += OnLogServiceLogging;
     }
 
-    public GlobalState GlobalState { get; }
+    public AppInfo GlobalState { get; }
     public ViewState ViewState { get; }
     public AbstractViewModel AbstractViewModel { get; }
     public ILogService LogService { get; }

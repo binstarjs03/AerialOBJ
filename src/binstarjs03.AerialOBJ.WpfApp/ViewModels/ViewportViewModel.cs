@@ -53,12 +53,14 @@ public partial class ViewportViewModel : IViewportViewModel
     // Region Images
     [ObservableProperty] private ObservableCollection<RegionDataImageModel> _regionDataImageModels = new();
 
-    public ViewportViewModel(GlobalState globalState,
+    public ViewportViewModel(AppInfo appInfo,
+                             GlobalState globalState,
                              IChunkRegionManager chunkRegionManager,
                              ILogService logService,
                              ViewportViewModelInputHandler inputHandler,
-                             SettingState setting)
+                             Setting setting)
     {
+        AppInfo = appInfo;
         GlobalState = globalState;
         ChunkRegionManager = chunkRegionManager;
         _logService = logService;
@@ -75,6 +77,7 @@ public partial class ViewportViewModel : IViewportViewModel
         ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
     }
 
+    public AppInfo AppInfo { get; }
     public GlobalState GlobalState { get; }
     public Func<Size<int>>? GetViewViewportSize { get; set; }
     public IChunkRegionManager ChunkRegionManager { get; }
@@ -149,7 +152,7 @@ public partial class ViewportViewModel : IViewportViewModel
         ChunkRegionManager.UpdateHeightLevel(HeightLevel);
         UpdateChunkRegionManager();
 
-        if (GlobalState.IsDebugEnabled)
+        if (AppInfo.IsDebugEnabled)
         {
             IsChunkGridVisible = true;
             IsInfoPanelVisible = true;

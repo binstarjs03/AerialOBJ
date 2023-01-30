@@ -42,7 +42,7 @@ public partial class DefinitionManagerViewModel
                                       IModalService modalService,
                                       ILogService logService,
                                       IDefinitionIO definitionIO,
-                                      SettingState setting)
+                                      Setting setting)
     {
         _definitionManager = definitionManager;
         _modalService = modalService;

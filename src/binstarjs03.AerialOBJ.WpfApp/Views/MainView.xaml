@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
         xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:IMainViewModel}}"
+        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MainViewModel}}"
         x:Name="Root"
         Title="{Binding Title}"
         d:Title="AerialOBJ"
@@ -21,7 +22,7 @@
             <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="KeyDown">
-            <i:InvokeCommandAction Command="{Binding ElementName=Viewport, Path=Content.DataContext.InputHandler.KeyHandler.KeyDownCommand}" PassEventArgsToCommand="True"/>
+            <i:InvokeCommandAction Command="{Binding ElementName=Viewport, Path=DataContext.InputHandler.KeyHandler.KeyDownCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
@@ -40,12 +41,12 @@
                 <MenuItem Header="View">
                     <MenuItem Header="Chunk Grid"
                               IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsChunkGridVisible, Mode=TwoWay}"
+                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsChunkGridVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <Separator/>
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
-                              IsChecked="{Binding ElementName=Viewport, Path=Content.DataContext.IsInfoPanelVisible, Mode=TwoWay}"
+                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsInfoPanelVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Debug Log"
                               IsCheckable="True"
@@ -83,9 +84,9 @@
                         VerticalAlignment="Center"
                         SmallChange="1"
                         IsSnapToTickEnabled="True"
-                        Value="{Binding ElementName=Viewport, Path=Content.DataContext.HeightLevel}"
-                        Minimum="{Binding ElementName=Viewport, Path=Content.DataContext.LowHeightLimit}"
-                        Maximum="{Binding ElementName=Viewport, Path=Content.DataContext.HighHeightLimit}"/>
+                        Value="{Binding ElementName=Viewport, Path=DataContext.HeightLevel}"
+                        Minimum="{Binding ElementName=Viewport, Path=DataContext.LowHeightLimit}"
+                        Maximum="{Binding ElementName=Viewport, Path=DataContext.HighHeightLimit}"/>
             </Grid>
         </StackPanel>
 
@@ -98,9 +99,9 @@
                     </Style>
                 </StatusBar.Resources>
 
-                <components:PropertyValuePair PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.X}"/>
-                <components:PropertyValuePair PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Y}"/>
-                <components:PropertyValuePair PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockCoords.Z}"/>
+                <components:PropertyValuePair PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.X}"/>
+                <components:PropertyValuePair PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Y}"/>
+                <components:PropertyValuePair PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Z}"/>
 
                 <Separator/>
 
@@ -112,8 +113,8 @@
 
                 <Separator/>
 
-                <components:PropertyValuePair PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextRegionCoords}"/>
-                <components:PropertyValuePair PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=Content.DataContext.ContextChunkCoords}"/>
+                <components:PropertyValuePair PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextRegionCoords}"/>
+                <components:PropertyValuePair PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextChunkCoords}"/>
             </StatusBar>
             <StatusBar Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>
@@ -121,11 +122,14 @@
         </Grid>
 
         <Border BorderThickness="0,1" BorderBrush="LightGray">
-            <ContentControl x:Name="Viewport"
-                            Focusable="False"
-                            Content="{Binding ViewportView}"
-                            d:Background="{StaticResource Background}"
-                            IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+            <local:ViewportView x:Name="Viewport"/>
+            <!--
+                ContentControl x:Name="Viewport"
+                Focusable="False"
+                Content="{Binding ViewportView}"
+                d:Background="{StaticResource Background}"
+                IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/
+            -->
         </Border>
 
     </DockPanel>

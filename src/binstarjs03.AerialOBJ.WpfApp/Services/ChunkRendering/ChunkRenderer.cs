@@ -13,7 +13,7 @@ public class ChunkRenderer : IChunkRenderer
     private readonly DefinitionSetting _definitionSetting;
     private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
-    public ChunkRenderer(IChunkShader initialChunkShader, SettingState setting)
+    public ChunkRenderer(IChunkShader initialChunkShader, Setting setting)
     {
         _shader = initialChunkShader;
         _definitionSetting = setting.DefinitionSetting;

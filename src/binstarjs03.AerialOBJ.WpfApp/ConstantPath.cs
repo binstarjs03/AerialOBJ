@@ -2,14 +2,7 @@
 
 public class ConstantPath
 {
-    public ConstantPath(string currentPath, string definitionsPath, string settingPath)
-    {
-        CurrentPath = currentPath;
-        DefinitionsPath = definitionsPath;
-        SettingPath = settingPath;
-    }
-
-    public string CurrentPath { get; }
-    public string DefinitionsPath { get; }
-    public string SettingPath { get; }
+    public required string CurrentPath { get; init; }
+    public required string DefinitionsPath { get; init; }
+    public required string SettingPath { get; init; }
 }

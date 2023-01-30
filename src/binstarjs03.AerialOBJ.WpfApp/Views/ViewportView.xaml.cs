@@ -13,6 +13,11 @@ public partial class ViewportView : UserControl, IView
     public ViewportView()
     {
         InitializeComponent();
+
+        // Dumb designer fix, won't be null at runtime
+        if (App.Current is null) 
+            return;
+
         ViewportViewModel viewModel = App.Current.ServiceProvider.GetRequiredService<ViewportViewModel>();
         DataContext = viewModel;
         viewModel.GetViewViewportSize = GetViewportSize;
