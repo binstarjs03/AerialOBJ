@@ -26,10 +26,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Services\ChunkRendering\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Update="settings.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

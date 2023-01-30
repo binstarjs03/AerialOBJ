@@ -111,7 +111,13 @@ internal static class ServiceConfiguration
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             Setting setting = x.GetRequiredService<Setting>();
-            IChunkShader shader = new StandardChunkShader();
+            ChunkShadingStyle shadingStyle = setting.ViewportSetting.ChunkShadingStyle;
+            IChunkShader shader = shadingStyle switch
+            {
+                ChunkShadingStyle.Flat => new FlatChunkShader(),
+                ChunkShadingStyle.Standard => new StandardChunkShader(),
+                _ => throw new NotImplementedException(),
+            };
             return new ChunkRenderer(shader, setting);
         });
         services.AddTransient<IKeyHandler, KeyHandler>();
