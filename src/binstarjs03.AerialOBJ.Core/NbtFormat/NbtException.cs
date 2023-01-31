@@ -40,11 +40,11 @@ public class NbtException : Exception
 /// The exception that is thrown when parsing nbt from data stream compression 
 /// format is unrecognized
 /// </summary>
-public class NbtUnknownCompressionMethodException : NbtException
+public class NbtUnknownCompressionSchemeException : NbtException
 {
-    public NbtUnknownCompressionMethodException() { }
-    public NbtUnknownCompressionMethodException(string message) : base(message) { }
-    public NbtUnknownCompressionMethodException(string message, Exception inner) : base(message, inner) { }
+    public NbtUnknownCompressionSchemeException() { }
+    public NbtUnknownCompressionSchemeException(string message) : base(message) { }
+    public NbtUnknownCompressionSchemeException(string message, Exception inner) : base(message, inner) { }
 }
 
 /// <summary>

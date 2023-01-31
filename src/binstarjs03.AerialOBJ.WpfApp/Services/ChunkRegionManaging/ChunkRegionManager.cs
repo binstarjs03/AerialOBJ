@@ -61,6 +61,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly ReaderWriterLockSlim _visibleRegionRangeLock = new();
     private readonly ReaderWriterLockSlim _visibleChunkRangeLock = new();
 
+    // TODO remember faulted coords and skip working on faulted coords
     private readonly Dictionary<PointZ<int>, RegionDataImageModel> _loadedRegions = new(s_initialRegionBufferSize);
     private readonly Dictionary<PointZ<int>, RegionDataImageModel> _cachedRegions = new(s_initialRegionBufferSize);
     private readonly List<PointZ<int>> _pendingRegions = new(s_initialRegionBufferSize);
@@ -484,7 +485,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
                     if (!tryGetRandomPendingChunk(out PointZ<int> chunkCoordsOut))
                         return;
                     chunkCoords = chunkCoordsOut;
-
                     // get both chunk and region, then load it if succeed
                     if (!tryGetChunkAndRegion(chunkCoords.Value, out IChunk? chunk, out RegionDataImageModel? regionModel))
                         continue;
@@ -555,7 +555,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         {
             lock (_errorChunks)
             {
-                if (_errorRegions.Contains(chunkCoords))
+                if (_errorChunks.Contains(chunkCoords))
                     return;
                 _dispatcher.InvokeAsync(() => ChunkLoadingException?.Invoke(chunkCoords, e),
                                         DispatcherPriority.Background,

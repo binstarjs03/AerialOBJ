@@ -37,7 +37,9 @@ public class RegionDiskLoader : IRegionDiskLoader
         // Previously we were using File.ReadAllBytes but that API can't read file 
         // if other processes opening that file too, so we refactored it to File.Open
         // with sharing access set to Read and Write so we can access the file,
-        // even though we are playing the savegame in Minecraft
+        // even though we are playing the savegame in Minecraft.
+        // TODO assess file sharing reliability, that means the stream data may change at any time 
+        // in middle copying to memory. It may corrupt the memory data
         FileStream fs = File.Open(regionPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
         // some region files have intentionally zero-length data

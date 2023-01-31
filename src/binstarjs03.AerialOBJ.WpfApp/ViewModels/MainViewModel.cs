@@ -60,17 +60,24 @@ public partial class MainViewModel
     [RelayCommand]
     private void OpenSavegame(string? path)
     {
+        SavegameLoadInfo loadInfo;
         if (path is null && !isPathConfirmedFromBrowserDialog(out path))
             return;
+
         try
         {
-            SavegameLoadInfo loadInfo = _savegameLoaderService.LoadSavegame(path);
-            // close savegame if already loaded
-            if (GlobalState.HasSavegameLoaded)
-                CloseSavegame();
-            GlobalState.SavegameLoadInfo = loadInfo;
+            loadInfo = _savegameLoaderService.LoadSavegame(path);
         }
-        catch (Exception e) { handleException(e); }
+        catch (Exception e)
+        {
+            handleException(e);
+            return;
+        }
+
+        // close savegame if already loaded
+        if (GlobalState.HasSavegameLoaded)
+            CloseSavegame();
+        GlobalState.SavegameLoadInfo = loadInfo;
 
         bool isPathConfirmedFromBrowserDialog(out string path)
         {

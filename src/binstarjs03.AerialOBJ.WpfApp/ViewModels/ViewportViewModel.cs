@@ -10,6 +10,7 @@ using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
+using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,6 +21,7 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public partial class ViewportViewModel : IViewportViewModel
 {
     private readonly ILogService _logService;
+    private readonly IModalService _modalService;
     private readonly DefinitionSetting _definitionSetting;
 
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 }; // fib. sequence
@@ -58,6 +60,7 @@ public partial class ViewportViewModel : IViewportViewModel
                              GlobalState globalState,
                              IChunkRegionManager chunkRegionManager,
                              ILogService logService,
+                             IModalService modalService,
                              ViewportViewModelInputHandler inputHandler,
                              Setting setting)
     {
@@ -65,6 +68,7 @@ public partial class ViewportViewModel : IViewportViewModel
         GlobalState = globalState;
         ChunkRegionManager = chunkRegionManager;
         _logService = logService;
+        _modalService = modalService;
         InputHandler = inputHandler;
         InputHandler.Viewport = this;
         _definitionSetting = setting.DefinitionSetting;
@@ -102,7 +106,7 @@ public partial class ViewportViewModel : IViewportViewModel
         else if (state == SavegameLoadState.Closed)
             CleanupOnSavegameClosed();
         else
-            throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
+            throw new NotImplementedException();
     }
 
     /// <summary>
@@ -128,11 +132,23 @@ public partial class ViewportViewModel : IViewportViewModel
     private void OnRegionLoadingException(PointZ<int> regionCoords, Exception e)
     {
         _logService.LogException($"Cannot load region {regionCoords}", e);
+        _modalService.ShowErrorMessageBox(new MessageBoxArg
+        {
+            Caption = "Error Loading Region",
+            Message = $"An exception occured while loading region {regionCoords}. "
+                    +  "See debug log window for exception detail"
+        });
     }
 
     private void OnChunkLoadingException(PointZ<int> chunkCoords, Exception e)
     {
         _logService.LogException($"Cannot load chunk {chunkCoords}", e);
+        _modalService.ShowErrorMessageBox(new MessageBoxArg
+        {
+            Caption = "Error Loading Chunk",
+            Message = $"An exception occured while loading chunk {chunkCoords}. "
+                    + "See debug log window for exception detail"
+        });
     }
 
     private void InitializeOnSavegameOpened()

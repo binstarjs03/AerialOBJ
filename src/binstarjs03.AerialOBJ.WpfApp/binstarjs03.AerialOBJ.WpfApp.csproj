@@ -11,6 +11,10 @@
 		<RetainVMGarbageCollection>true</RetainVMGarbageCollection>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		 <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=$(MSBuildProjectName)</PathMap>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
@@ -26,12 +30,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="settings.json">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </None>
-	  <None Update="testDefinition.json">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </None>
+		<None Update="settings.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Update="testDefinition.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>

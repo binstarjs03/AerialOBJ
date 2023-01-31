@@ -33,6 +33,11 @@ public class ModalService : IModalService
         MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
+    public void ShowWarningMessageBox(MessageBoxArg dialogArg)
+    {
+        MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
     public bool ShowConfirmationBox(MessageBoxArg dialogArg)
     {
         MessageBoxResult result = MessageBox.Show(dialogArg.Message, dialogArg.Caption, MessageBoxButton.OKCancel, MessageBoxImage.Question);

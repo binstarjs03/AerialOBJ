@@ -63,7 +63,7 @@ public static class SettingIO
     public static void SaveSetting(string settingPath, Setting setting)
     {
         JsonWriterOptions options = new() { Indented = true, };
-        using Stream stream = File.Open(settingPath, FileMode.Create,FileAccess.Write, FileShare.None);
+        using Stream stream = File.Open(settingPath, FileMode.Create, FileAccess.Write, FileShare.None);
         using Utf8JsonWriter writer = new(stream, options);
 
         writer.WriteStartObject();
@@ -106,4 +106,20 @@ public static class SettingIO
             writer.WriteEndObject();
         }
     }
+}
+
+
+public class SettingIOException : Exception
+{
+    public SettingIOException() { }
+    public SettingIOException(string message) : base(message) { }
+    public SettingIOException(string message, Exception inner) : base(message, inner) { }
+}
+
+
+public class SettingLoadingException : Exception
+{
+    public SettingLoadingException() { }
+    public SettingLoadingException(string message) : base(message) { }
+    public SettingLoadingException(string message, Exception inner) : base(message, inner) { }
 }

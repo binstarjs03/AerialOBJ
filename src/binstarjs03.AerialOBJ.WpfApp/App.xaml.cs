@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
@@ -97,17 +98,62 @@ public partial class App : Application
     private void LoadSettings()
     {
         Setting setting = ServiceProvider.GetRequiredService<Setting>();
-        IChunkShaderRepository shaderRepository = ServiceProvider.GetRequiredService<IChunkShaderRepository>();
-
         ConstantPath path = ServiceProvider.GetRequiredService<ConstantPath>();
+        IChunkShaderRepository shaderRepository = ServiceProvider.GetRequiredService<IChunkShaderRepository>();
         IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
+
+        ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
+        IModalService modalService = ServiceProvider.GetRequiredService<IModalService>();
 
         string settingPath = path.SettingPath;
         if (!File.Exists(settingPath))
         {
-            SettingIO.SaveSetting(settingPath, setting);
+            try
+            {
+                SettingIO.SaveSetting(settingPath, setting);
+            }
+            catch (Exception e) { handleSavingException(e); }
             return;
         }
-        SettingIO.LoadSetting(setting, settingPath, definitionManager, shaderRepository);
+        try
+        {
+            SettingIO.LoadSetting(setting, settingPath, definitionManager, shaderRepository);
+        }
+        catch (JsonException e) { handleLoadingParsingException(e); }
+        catch (Exception e) { handleLoadingIOException(e); }
+
+        void handleSavingException(Exception e)
+        {
+            string caption = "Cannot save setting";
+            logService.LogException(caption, e);
+            modalService.ShowWarningMessageBox(new MessageBoxArg
+            {
+                Caption = caption,
+                Message = $"An exception occured when saving setting:\n{e}",
+            });
+        }
+
+        void handleLoadingIOException(Exception e)
+        {
+            string caption = "Cannot read setting";
+            logService.LogException(caption, e);
+            modalService.ShowWarningMessageBox(new MessageBoxArg
+            {
+                Caption = caption,
+                Message = $"An exception occured when reading setting:\n{e}"
+            });
+        }
+
+        void handleLoadingParsingException(Exception e)
+        {
+            string caption = "Cannot read setting";
+            logService.LogException(caption, e);
+            modalService.ShowWarningMessageBox(new MessageBoxArg
+            {
+                Caption = caption,
+                Message = $"An exception occured when parsing setting, "
+                        + $"this may indicate the setting.json content have bad syntax:\n{e}"
+            });
+        }
     }
 }

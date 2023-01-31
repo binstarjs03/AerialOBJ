@@ -3,6 +3,7 @@ public interface IModalService
 {
     void ShowMessageBox(MessageBoxArg dialogArg);
     void ShowErrorMessageBox(MessageBoxArg dialogArg);
+    void ShowWarningMessageBox(MessageBoxArg dialogArg);
     bool ShowConfirmationBox(MessageBoxArg dialogArg);
     bool ShowWarningConfirmationBox(MessageBoxArg dialogArg);
     void ShowAboutView();

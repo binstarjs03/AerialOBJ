@@ -38,7 +38,7 @@ public class SavegameLoader : ISavegameLoader
         {
             return (NbtCompound)NbtIO.ReadDisk(levelNbtPath);
         }
-        catch (NbtUnknownCompressionMethodException e)
+        catch (NbtUnknownCompressionSchemeException e)
         {
             throw new LevelDatUnreadableException($"{errorHeader}Unknown compression method for level.dat file", e);
         }
