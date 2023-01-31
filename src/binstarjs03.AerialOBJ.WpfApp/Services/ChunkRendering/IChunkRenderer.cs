@@ -1,6 +1,5 @@
 ﻿using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;

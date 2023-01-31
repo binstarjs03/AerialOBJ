@@ -5,7 +5,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 public class StandardChunkShader : ChunkShaderBase
 {
-    public override void RenderChunk(ChunkRenderSetting setting)
+    public override void RenderChunk(ChunkRenderOptions setting)
     {
         BlockSlim[,] highestBlocks = setting.HighestBlocks ?? GetChunkHighestBlock(setting);
 

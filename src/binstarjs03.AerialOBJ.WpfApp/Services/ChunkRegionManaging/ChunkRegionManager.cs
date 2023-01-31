@@ -47,7 +47,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly ReferenceWrap<bool> _isRedrawTaskRunning = new() { Value = false };
     private Task _redrawTask = Task.CompletedTask;
 
-    // leave one cpu thread for both main thread and pending region loader
     private readonly Dictionary<uint, Task> _pendingChunkTasks = new(Environment.ProcessorCount);
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
@@ -451,8 +450,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
                                 _pendingChunksSet.Add(chunkCoords);
                             }
             }
-        lock (_pendingChunkLock)
-            _pendingChunks.Sort();
+        //lock (_pendingChunkLock)
+        //    _pendingChunks.Sort();
     }
 
     // TODO we may be able to create new class that manages and track pool of tasks

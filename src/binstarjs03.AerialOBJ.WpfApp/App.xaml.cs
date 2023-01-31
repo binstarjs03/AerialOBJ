@@ -97,7 +97,7 @@ public partial class App : Application
     private void LoadSettings()
     {
         Setting setting = ServiceProvider.GetRequiredService<Setting>();
-        IShaderRepository shaderRepository = ServiceProvider.GetRequiredService<IShaderRepository>();
+        IChunkShaderRepository shaderRepository = ServiceProvider.GetRequiredService<IChunkShaderRepository>();
 
         ConstantPath path = ServiceProvider.GetRequiredService<ConstantPath>();
         IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();

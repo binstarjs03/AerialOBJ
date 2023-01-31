@@ -3,7 +3,7 @@ using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace binstarjs03.AerialOBJ.WpfApp;
+namespace binstarjs03.AerialOBJ.WpfApp.Settings;
 
 [ObservableObject]
 public partial class ViewportSetting
@@ -15,5 +15,5 @@ public partial class ViewportSetting
         _chunkShader = chunkShader;
     }
 
-    public static ViewportSetting GetDefaultSetting(IShaderRepository repository) => new(repository.DefaultShader);
+    public static ViewportSetting GetDefaultSetting(IChunkShaderRepository repository) => new(repository.DefaultShader);
 }

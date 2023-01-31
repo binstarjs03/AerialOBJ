@@ -6,7 +6,7 @@ public class ChunkRendererProvider
     private readonly Setting _setting;
 
     public ChunkRendererProvider(Setting setting)
-	{
+    {
         _setting = setting;
     }
 }

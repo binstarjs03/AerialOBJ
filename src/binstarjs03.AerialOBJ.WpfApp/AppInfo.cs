@@ -13,6 +13,6 @@ public partial class AppInfo
     public required DateTime LaunchTime { get; init; }
     public required string[]? Arguments { get; init; }
 
-    public bool IsDebugEnabled => Arguments is not null 
+    public bool IsDebugEnabled => Arguments is not null
                                && Arguments.Any(arg => arg.ToLower() == "debug");
 }

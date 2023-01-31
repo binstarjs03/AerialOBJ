@@ -10,19 +10,19 @@ using binstarjs03.AerialOBJ.WpfApp.Settings;
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class ChunkRenderer : IChunkRenderer
 {
-    private readonly IChunkShader _shader;
     private readonly DefinitionSetting _definitionSetting;
+    private readonly ViewportSetting _viewportSetting;
     private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
-    public ChunkRenderer(IChunkShader initialChunkShader, Setting setting)
+    public ChunkRenderer(DefinitionSetting definitionSetting, ViewportSetting viewportSetting)
     {
-        _shader = initialChunkShader;
-        _definitionSetting = setting.DefinitionSetting;
+        _definitionSetting = definitionSetting;
+        _viewportSetting = viewportSetting;
     }
 
     public void RenderChunk(IRegionImage regionImage, IChunk chunk, BlockSlim[,] highestBlocks, int heightLimit)
     {
-        ChunkRenderSetting setting = new()
+        ChunkRenderOptions renderOptions = new()
         {
             ViewportDefinition = _definitionSetting.CurrentViewportDefinition,
             Image = regionImage,
@@ -32,7 +32,7 @@ public class ChunkRenderer : IChunkRenderer
             HighestBlocks = highestBlocks,
             Exclusions = null, // not implemented for now
         };
-        _shader.RenderChunk(setting);
+        _viewportSetting.ChunkShader.RenderChunk(renderOptions);
     }
 
     public void EraseChunk(IRegionImage regionImage, PointZ<int> chunkCoordsRel)

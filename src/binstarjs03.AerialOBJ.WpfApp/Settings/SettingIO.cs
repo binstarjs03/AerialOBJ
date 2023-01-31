@@ -12,7 +12,7 @@ using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 namespace binstarjs03.AerialOBJ.WpfApp.Settings;
 public static class SettingIO
 {
-    public static void LoadSetting(Setting setting, string settingPath, IDefinitionManager definitionManager, IShaderRepository shaderRepository)
+    public static void LoadSetting(Setting setting, string settingPath, IDefinitionManager definitionManager, IChunkShaderRepository shaderRepository)
     {
         string settingJson = File.ReadAllText(settingPath);
         JsonElement root = JsonDocument.Parse(settingJson).RootElement;

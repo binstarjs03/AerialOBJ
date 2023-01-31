@@ -3,16 +3,9 @@
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
-
-public interface IShaderRepository
+public class ChunkShaderRepository : IChunkShaderRepository
 {
-    Dictionary<string, IChunkShader> Shaders { get; }
-    IChunkShader DefaultShader { get; }
-}
-
-public class ShaderRepository : IShaderRepository
-{
-    public ShaderRepository(Dictionary<string, IChunkShader> shaders, IChunkShader defaultShader)
+    public ChunkShaderRepository(Dictionary<string, IChunkShader> shaders, IChunkShader defaultShader)
     {
         Shaders = shaders;
         DefaultShader = defaultShader;

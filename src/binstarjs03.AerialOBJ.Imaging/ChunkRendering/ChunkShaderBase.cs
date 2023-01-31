@@ -10,7 +10,7 @@ public abstract class ChunkShaderBase : IChunkShader
 {
     protected readonly ArrayPool2<BlockSlim> _highestBlockPooler = new(IChunk.BlockCount, IChunk.BlockCount);
 
-    public abstract void RenderChunk(ChunkRenderSetting setting);
+    public abstract void RenderChunk(ChunkRenderOptions setting);
 
     protected static Color GetBlockColor(ViewportDefinition vd, in BlockSlim block)
     {
@@ -29,7 +29,7 @@ public abstract class ChunkShaderBase : IChunkShader
     }
 
     // rent highest block buffer from internal pooler if caller (setting) didn't supplement it
-    protected BlockSlim[,] GetChunkHighestBlock(ChunkRenderSetting setting)
+    protected BlockSlim[,] GetChunkHighestBlock(ChunkRenderOptions setting)
     {
         BlockSlim[,] highestBlocks = _highestBlockPooler.Rent();
         setting.Chunk.GetHighestBlockSlim(highestBlocks, setting.HeightLimit, setting.Exclusions);
@@ -37,7 +37,7 @@ public abstract class ChunkShaderBase : IChunkShader
     }
 
     // return highest block buffer if it was coming from internal pooler
-    protected void ReturnChunkHighestBlock(ChunkRenderSetting setting, BlockSlim[,] highestBlocks)
+    protected void ReturnChunkHighestBlock(ChunkRenderOptions setting, BlockSlim[,] highestBlocks)
     {
         if (setting.HighestBlocks is null)
             _highestBlockPooler.Return(highestBlocks);

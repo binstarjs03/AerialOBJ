@@ -5,7 +5,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 public interface IChunkShader
 {
-    void RenderChunk(ChunkRenderSetting setting);
+    void RenderChunk(ChunkRenderOptions options);
 
     static PointY<int> GetPixelCoordsForBlock(PointY<int> renderPosition, PointZ<int> chunkCoordsRel, PointZ<int> blockCoordsRel)
     {
@@ -21,7 +21,7 @@ public interface IChunkShader
     }
 }
 
-public class ChunkRenderSetting
+public class ChunkRenderOptions
 {
     public required ViewportDefinition ViewportDefinition { get; set; }
     public required IImage Image { get; set; }

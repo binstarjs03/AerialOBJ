@@ -15,7 +15,7 @@ public partial class ViewportView : UserControl, IView
         InitializeComponent();
 
         // Dumb designer fix, won't be null at runtime
-        if (App.Current is null) 
+        if (App.Current is null)
             return;
 
         ViewportViewModel viewModel = App.Current.ServiceProvider.GetRequiredService<ViewportViewModel>();

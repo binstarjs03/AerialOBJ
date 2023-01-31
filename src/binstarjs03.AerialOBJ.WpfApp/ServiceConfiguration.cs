@@ -56,7 +56,7 @@ internal static class ServiceConfiguration
         services.AddSingleton<GlobalState>();
         services.AddSingleton<Setting>(x =>
         {
-            IShaderRepository shaderRepository = x.GetRequiredService<IShaderRepository>();
+            IChunkShaderRepository shaderRepository = x.GetRequiredService<IChunkShaderRepository>();
             return new Setting
             {
                 DefinitionSetting = DefinitionSetting.GetDefaultSetting(),
@@ -116,11 +116,11 @@ internal static class ServiceConfiguration
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             Setting setting = x.GetRequiredService<Setting>();
-            return new ChunkRenderer(setting.ViewportSetting.ChunkShader, setting);
+            return new ChunkRenderer(setting.DefinitionSetting, setting.ViewportSetting);
         });
         services.AddTransient<IKeyHandler, KeyHandler>();
         services.AddTransient<IMouseHandler, MouseHandler>();
-        services.AddSingleton<IShaderRepository, ShaderRepository>(x =>
+        services.AddSingleton<IChunkShaderRepository, ChunkShaderRepository>(x =>
         {
             IChunkShader flat = new FlatChunkShader();
             IChunkShader standard = new StandardChunkShader();
@@ -129,7 +129,7 @@ internal static class ServiceConfiguration
                 { "Flat", flat },
                 { "Standard", standard },
             };
-            return new ShaderRepository(shaders, standard);
+            return new ChunkShaderRepository(shaders, standard);
         });
     }
 }

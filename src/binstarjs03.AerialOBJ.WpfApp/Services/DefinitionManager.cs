@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
+using binstarjs03.AerialOBJ.WpfApp.Settings;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 

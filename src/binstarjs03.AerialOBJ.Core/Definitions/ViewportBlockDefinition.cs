@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.Definitions;
