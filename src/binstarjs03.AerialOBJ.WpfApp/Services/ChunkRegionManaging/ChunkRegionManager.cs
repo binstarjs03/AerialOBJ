@@ -125,7 +125,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         {
             if (_heightLevel != heightLevel)
                 _heightLevel = heightLevel;
-            UpdateChunkHighestBlockResponsive();
+            ReloadRenderedChunks();
         }
         finally { _heightLevelLock.ExitWriteLock(); }
     }
@@ -476,7 +476,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         try
         {
-            while (!_stoppingCts.IsCancellationRequested || !_reinitializingCts.IsCancellationRequested)
+            while (!_stoppingCts.IsCancellationRequested && !_reinitializingCts.IsCancellationRequested)
             {
                 PointZ<int>? chunkCoords = null;
                 try
@@ -678,7 +678,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
     }
 
-    private void UpdateChunkHighestBlockResponsive()
+    public void ReloadRenderedChunks()
     {
         lock (_renderedChunks)
             foreach (ChunkModel chunkModel in _renderedChunks.Values)

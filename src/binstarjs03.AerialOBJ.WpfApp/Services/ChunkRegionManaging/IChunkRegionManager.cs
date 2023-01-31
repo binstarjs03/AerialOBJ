@@ -28,6 +28,7 @@ public interface IChunkRegionManager
 
     void Update(PointZ<float> cameraPos, float unitMultiplier, Size<int> screenSize);
     void UpdateHeightLevel(int heightLevel);
+    void ReloadRenderedChunks();
     BlockSlim? GetHighestBlockAt(PointZ<int> blockCoords);
     void StartBackgroundThread();
     void StopBackgroundThread();

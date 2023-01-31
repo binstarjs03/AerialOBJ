@@ -76,6 +76,7 @@ public partial class DefinitionManagerViewModel
             }
             else
                 throw new NotImplementedException();
+            OnPropertyChanged();
         }
     }
 
@@ -142,7 +143,7 @@ public partial class DefinitionManagerViewModel
     }
 
     [RelayCommand]
-    private void Close()
+    private void OnClosing()
     {
         _definitionSetting.CurrentViewportDefinition = SelectedViewportDefinition;
     }

@@ -71,8 +71,8 @@ public partial class ViewportViewModel : IViewportViewModel
         InputHandler.Viewport = this;
         GlobalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
 
-        _definitionSetting.ViewportDefinitionChanging += OnViewportDefinitionChanging;
-        _definitionSetting.ViewportDefinitionChanged += OnViewportDefinitionChanged;
+        _definitionSetting.ViewportDefinitionChanged += ReloadRenderedChunks;
+        setting.ViewportSetting.ChunkShaderChanged += ReloadRenderedChunks;
 
         ChunkRegionManager.RegionLoaded += ShowRegionImage;
         ChunkRegionManager.RegionUnloaded += RemoveRegionImage;
@@ -104,21 +104,11 @@ public partial class ViewportViewModel : IViewportViewModel
             throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
 
-    private void OnViewportDefinitionChanging()
+    private void ReloadRenderedChunks()
     {
-        // We want to request for crm to stop so we can safely swap definition.
         if (!GlobalState.HasSavegameLoaded)
             return;
-        ChunkRegionManager.StopBackgroundThread();
-    }
-
-    private void OnViewportDefinitionChanged()
-    {
-        // continue working for crm
-        if (!GlobalState.HasSavegameLoaded)
-            return;
-        ChunkRegionManager.StartBackgroundThread();
-        UpdateChunkRegionManager();
+        ChunkRegionManager.ReloadRenderedChunks();
     }
 
     private void ShowRegionImage(RegionDataImageModel regionModel)

@@ -80,7 +80,6 @@ internal static class ServiceConfiguration
         services.AddSingleton<DebugLogView>();
 
         services.AddTransient<AboutView>();
-        services.AddTransient<DefinitionManagerView>();
         services.AddTransient<NewDefinitionManagerView>();
         services.AddTransient<ViewportView>();
         services.AddTransient<SettingView>();
