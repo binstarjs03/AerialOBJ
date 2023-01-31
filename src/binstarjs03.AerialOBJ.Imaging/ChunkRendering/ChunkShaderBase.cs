@@ -10,6 +10,8 @@ public abstract class ChunkShaderBase : IChunkShader
 {
     protected readonly ArrayPool2<BlockSlim> _highestBlockPooler = new(IChunk.BlockCount, IChunk.BlockCount);
 
+    public abstract string ShaderName { get; }
+
     public abstract void RenderChunk(ChunkRenderOptions setting);
 
     protected static Color GetBlockColor(ViewportDefinition vd, in BlockSlim block)

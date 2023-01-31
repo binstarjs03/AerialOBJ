@@ -70,8 +70,10 @@ public partial class ViewportViewModel : IViewportViewModel
 
         InputHandler.Viewport = this;
         GlobalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
+
         _definitionSetting.ViewportDefinitionChanging += OnViewportDefinitionChanging;
         _definitionSetting.ViewportDefinitionChanged += OnViewportDefinitionChanged;
+
         ChunkRegionManager.RegionLoaded += ShowRegionImage;
         ChunkRegionManager.RegionUnloaded += RemoveRegionImage;
         ChunkRegionManager.RegionLoadingException += OnRegionLoadingException;

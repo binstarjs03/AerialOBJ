@@ -1,13 +1,15 @@
 ﻿using System.Windows;
 
+using binstarjs03.AerialOBJ.WpfApp.ViewModels;
+
+using Microsoft.Extensions.DependencyInjection;
+
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
-/// <summary>
-/// Interaction logic for SettingView.xaml
-/// </summary>
-public partial class SettingView : Window
+public partial class SettingView : Window, IDialogView
 {
     public SettingView()
     {
         InitializeComponent();
+        DataContext = App.Current.ServiceProvider.GetRequiredService<SettingViewModel>();
     }
 }

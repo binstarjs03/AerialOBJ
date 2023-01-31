@@ -45,7 +45,7 @@ internal static class ServiceConfiguration
         });
         services.AddSingleton<ConstantPath>(x =>
         {
-            string currentPath = Directory.GetCurrentDirectory();
+            string currentPath = AppDomain.CurrentDomain.BaseDirectory;
             return new ConstantPath()
             {
                 CurrentPath = currentPath,
@@ -82,6 +82,7 @@ internal static class ServiceConfiguration
         services.AddTransient<DefinitionManagerView>();
         services.AddTransient<NewDefinitionManagerView>();
         services.AddTransient<ViewportView>();
+        services.AddTransient<SettingView>();
     }
 
     internal static void ConfigureViewModels(this IServiceCollection services)
@@ -93,6 +94,7 @@ internal static class ServiceConfiguration
         services.AddTransient<ViewportViewModel>();
         services.AddTransient<ViewportViewModelInputHandler>();
         services.AddTransient<DefinitionManagerViewModel>();
+        services.AddTransient<SettingViewModel>();
     }
 
     internal static void ConfigureServices(this IServiceCollection services)
@@ -102,7 +104,8 @@ internal static class ServiceConfiguration
         {
             IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
             IDialogView definitionManagerViewFactory() => x.GetRequiredService<NewDefinitionManagerView>();
-            return new ModalService(aboutViewFactory, definitionManagerViewFactory);
+            IDialogView settingViewFactory() => x.GetRequiredService<SettingView>();
+            return new ModalService(aboutViewFactory, definitionManagerViewFactory, settingViewFactory);
         });
         services.AddSingleton<IDefinitionManager, DefinitionManager>();
         services.AddSingleton<ILogService, LogService>();

@@ -108,4 +108,7 @@ public partial class MainViewModel
 
     [RelayCommand]
     private void ShowDefinitionManagerModal() => _modalService.ShowDefinitionManagerView();
+
+    [RelayCommand]
+    private void ShowSettingModal() => _modalService.ShowSettingView();
 }

@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         xmlns:settings="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Settings"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:SettingViewModel}}"
         Title="SettingView"
         Height="400"
         Width="400">
@@ -54,7 +56,16 @@
                     <TextBlock Grid.Row="1"
                                Grid.Column="0"
                                Text="Chunk Loading Pattern:"/>
-                    <ComboBox Grid.Row="0" Grid.Column="1"/>
+                    <ComboBox Grid.Row="0"
+                              Grid.Column="1"
+                              ItemsSource="{Binding ShaderRepository.ShaderList}"
+                              SelectedItem="{Binding Setting.ViewportSetting.ChunkShader}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ShaderName}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                     <ComboBox Grid.Row="1" Grid.Column="1"/>
                 </Grid>
             </GroupBox>
@@ -86,12 +97,12 @@
                                Text="3D Model Exporting:"/>
                     <DockPanel Grid.Row="0" Grid.Column="1">
                         <TextBlock DockPanel.Dock="Right"
-                                   Text="8"
+                                   Text="{Binding Setting.PerformanceSetting.ViewportChunkThreads}"
                                    VerticalAlignment="Top"
                                    Margin="5,0"/>
-                        <Slider Value="8"
-                                Minimum="1"
-                                Maximum="12"
+                        <Slider Value="{Binding Setting.PerformanceSetting.ViewportChunkThreads}"
+                                Minimum="{Binding ViewportChunkThreadRange.Min}"
+                                Maximum="{Binding ViewportChunkThreadRange.Max}"
                                 SmallChange="1"
                                 IsSnapToTickEnabled="True"
                                 TickPlacement="BottomRight"/>
@@ -99,15 +110,15 @@
                     <ComboBox Grid.Column="1"
                               Grid.Row="1"
                               ItemsSource="{Binding Source={StaticResource performancePreferences}}"
-                              d:SelectedIndex="0"/>
+                              SelectedItem="{Binding Setting.PerformanceSetting.ViewportChunkLoading}"/>
                     <ComboBox Grid.Column="1"
                               Grid.Row="2"
                               ItemsSource="{Binding Source={StaticResource performancePreferences}}"
-                              d:SelectedIndex="0"/>
+                              SelectedItem="{Binding Setting.PerformanceSetting.ImageExporting}"/>
                     <ComboBox Grid.Column="1"
                               Grid.Row="3"
                               ItemsSource="{Binding Source={StaticResource performancePreferences}}"
-                              d:SelectedIndex="0"/>
+                              SelectedItem="{Binding Setting.PerformanceSetting.ModelExporting}"/>
                 </Grid>
             </GroupBox>
         </StackPanel>

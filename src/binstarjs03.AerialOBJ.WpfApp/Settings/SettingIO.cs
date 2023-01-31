@@ -41,7 +41,7 @@ public static class SettingIO
                 return;
             if (!JsonHelper.TryGetString(viewportSettingSection, nameof(ViewportSetting.ChunkShader), out string chunkShader))
                 return;
-            if (shaderRepository.Shaders.TryGetValue(chunkShader, out IChunkShader? shader))
+            if (shaderRepository.ShaderDict.TryGetValue(chunkShader, out IChunkShader? shader))
                 setting.ViewportSetting.ChunkShader = shader;
         }
 

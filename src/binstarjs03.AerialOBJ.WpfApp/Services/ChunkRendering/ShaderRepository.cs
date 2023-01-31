@@ -7,10 +7,12 @@ public class ChunkShaderRepository : IChunkShaderRepository
 {
     public ChunkShaderRepository(Dictionary<string, IChunkShader> shaders, IChunkShader defaultShader)
     {
-        Shaders = shaders;
+        ShaderDict = shaders;
+        ShaderList = new List<IChunkShader>(shaders.Values);
         DefaultShader = defaultShader;
     }
 
-    public Dictionary<string, IChunkShader> Shaders { get; }
+    public Dictionary<string, IChunkShader> ShaderDict { get; }
+    public List<IChunkShader> ShaderList { get; }
     public IChunkShader DefaultShader { get; }
 }

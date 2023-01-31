@@ -12,6 +12,8 @@
         x:Name="Root"
         Title="{Binding Title}"
         d:Title="AerialOBJ"
+        d:Width="500"
+        d:Height="400"
         Width="800"
         Height="600"
         MinWidth="450"
@@ -54,7 +56,7 @@
                 </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="Manage Definitions.." Command="{Binding ShowDefinitionManagerModalCommand}"/>
-                    <MenuItem Header="Settings"/>
+                    <MenuItem Header="Settings" Command="{Binding ShowSettingModalCommand}"/>
                     <MenuItem Header="About..." Command="{Binding ShowAboutModalCommand}"/>
                 </MenuItem>
             </Menu>
