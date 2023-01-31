@@ -51,8 +51,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
     // Manager States ---------------------------------------------------------
-    private readonly List<PointZ<int>> _errorRegions = new();
-    private readonly HashSet<PointZ<int>> _errorChunks = new();
     private int _heightLevel;
     private readonly ReaderWriterLockSlim _heightLevelLock = new();
 
@@ -61,13 +59,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly ReaderWriterLockSlim _visibleRegionRangeLock = new();
     private readonly ReaderWriterLockSlim _visibleChunkRangeLock = new();
 
-    // TODO remember faulted coords and skip working on faulted coords
     private readonly Dictionary<PointZ<int>, RegionDataImageModel> _loadedRegions = new(s_initialRegionBufferSize);
     private readonly Dictionary<PointZ<int>, RegionDataImageModel> _cachedRegions = new(s_initialRegionBufferSize);
+    private readonly List<PointZ<int>> _faultedRegions = new(s_initialRegionBufferSize);
     private readonly List<PointZ<int>> _pendingRegions = new(s_initialRegionBufferSize);
     private readonly ReferenceWrap<PointZ<int>?> _workedRegion = new() { Value = null };
 
     private readonly Dictionary<PointZ<int>, ChunkModel> _renderedChunks = new(s_initialChunkBufferSize);
+    private readonly HashSet<PointZ<int>> _faultedChunks = new(s_initialChunkBufferSize);
     private readonly HashSet<PointZ<int>> _pendingChunksSet = new(s_initialChunkBufferSize);
     private readonly List<PointZ<int>> _pendingChunks = new(s_initialChunkBufferSize);
     private readonly object _pendingChunkLock = new();
@@ -258,12 +257,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 // though skip adding to pending queue if it is already there
                 lock (_pendingRegions)
                     lock (_workedRegion)
-                        if (_loadedRegions.ContainsKey(regionCoords)
-                            || _pendingRegions.Contains(regionCoords)
-                            || _workedRegion.Value == regionCoords)
-                            continue;
-                        else
-                            _pendingRegions.Add(regionCoords);
+                        lock (_faultedRegions)
+                            if (_loadedRegions.ContainsKey(regionCoords)
+                                || _pendingRegions.Contains(regionCoords)
+                                || _workedRegion.Value == regionCoords
+                                || _faultedRegions.Contains(regionCoords))
+                                continue;
+                            else
+                                _pendingRegions.Add(regionCoords);
             }
     }
 
@@ -356,12 +357,12 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
         void handleException(PointZ<int> regionCoords, Exception e)
         {
-            if (_errorRegions.Contains(regionCoords))
+            if (_faultedRegions.Contains(regionCoords))
                 return;
             _dispatcher.InvokeAsync(() => RegionLoadingException?.Invoke(regionCoords, e),
                                     DispatcherPriority.Background,
                                     _reinitializingCts.Token);
-            _errorRegions.Add(regionCoords);
+            _faultedRegions.Add(regionCoords);
         }
 
         void addRegionToCache(RegionDataImageModel regionModel)
@@ -441,15 +442,17 @@ public partial class ChunkRegionManager : IChunkRegionManager
                 lock (_renderedChunks)
                     lock (_pendingChunkLock)
                         lock (_workedChunks)
-                            if (_renderedChunks.ContainsKey(chunkCoords)
-                                || _pendingChunksSet.Contains(chunkCoords)
-                                || _workedChunks.Contains(chunkCoords))
-                                continue;
-                            else
-                            {
-                                _pendingChunks.Add(chunkCoords);
-                                _pendingChunksSet.Add(chunkCoords);
-                            }
+                            lock (_faultedChunks)
+                                if (_renderedChunks.ContainsKey(chunkCoords)
+                                    || _pendingChunksSet.Contains(chunkCoords)
+                                    || _workedChunks.Contains(chunkCoords)
+                                    || _faultedChunks.Contains(chunkCoords))
+                                    continue;
+                                else
+                                {
+                                    _pendingChunks.Add(chunkCoords);
+                                    _pendingChunksSet.Add(chunkCoords);
+                                }
             }
         //lock (_pendingChunkLock)
         //    _pendingChunks.Sort();
@@ -553,14 +556,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
 
         void handleChunkLoadingError(PointZ<int> chunkCoords, Exception e)
         {
-            lock (_errorChunks)
+            lock (_faultedChunks)
             {
-                if (_errorChunks.Contains(chunkCoords))
+                if (_faultedChunks.Contains(chunkCoords))
                     return;
                 _dispatcher.InvokeAsync(() => ChunkLoadingException?.Invoke(chunkCoords, e),
                                         DispatcherPriority.Background,
                                         _reinitializingCts.Token);
-                _errorChunks.Add(chunkCoords);
+                _faultedChunks.Add(chunkCoords);
             }
         }
 
@@ -748,8 +751,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
         _pendingChunks.Clear();
         _pendingChunksSet.Clear();
 
-        _errorChunks.Clear();
-        _errorRegions.Clear();
+        _faultedChunks.Clear();
+        _faultedRegions.Clear();
 
         OnPropertyChanged(nameof(VisibleRegionRange));
         OnPropertyChanged(nameof(VisibleChunkRange));
