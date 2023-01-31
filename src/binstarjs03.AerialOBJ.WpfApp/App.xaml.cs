@@ -5,6 +5,7 @@ using System.Windows;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Settings;
@@ -96,6 +97,7 @@ public partial class App : Application
     private void LoadSettings()
     {
         Setting setting = ServiceProvider.GetRequiredService<Setting>();
+        IShaderRepository shaderRepository = ServiceProvider.GetRequiredService<IShaderRepository>();
 
         ConstantPath path = ServiceProvider.GetRequiredService<ConstantPath>();
         IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
@@ -106,6 +108,6 @@ public partial class App : Application
             SettingIO.SaveDefaultSetting(settingPath);
             return;
         }
-        SettingIO.LoadSetting(setting, settingPath, definitionManager);
+        SettingIO.LoadSetting(setting, settingPath, definitionManager, shaderRepository);
     }
 }

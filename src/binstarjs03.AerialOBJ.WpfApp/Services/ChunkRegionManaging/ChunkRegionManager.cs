@@ -15,6 +15,7 @@ using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
+using binstarjs03.AerialOBJ.WpfApp.Settings;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -28,6 +29,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly Random _random = new();
 
     // Dependencies -----------------------------------------------------------
+    private readonly Setting _setting;
     private readonly IRegionDiskLoader _regionProvider;
     private readonly RegionDataImageModelFactory _regionDataImageModelFactory;
     private readonly IChunkRenderer _chunkRenderer;
@@ -46,7 +48,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private Task _redrawTask = Task.CompletedTask;
 
     // leave one cpu thread for both main thread and pending region loader
-    private readonly int _pendingChunkTasksLimit = Math.Max(1, Environment.ProcessorCount - 1);
     private readonly Dictionary<uint, Task> _pendingChunkTasks = new(Environment.ProcessorCount);
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
@@ -73,12 +74,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly List<PointZ<int>> _workedChunks = new(Environment.ProcessorCount);
 
     public ChunkRegionManager(
+        Setting setting,
         IRegionDiskLoader regionProvider,
         RegionDataImageModelFactory regionImageModelFactory,
         IChunkRenderer chunkRenderer,
         IDispatcher dispatcher,
         IChunkLoadingPattern chunkPattern)
     {
+        _setting = setting;
         _regionProvider = regionProvider;
         _regionDataImageModelFactory = regionImageModelFactory;
         _chunkRenderer = chunkRenderer;
@@ -98,6 +101,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
     public int LoadedChunksCount => _renderedChunks.Count;
     public int PendingChunksCount => _pendingChunks.Count;
     public int WorkedChunksCount => _workedChunks.Count;
+
+    private int PendingChunkTasksLimit => _setting.PerformanceSetting.ViewportChunkThreads;
 
     public event Action<RegionDataImageModel>? RegionLoaded;
     public event Action<RegionDataImageModel>? RegionUnloaded;
@@ -455,7 +460,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         lock (_pendingChunkTasks)
         {
-            while (_pendingChunkTasks.Count < _pendingChunkTasksLimit)
+            while (_pendingChunkTasks.Count < PendingChunkTasksLimit)
             {
                 // reset overflow to zero
                 if (_newChunkLoaderTaskId.Value == uint.MaxValue)

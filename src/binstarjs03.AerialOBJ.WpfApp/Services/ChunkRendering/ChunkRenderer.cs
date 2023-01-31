@@ -5,6 +5,7 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Settings;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class ChunkRenderer : IChunkRenderer
@@ -19,14 +20,6 @@ public class ChunkRenderer : IChunkRenderer
         _definitionSetting = setting.DefinitionSetting;
     }
 
-    // TODO lock chunkShader if there are reading threads
-    // TODO make chunkshader swappable and refresh CRM just like swapping definition
-    public IChunkShader Shader
-    {
-        get => _shader;
-        set => throw new NotImplementedException();
-    }
-
     public void RenderChunk(IRegionImage regionImage, IChunk chunk, BlockSlim[,] highestBlocks, int heightLimit)
     {
         ChunkRenderSetting setting = new()
@@ -39,7 +32,7 @@ public class ChunkRenderer : IChunkRenderer
             HighestBlocks = highestBlocks,
             Exclusions = null, // not implemented for now
         };
-        Shader.RenderChunk(setting);
+        _shader.RenderChunk(setting);
     }
 
     public void EraseChunk(IRegionImage regionImage, PointZ<int> chunkCoordsRel)

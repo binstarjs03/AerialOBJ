@@ -5,12 +5,14 @@ using System.Text.Json;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.JsonFormat;
+using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Settings;
 public static class SettingIO
 {
-    public static void LoadSetting(Setting setting, string settingPath, IDefinitionManager definitionManager)
+    public static void LoadSetting(Setting setting, string settingPath, IDefinitionManager definitionManager, IShaderRepository shaderRepository)
     {
         string settingJson = File.ReadAllText(settingPath);
         JsonElement root = JsonDocument.Parse(settingJson).RootElement;
@@ -37,8 +39,10 @@ public static class SettingIO
         {
             if (!root.TryGetProperty(nameof(ViewportSetting), out JsonElement viewportSettingSection))
                 return;
-            if (JsonHelper.TryGetEnumFromString(viewportSettingSection, nameof(ChunkShadingStyle), out ChunkShadingStyle shadingStyle))
-                setting.ViewportSetting.ChunkShadingStyle = shadingStyle;
+            if (!JsonHelper.TryGetString(viewportSettingSection, nameof(ViewportSetting.ChunkShader), out string chunkShader))
+                return;
+            if (shaderRepository.Shaders.TryGetValue(chunkShader, out IChunkShader? shader))
+                setting.ViewportSetting.ChunkShader = shader;
         }
 
         void readPerformanceSetting()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
@@ -16,7 +17,7 @@ using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace binstarjs03.AerialOBJ.WpfApp;
+namespace binstarjs03.AerialOBJ.WpfApp.Settings;
 internal static class ServiceConfiguration
 {
     // For clarity, do not remove explicit type parameter for adding service!
@@ -53,11 +54,15 @@ internal static class ServiceConfiguration
             };
         });
         services.AddSingleton<GlobalState>();
-        services.AddSingleton<Setting>(x => new Setting
+        services.AddSingleton<Setting>(x =>
         {
-            DefinitionSetting = DefinitionSetting.GetDefaultSetting(),
-            PerformanceSetting = PerformanceSetting.GetDefaultSetting(),
-            ViewportSetting = ViewportSetting.GetDefaultSetting(),
+            IShaderRepository shaderRepository = x.GetRequiredService<IShaderRepository>();
+            return new Setting
+            {
+                DefinitionSetting = DefinitionSetting.GetDefaultSetting(),
+                PerformanceSetting = PerformanceSetting.GetDefaultSetting(),
+                ViewportSetting = ViewportSetting.GetDefaultSetting(shaderRepository),
+            };
         });
         services.AddSingleton<ViewState>();
     }
@@ -111,16 +116,20 @@ internal static class ServiceConfiguration
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
             Setting setting = x.GetRequiredService<Setting>();
-            ChunkShadingStyle shadingStyle = setting.ViewportSetting.ChunkShadingStyle;
-            IChunkShader shader = shadingStyle switch
-            {
-                ChunkShadingStyle.Flat => new FlatChunkShader(),
-                ChunkShadingStyle.Standard => new StandardChunkShader(),
-                _ => throw new NotImplementedException(),
-            };
-            return new ChunkRenderer(shader, setting);
+            return new ChunkRenderer(setting.ViewportSetting.ChunkShader, setting);
         });
         services.AddTransient<IKeyHandler, KeyHandler>();
         services.AddTransient<IMouseHandler, MouseHandler>();
+        services.AddSingleton<IShaderRepository, ShaderRepository>(x =>
+        {
+            IChunkShader flat = new FlatChunkShader();
+            IChunkShader standard = new StandardChunkShader();
+            Dictionary<string, IChunkShader> shaders = new()
+            {
+                { "Flat", flat },
+                { "Standard", standard },
+            };
+            return new ShaderRepository(shaders, standard);
+        });
     }
 }

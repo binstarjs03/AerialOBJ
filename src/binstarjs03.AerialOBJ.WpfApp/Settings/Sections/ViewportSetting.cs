@@ -1,18 +1,19 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
 
 [ObservableObject]
 public partial class ViewportSetting
 {
-    [ObservableProperty] private ChunkShadingStyle _chunkShadingStyle;
+    [ObservableProperty] private IChunkShader _chunkShader;
 
-    public ViewportSetting(ChunkShadingStyle chunkShadingStyle)
+    public ViewportSetting(IChunkShader chunkShader)
     {
-        _chunkShadingStyle = chunkShadingStyle;
+        _chunkShader = chunkShader;
     }
 
-    public static ChunkShadingStyle DefaultChunkShadingStyle { get; } = ChunkShadingStyle.Standard;
-
-    public static ViewportSetting GetDefaultSetting() => new(DefaultChunkShadingStyle);
+    public static ViewportSetting GetDefaultSetting(IShaderRepository repository) => new(repository.DefaultShader);
 }

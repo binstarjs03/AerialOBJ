@@ -1,10 +1,10 @@
 {
   "FormatDefinition": 1,
   "DefinitionSetting": {
-    "ViewportDefinition": "Test Viewport Definition"
+    "ViewportDefinition": null
   },
   "ViewportSetting": {
-    "ChunkShadingStyle": "Flat"
+    "ChunkShader": "Standard"
   },
   "PerformanceSetting": {
     "ViewportChunkThreads": 12,

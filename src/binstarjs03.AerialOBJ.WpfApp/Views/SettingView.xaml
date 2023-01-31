@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
+        xmlns:settings="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Settings"
         mc:Ignorable="d"
         Title="SettingView"
         Height="400"
@@ -15,15 +17,49 @@
         <Style TargetType="GroupBox" BasedOn="{StaticResource SquareBox}">
             <Setter Property="Padding" Value="5"/>
         </Style>
+        <ObjectDataProvider ObjectType="{x:Type sys:Enum}"
+                            MethodName="GetValues"
+                            x:Key="performancePreferences">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="settings:PerformancePreference"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
     </Window.Resources>
     <Grid Margin="20">
         <StackPanel>
+            <StackPanel.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                    <Setter Property="Margin" Value="0,0,10,0"/>
+                </Style>
+            </StackPanel.Resources>
+
             <GroupBox Header="Viewport">
                 <Grid>
+                    <Grid.Resources/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Chunk Shading Style:"/>
+                    <ComboBox Grid.Column="1" Grid.Row="1"/>
+
+
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Performance">
+                <Grid>
                     <Grid.Resources>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Right"/>
-                            <Setter Property="Margin" Value="0,0,10,0"/>
+                        <Style TargetType="TextBlock"
+                               x:Key="Centered"
+                               BasedOn="{StaticResource {x:Type TextBlock}}">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="Margin" Value="0,3"/>
                         </Style>
                     </Grid.Resources>
                     <Grid.ColumnDefinitions>
@@ -33,18 +69,25 @@
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0"
                                Grid.Column="0"
-                               Text="Chunk Shading Style:"/>
-                    <StackPanel Grid.Row="0" Grid.Column="1">
-                        <RadioButton Content="Flat"/>
-                        <RadioButton Content="Standard"/>
-                    </StackPanel>
+                               Text="Viewport Chunk Threads:"/>
                     <TextBlock Grid.Row="1"
                                Grid.Column="0"
-                               Text="Chunk Threads:"/>
-                    <DockPanel Grid.Row="1" Grid.Column="1">
+                               Text="Viewport Chunk Loading:"
+                               Style="{StaticResource Centered}"/>
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="0"
+                               Text="Image Exporting:"
+                               Style="{StaticResource Centered}"/>
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="0"
+                               Text="3D Model Exporting:"
+                               Style="{StaticResource Centered}"/>
+                    <DockPanel Grid.Row="0" Grid.Column="1">
                         <TextBlock DockPanel.Dock="Right"
                                    Text="8"
                                    Margin="5,0"/>
@@ -55,6 +98,18 @@
                                 IsSnapToTickEnabled="True"
                                 TickPlacement="BottomRight"/>
                     </DockPanel>
+                    <ComboBox Grid.Column="1"
+                              Grid.Row="1"
+                              ItemsSource="{Binding Source={StaticResource performancePreferences}}"
+                              d:SelectedIndex="0"/>
+                    <ComboBox Grid.Column="1"
+                              Grid.Row="2"
+                              ItemsSource="{Binding Source={StaticResource performancePreferences}}"
+                              d:SelectedIndex="0"/>
+                    <ComboBox Grid.Column="1"
+                              Grid.Row="3"
+                              ItemsSource="{Binding Source={StaticResource performancePreferences}}"
+                              d:SelectedIndex="0"/>
                 </Grid>
             </GroupBox>
         </StackPanel>
