@@ -105,7 +105,7 @@ public partial class App : Application
         string settingPath = path.SettingPath;
         if (!File.Exists(settingPath))
         {
-            SettingIO.SaveDefaultSetting(settingPath);
+            SettingIO.SaveSetting(settingPath, setting);
             return;
         }
         SettingIO.LoadSetting(setting, settingPath, definitionManager, shaderRepository);

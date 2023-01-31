@@ -4,14 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         xmlns:settings="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Models.Settings"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:SettingViewModel}}"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
         Title="SettingView"
         Height="400"
         Width="400">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Window.Resources>
         <Style TargetType="RadioButton">
             <Setter Property="Margin" Value="0,3"/>
@@ -98,6 +106,7 @@
                     <DockPanel Grid.Row="0" Grid.Column="1">
                         <TextBlock DockPanel.Dock="Right"
                                    Text="{Binding Setting.PerformanceSetting.ViewportChunkThreads}"
+                                   d:Text="1"
                                    VerticalAlignment="Top"
                                    Margin="5,0"/>
                         <Slider Value="{Binding Setting.PerformanceSetting.ViewportChunkThreads}"

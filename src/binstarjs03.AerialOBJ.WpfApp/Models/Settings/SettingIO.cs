@@ -50,7 +50,7 @@ public static class SettingIO
             if (!root.TryGetProperty(nameof(PerformanceSetting), out JsonElement performanceSettingSection))
                 return;
             if (JsonHelper.TryGetInt(performanceSettingSection, nameof(PerformanceSetting.ViewportChunkThreads), out int viewportChunkThreads))
-                setting.PerformanceSetting.ViewportChunkThreads = viewportChunkThreads;
+                setting.PerformanceSetting.ViewportChunkThreads = Math.Clamp(viewportChunkThreads, 1, Environment.ProcessorCount);
             if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ViewportChunkLoading), out PerformancePreference viewportChunkLoading))
                 setting.PerformanceSetting.ViewportChunkLoading = viewportChunkLoading;
             if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ImageExporting), out PerformancePreference imageExporting))
@@ -62,13 +62,48 @@ public static class SettingIO
 
     public static void SaveSetting(string settingPath, Setting setting)
     {
-        throw new NotImplementedException();
-    }
+        JsonWriterOptions options = new() { Indented = true, };
+        using Stream stream = File.Open(settingPath, FileMode.Create,FileAccess.Write, FileShare.None);
+        using Utf8JsonWriter writer = new(stream, options);
 
-    public static void SaveDefaultSetting(string settingPath)
-    {
-        throw new NotImplementedException();
-        //Setting setting = Setting.GetDefaultSetting();
-        //SaveSetting(settingPath, setting);
+        writer.WriteStartObject();
+        writer.WriteNumber("FormatDefinition", 1);
+        writeDefinitionSetting();
+        writeViewportSetting();
+        writePerformanceSetting();
+        writer.WriteEndObject();
+
+        writer.Flush();
+        stream.Flush();
+
+        void writeDefinitionSetting()
+        {
+            DefinitionSetting definitionSetting = setting.DefinitionSetting;
+            writer.WriteStartObject(nameof(DefinitionSetting));
+            if (definitionSetting.CurrentViewportDefinition.IsDefault)
+                writer.WriteNull(nameof(ViewportDefinition));
+            else
+                writer.WriteString(nameof(ViewportDefinition), definitionSetting.CurrentViewportDefinition.Name);
+            writer.WriteEndObject();
+        }
+
+        void writeViewportSetting()
+        {
+            ViewportSetting viewportSetting = setting.ViewportSetting;
+            writer.WriteStartObject(nameof(ViewportSetting));
+            writer.WriteString(nameof(ViewportSetting.ChunkShader), viewportSetting.ChunkShader.ShaderName);
+            writer.WriteEndObject();
+        }
+
+        void writePerformanceSetting()
+        {
+            PerformanceSetting performanceSetting = setting.PerformanceSetting;
+            writer.WriteStartObject(nameof(PerformanceSetting));
+            writer.WriteNumber(nameof(PerformanceSetting.ViewportChunkThreads), performanceSetting.ViewportChunkThreads);
+            writer.WriteString(nameof(PerformanceSetting.ViewportChunkLoading), performanceSetting.ViewportChunkLoading.ToString());
+            writer.WriteString(nameof(PerformanceSetting.ImageExporting), performanceSetting.ImageExporting.ToString());
+            writer.WriteString(nameof(PerformanceSetting.ModelExporting), performanceSetting.ModelExporting.ToString());
+            writer.WriteEndObject();
+        }
     }
 }

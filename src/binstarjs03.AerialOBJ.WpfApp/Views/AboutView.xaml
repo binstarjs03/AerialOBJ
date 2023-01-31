@@ -7,8 +7,10 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:AbstractViewModel}}"
+        WindowStartupLocation="CenterScreen"
         Title="About"
         Background="{StaticResource Background}"
+        ResizeMode="NoResize"
         SizeToContent="WidthAndHeight">
     <Grid Width="Auto"
           Height="Auto"

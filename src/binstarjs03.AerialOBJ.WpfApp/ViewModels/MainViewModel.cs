@@ -91,7 +91,10 @@ public partial class MainViewModel
     }
 
     [RelayCommand]
-    private void CloseSavegame() => GlobalState.SavegameLoadInfo = null;
+    private void CloseSavegame()
+    {
+        GlobalState.SavegameLoadInfo = null;
+    }
 
     [RelayCommand]
     private void Close(IClosableView view)
