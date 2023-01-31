@@ -66,16 +66,17 @@ public partial class ViewportViewModel : IViewportViewModel
         ChunkRegionManager = chunkRegionManager;
         _logService = logService;
         InputHandler = inputHandler;
+        InputHandler.Viewport = this;
         _definitionSetting = setting.DefinitionSetting;
 
-        InputHandler.Viewport = this;
         GlobalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
 
-        _definitionSetting.ViewportDefinitionChanged += ReloadRenderedChunks;
-        setting.ViewportSetting.ChunkShaderChanged += ReloadRenderedChunks;
+        setting.DefinitionSetting.ViewportDefinitionChanged += () => ChunkRegionManagerAction(ChunkRegionManager.ReloadRenderedChunks);
+        setting.ViewportSetting.ChunkShaderChanged += () => ChunkRegionManagerAction(ChunkRegionManager.ReloadRenderedChunks);
+        setting.PerformanceSetting.ViewportChunkThreadsChanged += () => ChunkRegionManagerAction(ChunkRegionManager.StartBackgroundThread);
 
-        ChunkRegionManager.RegionLoaded += ShowRegionImage;
-        ChunkRegionManager.RegionUnloaded += RemoveRegionImage;
+        ChunkRegionManager.RegionLoaded += regionModel => ChunkRegionManagerAction(_regionDataImageModels.Add, regionModel);
+        ChunkRegionManager.RegionUnloaded += regionModel => _regionDataImageModels.Remove(regionModel);
         ChunkRegionManager.RegionLoadingException += OnRegionLoadingException;
         ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
     }
@@ -104,22 +105,24 @@ public partial class ViewportViewModel : IViewportViewModel
             throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
 
-    private void ReloadRenderedChunks()
+    /// <summary>
+    /// Execute only if savegame loaded
+    /// </summary>
+    private void ChunkRegionManagerAction(Action callback)
     {
         if (!GlobalState.HasSavegameLoaded)
             return;
-        ChunkRegionManager.ReloadRenderedChunks();
+        callback();
     }
 
-    private void ShowRegionImage(RegionDataImageModel regionModel)
+    /// <summary>
+    /// Execute only if savegame loaded
+    /// </summary>
+    private void ChunkRegionManagerAction<T>(Action<T> callback, T arg)
     {
-        if (GlobalState.HasSavegameLoaded)
-            _regionDataImageModels.Add(regionModel);
-    }
-
-    private void RemoveRegionImage(RegionDataImageModel regionModel)
-    {
-        _regionDataImageModels.Remove(regionModel);
+        if (!GlobalState.HasSavegameLoaded)
+            return;
+        callback(arg);
     }
 
     private void OnRegionLoadingException(PointZ<int> regionCoords, Exception e)
@@ -170,8 +173,7 @@ public partial class ViewportViewModel : IViewportViewModel
 
     private void UpdateChunkRegionManager()
     {
-        if (GlobalState.HasSavegameLoaded)
-            ChunkRegionManager.Update(CameraPos, UnitMultiplier, ScreenSize);
+        ChunkRegionManagerAction(() => ChunkRegionManager.Update(CameraPos, UnitMultiplier, ScreenSize));
     }
 
     [RelayCommand]

@@ -27,8 +27,12 @@ public partial class PerformanceSetting
     public static PerformancePreference DefaultImageExporting => PerformancePreference.OptimalMemoryUsage;
     public static PerformancePreference DefaultModelExporting => PerformancePreference.OptimalMemoryUsage;
 
+    public event Action? ViewportChunkThreadsChanged;
+
     public static PerformanceSetting GetDefaultSetting() => new(DefaultViewportChunkThreads,
                                                                 DefaultViewportChunkLoading,
                                                                 DefaultImageExporting,
                                                                 DefaultModelExporting);
+
+    partial void OnViewportChunkThreadsChanged(int value) => ViewportChunkThreadsChanged?.Invoke();
 }
