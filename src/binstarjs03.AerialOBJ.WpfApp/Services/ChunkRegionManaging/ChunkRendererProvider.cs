@@ -1,4 +1,4 @@
-﻿using binstarjs03.AerialOBJ.WpfApp.Settings;
+﻿using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 public class ChunkRendererProvider

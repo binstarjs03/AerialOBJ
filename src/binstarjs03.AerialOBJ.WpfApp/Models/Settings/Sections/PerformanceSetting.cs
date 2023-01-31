@@ -2,7 +2,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Settings;
+namespace binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 
 [ObservableObject]
 public partial class PerformanceSetting

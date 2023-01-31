@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfApp.Settings;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 
 public enum PerformancePreference
 {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.WpfApp.Settings;
+using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public interface IDefinitionManager

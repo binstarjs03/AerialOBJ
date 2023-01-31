@@ -4,6 +4,7 @@ using System.IO;
 
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
+using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
@@ -17,7 +18,7 @@ using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Settings;
+namespace binstarjs03.AerialOBJ.WpfApp;
 internal static class ServiceConfiguration
 {
     // For clarity, do not remove explicit type parameter for adding service!

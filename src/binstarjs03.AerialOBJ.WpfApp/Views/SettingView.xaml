@@ -6,7 +6,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
-        xmlns:settings="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Settings"
+        xmlns:settings="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Models.Settings"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:SettingViewModel}}"
         Title="SettingView"

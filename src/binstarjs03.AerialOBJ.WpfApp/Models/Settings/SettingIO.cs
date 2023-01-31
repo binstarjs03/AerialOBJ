@@ -9,7 +9,7 @@ using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Settings;
+namespace binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 public static class SettingIO
 {
     public static void LoadSetting(Setting setting, string settingPath, IDefinitionManager definitionManager, IChunkShaderRepository shaderRepository)
