@@ -4,7 +4,9 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 public class FlatChunkShader : ChunkShaderBase
 {
-    public override void RenderChunk(ChunkRenderSetting setting)
+    public override string ShaderName => "Flat";
+
+    public override void RenderChunk(ChunkRenderOptions setting)
     {
         BlockSlim[,] highestBlocks = setting.HighestBlocks ?? GetChunkHighestBlock(setting);
         for (int x = 0; x < IChunk.BlockCount; x++)

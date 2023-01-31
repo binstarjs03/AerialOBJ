@@ -2,13 +2,15 @@
 
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class MainView : Window, IClosableView
 {
-    public MainView(IMainViewModel mainViewModel)
+    public MainView()
     {
         InitializeComponent();
-        DataContext = mainViewModel;
+        DataContext = App.Current.ServiceProvider.GetRequiredService<MainViewModel>();
         Root.LocationChanged += OnLocationChanged;
         Root.SizeChanged += OnSizeChanged;
     }

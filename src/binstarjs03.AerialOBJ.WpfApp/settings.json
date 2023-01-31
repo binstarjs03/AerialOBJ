@@ -1,0 +1,15 @@
+{
+  "FormatDefinition": 1,
+  "DefinitionSetting": {
+    "ViewportDefinition": null
+  },
+  "ViewportSetting": {
+    "ChunkShader": "Standard"
+  },
+  "PerformanceSetting": {
+    "ViewportChunkThreads": 12,
+    "ViewportChunkLoading": "OptimalMemoryUsage",
+    "ImageExporting": "OptimalMemoryUsage",
+    "ModelExporting": "OptimalMemoryUsage"
+  }
+}

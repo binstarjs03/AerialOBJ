@@ -2,7 +2,7 @@
 using System.Buffers.Binary;
 using System.IO;
 
-using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.NbtFormat;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;

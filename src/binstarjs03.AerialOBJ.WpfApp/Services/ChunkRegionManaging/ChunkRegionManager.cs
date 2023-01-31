@@ -10,6 +10,7 @@ using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Models;
+using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
@@ -28,6 +29,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly Random _random = new();
 
     // Dependencies -----------------------------------------------------------
+    private readonly Setting _setting;
     private readonly IRegionDiskLoader _regionProvider;
     private readonly RegionDataImageModelFactory _regionDataImageModelFactory;
     private readonly IChunkRenderer _chunkRenderer;
@@ -45,8 +47,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly ReferenceWrap<bool> _isRedrawTaskRunning = new() { Value = false };
     private Task _redrawTask = Task.CompletedTask;
 
-    // leave one cpu thread for both main thread and pending region loader
-    private readonly int _pendingChunkTasksLimit = Math.Max(1, Environment.ProcessorCount - 1);
     private readonly Dictionary<uint, Task> _pendingChunkTasks = new(Environment.ProcessorCount);
     private readonly ReferenceWrap<uint> _newChunkLoaderTaskId = new() { Value = default };
 
@@ -73,12 +73,14 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly List<PointZ<int>> _workedChunks = new(Environment.ProcessorCount);
 
     public ChunkRegionManager(
+        Setting setting,
         IRegionDiskLoader regionProvider,
         RegionDataImageModelFactory regionImageModelFactory,
         IChunkRenderer chunkRenderer,
         IDispatcher dispatcher,
         IChunkLoadingPattern chunkPattern)
     {
+        _setting = setting;
         _regionProvider = regionProvider;
         _regionDataImageModelFactory = regionImageModelFactory;
         _chunkRenderer = chunkRenderer;
@@ -98,6 +100,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
     public int LoadedChunksCount => _renderedChunks.Count;
     public int PendingChunksCount => _pendingChunks.Count;
     public int WorkedChunksCount => _workedChunks.Count;
+
+    private int PendingChunkTasksLimit => _setting.PerformanceSetting.ViewportChunkThreads;
 
     public event Action<RegionDataImageModel>? RegionLoaded;
     public event Action<RegionDataImageModel>? RegionUnloaded;
@@ -121,7 +125,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         {
             if (_heightLevel != heightLevel)
                 _heightLevel = heightLevel;
-            UpdateChunkHighestBlockResponsive();
+            ReloadRenderedChunks();
         }
         finally { _heightLevelLock.ExitWriteLock(); }
     }
@@ -446,8 +450,8 @@ public partial class ChunkRegionManager : IChunkRegionManager
                                 _pendingChunksSet.Add(chunkCoords);
                             }
             }
-        lock (_pendingChunkLock)
-            _pendingChunks.Sort();
+        //lock (_pendingChunkLock)
+        //    _pendingChunks.Sort();
     }
 
     // TODO we may be able to create new class that manages and track pool of tasks
@@ -455,7 +459,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         lock (_pendingChunkTasks)
         {
-            while (_pendingChunkTasks.Count < _pendingChunkTasksLimit)
+            while (_pendingChunkTasks.Count < PendingChunkTasksLimit)
             {
                 // reset overflow to zero
                 if (_newChunkLoaderTaskId.Value == uint.MaxValue)
@@ -472,7 +476,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
     {
         try
         {
-            while (!_stoppingCts.IsCancellationRequested || !_reinitializingCts.IsCancellationRequested)
+            while (!_stoppingCts.IsCancellationRequested && !_reinitializingCts.IsCancellationRequested)
             {
                 PointZ<int>? chunkCoords = null;
                 try
@@ -674,7 +678,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
         return chunk.HighestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
     }
 
-    private void UpdateChunkHighestBlockResponsive()
+    public void ReloadRenderedChunks()
     {
         lock (_renderedChunks)
             foreach (ChunkModel chunkModel in _renderedChunks.Values)

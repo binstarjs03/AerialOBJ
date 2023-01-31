@@ -14,11 +14,13 @@ public class ModalService : IModalService
 {
     private readonly Func<IDialogView> _aboutViewFactory;
     private readonly Func<IDialogView> _definitionManagerViewFactory;
+    private readonly Func<IDialogView> _settingViewFactory;
 
-    public ModalService(Func<IDialogView> aboutViewFactory, Func<IDialogView> definitionManagerViewFactory)
+    public ModalService(Func<IDialogView> aboutViewFactory, Func<IDialogView> definitionManagerViewFactory, Func<IDialogView> settingViewFactory)
     {
         _aboutViewFactory = aboutViewFactory;
         _definitionManagerViewFactory = definitionManagerViewFactory;
+        _settingViewFactory = settingViewFactory;
     }
 
     public void ShowMessageBox(MessageBoxArg dialogArg)
@@ -46,6 +48,8 @@ public class ModalService : IModalService
     public void ShowAboutView() => _aboutViewFactory().ShowDialog();
 
     public void ShowDefinitionManagerView() => _definitionManagerViewFactory().ShowDialog();
+
+    public void ShowSettingView() => _settingViewFactory().ShowDialog();
 
     public FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg)
     {

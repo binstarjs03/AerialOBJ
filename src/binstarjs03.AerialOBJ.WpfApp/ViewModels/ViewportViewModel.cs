@@ -7,6 +7,7 @@ using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Models;
+using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 
@@ -19,7 +20,7 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public partial class ViewportViewModel : IViewportViewModel
 {
     private readonly ILogService _logService;
-    private readonly IDefinitionManager _definitionManager;
+    private readonly DefinitionSetting _definitionSetting;
 
     private readonly float[] _zoomTable = new float[] { 1, 2, 3, 5, 8, 13, 21, 34 }; // fib. sequence
     private readonly float _zoomLowLimit = 1f;
@@ -53,28 +54,34 @@ public partial class ViewportViewModel : IViewportViewModel
     // Region Images
     [ObservableProperty] private ObservableCollection<RegionDataImageModel> _regionDataImageModels = new();
 
-    public ViewportViewModel(GlobalState globalState,
+    public ViewportViewModel(AppInfo appInfo,
+                             GlobalState globalState,
                              IChunkRegionManager chunkRegionManager,
                              ILogService logService,
-                             IDefinitionManager definitionManager,
-                             ViewportViewModelInputHandler inputHandler)
+                             ViewportViewModelInputHandler inputHandler,
+                             Setting setting)
     {
+        AppInfo = appInfo;
         GlobalState = globalState;
         ChunkRegionManager = chunkRegionManager;
-        _definitionManager = definitionManager;
-        InputHandler = inputHandler;
         _logService = logService;
-
+        InputHandler = inputHandler;
         InputHandler.Viewport = this;
-        GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadInfoChanged;
-        ChunkRegionManager.RegionLoaded += ShowRegionImage;
-        ChunkRegionManager.RegionUnloaded += RemoveRegionImage;
+        _definitionSetting = setting.DefinitionSetting;
+
+        GlobalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
+
+        setting.DefinitionSetting.ViewportDefinitionChanged += () => ChunkRegionManagerAction(ChunkRegionManager.ReloadRenderedChunks);
+        setting.ViewportSetting.ChunkShaderChanged += () => ChunkRegionManagerAction(ChunkRegionManager.ReloadRenderedChunks);
+        setting.PerformanceSetting.ViewportChunkThreadsChanged += () => ChunkRegionManagerAction(ChunkRegionManager.StartBackgroundThread);
+
+        ChunkRegionManager.RegionLoaded += regionModel => ChunkRegionManagerAction(_regionDataImageModels.Add, regionModel);
+        ChunkRegionManager.RegionUnloaded += regionModel => _regionDataImageModels.Remove(regionModel);
         ChunkRegionManager.RegionLoadingException += OnRegionLoadingException;
         ChunkRegionManager.ChunkLoadingException += OnChunkLoadingException;
-        _definitionManager.ViewportDefinitionChanging += OnDefinitionManager_ViewportDefinitionChanging;
-        _definitionManager.ViewportDefinitionChanged += OnDefinitionManager_ViewportDefinitionChanged;
     }
 
+    public AppInfo AppInfo { get; }
     public GlobalState GlobalState { get; }
     public Func<Size<int>>? GetViewViewportSize { get; set; }
     public IChunkRegionManager ChunkRegionManager { get; }
@@ -88,7 +95,7 @@ public partial class ViewportViewModel : IViewportViewModel
     partial void OnZoomMultiplierChanged(float value) => UpdateChunkRegionManager();
     partial void OnHeightLevelChanged(int value) => ChunkRegionManager.UpdateHeightLevel(HeightLevel);
 
-    private void OnGlobalState_SavegameLoadInfoChanged(SavegameLoadState state)
+    private void OnSavegameLoadInfoChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Opened)
             InitializeOnSavegameOpened();
@@ -98,15 +105,24 @@ public partial class ViewportViewModel : IViewportViewModel
             throw new NotImplementedException($"No handler implemented for {nameof(SavegameLoadState)} of {state}");
     }
 
-    private void ShowRegionImage(RegionDataImageModel regionModel)
+    /// <summary>
+    /// Execute only if savegame loaded
+    /// </summary>
+    private void ChunkRegionManagerAction(Action callback)
     {
-        if (GlobalState.HasSavegameLoaded)
-            _regionDataImageModels.Add(regionModel);
+        if (!GlobalState.HasSavegameLoaded)
+            return;
+        callback();
     }
 
-    private void RemoveRegionImage(RegionDataImageModel regionModel)
+    /// <summary>
+    /// Execute only if savegame loaded
+    /// </summary>
+    private void ChunkRegionManagerAction<T>(Action<T> callback, T arg)
     {
-        _regionDataImageModels.Remove(regionModel);
+        if (!GlobalState.HasSavegameLoaded)
+            return;
+        callback(arg);
     }
 
     private void OnRegionLoadingException(PointZ<int> regionCoords, Exception e)
@@ -117,23 +133,6 @@ public partial class ViewportViewModel : IViewportViewModel
     private void OnChunkLoadingException(PointZ<int> chunkCoords, Exception e)
     {
         _logService.LogException($"Cannot load chunk {chunkCoords}", e);
-    }
-
-    private void OnDefinitionManager_ViewportDefinitionChanging()
-    {
-        // We want to request for crm to stop so we can safely swap definition.
-        if (!GlobalState.HasSavegameLoaded)
-            return;
-        ChunkRegionManager.StopBackgroundThread();
-    }
-
-    private void OnDefinitionManager_ViewportDefinitionChanged()
-    {
-        // continue working for crm
-        if (!GlobalState.HasSavegameLoaded)
-            return;
-        ChunkRegionManager.StartBackgroundThread();
-        UpdateChunkRegionManager();
     }
 
     private void InitializeOnSavegameOpened()
@@ -149,7 +148,7 @@ public partial class ViewportViewModel : IViewportViewModel
         ChunkRegionManager.UpdateHeightLevel(HeightLevel);
         UpdateChunkRegionManager();
 
-        if (GlobalState.IsDebugEnabled)
+        if (AppInfo.IsDebugEnabled)
         {
             IsChunkGridVisible = true;
             IsInfoPanelVisible = true;
@@ -174,8 +173,7 @@ public partial class ViewportViewModel : IViewportViewModel
 
     private void UpdateChunkRegionManager()
     {
-        if (GlobalState.HasSavegameLoaded)
-            ChunkRegionManager.Update(CameraPos, UnitMultiplier, ScreenSize);
+        ChunkRegionManagerAction(() => ChunkRegionManager.Update(CameraPos, UnitMultiplier, ScreenSize));
     }
 
     [RelayCommand]
@@ -194,10 +192,10 @@ public partial class ViewportViewModel : IViewportViewModel
         {
             ContextBlockCoords = new Point3<int>(worldPos.X, block.Value.Height, worldPos.Z);
             ContextBlockName = block.Value.Name;
-            if (_definitionManager.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Value.Name, out ViewportBlockDefinition? bd))
+            if (_definitionSetting.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Value.Name, out ViewportBlockDefinition? bd))
                 ContextBlockDisplayName = bd.DisplayName;
             else
-                ContextBlockDisplayName = _definitionManager.CurrentViewportDefinition.MissingBlockDefinition.DisplayName;
+                ContextBlockDisplayName = _definitionSetting.CurrentViewportDefinition.MissingBlockDefinition.DisplayName;
         }
         else
         {

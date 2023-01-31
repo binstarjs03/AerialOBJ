@@ -12,7 +12,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 
 [ObservableObject]
-public partial class MainViewModel : IMainViewModel
+public partial class MainViewModel
 {
     private readonly AbstractViewModel _abstractViewModel;
     private readonly IModalService _modalService;
@@ -20,16 +20,17 @@ public partial class MainViewModel : IMainViewModel
     private readonly ISavegameLoader _savegameLoaderService;
 
     [ObservableProperty]
-    private string _title = GlobalState.AppName;
+    private string _title;
 
-    public MainViewModel(GlobalState globalState,
+    public MainViewModel(AppInfo appInfo,
+                         GlobalState globalState,
                          ViewState viewState,
                          AbstractViewModel abstractViewModel,
                          IModalService modalService,
                          ILogService logService,
-                         ISavegameLoader savegameLoaderService,
-                         IView viewportView)
+                         ISavegameLoader savegameLoaderService)
     {
+        AppInfo = appInfo;
         GlobalState = globalState;
         ViewState = viewState;
         _abstractViewModel = abstractViewModel;
@@ -37,20 +38,21 @@ public partial class MainViewModel : IMainViewModel
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
 
+        _title = AppInfo.AppName;
+
         GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadChanged;
-        ViewportView = viewportView;
     }
 
+    public AppInfo AppInfo { get; }
     public GlobalState GlobalState { get; }
     public ViewState ViewState { get; }
-    public IView ViewportView { get; }
 
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         Title = state switch
         {
-            SavegameLoadState.Opened => $"{GlobalState.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
-            SavegameLoadState.Closed => GlobalState.AppName,
+            SavegameLoadState.Opened => $"{AppInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
+            SavegameLoadState.Closed => AppInfo.AppName,
             _ => throw new NotImplementedException(),
         };
     }
@@ -89,7 +91,10 @@ public partial class MainViewModel : IMainViewModel
     }
 
     [RelayCommand]
-    private void CloseSavegame() => GlobalState.SavegameLoadInfo = null;
+    private void CloseSavegame()
+    {
+        GlobalState.SavegameLoadInfo = null;
+    }
 
     [RelayCommand]
     private void Close(IClosableView view)
@@ -106,4 +111,7 @@ public partial class MainViewModel : IMainViewModel
 
     [RelayCommand]
     private void ShowDefinitionManagerModal() => _modalService.ShowDefinitionManagerView();
+
+    [RelayCommand]
+    private void ShowSettingModal() => _modalService.ShowSettingView();
 }

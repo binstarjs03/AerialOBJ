@@ -26,7 +26,7 @@ using System.IO;
 
 using binstarjs03.AerialOBJ.Core.IO;
 
-namespace binstarjs03.AerialOBJ.Core.Nbt;
+namespace binstarjs03.AerialOBJ.Core.NbtFormat;
 
 public static class NbtWriter
 {

@@ -30,7 +30,7 @@ public partial class KeyHandler : IKeyHandler
             if (downKey != key)
                 continue;
             handler.Invoke();
-            e.Handled= true;
+            e.Handled = true;
             break;
         }
     }

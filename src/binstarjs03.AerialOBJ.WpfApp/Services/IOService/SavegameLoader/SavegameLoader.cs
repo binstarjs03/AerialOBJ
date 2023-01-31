@@ -1,12 +1,19 @@
 ﻿using System;
 using System.IO;
 
-using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.NbtFormat;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 public class SavegameLoader : ISavegameLoader
 {
+    private readonly AppInfo _appInfo;
+
+    public SavegameLoader(AppInfo appInfo)
+    {
+        _appInfo = appInfo;
+    }
+
     public SavegameLoadInfo LoadSavegame(string savegameDirPath)
     {
         DirectoryInfo savegameDirInfo = new(savegameDirPath);
@@ -15,7 +22,7 @@ public class SavegameLoader : ISavegameLoader
     }
 
     // TODO refactor this method
-    private static NbtCompound LoadLevelNbt(DirectoryInfo savegameDirInfo)
+    private NbtCompound LoadLevelNbt(DirectoryInfo savegameDirInfo)
     {
         string errorHeader = "Cannot read savegame:\n";
         string levelNbtPath = Path.Combine(savegameDirInfo.FullName, "level.dat");
@@ -42,7 +49,7 @@ public class SavegameLoader : ISavegameLoader
             // anything else that is not above exceptions is unhandled,
             // and we don't want to display cryptic message to the user
             else if (e is UnauthorizedAccessException)
-                throw new UnauthorizedAccessException($"{errorHeader}{GlobalState.AppName} do not have the permission to access level.dat file", e);
+                throw new UnauthorizedAccessException($"{errorHeader}{_appInfo.AppName} do not have the permission to access level.dat file", e);
             else
                 throw new Exception($"{errorHeader}Unhandled exception while deserializing level.dat file:\n{e.Message}", e);
         }
@@ -52,7 +59,7 @@ public class SavegameLoader : ISavegameLoader
     // maybe use separate class for dataversion parser,
     // put it in a collection and iterate over which dataversion parser range it supports
     // TODO we may create DataVersion class that contains what IChunk implementation it use, Level.dat parser, etc
-    private static SavegameLoadInfo ParseLevelNbtStructure(NbtCompound levelNbt, string savegameDirectoryPath)
+    private SavegameLoadInfo ParseLevelNbtStructure(NbtCompound levelNbt, string savegameDirectoryPath)
     {
         int dataVersion = GetDataVersion(levelNbt);
         try
@@ -64,7 +71,7 @@ public class SavegameLoader : ISavegameLoader
         catch (Exception e)
         {
             string unsupportedMsg = "Mismatch NBT structure of level.dat file. " +
-                                   $"Savegame is not supported by this version of {GlobalState.AppName}.";
+                                   $"Savegame is not supported by this version of {_appInfo.AppName}.";
             throw new NbtException(unsupportedMsg, e);
         }
     }

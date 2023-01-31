@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.AerialOBJ.Core.Nbt;
+namespace binstarjs03.AerialOBJ.Core.NbtFormat;
 
 public struct NbtTypeNamePair : IEquatable<NbtTypeNamePair>
 {

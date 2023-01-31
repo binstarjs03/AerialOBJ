@@ -1,19 +1,22 @@
 ﻿using System;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services;
+
+// TODO refactor string _logContent member into more efficient one,
+// maybe stream-based buffer, or stringbuilder, etc
 public class LogService : ILogService
 {
     private string _logContent = "";
-    private readonly GlobalState _globalState;
+    private readonly AppInfo _appInfo;
 
-    public event LoggingEventHandler? Logging;
+    public LogService(AppInfo appInfo)
+    {
+        _appInfo = appInfo;
+    }
 
     public string LogContent => _logContent;
 
-    public LogService(GlobalState globalState)
-    {
-        _globalState = globalState;
-    }
+    public event LoggingEventHandler? Logging;
 
     public void Clear()
     {
@@ -37,8 +40,8 @@ public class LogService : ILogService
 
     public void LogRuntimeInfo()
     {
-        Log($"Launch time: {_globalState.LaunchTime}");
-        Log($"{GlobalState.AppName} Version: ...");
+        Log($"Launch time: {_appInfo.LaunchTime}");
+        Log($"{_appInfo.AppName} Version: ...");
         Log("Commit Hash: ...", useSeparator: true);
 
         Log($"Host OS: {Environment.OSVersion}");

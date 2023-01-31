@@ -1,6 +1,6 @@
 ﻿using System;
 
-using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.NbtFormat;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
 public static class ChunkFactory

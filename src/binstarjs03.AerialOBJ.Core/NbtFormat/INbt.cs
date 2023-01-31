@@ -21,28 +21,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace binstarjs03.AerialOBJ.Core.Nbt;
 
-public enum NbtType
+
+// These are interfaces for linking different types of nbt as the implementation
+// of AerialOBJ nbt does not have common single base class inheritance.
+// I decided to use interface because i want NbtList and NbtCompound to derive from
+// List<T> and Dictionary<T> respectively, so to glue all different nbt types together,
+// we used interfaces
+
+
+
+using System.Collections;
+
+namespace binstarjs03.AerialOBJ.Core.NbtFormat;
+
+public interface INbt
 {
-    NbtEnd = 0,
-    NbtByte = 1,
-    NbtShort = 2,
-    NbtInt = 3,
-    NbtLong = 4,
-    NbtFloat = 5,
-    NbtDouble = 6,
-    NbtByteArray = 7,
-    NbtString = 8,
-    NbtList = 9,
-    NbtCompound = 10,
-    NbtIntArray = 11,
-    NbtLongArray = 12,
+    public string Name { get; }
+    public NbtType Type { get; }
+}
 
-    // AerialOBJ specific enumeration (still unused up until now, maybe we should remove it?)
-    InvalidOrUnknown = -1,
-    AnyNbtType = -10,
-    AnyNbtArrayType = -11,
-    AnyNbtCollectionType = -12,
-    AnyNbtValueType = -13,
+public interface INbtArray<T> : INbt
+{
+    public T[] Values { get; }
+}
+
+public interface INbtCollection : INbt { }
+
+/// <summary>
+/// Ultimate Polymorphism for undetermined argument type of <see cref="NbtList{T}"/>
+/// </summary>
+public interface INbtList : INbtCollection
+{
+    public NbtType ListType { get; }
+    public int Count { get; }
+    public IEnumerator GetEnumerator();
+}
+
+public interface INbtValue<T> : INbt
+{
+    public T Value { get; }
 }

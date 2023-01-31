@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
+using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
@@ -19,78 +21,118 @@ using Microsoft.Extensions.DependencyInjection;
 namespace binstarjs03.AerialOBJ.WpfApp;
 internal static class ServiceConfiguration
 {
-    internal static IServiceProvider Configure()
+    // For clarity, do not remove explicit type parameter for adding service!
+    internal static IServiceProvider Configure(string[] args)
     {
         IServiceCollection services = new ServiceCollection();
 
-        // configure components
-        services.AddSingleton<GlobalState>(x =>
+        services.ConfigureApplicationWideSingleton(args);
+        services.ConfigureFactories();
+        services.ConfigureViews();
+        services.ConfigureViewModels();
+        services.ConfigureServices();
+
+        return services.BuildServiceProvider();
+    }
+
+    internal static void ConfigureApplicationWideSingleton(this IServiceCollection services, string[] args)
+    {
+        services.AddSingleton<AppInfo>(x => new AppInfo
         {
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string definitionDirectoryPath = Path.Combine(currentDirectory, "Definitions");
-            return new GlobalState(DateTime.Now, "Alpha", currentDirectory, definitionDirectoryPath);
+            AppName = "AerialOBJ",
+            Version = "1.0.0",
+            LaunchTime = DateTime.Now,
+            Arguments = args,
+        });
+        services.AddSingleton<ConstantPath>(x =>
+        {
+            string currentPath = AppDomain.CurrentDomain.BaseDirectory;
+            return new ConstantPath()
+            {
+                CurrentPath = currentPath,
+                DefinitionsPath = Path.Combine(currentPath, "Definitions"),
+                SettingPath = Path.Combine(currentPath, "settings.json"),
+            };
+        });
+        services.AddSingleton<GlobalState>();
+        services.AddSingleton<Setting>(x =>
+        {
+            IChunkShaderRepository shaderRepository = x.GetRequiredService<IChunkShaderRepository>();
+            return new Setting
+            {
+                DefinitionSetting = DefinitionSetting.GetDefaultSetting(),
+                PerformanceSetting = PerformanceSetting.GetDefaultSetting(),
+                ViewportSetting = ViewportSetting.GetDefaultSetting(shaderRepository),
+            };
         });
         services.AddSingleton<ViewState>();
+    }
 
-        // configure models
-        // models configuration goes here
-
-        // configure factories
+    internal static void ConfigureFactories(this IServiceCollection services)
+    {
         services.AddSingleton<RegionDataImageModelFactory>();
         services.AddSingleton<IRegionImageFactory, RegionImageFactory>();
+    }
 
-        // configure views
+    internal static void ConfigureViews(this IServiceCollection services)
+    {
         services.AddSingleton<MainView>();
         services.AddSingleton<DebugLogView>();
-        services.AddTransient<AboutView>();
-        services.AddTransient<DefinitionManagerView>();
-        services.AddTransient<ViewportView>();
 
-        // configure viewmodels
+        services.AddTransient<AboutView>();
+        services.AddTransient<NewDefinitionManagerView>();
+        services.AddTransient<ViewportView>();
+        services.AddTransient<SettingView>();
+    }
+
+    internal static void ConfigureViewModels(this IServiceCollection services)
+    {
         services.AddSingleton<AbstractViewModel>();
-        services.AddSingleton<IMainViewModel, MainViewModel>(x =>
-        {
-            GlobalState globalState = x.GetRequiredService<GlobalState>();
-            ViewState viewState = x.GetRequiredService<ViewState>();
-            AbstractViewModel abstractViewModel = x.GetRequiredService<AbstractViewModel>();
-            IModalService modalService = x.GetRequiredService<IModalService>();
-            ILogService logService = x.GetRequiredService<ILogService>();
-            ISavegameLoader savegameLoaderService = x.GetRequiredService<ISavegameLoader>();
-            IView viewportView = x.GetRequiredService<ViewportView>();
-            return new MainViewModel(globalState, viewState, abstractViewModel, modalService, logService, savegameLoaderService, viewportView);
-        });
+        services.AddSingleton<MainViewModel>();
         services.AddSingleton<DebugLogViewModel>();
+
         services.AddTransient<ViewportViewModel>();
         services.AddTransient<ViewportViewModelInputHandler>();
         services.AddTransient<DefinitionManagerViewModel>();
+        services.AddTransient<SettingViewModel>();
+    }
 
-        // configure services
+    internal static void ConfigureServices(this IServiceCollection services)
+    {
         services.AddSingleton<IDispatcher, WpfDispatcher>(x => new WpfDispatcher(App.Current.Dispatcher));
         services.AddSingleton<IModalService, ModalService>(x =>
         {
             IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
-            IDialogView definitionManagerViewFactory() => x.GetRequiredService<DefinitionManagerView>();
-            return new ModalService(aboutViewFactory, definitionManagerViewFactory);
+            IDialogView definitionManagerViewFactory() => x.GetRequiredService<NewDefinitionManagerView>();
+            IDialogView settingViewFactory() => x.GetRequiredService<SettingView>();
+            return new ModalService(aboutViewFactory, definitionManagerViewFactory, settingViewFactory);
         });
         services.AddSingleton<IDefinitionManager, DefinitionManager>();
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddSingleton<ISavegameLoader, SavegameLoader>();
+        services.AddSingleton<IDefinitionIO, DefinitionIO>();
+
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddTransient<IChunkLoadingPattern, RandomChunkLoadingPattern>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
         {
-            // TODO We want to read on configuration file and choose which default chunk shader to instantiate.
-            // For now default chunk shader is fixed.
-            IDefinitionManager definitionManager = x.GetRequiredService<IDefinitionManager>();
-            IChunkShader shader = new StandardChunkShader();
-            return new ChunkRenderer(shader, definitionManager);
+            Setting setting = x.GetRequiredService<Setting>();
+            return new ChunkRenderer(setting.DefinitionSetting, setting.ViewportSetting);
         });
-        services.AddSingleton<IDefinitionIO, DefinitionIO>();
         services.AddTransient<IKeyHandler, KeyHandler>();
         services.AddTransient<IMouseHandler, MouseHandler>();
-
-        return services.BuildServiceProvider();
+        services.AddSingleton<IChunkShaderRepository, ChunkShaderRepository>(x =>
+        {
+            IChunkShader flat = new FlatChunkShader();
+            IChunkShader standard = new StandardChunkShader();
+            Dictionary<string, IChunkShader> shaders = new()
+            {
+                { "Flat", flat },
+                { "Standard", standard },
+            };
+            return new ChunkShaderRepository(shaders, standard);
+        });
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using binstarjs03.AerialOBJ.Core.Nbt;
+using binstarjs03.AerialOBJ.Core.NbtFormat;
 using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
 

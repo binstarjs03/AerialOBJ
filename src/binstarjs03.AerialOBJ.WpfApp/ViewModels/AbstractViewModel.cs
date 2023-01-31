@@ -8,12 +8,12 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class AbstractViewModel
 {
-    public AbstractViewModel(GlobalState globalState)
+    public AbstractViewModel(AppInfo globalState)
     {
         GlobalState = globalState;
     }
 
-    public GlobalState GlobalState { get; }
+    public AppInfo GlobalState { get; }
 
     [RelayCommand]
     private void Close(IClosableView view) => view.Close();

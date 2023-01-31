@@ -7,11 +7,13 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.WpfApp.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:DebugLogViewModel}}"
-        
-        Title="Debug Log" 
-        Width="600" Height="400"
-        d:Width="400" d:Height="300"
-        MinWidth="300" MinHeight="300"
+        Title="Debug Log"
+        Width="600"
+        Height="400"
+        d:Width="400"
+        d:Height="300"
+        MinWidth="300"
+        MinHeight="300"
         Visibility="{Binding ViewState.IsDebugLogViewVisible, Mode=TwoWay, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}"
         d:Visibility="Visible"
         Background="{StaticResource Background}">
@@ -19,16 +21,14 @@
         <DockPanel>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="Log">
-                    <MenuItem Header="Save"
-                              Command="{Binding SaveLogCommand}"/>
-                    <MenuItem Header="Clear"
-                              Command="{Binding ClearLogCommand}"/>
+                    <MenuItem Header="Save" Command="{Binding SaveLogCommand}"/>
+                    <MenuItem Header="Clear" Command="{Binding ClearLogCommand}"/>
                     <MenuItem Header="Close"
-                              Command="{Binding Path=AbstractViewModel.CloseCommand, Source={StaticResource ViewModelLocator}}"
+                              Command="{Binding AbstractViewModel.CloseCommand}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
                 </MenuItem>
             </Menu>
-            <TextBox x:Name="LogTextBox" 
+            <TextBox x:Name="LogTextBox"
                      Text="{Binding LogService.LogContent, Mode=OneWay}"
                      d:Text="Some initial text to preview"
                      BorderThickness="0"

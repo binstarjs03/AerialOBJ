@@ -9,12 +9,12 @@ public class ViewportDefinition : IRootDefinition
     public string? OriginalFilename { get; set; }
     public required ViewportBlockDefinition MissingBlockDefinition { get; set; }
     public required Dictionary<string, ViewportBlockDefinition> BlockDefinitions { get; set; }
-    public bool IsDefault { get; set; }
+    public bool IsDefault { get; private set; }
 
-    public override string ToString()
-    {
-        return $"{Name}, Format Version: {FormatVersion}, Minecraft Version: {MinecraftVersion}";
-    }
+    //public override string ToString()
+    //{
+    //    return $"{Name}, Format Version: {FormatVersion}, Minecraft Version: {MinecraftVersion}";
+    //}
 
     public static ViewportDefinition GetDefaultDefinition()
     {
@@ -73,12 +73,12 @@ public class ViewportDefinition : IRootDefinition
                 "minecraft:cobblestone": {
                     "Color": "#808080",
                     "Alpha": 255,
-                    "DisplayName": "Smooth Stone"
+                    "DisplayName": "Cobblestone"
                 },
                 "minecraft:mossy_cobblestone": {
                     "Color": "#808080",
                     "Alpha": 255,
-                    "DisplayName": "Smooth Stone"
+                    "DisplayName": "Mossy Cobblestone"
                 },
                 "minecraft:granite": {
                     "Color": "#8D5B48",

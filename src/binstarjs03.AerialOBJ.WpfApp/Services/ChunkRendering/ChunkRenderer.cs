@@ -1,46 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Components;
+using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 public class ChunkRenderer : IChunkRenderer
 {
-    private IChunkShader _shader;
-    private readonly IDefinitionManager _definitionManager;
+    private readonly DefinitionSetting _definitionSetting;
+    private readonly ViewportSetting _viewportSetting;
     private readonly Color _transparent = new() { Alpha = 0, Red = 0, Green = 0, Blue = 0 };
 
-    public ChunkRenderer(IChunkShader initialChunkShader, IDefinitionManager definitionManager)
+    public ChunkRenderer(DefinitionSetting definitionSetting, ViewportSetting viewportSetting)
     {
-        _shader = initialChunkShader;
-        _definitionManager = definitionManager;
-    }
-
-    // TODO lock chunkShader if there are reading threads
-    // TODO make chunkshader swappable and refresh CRM just like swapping definition
-    public IChunkShader Shader
-    {
-        get => _shader;
-        set => throw new NotImplementedException();
+        _definitionSetting = definitionSetting;
+        _viewportSetting = viewportSetting;
     }
 
     public void RenderChunk(IRegionImage regionImage, IChunk chunk, BlockSlim[,] highestBlocks, int heightLimit)
     {
-        ChunkRenderSetting setting = new()
+        ChunkRenderOptions renderOptions = new()
         {
-            ViewportDefinition = _definitionManager.CurrentViewportDefinition,
+            ViewportDefinition = _definitionSetting.CurrentViewportDefinition,
             Image = regionImage,
-            RenderPosition = new PointY<int>(0,0),
+            RenderPosition = new PointY<int>(0, 0),
             HeightLimit = heightLimit,
             Chunk = chunk,
             HighestBlocks = highestBlocks,
             Exclusions = null, // not implemented for now
         };
-        Shader.RenderChunk(setting);
+        _viewportSetting.ChunkShader.RenderChunk(renderOptions);
     }
 
     public void EraseChunk(IRegionImage regionImage, PointZ<int> chunkCoordsRel)
