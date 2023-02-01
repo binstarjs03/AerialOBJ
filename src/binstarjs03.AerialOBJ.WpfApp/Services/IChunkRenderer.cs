@@ -2,7 +2,7 @@
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public interface IChunkRenderer
 {
     void RenderRandomNoise(IRegionImage regionImage, Color color, byte distance);

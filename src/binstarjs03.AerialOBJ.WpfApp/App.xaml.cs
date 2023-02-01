@@ -5,10 +5,11 @@ using System.Text.Json;
 using System.Windows;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
+using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
+using binstarjs03.AerialOBJ.WpfApp.Repositories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging.Patterns;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Views;
@@ -67,7 +68,7 @@ public partial class App : Application
 
     private void LoadDefinitions()
     {
-        IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
+        IDefinitionRepository definitionManager = ServiceProvider.GetRequiredService<IDefinitionRepository>();
         IDefinitionIO definitionIO = ServiceProvider.GetRequiredService<IDefinitionIO>();
 
         ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
@@ -100,9 +101,9 @@ public partial class App : Application
     {
         Setting setting = ServiceProvider.GetRequiredService<Setting>();
         ConstantPath path = ServiceProvider.GetRequiredService<ConstantPath>();
-        IChunkShaderRepository shaderRepo = ServiceProvider.GetRequiredService<IChunkShaderRepository>();
-        IChunkLoadingPatternRepository chunkLoadingPatternRepo = ServiceProvider.GetRequiredService<IChunkLoadingPatternRepository>();
-        IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
+        IRepository<IChunkShader> shaderRepo = ServiceProvider.GetRequiredService<IRepository<IChunkShader>>();
+        IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo = ServiceProvider.GetRequiredService<IRepository<IChunkLoadingPattern>>();
+        IDefinitionRepository definitionManager = ServiceProvider.GetRequiredService<IDefinitionRepository>();
 
         ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
         IModalService modalService = ServiceProvider.GetRequiredService<IModalService>();

@@ -7,7 +7,7 @@ using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Components;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+namespace binstarjs03.AerialOBJ.WpfApp.Services;
 public class ChunkRenderer : IChunkRenderer
 {
     private readonly DefinitionSetting _definitionSetting;

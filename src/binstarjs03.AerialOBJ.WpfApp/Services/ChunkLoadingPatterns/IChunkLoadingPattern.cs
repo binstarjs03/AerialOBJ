@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
 public interface IChunkLoadingPattern
 {
     string PatternName { get; }

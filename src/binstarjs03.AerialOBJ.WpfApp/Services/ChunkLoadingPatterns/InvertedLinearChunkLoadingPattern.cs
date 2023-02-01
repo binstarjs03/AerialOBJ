@@ -1,5 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
-
+﻿namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
 public class InvertedLinearChunkLoadingPattern : IChunkLoadingPattern
 {
     public string PatternName => "Inverted Linear";

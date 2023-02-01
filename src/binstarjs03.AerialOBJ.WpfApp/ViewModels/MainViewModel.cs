@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.WpfApp.Models;

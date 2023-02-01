@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
+using binstarjs03.AerialOBJ.WpfApp.Repositories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
@@ -21,7 +22,7 @@ public enum DefinitionContext
 public partial class DefinitionManagerViewModel
 {
     private readonly DefinitionSetting _definitionSetting;
-    private readonly IDefinitionManager _definitionManager;
+    private readonly IDefinitionRepository _definitionManager;
     private readonly IDefinitionIO _definitionIO;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
@@ -39,7 +40,7 @@ public partial class DefinitionManagerViewModel
     [NotifyCanExecuteChangedFor(nameof(DeleteDefinitionCommand))]
     private ViewportDefinition _selectedViewportDefinition;
 
-    public DefinitionManagerViewModel(IDefinitionManager definitionManager,
+    public DefinitionManagerViewModel(IDefinitionRepository definitionManager,
                                       IModalService modalService,
                                       ILogService logService,
                                       IDefinitionIO definitionIO,

@@ -44,7 +44,7 @@ public static class NbtCompression
                         zLibStream.CopyTo(decompressedStream);
                     }
                     break;
-                case ByteHeader.TagCompound: 
+                case ByteHeader.TagCompound:
                     if (stream is MemoryStream memStream)
                         decompressedStream = memStream;
                     else

@@ -6,10 +6,8 @@ using System.Text.Json;
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.JsonFormat;
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
-using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging.Patterns;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Repositories;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 public static class SettingIO
@@ -17,12 +15,12 @@ public static class SettingIO
     public static void LoadSetting(
         Setting setting,
         string settingPath,
-        IDefinitionManager definitionManager,
-        IChunkShaderRepository shaderRepo,
-        IChunkLoadingPatternRepository chunkLoadingPatternRepo)
+        IDefinitionRepository definitionManager,
+        IRepository<IChunkShader> shaderRepo,
+        IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo)
     {
         string settingJson = File.ReadAllText(settingPath);
-       JsonElement root = JsonDocument.Parse(settingJson).RootElement;
+        JsonElement root = JsonDocument.Parse(settingJson).RootElement;
 
         readDefinitionSetting();
         readViewportSetting();
@@ -47,10 +45,10 @@ public static class SettingIO
             if (!root.TryGetProperty(nameof(ViewportSetting), out JsonElement viewportSettingSection))
                 return;
             if (JsonHelper.TryGetString(viewportSettingSection, nameof(ViewportSetting.ChunkShader), out string chunkShader))
-                if (shaderRepo.ShaderDict.TryGetValue(chunkShader, out IChunkShader? shader))
+                if (shaderRepo.TryGet(chunkShader, out IChunkShader? shader))
                     setting.ViewportSetting.ChunkShader = shader;
             if (JsonHelper.TryGetString(viewportSettingSection, nameof(ViewportSetting.ChunkLoadingPattern), out string chunkLoadingPattern))
-                if (chunkLoadingPatternRepo.ChunkLoadingPatternDict.TryGetValue(chunkLoadingPattern, out IChunkLoadingPattern? pattern))
+                if (chunkLoadingPatternRepo.TryGet(chunkLoadingPattern, out IChunkLoadingPattern? pattern))
                     setting.ViewportSetting.ChunkLoadingPattern = pattern;
         }
 

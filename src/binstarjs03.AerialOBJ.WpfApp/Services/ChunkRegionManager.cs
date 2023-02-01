@@ -12,8 +12,6 @@ using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Primitives;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 

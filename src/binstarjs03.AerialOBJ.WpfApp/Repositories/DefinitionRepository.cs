@@ -6,12 +6,12 @@ using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services;
+namespace binstarjs03.AerialOBJ.WpfApp.Repositories;
 
 [ObservableObject]
-public partial class DefinitionManager : IDefinitionManager
+public partial class DefinitionRepository : IDefinitionRepository
 {
-    public DefinitionManager()
+    public DefinitionRepository()
     {
         LoadedViewportDefinitions = new ObservableCollection<ViewportDefinition> { DefinitionSetting.DefaultViewportDefinition, };
     }

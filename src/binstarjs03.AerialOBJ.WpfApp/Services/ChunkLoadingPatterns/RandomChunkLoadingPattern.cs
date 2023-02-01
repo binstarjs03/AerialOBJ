@@ -1,7 +1,6 @@
 ﻿using System;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
-
+namespace binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
 public class RandomChunkLoadingPattern : IChunkLoadingPattern
 {
     private readonly Random _random = new();

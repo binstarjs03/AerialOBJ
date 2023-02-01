@@ -16,6 +16,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Repositories\ChunkLoadingPatternRepository.cs" />
+	  <Compile Remove="Repositories\IChunkLoadingPatternRepository.cs" />
+	  <Compile Remove="Repositories\IShaderRepository.cs" />
+	  <Compile Remove="Repositories\ShaderRepository.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Repositories\ChunkLoadingPatternRepository.cs" />
+	  <None Include="Repositories\IChunkLoadingPatternRepository.cs" />
+	  <None Include="Repositories\IShaderRepository.cs" />
+	  <None Include="Repositories\ShaderRepository.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />

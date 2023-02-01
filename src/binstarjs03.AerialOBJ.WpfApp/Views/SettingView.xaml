@@ -67,7 +67,7 @@
                                Text="Chunk Loading Pattern:"/>
                     <ComboBox Grid.Row="0"
                               Grid.Column="1"
-                              ItemsSource="{Binding ShaderRepository.ShaderList}"
+                              ItemsSource="{Binding ShaderRepository.Items}"
                               SelectedItem="{Binding Setting.ViewportSetting.ChunkShader}">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
@@ -77,7 +77,7 @@
                     </ComboBox>
                     <ComboBox Grid.Row="1"
                               Grid.Column="1"
-                              ItemsSource="{Binding ChunkLoadingPatternRepository.ChunkLoadingPatternList}"
+                              ItemsSource="{Binding ChunkLoadingPatternRepository.Items}"
                               SelectedItem="{Binding Setting.ViewportSetting.ChunkLoadingPattern}">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>

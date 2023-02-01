@@ -9,7 +9,6 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -136,7 +135,7 @@ public partial class ViewportViewModel : IViewportViewModel
         {
             Caption = "Error Loading Region",
             Message = $"An exception occured while loading region {regionCoords}. "
-                    +  "See debug log window for exception detail"
+                    + "See debug log window for exception detail"
         });
     }
 

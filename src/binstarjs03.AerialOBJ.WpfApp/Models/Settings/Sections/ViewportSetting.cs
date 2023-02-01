@@ -1,9 +1,8 @@
 ﻿using System;
 
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging.Patterns;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Repositories;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -23,8 +22,8 @@ public partial class ViewportSetting
 
     public event Action? ChunkShaderChanged;
 
-    public static ViewportSetting GetDefaultSetting(IChunkShaderRepository chunkShaderRepo, IChunkLoadingPatternRepository chunkLoadingPatternRepo) 
-        => new(chunkShaderRepo.DefaultShader, chunkLoadingPatternRepo.DefaultChunkLoadingPattern);
+    public static ViewportSetting GetDefaultSetting(IRepository<IChunkShader> chunkShaderRepo, IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo)
+        => new(chunkShaderRepo.Default, chunkLoadingPatternRepo.Default);
 
     partial void OnChunkShaderChanged(IChunkShader value) => ChunkShaderChanged?.Invoke();
 }

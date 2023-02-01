@@ -1,14 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
+using binstarjs03.AerialOBJ.WpfApp.Repositories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging.Patterns;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
 using binstarjs03.AerialOBJ.WpfApp.Services.Diagnostics;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.Input;
@@ -59,8 +57,8 @@ internal static class ServiceConfiguration
         services.AddSingleton<GlobalState>();
         services.AddSingleton<Setting>(x =>
         {
-            IChunkShaderRepository shaderRepo = x.GetRequiredService<IChunkShaderRepository>();
-            IChunkLoadingPatternRepository chunkLoadingPatternRepo = x.GetRequiredService<IChunkLoadingPatternRepository>();
+            IRepository<IChunkShader> shaderRepo = x.GetRequiredService<IRepository<IChunkShader>>();
+            IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo = x.GetRequiredService<IRepository<IChunkLoadingPattern>>();
             return new Setting
             {
                 DefinitionSetting = DefinitionSetting.GetDefaultSetting(),
@@ -110,7 +108,7 @@ internal static class ServiceConfiguration
             IDialogView settingViewFactory() => x.GetRequiredService<SettingView>();
             return new ModalService(aboutViewFactory, definitionManagerViewFactory, settingViewFactory);
         });
-        services.AddSingleton<IDefinitionManager, DefinitionManager>();
+        services.AddSingleton<IDefinitionRepository, DefinitionRepository>();
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
@@ -126,18 +124,16 @@ internal static class ServiceConfiguration
         });
         services.AddTransient<IKeyHandler, KeyHandler>();
         services.AddTransient<IMouseHandler, MouseHandler>();
-        services.AddSingleton<IChunkShaderRepository, ChunkShaderRepository>(x =>
+        services.AddSingleton<IRepository<IChunkShader>, AbstractRepository<IChunkShader>>(x =>
         {
             IChunkShader flat = new FlatChunkShader();
             IChunkShader standard = new StandardChunkShader();
-            Dictionary<string, IChunkShader> shaders = new()
-            {
-                { flat.ShaderName, flat },
-                { standard.ShaderName, standard },
-            };
-            return new ChunkShaderRepository(shaders, standard);
+            AbstractRepository<IChunkShader> ret = new(standard);
+            ret.Register(flat.ShaderName, flat);
+            ret.Register(standard.ShaderName, standard);
+            return ret;
         });
-        services.AddSingleton<IChunkLoadingPatternRepository, ChunkLoadingPatternRepository>(x =>
+        services.AddSingleton<IRepository<IChunkLoadingPattern>, AbstractRepository<IChunkLoadingPattern>>(x =>
         {
             IChunkLoadingPattern alternateCheckerboard = new AlternateCheckerboardChunkLoadingPattern();
             IChunkLoadingPattern checkerboard = new CheckerboardChunkLoadingPattern();
@@ -145,16 +141,14 @@ internal static class ServiceConfiguration
             IChunkLoadingPattern linear = new LinearChunkLoadingPattern();
             IChunkLoadingPattern random = new RandomChunkLoadingPattern();
             IChunkLoadingPattern split = new SplitChunkLoadingPattern();
-            Dictionary<string, IChunkLoadingPattern> patterns = new()
-            {
-                {alternateCheckerboard.PatternName, alternateCheckerboard },
-                {checkerboard.PatternName, checkerboard },
-                {invertedLinear.PatternName, invertedLinear },
-                {linear.PatternName, linear },
-                {random.PatternName, random },
-                {split.PatternName, split },
-            };
-            return new ChunkLoadingPatternRepository(patterns, random);
+            AbstractRepository<IChunkLoadingPattern> ret = new(random);
+            ret.Register(alternateCheckerboard.PatternName, alternateCheckerboard);
+            ret.Register(checkerboard.PatternName, checkerboard);
+            ret.Register(invertedLinear.PatternName, invertedLinear);
+            ret.Register(linear.PatternName, linear);
+            ret.Register(random.PatternName, random);
+            ret.Register(split.PatternName, split);
+            return ret;
         });
         services.AddTransient<IMemoryInfo, MemoryInfo>();
     }
