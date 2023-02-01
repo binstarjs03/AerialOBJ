@@ -93,45 +93,87 @@
         </StackPanel>
 
         <Grid DockPanel.Dock="Bottom">
-            <StatusBar d:Visibility="Collapsed" Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+            <StatusBar d:Visibility="Visible" Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <StatusBar.Resources>
                     <Style TargetType="components:PropertyValuePair">
                         <Setter Property="PropertyColor" Value="Black"/>
-                        <Setter Property="ValueColor" Value="DarkBlue"/>
+                        <Setter Property="ValueColor" Value="Black"/>
                     </Style>
                 </StatusBar.Resources>
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
 
-                <components:PropertyValuePair PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.X}"/>
-                <components:PropertyValuePair PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Y}"/>
-                <components:PropertyValuePair PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Z}"/>
+                <StatusBarItem Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <components:PropertyValuePair PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.X}"/>
+                        <TextBlock Text=" "/>
+                        <components:PropertyValuePair PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Y}"/>
+                        <TextBlock Text=" "/>
+                        <components:PropertyValuePair PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Z}"/>
+                    </StackPanel>
+                </StatusBarItem>
 
-                <Separator/>
+                <Separator Grid.Column="1"/>
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockDisplayName}"/>
-                    <TextBlock Text=" - "/>
-                    <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockName}"/>
-                </StackPanel>
+                <StatusBarItem Grid.Column="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockDisplayName}"/>
+                        <TextBlock Text=" - "/>
+                        <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockName}"/>
+                    </StackPanel>
+                </StatusBarItem>
 
-                <Separator/>
+                <Separator Grid.Column="3"/>
 
-                <components:PropertyValuePair PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextRegionCoords}"/>
-                <components:PropertyValuePair PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextChunkCoords}"/>
+                <StatusBarItem Grid.Column="4">
+                    <StackPanel Orientation="Horizontal">
+                        <components:PropertyValuePair PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextRegionCoords}"/>
+                        <TextBlock Text=" "/>
+                        <components:PropertyValuePair PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextChunkCoords}"/>
+                    </StackPanel>
+                </StatusBarItem>
+
+                <Separator Grid.Column="5"/>
+
+                <StatusBarItem Grid.Column="7">
+                    <components:PropertyValuePair Grid.Column="0"
+                                                  PropertyText="Used: "
+                                                  ValueText="{Binding UsedMemory}"
+                                                  ValueColor="Blue"/>
+                </StatusBarItem>
+
+                <StatusBarItem Grid.Column="8">
+                    <components:PropertyValuePair Grid.Column="1"
+                                                  PropertyText="Allocated: "
+                                                  ValueText="{Binding AllocatedMemory}"
+                                                  ValueColor="Blue"/>
+                </StatusBarItem>
             </StatusBar>
-            <StatusBar Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
+
+            <StatusBar d:Visibility="Collapsed" Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}">
                 <StatusBarItem Content="Ready"/>
             </StatusBar>
+
+
         </Grid>
 
         <Border BorderThickness="0,1" BorderBrush="LightGray">
             <local:ViewportView x:Name="Viewport"/>
-            <!--
-                ContentControl x:Name="Viewport"
-                Focusable="False"
-                Content="{Binding ViewportView}"
-                d:Background="{StaticResource Background}"
-                IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/
-            -->
         </Border>
 
     </DockPanel>

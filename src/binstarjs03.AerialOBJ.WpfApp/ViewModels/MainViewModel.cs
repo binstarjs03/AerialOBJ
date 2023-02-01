@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
+using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.WpfApp.Models;
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.Diagnostics;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Views;
@@ -28,7 +32,8 @@ public partial class MainViewModel
                          AbstractViewModel abstractViewModel,
                          IModalService modalService,
                          ILogService logService,
-                         ISavegameLoader savegameLoaderService)
+                         ISavegameLoader savegameLoaderService,
+                         IMemoryInfo memoryInfo)
     {
         AppInfo = appInfo;
         GlobalState = globalState;
@@ -37,24 +42,40 @@ public partial class MainViewModel
         _modalService = modalService;
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
-
+        MemoryInfo = memoryInfo;
         _title = AppInfo.AppName;
 
         GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadChanged;
+        MemoryInfo.MemoryInfoUpdated += OnMemoryInfoUpdated;
     }
 
     public AppInfo AppInfo { get; }
     public GlobalState GlobalState { get; }
     public ViewState ViewState { get; }
+    public IMemoryInfo MemoryInfo { get; }
+
+    public string UsedMemory => MathUtils.DataUnitToString(MemoryInfo.MemoryUsedSize);
+    public string AllocatedMemory => MathUtils.DataUnitToString(MemoryInfo.MemoryAllocatedSize);
 
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
+        if (state == SavegameLoadState.Opened)
+            MemoryInfo.StartMonitorMemory();
+        else
+            MemoryInfo.StopMonitorMemory();
+
         Title = state switch
         {
             SavegameLoadState.Opened => $"{AppInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
             SavegameLoadState.Closed => AppInfo.AppName,
             _ => throw new NotImplementedException(),
         };
+    }
+
+    private void OnMemoryInfoUpdated()
+    {
+        OnPropertyChanged(nameof(UsedMemory));
+        OnPropertyChanged(nameof(AllocatedMemory));
     }
 
     [RelayCommand]
