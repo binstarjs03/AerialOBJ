@@ -21,7 +21,10 @@ public partial class GlobalState
     {
         SavegameLoadState state;
         if (value is null)
+        {
             state = SavegameLoadState.Closed;
+            GC.Collect();
+        }
         else
             state = SavegameLoadState.Opened;
         SavegameLoadInfoChanged?.Invoke(state);

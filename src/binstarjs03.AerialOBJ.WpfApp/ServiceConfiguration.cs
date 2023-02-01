@@ -8,6 +8,7 @@ using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
+using binstarjs03.AerialOBJ.WpfApp.Services.Diagnostics;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.Input;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
@@ -134,5 +135,6 @@ internal static class ServiceConfiguration
             };
             return new ChunkShaderRepository(shaders, standard);
         });
+        services.AddTransient<IMemoryInfo, MemoryInfo>();
     }
 }
