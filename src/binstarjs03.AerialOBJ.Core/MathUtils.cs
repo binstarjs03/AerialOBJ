@@ -4,6 +4,8 @@ namespace binstarjs03.AerialOBJ.Core;
 
 public static class MathUtils
 {
+    private static readonly string[] s_dataUnits = { "B", "KB", "MB", "GB", "TB" };
+
     public static int Mod(int left, int right)
     {
         int result = left % right;
@@ -35,5 +37,20 @@ public static class MathUtils
     public static float Round(this float num)
     {
         return (float)Math.Round(num, 2);
+    }
+
+    public static string DataUnitToString(long bytes)
+    {
+        int unit = 0;
+        double size = bytes;
+        while (size >= 1000 && unit < s_dataUnits.Length - 1)
+        {
+            size /= 1000;
+            unit++;
+        }
+
+        // return decimal if one digit, else return whole number
+        return size <= 9 ? $"{Math.Round(size, 3)} {s_dataUnits[unit]}"
+                         : $"{size.Floor()} {s_dataUnits[unit]}";
     }
 }
