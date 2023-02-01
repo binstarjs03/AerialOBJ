@@ -7,6 +7,7 @@ using System.Windows;
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging.Patterns;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
 using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
@@ -99,7 +100,8 @@ public partial class App : Application
     {
         Setting setting = ServiceProvider.GetRequiredService<Setting>();
         ConstantPath path = ServiceProvider.GetRequiredService<ConstantPath>();
-        IChunkShaderRepository shaderRepository = ServiceProvider.GetRequiredService<IChunkShaderRepository>();
+        IChunkShaderRepository shaderRepo = ServiceProvider.GetRequiredService<IChunkShaderRepository>();
+        IChunkLoadingPatternRepository chunkLoadingPatternRepo = ServiceProvider.GetRequiredService<IChunkLoadingPatternRepository>();
         IDefinitionManager definitionManager = ServiceProvider.GetRequiredService<IDefinitionManager>();
 
         ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
@@ -117,7 +119,7 @@ public partial class App : Application
         }
         try
         {
-            SettingIO.LoadSetting(setting, settingPath, definitionManager, shaderRepository);
+            SettingIO.LoadSetting(setting, settingPath, definitionManager, shaderRepo, chunkLoadingPatternRepo);
         }
         catch (JsonException e) { handleLoadingParsingException(e); }
         catch (Exception e) { handleLoadingIOException(e); }

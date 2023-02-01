@@ -34,7 +34,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
     private readonly RegionDataImageModelFactory _regionDataImageModelFactory;
     private readonly IChunkRenderer _chunkRenderer;
     private readonly IDispatcher _dispatcher;
-    private readonly IChunkLoadingPattern _chunkPattern;
 
     // Threadings -------------------------------------------------------------
     private CancellationTokenSource _stoppingCts = new(); // use this when pausing
@@ -77,15 +76,13 @@ public partial class ChunkRegionManager : IChunkRegionManager
         IRegionDiskLoader regionProvider,
         RegionDataImageModelFactory regionImageModelFactory,
         IChunkRenderer chunkRenderer,
-        IDispatcher dispatcher,
-        IChunkLoadingPattern chunkPattern)
+        IDispatcher dispatcher)
     {
         _setting = setting;
         _regionProvider = regionProvider;
         _regionDataImageModelFactory = regionImageModelFactory;
         _chunkRenderer = chunkRenderer;
         _dispatcher = dispatcher;
-        _chunkPattern = chunkPattern;
     }
 
     public PointZRange<int> VisibleRegionRange => _visibleRegionRange;
@@ -454,8 +451,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
                                     _pendingChunksSet.Add(chunkCoords);
                                 }
             }
-        //lock (_pendingChunkLock)
-        //    _pendingChunks.Sort();
     }
 
     // TODO we may be able to create new class that manages and track pool of tasks
@@ -509,7 +504,7 @@ public partial class ChunkRegionManager : IChunkRegionManager
             {
                 if (_pendingChunks.Count == 0)
                     return false;
-                int index = _chunkPattern.GetPendingChunkIndex(_pendingChunks.Count);
+                int index = _setting.ViewportSetting.ChunkLoadingPattern.GetPendingChunkIndex(_pendingChunks.Count);
                 chunkCoords = _pendingChunks[index];
                 lock (_workedChunks)
                     _workedChunks.Add(chunkCoords);

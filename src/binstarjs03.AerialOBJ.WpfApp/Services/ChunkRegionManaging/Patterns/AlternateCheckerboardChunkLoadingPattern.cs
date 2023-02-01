@@ -6,6 +6,8 @@ public class AlternateCheckerboardChunkLoadingPattern : IChunkLoadingPattern
 {
     private int _counter = 1;
 
+    public string PatternName => "Alternate Checkerboard";
+
     public int GetPendingChunkIndex(int pendingChunkCount)
     {
         int index = Math.Min(_counter *= 3, pendingChunkCount - 1);

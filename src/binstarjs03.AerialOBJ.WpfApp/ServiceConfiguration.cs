@@ -7,6 +7,7 @@ using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging.Patterns;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 using binstarjs03.AerialOBJ.WpfApp.Services.Diagnostics;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
@@ -58,12 +59,13 @@ internal static class ServiceConfiguration
         services.AddSingleton<GlobalState>();
         services.AddSingleton<Setting>(x =>
         {
-            IChunkShaderRepository shaderRepository = x.GetRequiredService<IChunkShaderRepository>();
+            IChunkShaderRepository shaderRepo = x.GetRequiredService<IChunkShaderRepository>();
+            IChunkLoadingPatternRepository chunkLoadingPatternRepo = x.GetRequiredService<IChunkLoadingPatternRepository>();
             return new Setting
             {
                 DefinitionSetting = DefinitionSetting.GetDefaultSetting(),
                 PerformanceSetting = PerformanceSetting.GetDefaultSetting(),
-                ViewportSetting = ViewportSetting.GetDefaultSetting(shaderRepository),
+                ViewportSetting = ViewportSetting.GetDefaultSetting(shaderRepo, chunkLoadingPatternRepo),
             };
         });
         services.AddSingleton<ViewState>();
@@ -130,10 +132,29 @@ internal static class ServiceConfiguration
             IChunkShader standard = new StandardChunkShader();
             Dictionary<string, IChunkShader> shaders = new()
             {
-                { "Flat", flat },
-                { "Standard", standard },
+                { flat.ShaderName, flat },
+                { standard.ShaderName, standard },
             };
             return new ChunkShaderRepository(shaders, standard);
+        });
+        services.AddSingleton<IChunkLoadingPatternRepository, ChunkLoadingPatternRepository>(x =>
+        {
+            IChunkLoadingPattern alternateCheckerboard = new AlternateCheckerboardChunkLoadingPattern();
+            IChunkLoadingPattern checkerboard = new CheckerboardChunkLoadingPattern();
+            IChunkLoadingPattern invertedLinear = new InvertedLinearChunkLoadingPattern();
+            IChunkLoadingPattern linear = new LinearChunkLoadingPattern();
+            IChunkLoadingPattern random = new RandomChunkLoadingPattern();
+            IChunkLoadingPattern split = new SplitChunkLoadingPattern();
+            Dictionary<string, IChunkLoadingPattern> patterns = new()
+            {
+                {alternateCheckerboard.PatternName, alternateCheckerboard },
+                {checkerboard.PatternName, checkerboard },
+                {invertedLinear.PatternName, invertedLinear },
+                {linear.PatternName, linear },
+                {random.PatternName, random },
+                {split.PatternName, split },
+            };
+            return new ChunkLoadingPatternRepository(patterns, random);
         });
         services.AddTransient<IMemoryInfo, MemoryInfo>();
     }

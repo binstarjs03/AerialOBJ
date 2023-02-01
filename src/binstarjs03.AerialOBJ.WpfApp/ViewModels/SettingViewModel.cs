@@ -2,6 +2,7 @@
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
+using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRegionManaging.Patterns;
 using binstarjs03.AerialOBJ.WpfApp.Services.ChunkRendering;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,15 +15,17 @@ public partial class SettingViewModel
 {
     private readonly ConstantPath _path;
 
-    public SettingViewModel(Setting setting, ConstantPath path, IChunkShaderRepository shaderRepository)
+    public SettingViewModel(Setting setting, ConstantPath path, IChunkShaderRepository shaderRepository, IChunkLoadingPatternRepository chunkLoadingPatternRepository)
     {
         Setting = setting;
         _path = path;
         ShaderRepository = shaderRepository;
+        ChunkLoadingPatternRepository = chunkLoadingPatternRepository;
     }
 
     public Setting Setting { get; }
     public IChunkShaderRepository ShaderRepository { get; }
+    public IChunkLoadingPatternRepository ChunkLoadingPatternRepository { get; }
     public Rangeof<int> ViewportChunkThreadRange { get; }
         = new Rangeof<int>(1, Environment.ProcessorCount);
 

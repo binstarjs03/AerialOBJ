@@ -13,7 +13,8 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Title="SettingView"
-        Height="400"
+        SizeToContent="Height"
+        d:Height="400"
         Width="400">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
@@ -74,10 +75,20 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <ComboBox Grid.Row="1" Grid.Column="1"/>
+                    <ComboBox Grid.Row="1"
+                              Grid.Column="1"
+                              ItemsSource="{Binding ChunkLoadingPatternRepository.ChunkLoadingPatternList}"
+                              SelectedItem="{Binding Setting.ViewportSetting.ChunkLoadingPattern}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding PatternName}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
             </GroupBox>
 
+            <!--  Some things are disabled for now, not implemented yet  -->
             <GroupBox Header="Performance">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -86,15 +97,15 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
+                        <!--RowDefinition/>
                         <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition/-->
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0"
                                Grid.Column="0"
                                Text="Viewport Chunk Threads:"
                                VerticalAlignment="Top"/>
-                    <TextBlock Grid.Row="1"
+                    <!--TextBlock Grid.Row="1"
                                Grid.Column="0"
                                Text="Viewport Chunk Loading:"/>
                     <TextBlock Grid.Row="2"
@@ -102,7 +113,7 @@
                                Text="Image Exporting:"/>
                     <TextBlock Grid.Row="3"
                                Grid.Column="0"
-                               Text="3D Model Exporting:"/>
+                               Text="3D Model Exporting:"/-->
                     <DockPanel Grid.Row="0" Grid.Column="1">
                         <TextBlock DockPanel.Dock="Right"
                                    Text="{Binding Setting.PerformanceSetting.ViewportChunkThreads}"
@@ -116,7 +127,7 @@
                                 IsSnapToTickEnabled="True"
                                 TickPlacement="BottomRight"/>
                     </DockPanel>
-                    <ComboBox Grid.Column="1"
+                    <!--ComboBox Grid.Column="1"
                               Grid.Row="1"
                               ItemsSource="{Binding Source={StaticResource performancePreferences}}"
                               SelectedItem="{Binding Setting.PerformanceSetting.ViewportChunkLoading}"/>
@@ -127,7 +138,7 @@
                     <ComboBox Grid.Column="1"
                               Grid.Row="3"
                               ItemsSource="{Binding Source={StaticResource performancePreferences}}"
-                              SelectedItem="{Binding Setting.PerformanceSetting.ModelExporting}"/>
+                              SelectedItem="{Binding Setting.PerformanceSetting.ModelExporting}"/-->
                 </Grid>
             </GroupBox>
         </StackPanel>
