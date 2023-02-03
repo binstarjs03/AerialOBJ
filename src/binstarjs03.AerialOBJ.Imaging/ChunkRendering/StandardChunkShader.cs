@@ -57,23 +57,20 @@ public class StandardChunkShader : ChunkShaderBase
         // set shade to brighter, else dimmer if lower, else keep it as is if same
 
         // TODO check if block is foliage instead of hardcoding grass!!!
-        if (block.Name == "minecraft:grass" || block.Name == "minecraft:tall_grass")
+        if (block.Name == "minecraft:grass")
             y -= 1;
+        else if (block.Name == "minecraft:tall_grass")
+            y -= 2;
 
-        if (y > lastWestY || y > lastNorthY)
-        {
-            if (y > lastWestY && y > lastNorthY)
-                difference = 30;
-            else
-                difference = 15;
-        }
-        else if (y < lastWestY || y < lastNorthY)
-        {
-            if (y < lastWestY && y < lastNorthY)
-                difference = -30;
-            else
-                difference = -15;
-        }
+        if (y > lastWestY)
+            difference += 15;
+        else if (y < lastWestY)
+            difference -= 15;
+
+        if (y > lastNorthY)
+            difference += 15;
+        else if (y < lastNorthY)
+            difference -= 15;
 
         color.Red = (byte)Math.Clamp(color.Red + difference, 0, 255);
         color.Green = (byte)Math.Clamp(color.Green + difference, 0, 255);
