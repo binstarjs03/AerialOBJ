@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using binstarjs03.AerialOBJ.Core.NbtFormat;
@@ -241,22 +241,6 @@ public class Chunk2860 : IChunk, IDisposable
                                                        blockCoordsRel.Y,
                                                        blockCoordsRel.Z];
             return ref _blockPalette[paletteIndex];
-        }
-
-        public Block? GetBlock(Point3<int> blockCoordsRel)
-        {
-            if (_blockPalette is null || _blockPaletteIndexTable is null)
-                return null;
-            int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.X,
-                                                       blockCoordsRel.Y,
-                                                       blockCoordsRel.Z];
-            // no struct copying, we just need to access the name
-            ref Block blockPalette = ref _blockPalette[paletteIndex];
-            return new Block()
-            {
-                Coords = MinecraftWorldMathUtils.ConvertBlockCoordsRelToSectionToAbs(blockCoordsRel, CoordsAbs),
-                Name = blockPalette.Name,
-            };
         }
 
         protected virtual void Dispose(bool disposing)
