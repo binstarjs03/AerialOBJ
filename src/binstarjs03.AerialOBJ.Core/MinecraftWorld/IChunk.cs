@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Core.MinecraftWorld;
@@ -14,5 +15,5 @@ public interface IChunk : IDisposable
     PointZ<int> CoordsAbs { get; }
     PointZ<int> CoordsRel { get; }
 
-    void GetHighestBlockSlim(BlockSlim[,] buffer, int heightLimit, List<string>? exclusions);
+    void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] buffer, int heightLimit, List<string>? exclusions);
 }

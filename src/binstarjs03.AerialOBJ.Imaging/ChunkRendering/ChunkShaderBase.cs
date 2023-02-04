@@ -5,6 +5,7 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 
+
 // TODO implement IUseArrayPooler and implement method that clean the array pool
 public abstract class ChunkShaderBase : IChunkShader
 {
@@ -34,7 +35,7 @@ public abstract class ChunkShaderBase : IChunkShader
     protected BlockSlim[,] GetChunkHighestBlock(ChunkRenderOptions setting)
     {
         BlockSlim[,] highestBlocks = _highestBlockPooler.Rent();
-        setting.Chunk.GetHighestBlockSlim(highestBlocks, setting.HeightLimit, setting.Exclusions);
+        setting.Chunk.GetHighestBlockSlim(setting.ViewportDefinition, highestBlocks, setting.HeightLimit, setting.Exclusions);
         return highestBlocks;
     }
 

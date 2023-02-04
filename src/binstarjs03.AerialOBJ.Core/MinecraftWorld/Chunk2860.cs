@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
+using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.NbtFormat;
 using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
@@ -16,12 +17,10 @@ public class Chunk2860 : IChunk, IDisposable
     {
         CoordsAbs = getChunkCoordsAbs(chunkNbt);
         CoordsRel = MinecraftWorldMathUtils.ConvertChunkCoordsAbsToRel(CoordsAbs);
-        StartBlockCoords = new Point3<int>(CoordsAbs.X * IChunk.BlockCount, 0, CoordsAbs.X * IChunk.BlockCount);
         (_sections, _sectionsY) = readSections(chunkNbt);
 
         // just in case section elements is unsorted, it is most unlikely but yeah
         Array.Sort(_sectionsY);
-        StartNonAirSectionIndex = getAndFindStartNonAirSectionIndex();
 
         static PointZ<int> getChunkCoordsAbs(NbtCompound chunkNbt)
         {
@@ -51,20 +50,6 @@ public class Chunk2860 : IChunk, IDisposable
 
             return (sections, sectionsYPos);
         }
-
-        int? getAndFindStartNonAirSectionIndex()
-        {
-            for (int i = _sectionsY.Length - 1; i >= 0; i--)
-            {
-                var section = _sections[_sectionsY[i]];
-                if (section.IsAir)
-                    continue;
-                return i;
-            }
-            // if all sections is air, or if the entire chunk is air,
-            // return null cause non-air section do not exist
-            return null;
-        }
     }
 
     public PointZ<int> CoordsAbs { get; }
@@ -72,11 +57,7 @@ public class Chunk2860 : IChunk, IDisposable
     public int DataVersion => 2860;
     public string ReleaseVersion => "1.18";
 
-    // cache for GetHighestBlock to avoid recalculating coords
-    private Point3<int> StartBlockCoords { get; }
-    private int? StartNonAirSectionIndex { get; }
-
-    public void GetHighestBlockSlim(BlockSlim[,] highestBlockBuffer, int heightLimit, List<string>? exclusions)
+    public void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] highestBlockBuffer, int heightLimit, List<string>? exclusions)
     {
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
@@ -84,12 +65,8 @@ public class Chunk2860 : IChunk, IDisposable
                 bool foundHighestBlock = false;
                 ref BlockSlim block = ref highestBlockBuffer[x, z];
 
-                // if the entire chunk is filled with air (that is, entire available sections is air too)
-                // search index is set to negative one, effectively skipping the for loop
-                int startSearchIndex = StartNonAirSectionIndex ?? -1;
-
                 // scan block from top to bottom sections, starting from highest non-air section
-                for (int index = startSearchIndex; index >= 0; index--)
+                for (int index = _sections.Count; index >= 0; index--)
                 {
                     if (foundHighestBlock)
                         break;
@@ -101,9 +78,9 @@ public class Chunk2860 : IChunk, IDisposable
                     if (heightAtSection > heightLimit)
                         continue;
 
-                    // skip if section is entirely filled with air
+                    // skip if section is entirely filled with excluded blocks
                     Section section = _sections[sectionY];
-                    if (section.IsAir)
+                    if (section.IsExcluded(vd))
                         continue;
 
                     // scan block from top to bottom relative to section
@@ -117,7 +94,7 @@ public class Chunk2860 : IChunk, IDisposable
 
                         Point3<int> blockCoordsRel = new(x, y, z);
                         ref readonly Block paletteBlock = ref section.GetPaletteBlockRef(blockCoordsRel);
-                        if (paletteBlock.IsAir || (exclusions is not null && exclusions.Contains(paletteBlock.Name)))
+                        if (paletteBlock.Name.IsExcluded(vd) || (exclusions is not null && exclusions.Contains(paletteBlock.Name)))
                             continue;
 
                         block.Name = paletteBlock.Name;
@@ -177,10 +154,16 @@ public class Chunk2860 : IChunk, IDisposable
 
         public required Point3<int> CoordsAbs { get; init; }
 
-        // whether section is completely filled with air block,
-        // an optimization for finding highest (non-air) block
-        public bool IsAir => _blockPalette is null
-                          || (_blockPalette.Length == 1 && _blockPalette[0].IsAir);
+        // whether section is completely filled with excluded block,
+        // an optimization for finding highest, non-excluded block in chunk
+        public bool IsExcluded(ViewportDefinition vd)
+        {
+            if (_blockPalette is null)
+                return true;
+            if (_blockPalette.Length == 1)
+                return _blockPalette[0].Name.IsExcluded(vd);
+            return false;
+        }
 
         private int[,,]? ReadNbtLongData(NbtLongArray dataNbt, int paletteLength)
         {
