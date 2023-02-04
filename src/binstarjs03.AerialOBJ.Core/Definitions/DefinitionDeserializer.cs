@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 
 namespace binstarjs03.AerialOBJ.Core.Definitions;
-public class DefinitionDeserializer
+public static class DefinitionDeserializer
 {
     public static T Deserialize<T>(string input) where T : class, IRootDefinition
     {
@@ -16,16 +16,25 @@ public class DefinitionDeserializer
         {
             kind = doc.RootElement.GetProperty("Kind").GetString();
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException e)
         {
-            throw new KindNotFoundException("Missing \"Kind\" property");
+            throw new KindNotFoundException("Missing \"Kind\" property", e);
         }
 
-        // after then, deserialize the entirety, select the data type
-        // according to "kind" value
+        // after then deserialize the entirety,
+        // select the data type according to "kind" value
+        JsonSerializerOptions options = new()
+        {
+            PropertyNamingPolicy= JsonNamingPolicy.CamelCase,
+            Converters = {
+                new ViewportDefinitionConverter(),
+                new ViewportBlockDefinitionsConverter() 
+            }
+        };
+
         definition = kind switch
         {
-            DefinitionKinds.Viewport => JsonSerializer.Deserialize<ViewportDefinition>(input),
+            DefinitionKinds.Viewport => JsonSerializer.Deserialize<ViewportDefinition>(input, options),
             _ => throw new UnrecognizedDefinitionKindException($"\"{kind}\" is unrecognized definition kind")
         };
 
