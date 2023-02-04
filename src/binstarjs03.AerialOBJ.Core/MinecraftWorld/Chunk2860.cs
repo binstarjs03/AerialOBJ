@@ -93,8 +93,10 @@ public class Chunk2860 : IChunk, IDisposable
                             continue;
 
                         Point3<int> blockCoordsRel = new(x, y, z);
-                        ref readonly Block paletteBlock = ref section.GetPaletteBlockRef(blockCoordsRel);
-                        if (paletteBlock.Name.IsExcluded(vd) || (exclusions is not null && exclusions.Contains(paletteBlock.Name)))
+                        Block? paletteBlock = section.GetPaletteBlockRef(blockCoordsRel);
+                        if (paletteBlock is null 
+                            || paletteBlock.Name.IsExcluded(vd) 
+                            || (exclusions is not null && exclusions.Contains(paletteBlock.Name)))
                             continue;
 
                         block.Name = paletteBlock.Name;
@@ -108,7 +110,7 @@ public class Chunk2860 : IChunk, IDisposable
                     // failed to get block in all sections and height ranges, set it to air at lowest level
                     Section lowestSection = _sections[_sectionsY[0]];
                     int lowestBlockY = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
-                    block.Name = Block.AirBlockName;
+                    block.Name = vd.AirBlockName;
                     block.Height = lowestBlockY;
                 }
             }
@@ -139,11 +141,7 @@ public class Chunk2860 : IChunk, IDisposable
             for (int i = 0; i < paletteNbt.Count; i++)
             {
                 string blockName = paletteNbt[i].Get<NbtString>("Name").Value;
-                _blockPalette[i] = new Block()
-                {
-                    Name = blockName,
-                    Coords = Point3<int>.Zero
-                };
+                _blockPalette[i] = new Block() { Name = blockName };
             }
 
             blockStatesNbt.TryGet("data", out NbtLongArray? dataNbt);
@@ -216,14 +214,14 @@ public class Chunk2860 : IChunk, IDisposable
             }
         }
 
-        public ref readonly Block GetPaletteBlockRef(Point3<int> blockCoordsRel)
+        public Block? GetPaletteBlockRef(Point3<int> blockCoordsRel)
         {
             if (_blockPalette is null || _blockPaletteIndexTable is null)
-                return ref Block.Air;
+                return null;
             int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.X,
                                                        blockCoordsRel.Y,
                                                        blockCoordsRel.Z];
-            return ref _blockPalette[paletteIndex];
+            return _blockPalette[paletteIndex];
         }
 
         protected virtual void Dispose(bool disposing)
