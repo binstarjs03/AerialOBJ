@@ -17,10 +17,10 @@ public class ViewportDefinition : IRootDefinition
     public string? OriginalFilename { get; set; }
     public bool IsDefault { get; private set; }
 
-    //public override string ToString()
-    //{
-    //    return $"{Name}, Format Version: {FormatVersion}, Minecraft Version: {MinecraftVersion}";
-    //}
+    public override string ToString()
+    {
+        return $"{Name}, Format Version: {FormatVersion}, Minecraft Version: {MinecraftVersion}";
+    }
 
     public static ViewportDefinition GetDefaultDefinition()
     {

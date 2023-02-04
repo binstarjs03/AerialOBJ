@@ -131,7 +131,7 @@ public class Chunk2860 : IChunk, IDisposable
                     // failed to get block in all sections and height ranges, set it to air at lowest level
                     Section lowestSection = _sections[_sectionsY[0]];
                     int lowestBlockY = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
-                    block.Name = "minecraft:air";
+                    block.Name = Block.AirBlockName;
                     block.Height = lowestBlockY;
                 }
             }
