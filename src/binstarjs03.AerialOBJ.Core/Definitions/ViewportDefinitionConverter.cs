@@ -16,6 +16,7 @@ public class ViewportDefinitionConverter : JsonConverter<ViewportDefinition>
         string name = root.GetProperty(nameof(ViewportDefinition.Name)).GetString()!;
         int formatVersion = root.GetProperty(nameof(ViewportDefinition.FormatVersion)).GetInt32();
         string mcVersion = root.GetProperty(nameof(ViewportDefinition.MinecraftVersion)).GetString()!;
+        string airBlockName = root.GetProperty(nameof(ViewportDefinition.AirBlockName)).GetString()!;
 
         JsonElement missingBlockDefinitionE = root.GetProperty(nameof(ViewportDefinition.MissingBlockDefinition));
         ViewportBlockDefinition missingBlockDefinition = readMissingBlockDefinition(missingBlockDefinitionE);
@@ -28,6 +29,7 @@ public class ViewportDefinitionConverter : JsonConverter<ViewportDefinition>
             Name = name,
             FormatVersion = formatVersion,
             MinecraftVersion = mcVersion,
+            AirBlockName = airBlockName,
             MissingBlockDefinition = missingBlockDefinition,
             BlockDefinitions = blockDefinitions
         };
@@ -39,7 +41,7 @@ public class ViewportDefinitionConverter : JsonConverter<ViewportDefinition>
 
             return new ViewportBlockDefinition
             {
-                Namespace = "",
+                Name = "",
                 Color = Color.Parse(hexColor, alpha: byte.MaxValue),
                 DisplayName = displayName,
                 IsSolid = true,

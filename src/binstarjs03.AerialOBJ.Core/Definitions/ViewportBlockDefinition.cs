@@ -5,9 +5,9 @@ namespace binstarjs03.AerialOBJ.Core.Definitions;
 public class ViewportBlockDefinition
 {
     /// <summary>
-    /// Minecraft Namespace for this block, example: "minecraft:dirt"
+    /// Minecraft Name for this block, including the namespace
     /// </summary>
-    public required string Namespace { get; set; }
+    public required string Name { get; set; }
 
     /// <summary>
     /// Base color for this block to be rendered
