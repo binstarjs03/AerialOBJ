@@ -597,7 +597,6 @@ public partial class ChunkRegionManager : IChunkRegionManager
         _heightLevelLock.EnterReadLock();
         try
         {
-            chunk.GetHighestBlockSlim(chunkModel.HighestBlocks, _heightLevel, null);
             _chunkRenderer.RenderChunk(regionModel.Image, chunk, chunkModel.HighestBlocks, _heightLevel);
         }
         finally { _heightLevelLock.ExitReadLock(); }

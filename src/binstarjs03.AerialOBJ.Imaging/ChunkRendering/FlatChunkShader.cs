@@ -6,16 +6,16 @@ public class FlatChunkShader : ChunkShaderBase
 {
     public override string ShaderName => "Flat";
 
-    public override void RenderChunk(ChunkRenderOptions setting)
+    public override void RenderChunk(ChunkRenderOptions options)
     {
-        BlockSlim[,] highestBlocks = setting.HighestBlocks ?? GetChunkHighestBlock(setting);
+        BlockSlim[,] highestBlocks = GetChunkHighestBlock(options);
         for (int x = 0; x < IChunk.BlockCount; x++)
             for (int z = 0; z < IChunk.BlockCount; z++)
             {
                 PointZ<int> blockCoordsRel = new(x, z);
-                Color color = GetBlockColor(setting.ViewportDefinition, in highestBlocks[x, z]);
-                SetBlockPixelColorToImage(setting.Image, color, setting.RenderPosition, setting.Chunk.CoordsRel, blockCoordsRel);
+                Color color = GetBlockColor(options.ViewportDefinition, in highestBlocks[x, z]);
+                SetBlockPixelColorToImage(options.Image, color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
             }
-        ReturnChunkHighestBlock(setting, highestBlocks);
+        ReturnChunkHighestBlock(options, highestBlocks);
     }
 }

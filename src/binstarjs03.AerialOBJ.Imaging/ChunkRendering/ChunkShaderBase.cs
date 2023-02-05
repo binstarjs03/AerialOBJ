@@ -13,7 +13,7 @@ public abstract class ChunkShaderBase : IChunkShader
 
     public abstract string ShaderName { get; }
 
-    public abstract void RenderChunk(ChunkRenderOptions setting);
+    public abstract void RenderChunk(ChunkRenderOptions options);
 
     protected static Color GetBlockColor(ViewportDefinition vd, in BlockSlim block)
     {
@@ -31,17 +31,17 @@ public abstract class ChunkShaderBase : IChunkShader
         image[pixelCoords.X, pixelCoords.Y] = color;
     }
 
-    // rent highest block buffer from internal pooler if caller (setting) didn't supplement it
     protected BlockSlim[,] GetChunkHighestBlock(ChunkRenderOptions setting)
     {
-        BlockSlim[,] highestBlocks = _highestBlockPooler.Rent();
+        // rent highest block buffer from internal pooler if caller (setting) didn't supplement it
+        BlockSlim[,] highestBlocks = setting.HighestBlocks ?? _highestBlockPooler.Rent();
         setting.Chunk.GetHighestBlockSlim(setting.ViewportDefinition, highestBlocks, setting.HeightLimit, setting.Exclusions);
         return highestBlocks;
     }
 
-    // return highest block buffer if it was coming from internal pooler
     protected void ReturnChunkHighestBlock(ChunkRenderOptions setting, BlockSlim[,] highestBlocks)
     {
+        // return highest block buffer if it was coming from internal pooler
         if (setting.HighestBlocks is null)
             _highestBlockPooler.Return(highestBlocks);
     }
