@@ -7,9 +7,9 @@ public class StandardChunkShader : ChunkShaderBase
 {
     public override string ShaderName => "Standard";
 
-    public override void RenderChunk(ChunkRenderOptions setting)
+    public override void RenderChunk(ChunkRenderOptions options)
     {
-        BlockSlim[,] highestBlocks = GetChunkHighestBlock(setting);
+        BlockSlim[,] highestBlocks = GetChunkHighestBlock(options);
 
         // initialize row of blocks to the first row (X = X, Z = 0)
         Span<int> lastYRow = stackalloc int[IChunk.BlockCount];
@@ -23,16 +23,16 @@ public class StandardChunkShader : ChunkShaderBase
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
                 ref BlockSlim block = ref highestBlocks[x, z];
-                Color color = RenderBlock(setting.ViewportDefinition, in block, lastY, lastYRow[x]);
+                Color color = RenderBlock(options.ViewportDefinition, in block, lastY, lastYRow[x]);
 
                 PointZ<int> blockCoordsRel = new(x, z);
-                SetBlockPixelColorToImage(setting.Image, color, setting.RenderPosition, setting.Chunk.CoordsRel, blockCoordsRel);
+                SetBlockPixelColorToImage(options, color, blockCoordsRel);
 
                 lastY = block.Height;
                 lastYRow[x] = block.Height;
             }
         }
-        ReturnChunkHighestBlock(setting, highestBlocks);
+        ReturnChunkHighestBlock(options, highestBlocks);
     }
 
     private static Color RenderBlock(ViewportDefinition vd, in BlockSlim block, int lastWestY, int lastNorthY)

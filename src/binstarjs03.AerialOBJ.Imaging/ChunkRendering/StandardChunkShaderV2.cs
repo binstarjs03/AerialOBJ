@@ -35,7 +35,7 @@ public class StandardChunkShaderV2 : ChunkShaderBase
                 if (highestVbd.Color.IsOpaque)
                 {
                     Color color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
-                    SetBlockPixelColorToImage(options.Image, color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+                    SetBlockPixelColorToImage(options, color, blockCoordsRel);
                     continue;
                 }
 
@@ -47,20 +47,20 @@ public class StandardChunkShaderV2 : ChunkShaderBase
                 {
                     Color color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
                     color.MakeOpaque();
-                    SetBlockPixelColorToImage(options.Image, color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+                    SetBlockPixelColorToImage(options, color, blockCoordsRel);
                     continue;
                 }
 
                 Color blendColor = ColorUtils.SimpleBlend(highestVbd.Color, opaqueVbd.Color, highestVbd.Color.Alpha);
                 Color finalColor = ShadeColor(blendColor, highestBlock, westY, northY, northWestY);
-                SetBlockPixelColorToImage(options.Image, finalColor, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+                SetBlockPixelColorToImage(options, finalColor, blockCoordsRel);
             }
         ReturnChunkHighestBlock(options, highestBlocks);
     }
 
     private static void RenderMissingBlockDefinition(ChunkRenderOptions options, PointZ<int> blockCoordsRel)
     {
-        SetBlockPixelColorToImage(options.Image, options.ViewportDefinition.MissingBlockDefinition.Color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+        SetBlockPixelColorToImage(options, options.ViewportDefinition.MissingBlockDefinition.Color, blockCoordsRel);
     }
 
     private static Color ShadeColor(Color blockColor, in BlockSlim block, int westY, int northY, int northWestY)

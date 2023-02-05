@@ -15,7 +15,7 @@ public class FlatChunkShader : ChunkShaderBase
                 PointZ<int> blockCoordsRel = new(x, z);
                 Color color = GetBlockColor(options.ViewportDefinition, in highestBlocks[x, z]);
                 color.MakeOpaque();
-                SetBlockPixelColorToImage(options.Image, color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+                SetBlockPixelColorToImage(options, color, blockCoordsRel);
             }
         ReturnChunkHighestBlock(options, highestBlocks);
     }
