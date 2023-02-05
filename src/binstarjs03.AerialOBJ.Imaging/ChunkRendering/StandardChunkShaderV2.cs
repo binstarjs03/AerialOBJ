@@ -1,4 +1,6 @@
-﻿using binstarjs03.AerialOBJ.Core.Definitions;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
@@ -7,29 +9,61 @@ public class StandardChunkShaderV2 : ChunkShaderBase
 {
     public override string ShaderName => "Standard V2";
 
-    public override void RenderChunk(ChunkRenderOptions setting)
+    public override void RenderChunk(ChunkRenderOptions options)
     {
-        BlockSlim[,] highestBlocks = GetChunkHighestBlock(setting);
+        BlockSlim[,] highestBlocks = GetChunkHighestBlock(options);
+        ViewportDefinition vd = options.ViewportDefinition;
+
         for (int z = 0; z < IChunk.BlockCount; z++)
-        {
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
-                // if northern/western block is not possible (underflow index), then use self Y
-                int northY = z > 0 ? highestBlocks[x, z - 1].Height : highestBlocks[x, z].Height;
-                int westY = x > 0 ? highestBlocks[x - 1, z].Height : highestBlocks[x, z].Height;
-                int northWestY = x > 0 && z > 0 ? highestBlocks[x - 1, z - 1].Height : highestBlocks[x, z].Height;
-
-                ref BlockSlim block = ref highestBlocks[x, z];
-                Color color = RenderBlock(setting.ViewportDefinition, in block, westY, northY, northWestY);
-
                 PointZ<int> blockCoordsRel = new(x, z);
-                SetBlockPixelColorToImage(setting.Image, color, setting.RenderPosition, setting.Chunk.CoordsRel, blockCoordsRel);
+                ref BlockSlim highestBlock = ref highestBlocks[x, z];
+
+                // if northern/western block is not possible (underflow index), then use self Y
+                int northY = z > 0 ? highestBlocks[x, z - 1].Height : highestBlock.Height;
+                int westY = x > 0 ? highestBlocks[x - 1, z].Height : highestBlock.Height;
+                int northWestY = x > 0 && z > 0 ? highestBlocks[x - 1, z - 1].Height : highestBlock.Height;
+
+                if (!vd.BlockDefinitions.TryGetValue(highestBlock.Name, out ViewportBlockDefinition? highestVbd))
+                {
+                    RenderMissingBlockDefinition(options, blockCoordsRel);
+                    continue;
+                }
+
+                // we can render directly if highest block is opaque
+                if (highestVbd.Color.IsOpaque)
+                {
+                    Color color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
+                    SetBlockPixelColorToImage(options.Image, color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+                    continue;
+                }
+
+                // proceed to rescan highest block if block has transparency, then we can blend the alpha
+                BlockSlim opaqueBlock = options.Chunk.GetHighestBlockSlimSingleNoCheck(vd, blockCoordsRel, highestBlock.Height - 1, highestVbd.Name);
+
+                // render highest block as opaque if lower block is not defined
+                if (!vd.BlockDefinitions.TryGetValue(opaqueBlock.Name, out ViewportBlockDefinition? opaqueVbd))
+                {
+                    Color color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
+                    color.MakeOpaque();
+                    SetBlockPixelColorToImage(options.Image, color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+                    continue;
+                }
+
+                Color blendColor = ColorUtils.SimpleBlend(highestVbd.Color, opaqueVbd.Color, highestVbd.Color.Alpha);
+                Color finalColor = ShadeColor(blendColor, highestBlock, westY, northY, northWestY);
+                SetBlockPixelColorToImage(options.Image, finalColor, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
             }
-        }
-        ReturnChunkHighestBlock(setting, highestBlocks);
+        ReturnChunkHighestBlock(options, highestBlocks);
     }
 
-    private static Color RenderBlock(ViewportDefinition vd, in BlockSlim block, int westY, int northY, int northWestY)
+    private static void RenderMissingBlockDefinition(ChunkRenderOptions options, PointZ<int> blockCoordsRel)
+    {
+        SetBlockPixelColorToImage(options.Image, options.ViewportDefinition.MissingBlockDefinition.Color, options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
+    }
+
+    private static Color ShadeColor(Color blockColor, in BlockSlim block, int westY, int northY, int northWestY)
     {
         /* pretend the sun is coming from northwest side
          * for example, lets say we have block arranged like so,
@@ -70,11 +104,12 @@ public class StandardChunkShaderV2 : ChunkShaderBase
         else if (selfY < northWestY)
             difference -= 20;
 
-        Color color = GetBlockColor(vd, in block);
-        color.Red = (byte)Math.Clamp(color.Red + difference, 0, 255);
-        color.Green = (byte)Math.Clamp(color.Green + difference, 0, 255);
-        color.Blue = (byte)Math.Clamp(color.Blue + difference, 0, 255);
-
-        return color;
+        return new Color
+        {
+            Alpha = blockColor.Alpha,
+            Red = (byte)Math.Clamp(blockColor.Red + difference, 0, 255),
+            Green = (byte)Math.Clamp(blockColor.Green + difference, 0, 255),
+            Blue = (byte)Math.Clamp(blockColor.Blue + difference, 0, 255),
+        };
     }
 }

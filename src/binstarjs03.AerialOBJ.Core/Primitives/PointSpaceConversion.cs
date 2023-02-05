@@ -1,6 +1,4 @@
-﻿using binstarjs03.AerialOBJ.Core.Primitives;
-
-namespace binstarjs03.AerialOBJ.Core;
+﻿namespace binstarjs03.AerialOBJ.Core.Primitives;
 
 public static class PointSpaceConversion
 {
@@ -20,11 +18,11 @@ public static class PointSpaceConversion
 
     public static float ConvertWorldPosToScreenPos(float worldPos, float cameraPos, float unitMultiplier, float screenSize)
     {
-        return -(cameraPos * unitMultiplier) + (screenSize / 2) + (worldPos * unitMultiplier);
+        return -(cameraPos * unitMultiplier) + screenSize / 2 + worldPos * unitMultiplier;
     }
 
     public static float ConvertScreenPosToWorldPos(float screenPos, float cameraPos, float unitMultiplier, float screenSize)
     {
-        return -(-(cameraPos * unitMultiplier) + (screenSize / 2) - screenPos) / unitMultiplier;
+        return -(-(cameraPos * unitMultiplier) + screenSize / 2 - screenPos) / unitMultiplier;
     }
 }
