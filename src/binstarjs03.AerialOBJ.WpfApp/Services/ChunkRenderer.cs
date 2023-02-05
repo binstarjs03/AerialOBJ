@@ -30,7 +30,6 @@ public class ChunkRenderer : IChunkRenderer
             HeightLimit = heightLimit,
             Chunk = chunk,
             HighestBlocks = highestBlocks,
-            Exclusions = null, // not implemented for now
         };
         _viewportSetting.ChunkShader.RenderChunk(renderOptions);
     }

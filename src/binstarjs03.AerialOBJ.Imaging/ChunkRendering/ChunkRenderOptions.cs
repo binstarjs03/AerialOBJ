@@ -12,5 +12,4 @@ public class ChunkRenderOptions
     public int HeightLimit { get; set; }
     public required IChunk Chunk { get; set; }
     public BlockSlim[,]? HighestBlocks { get; set; }
-    public List<string>? Exclusions { get; set; }
 }

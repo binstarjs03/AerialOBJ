@@ -55,9 +55,9 @@ public class Chunk2860 : IChunk, IDisposable
     public PointZ<int> CoordsAbs { get; }
     public PointZ<int> CoordsRel { get; }
     public int DataVersion => 2860;
-    public string ReleaseVersion => "1.18";
+    public string MinecraftVersion => "1.18";
 
-    public void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] highestBlockBuffer, int heightLimit, List<string>? exclusions)
+    public void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] highestBlockBuffer, int heightLimit)
     {
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
@@ -88,15 +88,14 @@ public class Chunk2860 : IChunk, IDisposable
                     {
                         if (foundHighestBlock)
                             break;
-
                         if (heightAtSection + y > heightLimit)
                             continue;
 
                         Point3<int> blockCoordsRel = new(x, y, z);
                         Block? paletteBlock = section.GetPaletteBlockRef(blockCoordsRel);
+                        
                         if (paletteBlock is null 
-                            || paletteBlock.Name.IsExcluded(vd) 
-                            || (exclusions is not null && exclusions.Contains(paletteBlock.Name)))
+                            || paletteBlock.Name.IsExcluded(vd))
                             continue;
 
                         block.Name = paletteBlock.Name;

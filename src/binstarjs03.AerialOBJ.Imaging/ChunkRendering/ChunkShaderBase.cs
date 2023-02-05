@@ -35,7 +35,7 @@ public abstract class ChunkShaderBase : IChunkShader
     {
         // rent highest block buffer from internal pooler if caller (setting) didn't supplement it
         BlockSlim[,] highestBlocks = setting.HighestBlocks ?? _highestBlockPooler.Rent();
-        setting.Chunk.GetHighestBlockSlim(setting.ViewportDefinition, highestBlocks, setting.HeightLimit, setting.Exclusions);
+        setting.Chunk.GetHighestBlockSlim(setting.ViewportDefinition, highestBlocks, setting.HeightLimit);
         return highestBlocks;
     }
 
