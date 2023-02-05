@@ -4,7 +4,7 @@
 /// Lightweight version of <see cref="Block"/> that only store 
 /// the name and the height. XZ Coordinate can be inferred from array 
 /// index if it is an array element of chunk block buffer. 
-/// Used when high-performance, Zero-GC allocation required
+/// Used when high performance, Zero-GC allocation required
 /// </summary>
 public struct BlockSlim
 {

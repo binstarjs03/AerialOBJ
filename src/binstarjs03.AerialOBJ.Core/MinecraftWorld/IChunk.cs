@@ -44,10 +44,9 @@ public interface IChunk : IDisposable
 
     /// <summary>
     /// Get highest block of this chunk, starting from <paramref name="heightLimit"/>
-    /// and scans it to the lowest block of lowest section of this chunk. 
-    /// It is recommended for implementors to analyze the sections first to find 
-    /// the highest starting non-excluded section and store it in private field,
-    /// if this is the first time this method called
+    /// and scans it to the lowest block of lowest section of this chunk.
     /// </summary>
     void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] buffer, int heightLimit);
+
+    BlockSlim GetHighestBlockSlimSingle(ViewportDefinition vd, BlockSlim[,] buffer, int heightLimit, string exclusion);
 }

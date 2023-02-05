@@ -35,7 +35,7 @@ public class Chunk2860 : IChunk, IDisposable
             int[] sectionsYPos = new int[sectionsNbt.Count];
             Dictionary<int, Section> sections = new();
 
-            for (int i = 0; i < sectionsYPos.Length; i++)
+            for (int i = 0; i < sectionsNbt.Count; i++)
             {
                 NbtCompound sectionNbt = sectionsNbt[i];
                 int sectionYPos = sectionNbt.Get<NbtByte>("Y").Value;
@@ -113,6 +113,11 @@ public class Chunk2860 : IChunk, IDisposable
                     block.Height = lowestBlockY;
                 }
             }
+    }
+
+    public BlockSlim GetHighestBlockSlimSingle(ViewportDefinition vd, BlockSlim[,] buffer, int heightLimit, string exclusion)
+    {
+        throw new NotImplementedException();
     }
     
     public override string ToString()
