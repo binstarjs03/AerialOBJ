@@ -2,6 +2,10 @@
 
 namespace binstarjs03.AerialOBJ.Core.Definitions;
 
+/// <summary>
+/// Represent defined, known Minecraft block. Do not be mistaken, 
+/// this class do not store block information by itself
+/// </summary>
 public class ViewportBlockDefinition
 {
     /// <summary>
