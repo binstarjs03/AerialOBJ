@@ -9,6 +9,8 @@ public struct Color
     public required byte Blue { get; set; }
     public required byte Alpha { get; set; }
 
+    public bool IsOpaque => Alpha == byte.MaxValue;
+
     public static Color Parse(string hexColor, byte alpha)
     {
         if (!hexColor.StartsWith("#"))
