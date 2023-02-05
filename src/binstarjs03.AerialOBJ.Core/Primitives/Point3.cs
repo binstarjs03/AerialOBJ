@@ -55,4 +55,9 @@ public struct Point3<TNumber> : IEquatable<Point3<TNumber>> where TNumber : stru
     {
         return !(left == right);
     }
+
+    public static implicit operator Point3<TNumber>(PointZ<TNumber> point)
+    {
+        return new Point3<TNumber>(point.X, TNumber.Zero, point.Z);
+    }
 }

@@ -61,65 +61,52 @@ public class Chunk2860 : IChunk, IDisposable
     {
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
-            {
-                bool foundHighestBlock = false;
-                ref BlockSlim block = ref highestBlockBuffer[x, z];
-
-                // scan block from top to bottom section
-                for (int index = _sections.Count - 1; index >= 0; index--)
-                {
-                    if (foundHighestBlock)
-                        break;
-
-                    int sectionY = _sectionsY[index];
-                    Section section = _sections[sectionY];
-
-                    // skip if section is entirely filled with excluded blocks
-                    if (section.IsExcluded(vd))
-                        continue;
-
-                    // skip if section is higher than limit
-                    int heightAtSection = sectionY * IChunk.BlockCount;
-                    if (heightAtSection > heightLimit)
-                        continue;
-
-                    // scan block from top to bottom relative to section
-                    for (int y = IChunk.BlockRange; y >= 0; y--)
-                    {
-                        if (foundHighestBlock)
-                            break;
-                        if (heightAtSection + y > heightLimit)
-                            continue;
-
-                        Point3<int> blockCoordsRel = new(x, y, z);
-                        Block? paletteBlock = section.GetPaletteBlock(blockCoordsRel);
-                        
-                        if (paletteBlock is null 
-                            || paletteBlock.Name.IsExcluded(vd))
-                            continue;
-
-                        block.Name = paletteBlock.Name;
-                        block.Height = heightAtSection + y;
-                        foundHighestBlock = true;
-                    }
-                }
-
-                if (!foundHighestBlock)
-                {
-                    // failed to get block in all sections and height ranges, set it to air at lowest level
-                    Section lowestSection = _sections[_sectionsY[0]];
-                    int lowestBlockY = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
-                    block.Name = vd.AirBlockName;
-                    block.Height = lowestBlockY;
-                }
-            }
+                highestBlockBuffer[x, z] = GetHighestBlockSlimSingleNoCheck(vd, new PointZ<int>(x, z), heightLimit, null);
     }
 
-    public BlockSlim GetHighestBlockSlimSingle(ViewportDefinition vd, BlockSlim[,] buffer, int heightLimit, string exclusion)
+    public BlockSlim GetHighestBlockSlimSingleNoCheck(ViewportDefinition vd, PointZ<int> blockCoordsRel, int heightLimit, string? exclusion = null)
     {
-        throw new NotImplementedException();
+        // scan block from top to bottom section
+        for (int index = _sections.Count - 1; index >= 0; index--)
+        {
+            int sectionY = _sectionsY[index];
+            Section section = _sections[sectionY];
+
+            // skip if section is entirely filled with excluded blocks
+            if (section.IsExcluded(vd))
+                continue;
+
+            // skip if section is higher than limit
+            int heightAtSection = sectionY * IChunk.BlockCount;
+            if (heightAtSection > heightLimit)
+                continue;
+
+            // scan block from top to bottom relative to section
+            for (int y = IChunk.BlockRange; y >= 0; y--)
+            {
+                if (heightAtSection + y > heightLimit)
+                    continue;
+
+                Point3<int> blockCoordsRel3 = blockCoordsRel;
+                blockCoordsRel3.Y = y;
+
+                Block? paletteBlock = section.GetPaletteBlock(blockCoordsRel3);
+
+                if (paletteBlock is null
+                    || paletteBlock.Name.IsExcluded(vd)
+                    || paletteBlock.Name == exclusion)
+                    continue;
+
+                return new BlockSlim(paletteBlock.Name, heightAtSection + y);
+            }
+        }
+
+        // failed to get block in all sections and height ranges, set it to air at lowest level
+        Section lowestSection = _sections[_sectionsY[0]];
+        int lowestBlockY = lowestSection.CoordsAbs.Y * IChunk.BlockCount;
+        return new BlockSlim(vd.AirBlockName, lowestBlockY);
     }
-    
+
     public override string ToString()
     {
         return $"Chunk {CoordsAbs}, DataVersion: {DataVersion}";

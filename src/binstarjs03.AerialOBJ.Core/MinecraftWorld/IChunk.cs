@@ -48,5 +48,5 @@ public interface IChunk : IDisposable
     /// </summary>
     void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] buffer, int heightLimit);
 
-    BlockSlim GetHighestBlockSlimSingle(ViewportDefinition vd, BlockSlim[,] buffer, int heightLimit, string exclusion);
+    BlockSlim GetHighestBlockSlimSingleNoCheck(ViewportDefinition vd, PointZ<int> blockCoordsRel, int heightLimit, string exclusion);
 }
