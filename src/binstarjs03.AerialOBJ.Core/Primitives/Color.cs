@@ -32,6 +32,14 @@ public struct Color
         }
     }
 
+    /// <summary>
+    /// Set alpha to full value for this color
+    /// </summary>
+    public void MakeOpaque()
+    {
+        Alpha = byte.MaxValue;
+    }
+
     public override string ToString()
     {
         return $"A:{Alpha}, R:{Red}, G:{Green}, B:{Blue}";
