@@ -65,16 +65,16 @@ public class Chunk2860 : IChunk, IDisposable
                 bool foundHighestBlock = false;
                 ref BlockSlim block = ref highestBlockBuffer[x, z];
 
-                // scan block from top to bottom sections, starting from highest non-air section
+                // scan block from top to bottom section
                 for (int index = _sections.Count - 1; index >= 0; index--)
                 {
                     if (foundHighestBlock)
                         break;
 
                     int sectionY = _sectionsY[index];
+                    Section section = _sections[sectionY];
 
                     // skip if section is entirely filled with excluded blocks
-                    Section section = _sections[sectionY];
                     if (section.IsExcluded(vd))
                         continue;
 
@@ -92,7 +92,7 @@ public class Chunk2860 : IChunk, IDisposable
                             continue;
 
                         Point3<int> blockCoordsRel = new(x, y, z);
-                        Block? paletteBlock = section.GetPaletteBlockRef(blockCoordsRel);
+                        Block? paletteBlock = section.GetPaletteBlock(blockCoordsRel);
                         
                         if (paletteBlock is null 
                             || paletteBlock.Name.IsExcluded(vd))
@@ -165,7 +165,7 @@ public class Chunk2860 : IChunk, IDisposable
 
         private int[,,]? ReadNbtLongData(NbtLongArray dataNbt, int paletteLength)
         {
-            // bit-length required for single block id
+            // bit-length required for single block
             // (minimum of 4) based from palette length.
             int blockBitLength = Math.Max((paletteLength - 1).Bitlength(), 4);
             int bitsInByte = 8;
@@ -187,7 +187,7 @@ public class Chunk2860 : IChunk, IDisposable
             {
                 if (filledCompletely)
                     break;
-                BinaryUtils.SplitSubnumberFastNoCheck(longValue, buffer, blockBitLength);
+                BinaryUtils.UnpackBitNoCheck(longValue, buffer, blockBitLength);
                 foreach (int value in buffer)
                 {
                     if (filledCompletely)
@@ -214,7 +214,7 @@ public class Chunk2860 : IChunk, IDisposable
             }
         }
 
-        public Block? GetPaletteBlockRef(Point3<int> blockCoordsRel)
+        public Block? GetPaletteBlock(Point3<int> blockCoordsRel)
         {
             if (_blockPalette is null || _blockPaletteIndexTable is null)
                 return null;
