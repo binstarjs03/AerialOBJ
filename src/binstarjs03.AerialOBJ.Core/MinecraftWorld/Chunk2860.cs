@@ -66,21 +66,21 @@ public class Chunk2860 : IChunk, IDisposable
                 ref BlockSlim block = ref highestBlockBuffer[x, z];
 
                 // scan block from top to bottom sections, starting from highest non-air section
-                for (int index = _sections.Count; index >= 0; index--)
+                for (int index = _sections.Count - 1; index >= 0; index--)
                 {
                     if (foundHighestBlock)
                         break;
 
                     int sectionY = _sectionsY[index];
 
-                    // skip if section is higher than limit
-                    int heightAtSection = sectionY * IChunk.BlockCount;
-                    if (heightAtSection > heightLimit)
-                        continue;
-
                     // skip if section is entirely filled with excluded blocks
                     Section section = _sections[sectionY];
                     if (section.IsExcluded(vd))
+                        continue;
+
+                    // skip if section is higher than limit
+                    int heightAtSection = sectionY * IChunk.BlockCount;
+                    if (heightAtSection > heightLimit)
                         continue;
 
                     // scan block from top to bottom relative to section
@@ -114,6 +114,7 @@ public class Chunk2860 : IChunk, IDisposable
                 }
             }
     }
+    
     public override string ToString()
     {
         return $"Chunk {CoordsAbs}, DataVersion: {DataVersion}";
