@@ -1,7 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-using binstarjs03.AerialOBJ.Core.Definitions;
+﻿using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
@@ -31,28 +30,38 @@ public class StandardChunkShaderV2 : ChunkShaderBase
                     continue;
                 }
 
+                Color color = highestVbd.Color;
+
                 // we can render directly if highest block is opaque
                 if (highestVbd.Color.IsOpaque)
                 {
-                    Color color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
+                    color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
                     SetBlockPixelColorToImage(options, color, blockCoordsRel);
                     continue;
                 }
 
-                // proceed to rescan highest block if block has transparency, then we can blend the alpha
-                BlockSlim opaqueBlock = options.Chunk.GetHighestBlockSlimSingleNoCheck(vd, blockCoordsRel, highestBlock.Height - 1, highestVbd.Name);
-
-                // render highest block as opaque if lower block is not defined
-                if (!vd.BlockDefinitions.TryGetValue(opaqueBlock.Name, out ViewportBlockDefinition? opaqueVbd))
+                // else, keep looking down for opaque block
+                BlockSlim lastBlock = highestBlock;
+                while (true)
                 {
-                    Color color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
-                    color.MakeOpaque();
-                    SetBlockPixelColorToImage(options, color, blockCoordsRel);
-                    continue;
-                }
+                    BlockSlim block = options.Chunk.GetHighestBlockSlimSingleNoCheck(vd, blockCoordsRel, lastBlock.Height - 1, highestVbd.Name);
 
-                Color blendColor = ColorUtils.SimpleBlend(highestVbd.Color, opaqueVbd.Color, highestVbd.Color.Alpha);
-                Color finalColor = ShadeColor(blendColor, highestBlock, westY, northY, northWestY);
+                    // we stop here if block definition is missing and we won't blend it 
+                    if (!vd.BlockDefinitions.TryGetValue(block.Name, out ViewportBlockDefinition? blockVbd))
+                        break;
+
+                    int distance = lastBlock.Height - block.Height;
+                    Color blockVbdColor = blockVbd.Color;
+                    for (int i = 0; i < distance; i++)
+                        blockVbdColor = ColorUtils.SimpleBlend(blockVbdColor, color, color.Alpha);
+                    color = blockVbdColor;
+
+                    // we stop here if block color is opaque
+                    if (blockVbd.Color.IsOpaque)
+                        break;
+                    lastBlock = block;
+                }
+                Color finalColor = ShadeColor(color, highestBlock, westY, northY, northWestY);
                 SetBlockPixelColorToImage(options, finalColor, blockCoordsRel);
             }
         ReturnChunkHighestBlock(options, highestBlocks);
