@@ -1,82 +1,142 @@
-﻿using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+﻿using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 public class StandardChunkShaderV2 : ChunkShaderBase
 {
+    private readonly ObjectPool<List<(Color, int)>> _blockListPooler = new();
+
     public override string ShaderName => "Standard V2";
 
     public override void RenderChunk(ChunkRenderOptions options)
     {
-        BlockSlim[,] highestBlocks = GetChunkHighestBlock(options);
-        ViewportDefinition vd = options.ViewportDefinition;
+        var colorList = GetColorList();
+        var highestBlocks = GetChunkHighestBlock(options);
 
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
-                PointZ<int> blockCoordsRel = new(x, z);
-                ref BlockSlim highestBlock = ref highestBlocks[x, z];
-
-                if (highestBlock.Name == "minecraft:bubble_column")
-                    highestBlock.Name = "minecraft:water";
-
-                // if northern/western block is not possible (underflow index), then use self Y
-                int northY = z > 0 ? highestBlocks[x, z - 1].Height : highestBlock.Height;
-                int westY = x > 0 ? highestBlocks[x - 1, z].Height : highestBlock.Height;
-                int northWestY = x > 0 && z > 0 ? highestBlocks[x - 1, z - 1].Height : highestBlock.Height;
-
-                if (!vd.BlockDefinitions.TryGetValue(highestBlock.Name, out ViewportBlockDefinition? highestVbd))
-                {
-                    RenderMissingBlockDefinition(options, blockCoordsRel);
-                    continue;
-                }
-
-                Color color = highestVbd.Color;
-
-                // we can render directly if highest block is opaque
-                if (highestVbd.Color.IsOpaque)
-                {
-                    color = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
-                    SetBlockPixelColorToImage(options, color, blockCoordsRel);
-                    continue;
-                }
-
-                // else, keep looking down for opaque block
-                BlockSlim lastBlock = highestBlock;
-                while (true)
-                {
-                    if (lastBlock.Height == options.Chunk.LowestBlockHeight)
-                        break;
-                    BlockSlim block = options.Chunk.GetHighestBlockSlimSingleNoCheck(vd, blockCoordsRel, lastBlock.Height - 1, highestVbd.Name);
-
-                    // we stop here if block definition is missing and we won't blend it 
-                    if (!vd.BlockDefinitions.TryGetValue(block.Name, out ViewportBlockDefinition? blockVbd))
-                        break;
-
-                    int distance = lastBlock.Height - block.Height;
-                    Color blockVbdColor = blockVbd.Color;
-                    for (int i = 0; i < distance; i++)
-                    {
-                        blockVbdColor = ColorUtils.SimpleBlend(blockVbdColor, color, (byte)(color.Alpha / (i * 0.5 + 1f)));
-                    }
-                    color = blockVbdColor;
-
-                    // we stop here if block color is opaque
-                    if (blockVbd.Color.IsOpaque)
-                        break;
-                    lastBlock = block;
-                }
-                Color finalColor = ShadeColor(color, highestBlock, westY, northY, northWestY);
-                SetBlockPixelColorToImage(options, finalColor, blockCoordsRel);
+                PointZ<int> blockCoordsRel = new PointZ<int>(x, z);
+                RenderBlock(options, highestBlocks, colorList, blockCoordsRel);
             }
+
         ReturnChunkHighestBlock(options, highestBlocks);
+        ReturnColorList(colorList);
+    }
+
+    private static void RenderBlock(ChunkRenderOptions options, BlockSlim[,] highestBlocks, List<(Color, int)> colorLayers, PointZ<int> blockCoordsRel)
+    {
+        Color finalPixelColor;
+        var vd = options.ViewportDefinition;
+        ref var highestBlock = ref highestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
+
+        if (!vd.BlockDefinitions.TryGetValue(highestBlock.Name, out var highestVbd))
+        {
+            RenderMissingBlockDefinition(options, blockCoordsRel);
+            return;
+        }
+
+        (int northY, int westY, int northWestY) = GetNeighboringBlockHeight(highestBlocks, highestBlock.Height, blockCoordsRel);
+
+        // we can render directly if highest block is opaque or highest block is lowest block
+        if (highestVbd.Color.IsOpaque || highestBlock.Height <= options.Chunk.LowestBlockHeight)
+        {
+            finalPixelColor = ShadeColor(highestVbd.Color, in highestBlock, westY, northY, northWestY);
+            SetBlockPixelColorToImage(options, finalPixelColor, blockCoordsRel);
+            return;
+        }
+
+        var lastBlock = highestBlock;
+        var lastVbd = highestVbd;
+        do
+        {
+            // rescan block until different block is found, so we exclude last block
+            var block = options.Chunk.GetHighestBlockSlimSingleNoCheck(vd, blockCoordsRel, lastBlock.Height - 1, lastBlock.Name);
+
+            var hasBlockDefinition = vd.BlockDefinitions.TryGetValue(block.Name, out var blockVbd);
+            if (!hasBlockDefinition)
+                blockVbd = vd.MissingBlockDefinition;
+
+            int distance = lastBlock.Height - block.Height;
+            colorLayers.Add((lastVbd.Color, distance));
+
+            if (blockVbd!.Color.IsOpaque || !hasBlockDefinition || block.Height == options.Chunk.LowestBlockHeight)
+            {
+                // add last block color to color layers
+                colorLayers.Add((blockVbd.Color, 0));
+                break;
+            }
+
+            lastBlock = block;
+            lastVbd = blockVbd;
+
+        } while (true);
+
+        Color combinedColorLayers = CombineColorLayers(colorLayers);
+        finalPixelColor = ShadeColor(combinedColorLayers, highestBlock, westY, northY, northWestY);
+        SetBlockPixelColorToImage(options, finalPixelColor, blockCoordsRel);
+        colorLayers.Clear();
+    }
+
+    private static Color CombineColorLayers(List<(Color color, int count)> colorLayers)
+    {
+        colorLayers.Reverse();
+
+        // set initial color to the first layer (bottom block),
+        // which we expect to be opaque
+        Color result = colorLayers[0].color;
+
+        // because we already put the first layer, we skip the first layer
+        // in the loop, so we set initial index to one, not zero
+        for (int i = 1; i < colorLayers.Count; i++)
+        {
+            Color nextLayer = colorLayers[i].color;
+            int count = colorLayers[i].count;
+            result = RepeatingCombineColorLayer(result, nextLayer, count);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Repeatedly combine color <paramref name="source"/>, <paramref name="count"/> 
+    /// times to <paramref name="destination"/>
+    /// </summary>
+    private static Color RepeatingCombineColorLayer(Color destination, Color source, int count)
+    {
+        for (int i = 0; i < count; i++)
+            destination = ColorUtils.SimpleBlend(destination, source, source.Alpha);
+        return destination;
+    }
+
+    private static (int northY, int westY, int northWestY) GetNeighboringBlockHeight(BlockSlim[,] highestBlocks, int selfHeight, PointZ<int> blockCoordsRel)
+    {
+        int x = blockCoordsRel.X;
+        int z = blockCoordsRel.Z;
+
+        // if neighboring block is not possible (underflow index), then use self Y
+        int northY = z > 0 ? highestBlocks[x, z - 1].Height : selfHeight;
+        int westY = x > 0 ? highestBlocks[x - 1, z].Height : selfHeight;
+        int northWestY = x > 0 && z > 0 ? highestBlocks[x - 1, z - 1].Height : selfHeight;
+        return (northY, westY, northWestY);
     }
 
     private static void RenderMissingBlockDefinition(ChunkRenderOptions options, PointZ<int> blockCoordsRel)
     {
         SetBlockPixelColorToImage(options, options.ViewportDefinition.MissingBlockDefinition.Color, blockCoordsRel);
+    }
+
+    private List<(Color, int)> GetColorList()
+    {
+        if (!_blockListPooler.Rent(out var colorList))
+            colorList = new List<(Color, int)>();
+        return colorList;
+    }
+
+    private void ReturnColorList(List<(Color, int)> colorList)
+    {
+        _blockListPooler.Return(colorList);
     }
 
     private static Color ShadeColor(Color blockColor, in BlockSlim block, int westY, int northY, int northWestY)
