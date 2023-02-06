@@ -1756,12 +1756,12 @@ public class ViewportDefinition : IRootDefinition
                 },
                 {
                     "Name": "minecraft:seagrass",
-                    "Color": "#7E4E12",
+                    "Color": "#8A985D",
                     "IsSolid": false
                 },
                 {
                     "Name": "minecraft:tall_seagrass",
-                    "Color": "#7E4E12",
+                    "Color": "#8A985D",
                     "IsSolid": false
                 },
                 {

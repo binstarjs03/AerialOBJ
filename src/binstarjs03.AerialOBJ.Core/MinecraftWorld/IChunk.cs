@@ -43,6 +43,13 @@ public interface IChunk : IDisposable
     PointZ<int> CoordsRel { get; }
 
     /// <summary>
+    /// Lowest obtainable block height of this chunk, determined by lowest section. 
+    /// Note that this does not mean the chunk lowest block height is this low,
+    /// as it depends on the actual Minecraft chunk implementation itself.
+    /// </summary>
+    int LowestBlockHeight { get; }
+
+    /// <summary>
     /// Get highest block of this chunk, starting from <paramref name="heightLimit"/>
     /// and scans it to the lowest block of lowest section of this chunk.
     /// </summary>

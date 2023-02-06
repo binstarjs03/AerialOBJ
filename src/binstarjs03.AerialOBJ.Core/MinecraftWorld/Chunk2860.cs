@@ -22,6 +22,8 @@ public class Chunk2860 : IChunk, IDisposable
         // just in case section elements is unsorted, it is most unlikely but yeah
         Array.Sort(_sectionsY);
 
+        LowestBlockHeight = _sectionsY[0] * IChunk.BlockCount;
+
         static PointZ<int> getChunkCoordsAbs(NbtCompound chunkNbt)
         {
             int chunkCoordsAbsX = chunkNbt.Get<NbtInt>("xPos").Value;
@@ -56,6 +58,7 @@ public class Chunk2860 : IChunk, IDisposable
     public PointZ<int> CoordsRel { get; }
     public int DataVersion => 2860;
     public string MinecraftVersion => "1.18";
+    public int LowestBlockHeight { get; }
 
     public void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] highestBlockBuffer, int heightLimit)
     {

@@ -19,6 +19,9 @@ public class StandardChunkShaderV2 : ChunkShaderBase
                 PointZ<int> blockCoordsRel = new(x, z);
                 ref BlockSlim highestBlock = ref highestBlocks[x, z];
 
+                if (highestBlock.Name == "minecraft:bubble_column")
+                    highestBlock.Name = "minecraft:water";
+
                 // if northern/western block is not possible (underflow index), then use self Y
                 int northY = z > 0 ? highestBlocks[x, z - 1].Height : highestBlock.Height;
                 int westY = x > 0 ? highestBlocks[x - 1, z].Height : highestBlock.Height;
@@ -44,6 +47,8 @@ public class StandardChunkShaderV2 : ChunkShaderBase
                 BlockSlim lastBlock = highestBlock;
                 while (true)
                 {
+                    if (lastBlock.Height == options.Chunk.LowestBlockHeight)
+                        break;
                     BlockSlim block = options.Chunk.GetHighestBlockSlimSingleNoCheck(vd, blockCoordsRel, lastBlock.Height - 1, highestVbd.Name);
 
                     // we stop here if block definition is missing and we won't blend it 
@@ -53,7 +58,9 @@ public class StandardChunkShaderV2 : ChunkShaderBase
                     int distance = lastBlock.Height - block.Height;
                     Color blockVbdColor = blockVbd.Color;
                     for (int i = 0; i < distance; i++)
-                        blockVbdColor = ColorUtils.SimpleBlend(blockVbdColor, color, color.Alpha);
+                    {
+                        blockVbdColor = ColorUtils.SimpleBlend(blockVbdColor, color, (byte)(color.Alpha / (i * 0.5 + 1f)));
+                    }
                     color = blockVbdColor;
 
                     // we stop here if block color is opaque
