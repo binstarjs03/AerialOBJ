@@ -11,14 +11,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="ChunkRendering\StandardChunkShaderV2.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="ChunkRendering\StandardChunkShaderV2.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
 	</ItemGroup>
 
