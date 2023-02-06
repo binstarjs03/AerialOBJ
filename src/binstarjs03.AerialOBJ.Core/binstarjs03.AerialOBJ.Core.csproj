@@ -14,4 +14,8 @@
 		<DefineConstants>UNSAFE_OPTIMIZATION</DefineConstants>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=$(MSBuildProjectName)</PathMap>
+	</PropertyGroup>
+
 </Project>

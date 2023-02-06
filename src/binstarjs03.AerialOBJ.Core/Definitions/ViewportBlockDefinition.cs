@@ -2,12 +2,16 @@
 
 namespace binstarjs03.AerialOBJ.Core.Definitions;
 
+/// <summary>
+/// Represent defined, known Minecraft block. Do not be mistaken, 
+/// this class do not store block information by itself
+/// </summary>
 public class ViewportBlockDefinition
 {
     /// <summary>
-    /// Minecraft Namespace for this block, example: "minecraft:dirt"
+    /// Minecraft Name for this block, including the namespace
     /// </summary>
-    public required string Namespace { get; set; }
+    public required string Name { get; set; }
 
     /// <summary>
     /// Base color for this block to be rendered

@@ -17,7 +17,7 @@ public class ViewportBlockDefinitionsConverter : JsonConverter<Dictionary<string
         while (reader.TokenType != JsonTokenType.EndArray)
         {
             ViewportBlockDefinition vbd = DeserializeViewportBlockDefinition(ref reader);
-            result.Add(vbd.Namespace, vbd);
+            result.Add(vbd.Name, vbd);
             reader.Read(); // advance to start object, or end of array if exhausted
         }
 
@@ -30,7 +30,7 @@ public class ViewportBlockDefinitionsConverter : JsonConverter<Dictionary<string
                 throw new InvalidOperationException("Expected at start object");
 
             JsonElement element = JsonElement.ParseValue(ref reader);
-            string nameSpace = element.GetProperty(nameof(ViewportBlockDefinition.Namespace)).GetString()!;
+            string name = element.GetProperty(nameof(ViewportBlockDefinition.Name)).GetString()!;
             string hexColor = element.GetProperty(nameof(ViewportBlockDefinition.Color)).GetString()!;
 
             // set alpha to full (opaque) if omitted
@@ -40,12 +40,12 @@ public class ViewportBlockDefinitionsConverter : JsonConverter<Dictionary<string
             else
                 alpha = byte.MaxValue;
 
-            // infer display name from namespace if omitted
+            // infer display name from name if omitted, excluding the namespace
             string displayName;
             if (element.TryGetProperty(nameof(ViewportBlockDefinition.DisplayName), out JsonElement displayNameE))
                 displayName = displayNameE.GetString()!;
             else
-                displayName = GetDisplayNameFromNamespace(nameSpace);
+                displayName = GetDisplayNameFromName(name);
 
             // set solid to true if omitted
             bool isSolid;
@@ -63,7 +63,7 @@ public class ViewportBlockDefinitionsConverter : JsonConverter<Dictionary<string
 
             return new ViewportBlockDefinition()
             {
-                Namespace = nameSpace,
+                Name = name,
                 Color = Color.Parse(hexColor, alpha),
                 DisplayName = displayName,
                 IsSolid = isSolid,
@@ -71,11 +71,11 @@ public class ViewportBlockDefinitionsConverter : JsonConverter<Dictionary<string
             };
         }
 
-        static string GetDisplayNameFromNamespace(string nameSpace)
+        static string GetDisplayNameFromName(string name)
         {
             // skip namespace, such as "minecraft" and ":" delimiter,
             // then titlecase and replace underscore with space
-            return nameSpace[(nameSpace.IndexOf(':') + 1)..]
+            return name[(name.IndexOf(':') + 1)..]
                 .Replace('_', ' ')
                 .ToTitleCase();
         }

@@ -9,6 +9,8 @@ public struct Color
     public required byte Blue { get; set; }
     public required byte Alpha { get; set; }
 
+    public bool IsOpaque => Alpha == byte.MaxValue;
+
     public static Color Parse(string hexColor, byte alpha)
     {
         if (!hexColor.StartsWith("#"))
@@ -30,6 +32,14 @@ public struct Color
             throw new FormatException($"String format for argument {nameof(hexColor)} must be \"#RRGGBB\", " +
                                       $"where each digits represent hexadecimal value", e);
         }
+    }
+
+    /// <summary>
+    /// Set alpha to full value for this color
+    /// </summary>
+    public void MakeOpaque()
+    {
+        Alpha = byte.MaxValue;
     }
 
     public override string ToString()
