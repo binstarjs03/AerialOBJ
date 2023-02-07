@@ -210,8 +210,15 @@ public class Chunk2860 : IChunk, IDisposable
 
         public Block? GetPaletteBlock(Point3<int> blockCoordsRel)
         {
-            if (_blockPalette is null || _blockPaletteIndexTable is null)
+            // if block palette is null, most likely the entire section is air
+            if (_blockPalette is null)
                 return null;
+
+            // if block palette index table is null, it means the entire section
+            // is filled with whatever block is in palette (most likely there is only one block)
+            if (_blockPaletteIndexTable is null)
+                return _blockPalette[0];
+
             int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.X,
                                                        blockCoordsRel.Y,
                                                        blockCoordsRel.Z];
