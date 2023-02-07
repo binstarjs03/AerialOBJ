@@ -4,9 +4,6 @@ using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
-
-
-
 public class StandardChunkShaderV2 : ChunkShaderBase
 {
     private readonly ObjectPool<List<BlockColorLayer>> _blockLayersPooler = new();
@@ -15,22 +12,19 @@ public class StandardChunkShaderV2 : ChunkShaderBase
 
     public override void RenderChunk(ChunkRenderOptions options)
     {
-
-        var blockLayers = RentOrCreateBlockLayers();
         var highestBlocks = GetChunkHighestBlock(options);
 
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
-                PointZ<int> blockCoordsRel = new PointZ<int>(x, z);
-                RenderBlock(options, highestBlocks, blockLayers, blockCoordsRel);
+                PointZ<int> blockCoordsRel = new(x, z);
+                RenderBlock(options, highestBlocks, blockCoordsRel);
             }
 
         ReturnChunkHighestBlock(options, highestBlocks);
-        ReturnBlockLayers(blockLayers);
     }
 
-    private static void RenderBlock(ChunkRenderOptions options, BlockSlim[,] highestBlocks, List<BlockColorLayer> blockLayers, PointZ<int> blockCoordsRel)
+    private void RenderBlock(ChunkRenderOptions options, BlockSlim[,] highestBlocks, PointZ<int> blockCoordsRel)
     {
         Color finalPixelColor;
         var viewportDefinition = options.ViewportDefinition;
@@ -56,6 +50,9 @@ public class StandardChunkShaderV2 : ChunkShaderBase
         // Highest block color is not opaque, combine all semitransparent block colors below it.
         // The way we do that is by building layer of blocks, scanning the chunk to the bottom until opaque block is found
 
+        var blockLayers = RentOrCreateBlockLayers();
+        Color background;
+
         var lastBlock = highestBlock;
         var lastBlockDefinition = highestBlockDefinition;
         do
@@ -74,14 +71,10 @@ public class StandardChunkShaderV2 : ChunkShaderBase
                 LayerThickness = distance,
             });
 
-            if (blockDefinition!.Color.IsOpaque || !hasBlockDefinition || block.Height == lowestBlockHeight)
+            // if found opaque block color, we stop here
+            if (blockDefinition!.Color.IsOpaque || block.Height <= lowestBlockHeight)
             {
-                // add last block to block layers
-                blockLayers.Add(new BlockColorLayer
-                {
-                    Color = blockDefinition.Color,
-                    LayerThickness = 1,
-                });
+                background = blockDefinition.Color;
                 break;
             }
 
@@ -94,35 +87,32 @@ public class StandardChunkShaderV2 : ChunkShaderBase
         // our layer direction is wrong so we reverse it
         blockLayers.Reverse();
 
-        Color combinedBlockColors = CombineLayersOfBlockColor(blockLayers);
+        Color combinedBlockColors = CombineLayersOfBlockColor(background, blockLayers);
         finalPixelColor = ShadeBlockColor(combinedBlockColors, highestBlock, westY, northY, northWestY);
         SetImagePixel(options, finalPixelColor, blockCoordsRel);
+
         blockLayers.Clear();
+        ReturnBlockLayers(blockLayers);
     }
 
-    private static Color CombineLayersOfBlockColor(IList<BlockColorLayer> blockLayers)
+    private static Color CombineLayersOfBlockColor(Color background, IList<BlockColorLayer> blockLayers)
     {
-        // set initial color to the first layer (bottom block),
-        // which we expect to be opaque
-        Color result = blockLayers[0].Color;
+        Color result = background;
+        foreach (BlockColorLayer layer in blockLayers)
+            for (int i = 0; i < layer.LayerThickness; i++)
+            {
+                // map alpha value from (0 - 255) to (0 - 1)
+                float alphaRemap = layer.Color.Alpha / (float)byte.MaxValue;
 
-        // because we already put the first layer, we skip the first layer
-        // in the loop, so we set initial index to one, not zero
-        for (int i = 1; i < blockLayers.Count; i++)
-            result = RepeatingCombineBlockColorLayer(result, blockLayers[i]);
+                // we want to blend the colors more or less logarithmically.
+                // we may also expose strength to the setting so transparency
+                // blending can be adjusted to the user preference
+                float strength = 0.5f;
+                float ratio = alphaRemap / (i * strength + 1);
 
+                result = ColorUtils.SimpleBlend(result, layer.Color, ratio);
+            }
         return result;
-    }
-
-    /// <summary>
-    /// Repeatedly combine block color <paramref name="source"/>, <paramref name="count"/> 
-    /// times to <paramref name="background"/>
-    /// </summary>
-    private static Color RepeatingCombineBlockColorLayer(Color background, BlockColorLayer layer)
-    {
-        for (int i = 0; i < layer.LayerThickness; i++)
-            background = ColorUtils.SimpleBlend(background, layer.Color, layer.Color.Alpha);
-        return background;
     }
 
     private static (int northY, int westY, int northWestY) GetNeighboringBlockHeight(BlockSlim[,] highestBlocks, int selfHeight, PointZ<int> blockCoordsRel)
