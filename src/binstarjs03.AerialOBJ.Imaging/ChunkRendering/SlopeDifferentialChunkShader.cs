@@ -3,15 +3,17 @@ using binstarjs03.AerialOBJ.Core.Pooling;
 using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.Imaging.ChunkRendering;
-public class StandardChunkShader : ChunkShaderBase
+public class SlopeDifferentialChunkShader : ChunkShaderBase
 {
     private readonly ObjectPool<List<BlockColorLayer>> _blockLayersPooler = new();
 
-    public override string ShaderName => "Standard";
+    public override string ShaderName => "Slope Differential";
 
     public override void RenderChunk(ChunkRenderOptions options)
     {
         var highestBlocks = GetChunkHighestBlock(options);
+        FixHeights(highestBlocks);
+
         for (int z = 0; z < IChunk.BlockCount; z++)
             for (int x = 0; x < IChunk.BlockCount; x++)
             {
@@ -20,6 +22,22 @@ public class StandardChunkShader : ChunkShaderBase
             }
 
         ReturnChunkHighestBlock(options, highestBlocks);
+    }
+
+
+    // TODO this method mutate the buffer!!! this cause height information misleading,
+    // consider refactoring
+    private void FixHeights(BlockSlim[,] highestBlocks)
+    {
+        for (int z = 0; z < IChunk.BlockCount; z++)
+            for (int x = 0; x < IChunk.BlockCount; x++)
+            {
+                ref var highestBlock = ref highestBlocks[x, z];
+                if (highestBlock.Name == "minecraft:grass")
+                    highestBlock.Height -= 1;
+                else if (highestBlock.Name == "minecraft:tall_grass")
+                    highestBlock.Height -= 2;
+            }
     }
 
     private void RenderBlock(ChunkRenderOptions options, BlockSlim[,] highestBlocks, PointZ<int> blockCoordsRel)
@@ -35,12 +53,10 @@ public class StandardChunkShader : ChunkShaderBase
             return;
         }
 
-        (int northY, int westY, int northWestY) = GetNeighboringBlockHeight(highestBlocks, highestBlock.Height, blockCoordsRel);
-
         // Render block color directly if highest block color is opaque
         if (highestBlockDefinition.Color.IsOpaque || highestBlock.Height <= lowestBlockHeight)
         {
-            finalPixelColor = ShadeBlockColor(highestBlockDefinition.Color, in highestBlock, westY, northY, northWestY);
+            finalPixelColor = ShadeBlockColor(highestBlockDefinition.Color, blockCoordsRel, highestBlocks);
             SetImagePixel(options, finalPixelColor, blockCoordsRel);
             return;
         }
@@ -86,7 +102,7 @@ public class StandardChunkShader : ChunkShaderBase
         blockLayers.Reverse();
 
         Color combinedBlockColors = CombineLayersOfBlockColor(background, blockLayers);
-        finalPixelColor = ShadeBlockColor(combinedBlockColors, highestBlock, westY, northY, northWestY);
+        finalPixelColor = ShadeBlockColor(combinedBlockColors, blockCoordsRel, highestBlocks);
         SetImagePixel(options, finalPixelColor, blockCoordsRel);
 
         blockLayers.Clear();
@@ -113,18 +129,6 @@ public class StandardChunkShader : ChunkShaderBase
         return result;
     }
 
-    private static (int northY, int westY, int northWestY) GetNeighboringBlockHeight(BlockSlim[,] highestBlocks, int selfHeight, PointZ<int> blockCoordsRel)
-    {
-        int x = blockCoordsRel.X;
-        int z = blockCoordsRel.Z;
-
-        // if neighboring block is not possible (underflow index), then use self Y
-        int northY = z > 0 ? highestBlocks[x, z - 1].Height : selfHeight;
-        int westY = x > 0 ? highestBlocks[x - 1, z].Height : selfHeight;
-        int northWestY = x > 0 && z > 0 ? highestBlocks[x - 1, z - 1].Height : selfHeight;
-        return (northY, westY, northWestY);
-    }
-
     private static void RenderMissingBlockDefinition(ChunkRenderOptions options, PointZ<int> blockCoordsRel)
     {
         SetImagePixel(options, options.ViewportDefinition.MissingBlockDefinition.Color, blockCoordsRel);
@@ -142,35 +146,52 @@ public class StandardChunkShader : ChunkShaderBase
         _blockLayersPooler.Return(blockLayers);
     }
 
-    private static Color ShadeBlockColor(Color blockColor, in BlockSlim block, int westY, int northY, int northWestY)
+    private static Color ShadeBlockColor(Color blockColor, PointZ<int> blockCoordsRel, BlockSlim[,] highestBlocks)
     {
-        // we shade the color by comparing if this block Y is higher or lower than its neighboring block height
-        // since the sun is coming from northwest, we sample north, northwest and west block
+        int x = blockCoordsRel.X;
+        int z = blockCoordsRel.Z;
+
+        int slopeDelta = 6;
+        int maxSlopeDifference = 40;
+
+        int selfY = highestBlocks[x, z].Height;
+        int westY = x > 0 ? highestBlocks[x - 1, z].Height : selfY;
+        int northY = z > 0 ? highestBlocks[x, z - 1].Height : selfY;
+        int northWestY = x > 0 && z > 0 ? highestBlocks[x - 1, z - 1].Height : selfY;
+
+        int westSlope = selfY - westY;
+        int northSlope = selfY - northY;
+        int northWestSlope = selfY - northWestY;
+
+        int slopeDifference = 0;
+        slopeDifference += westSlope * slopeDelta;
+        slopeDifference += northSlope * slopeDelta;
+        slopeDifference += northWestSlope * slopeDelta;
 
         int difference = 0;
-        int selfY = block.Height;
-
         if (selfY > westY)
-            difference += 10;
+            difference += 5;
         else if (selfY < westY)
-            difference -= 10;
+            difference -= 5;
 
         if (selfY > northY)
-            difference += 10;
+            difference += 5;
         else if (selfY < northY)
-            difference -= 10;
+            difference -= 5;
 
         if (selfY > northWestY)
-            difference += 20;
+            difference += 10;
         else if (selfY < northWestY)
-            difference -= 20;
+            difference -= 10;
+
+        double final = difference + Math.Clamp(slopeDifference, -maxSlopeDifference, maxSlopeDifference);
 
         return new Color
         {
             Alpha = blockColor.Alpha,
-            Red = (byte)Math.Clamp(blockColor.Red + difference, 0, 255),
-            Green = (byte)Math.Clamp(blockColor.Green + difference, 0, 255),
-            Blue = (byte)Math.Clamp(blockColor.Blue + difference, 0, 255),
+            Red = (byte)Math.Clamp(blockColor.Red + final, 0, 255),
+            Green = (byte)Math.Clamp(blockColor.Green + final, 0, 255),
+            Blue = (byte)Math.Clamp(blockColor.Blue + final, 0, 255),
         };
     }
 
