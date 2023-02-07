@@ -9,6 +9,7 @@
 		<BaseOutputPath></BaseOutputPath>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
 		<RetainVMGarbageCollection>true</RetainVMGarbageCollection>
+		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<PropertyGroup>
