@@ -63,6 +63,22 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="models:RegionDataImageModel">
                         <Grid>
+                            <!--  Checkerboard Transparency Background  -->
+                            <Rectangle Opacity="0.1">
+                                <Rectangle.Fill>
+                                    <DrawingBrush Stretch="None"
+                                                  TileMode="Tile"
+                                                  Viewport="0,0,8,8"
+                                                  ViewportUnits="Absolute">
+                                        <DrawingBrush.Drawing>
+                                            <DrawingGroup>
+                                                <GeometryDrawing Geometry="M0,0 L8,0 8,8, 0,8Z" Brush="White"/>
+                                                <GeometryDrawing Geometry="M0,4 L8,4 8,8, 4,8 4,0 0,0Z" Brush="Black"/>
+                                            </DrawingGroup>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
                             <!--  Region Image  -->
                             <ContentControl Content="{Binding Image}"
                                             Focusable="False"
