@@ -18,86 +18,75 @@ public class StandardChunkShader : ChunkShaderBase
                 PointZ<int> blockCoordsRel = new(x, z);
                 RenderBlock(options, highestBlocks, blockCoordsRel);
             }
-
         ReturnChunkHighestBlock(options, highestBlocks);
     }
 
     private void RenderBlock(ChunkRenderOptions options, BlockSlim[,] highestBlocks, PointZ<int> blockCoordsRel)
     {
-        Color finalPixelColor;
+        Color mergedTransparencies = MergeTransparentBlockColors(options, highestBlocks, blockCoordsRel);
+        Color shaded = ShadeBlockColor(mergedTransparencies, highestBlocks, blockCoordsRel);
+        SetImagePixel(options, shaded, blockCoordsRel);
+    }
+
+    private Color MergeTransparentBlockColors(ChunkRenderOptions options, BlockSlim[,] highestBlocks, PointZ<int> blockCoordsRel)
+    {
         var viewportDefinition = options.ViewportDefinition;
-        ref var highestBlock = ref highestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
         int lowestBlockHeight = options.Chunk.LowestBlockHeight;
 
-        if (!viewportDefinition.BlockDefinitions.TryGetValue(highestBlock.Name, out var highestBlockDefinition))
-        {
-            RenderMissingBlockDefinition(options, blockCoordsRel);
-            return;
-        }
+        ref var highestBlock = ref highestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
+        var highestBlockDefinition = highestBlock.GetBlockDefinitionOrDefault(viewportDefinition);
 
-        (int northY, int westY, int northWestY) = GetNeighboringBlockHeight(highestBlocks, highestBlock.Height, blockCoordsRel);
-
-        // Render block color directly if highest block color is opaque
+        // return immediately if highest block color is opaque
         if (highestBlockDefinition.Color.IsOpaque || highestBlock.Height <= lowestBlockHeight)
-        {
-            finalPixelColor = ShadeBlockColor(highestBlockDefinition.Color, in highestBlock, westY, northY, northWestY);
-            SetImagePixel(options, finalPixelColor, blockCoordsRel);
-            return;
-        }
+            return highestBlockDefinition.Color;
 
-        // Highest block color is not opaque, combine all semitransparent block colors below it.
-        // The way we do that is by building layer of blocks, scanning the chunk to the bottom until opaque block is found
-
+        // Combine all semitransparent block colors. The way we do this is by building
+        // layer of block, scanning the chunk to the bottom until opaque block color is found
         var blockLayers = RentOrCreateBlockLayers();
-        Color background;
 
         var lastBlock = highestBlock;
         var lastBlockDefinition = highestBlockDefinition;
         do
         {
             // rescan block until different block is found, so we exclude last block
-            var block = options.Chunk.GetHighestBlockSlimSingleNoCheck(viewportDefinition, blockCoordsRel, lastBlock.Height - 1, lastBlock.Name);
-
-            var hasBlockDefinition = viewportDefinition.BlockDefinitions.TryGetValue(block.Name, out var blockDefinition);
-            if (!hasBlockDefinition)
-                blockDefinition = viewportDefinition.MissingBlockDefinition;
-
+            var block = options.Chunk.GetHighestBlockSlimSingleNoCheck(viewportDefinition,
+                                                                       blockCoordsRel,
+                                                                       lastBlock.Height - 1,
+                                                                       lastBlock.Name);
+            var blockDefinition = block.GetBlockDefinitionOrDefault(viewportDefinition);
             int distance = lastBlock.Height - block.Height;
+
             blockLayers.Add(new BlockColorLayer
             {
                 Color = lastBlockDefinition.Color,
                 LayerThickness = distance,
             });
 
-            // if found opaque block color, we stop here
-            if (blockDefinition!.Color.IsOpaque || block.Height <= lowestBlockHeight)
-            {
-                background = blockDefinition.Color;
-                break;
-            }
-
             lastBlock = block;
             lastBlockDefinition = blockDefinition;
-        } while (true);
 
-        // well we did scanning from top to bottom while in image layering
-        // layer combinations are done from bottom up to the top,
-        // our layer direction is wrong so we reverse it
-        blockLayers.Reverse();
+        } while (!lastBlockDefinition.Color.IsOpaque && lastBlock.Height > lowestBlockHeight);
 
-        Color combinedBlockColors = CombineLayersOfBlockColor(background, blockLayers);
-        finalPixelColor = ShadeBlockColor(combinedBlockColors, highestBlock, westY, northY, northWestY);
-        SetImagePixel(options, finalPixelColor, blockCoordsRel);
+        Color background = lastBlockDefinition.Color;
+        Color result = CombineLayersOfBlockColor(background, blockLayers);
 
         blockLayers.Clear();
         ReturnBlockLayers(blockLayers);
+        return result;
     }
 
     private static Color CombineLayersOfBlockColor(Color background, IList<BlockColorLayer> blockLayers)
     {
         Color result = background;
-        foreach (BlockColorLayer layer in blockLayers)
-            for (int i = 0; i < layer.LayerThickness; i++)
+
+        // In most photo editing software, layer merging is done from bottom to the top
+        // so we iterate block layers reversely
+        for (int layerIndex = blockLayers.Count - 1; layerIndex >= 0; layerIndex--)
+        {
+            BlockColorLayer layer = blockLayers[layerIndex];
+
+            // repeatedly combine same layer by thickness time
+            for (int repeatIndex = 0; repeatIndex < layer.LayerThickness; repeatIndex++)
             {
                 // map alpha value from (0 - 255) to (0 - 1)
                 float alphaRemap = layer.Color.Alpha / (float)byte.MaxValue;
@@ -106,10 +95,12 @@ public class StandardChunkShader : ChunkShaderBase
                 // we may also expose strength to the setting so transparency
                 // blending can be adjusted to the user preference
                 float strength = 0.5f;
-                float ratio = alphaRemap / (i * strength + 1);
+                float ratio = alphaRemap / (repeatIndex * strength + 1);
 
                 result = ColorUtils.SimpleBlend(result, layer.Color, ratio);
             }
+        }
+
         return result;
     }
 
@@ -125,11 +116,6 @@ public class StandardChunkShader : ChunkShaderBase
         return (northY, westY, northWestY);
     }
 
-    private static void RenderMissingBlockDefinition(ChunkRenderOptions options, PointZ<int> blockCoordsRel)
-    {
-        SetImagePixel(options, options.ViewportDefinition.MissingBlockDefinition.Color, blockCoordsRel);
-    }
-
     private List<BlockColorLayer> RentOrCreateBlockLayers()
     {
         if (!_blockLayersPooler.Rent(out var blockLayers))
@@ -142,40 +128,37 @@ public class StandardChunkShader : ChunkShaderBase
         _blockLayersPooler.Return(blockLayers);
     }
 
-    private static Color ShadeBlockColor(Color blockColor, in BlockSlim block, int westY, int northY, int northWestY)
+    private static Color ShadeBlockColor(Color blockColor, BlockSlim[,] highestBlocks, PointZ<int> blockCoordsRel)
     {
+        var block = highestBlocks[blockCoordsRel.X, blockCoordsRel.Z];
+        (int northY, int westY, int northWestY) = GetNeighboringBlockHeight(highestBlocks, block.Height, blockCoordsRel);
+
         // we shade the color by comparing if this block Y is higher or lower than its neighboring block height
         // since the sun is coming from northwest, we sample north, northwest and west block
 
-        int difference = 0;
+        int differenceDelta = 15;
+        int heightDifferenceLimit = 1;
         int selfY = block.Height;
 
-        if (selfY > westY)
-            difference += 10;
-        else if (selfY < westY)
-            difference -= 10;
+        int westDifference = Math.Clamp(selfY - westY, -heightDifferenceLimit, heightDifferenceLimit);
+        int northDifference = Math.Clamp(selfY - northY, -heightDifferenceLimit, heightDifferenceLimit);
+        int northWestDifference = Math.Clamp(selfY - northWestY, -heightDifferenceLimit, heightDifferenceLimit);
 
-        if (selfY > northY)
-            difference += 10;
-        else if (selfY < northY)
-            difference -= 10;
-
-        if (selfY > northWestY)
-            difference += 20;
-        else if (selfY < northWestY)
-            difference -= 20;
+        int difference = westDifference * differenceDelta 
+                       + northDifference * differenceDelta
+                       + northWestDifference * differenceDelta;
 
         return new Color
         {
             Alpha = blockColor.Alpha,
-            Red = (byte)Math.Clamp(blockColor.Red + difference, 0, 255),
-            Green = (byte)Math.Clamp(blockColor.Green + difference, 0, 255),
-            Blue = (byte)Math.Clamp(blockColor.Blue + difference, 0, 255),
+            Red = (byte)Math.Clamp(blockColor.Red + difference, byte.MinValue, byte.MaxValue),
+            Green = (byte)Math.Clamp(blockColor.Green + difference, byte.MinValue, byte.MaxValue),
+            Blue = (byte)Math.Clamp(blockColor.Blue + difference, byte.MinValue, byte.MaxValue),
         };
     }
 
     /// <summary>
-    /// Represent stacked same Minecraft block color on top of each other
+    /// Represent Minecraft block color, repeatedly stacked on top of itself
     /// </summary>
     private struct BlockColorLayer
     {
