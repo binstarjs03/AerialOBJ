@@ -25,7 +25,7 @@ public abstract class ChunkShaderBase : IChunkShader
             return vd.MissingBlockDefinition.Color;
     }
 
-    protected static void SetBlockPixelColorToImage(ChunkRenderOptions options, Color color, PointZ<int> blockCoordsRel)
+    protected static void SetImagePixel(ChunkRenderOptions options, Color color, PointZ<int> blockCoordsRel)
     {
         PointY<int> pixelCoords = IChunkShader.GetPixelCoordsForBlock(options.RenderPosition, options.Chunk.CoordsRel, blockCoordsRel);
         options.Image[pixelCoords.X, pixelCoords.Y] = color;

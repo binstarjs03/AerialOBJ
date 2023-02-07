@@ -27,7 +27,7 @@ public class StandardChunkShader : ChunkShaderBase
                 color.Alpha = byte.MaxValue; // set alpha to full
 
                 PointZ<int> blockCoordsRel = new(x, z);
-                SetBlockPixelColorToImage(options, color, blockCoordsRel);
+                SetImagePixel(options, color, blockCoordsRel);
 
                 lastY = block.Height;
                 lastYRow[x] = block.Height;
