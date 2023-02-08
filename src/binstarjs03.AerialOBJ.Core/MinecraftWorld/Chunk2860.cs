@@ -186,7 +186,15 @@ public class Chunk2860 : IChunk, IDisposable
                 {
                     if (filledCompletely)
                         break;
-                    paletteIndexTable3D[fillPos.X, fillPos.Y, fillPos.Z] = value;
+
+                    /* we want to layout our index table in such way so it is
+                     * optimized for getting highest block, where block is
+                     * scanned from top to bottom, which in this case, Y is
+                     * the rapidly-changing-index, and we want to minimize
+                     * CPU cache miss so we put Y at the innermost order
+                     */
+
+                    paletteIndexTable3D[fillPos.Z, fillPos.X, fillPos.Y] = value;
                     filledCompletely = moveFillingPosition(ref fillPos);
                 }
             }
@@ -219,9 +227,9 @@ public class Chunk2860 : IChunk, IDisposable
             if (_blockPaletteIndexTable is null)
                 return _blockPalette[0];
 
-            int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.X,
-                                                       blockCoordsRel.Y,
-                                                       blockCoordsRel.Z];
+            int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.Z,
+                                                       blockCoordsRel.X,
+                                                       blockCoordsRel.Y];
             return _blockPalette[paletteIndex];
         }
 
