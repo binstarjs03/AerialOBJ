@@ -128,11 +128,11 @@ internal static class ServiceConfiguration
         {
             IChunkShader flat = new FlatChunkShader();
             IChunkShader standard = new StandardChunkShader();
-            IChunkShader slopeDifferential = new SlopeDifferentialChunkShader();
+            //IChunkShader slopeDifferential = new SlopeDifferentialChunkShader();
             AbstractRepository<IChunkShader> ret = new(standard);
             ret.Register(flat.ShaderName, flat);
             ret.Register(standard.ShaderName, standard);
-            ret.Register(slopeDifferential.ShaderName, slopeDifferential);
+            //ret.Register(slopeDifferential.ShaderName, slopeDifferential);
             return ret;
         });
         services.AddSingleton<IRepository<IChunkLoadingPattern>, AbstractRepository<IChunkLoadingPattern>>(x =>
