@@ -22,18 +22,27 @@ public partial class MouseHandler : IMouseHandler
 
     private readonly List<RegisteredHandler> _mouseMoveHandler = new();
     private readonly List<RegisteredHandler> _mouseWheelHandler = new();
+    private readonly List<RegisteredHandler> _mouseDownHandler = new();
 
     public int ScrollDelta { get; private set; }
     private bool InitMouseFocus { get; set; }
 
     public void RegisterHandler(Action<IMouseHandler> handler, MouseHandlerCondition condition, MouseHandlerWhen when)
     {
-        if (when == MouseHandlerWhen.MouseMove)
-            _mouseMoveHandler.Add(new RegisteredHandler(handler, condition));
-        else if (when == MouseHandlerWhen.MouseWheel)
-            _mouseWheelHandler.Add(new RegisteredHandler(handler, condition));
-        else
-            throw new NotImplementedException();
+        switch (when)
+        {
+            case MouseHandlerWhen.MouseMove:
+                _mouseMoveHandler.Add(new RegisteredHandler(handler, condition));
+                break;
+            case MouseHandlerWhen.MouseWheel:
+                _mouseWheelHandler.Add(new RegisteredHandler(handler, condition));
+                break;
+            case MouseHandlerWhen.MouseDown:
+                _mouseDownHandler.Add(new RegisteredHandler(handler, condition));
+                break;
+            default:
+                throw new NotImplementedException("Conforming YAGNI, implement when needed");
+        }
     }
 
     [RelayCommand]
@@ -69,6 +78,9 @@ public partial class MouseHandler : IMouseHandler
         IsMouseDown = true;
         IsMouseLeft = e.LeftButton == MouseButtonState.Pressed;
         IsMouseRight = e.RightButton == MouseButtonState.Pressed;
+        foreach (var handler in _mouseDownHandler)
+            if (handler.Condition.Invoke(this))
+                handler.Handler.Invoke(this);
     }
 
     [RelayCommand]

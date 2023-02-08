@@ -45,6 +45,9 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty] private int _lowHeightLimit = 0;
     [ObservableProperty] private int _highHeightLimit = 0;
 
+    [ObservableProperty] private PointZ<int> _selection1;
+    [ObservableProperty] private PointZ<int> _selection2;
+
     // context world states
     [ObservableProperty] private Point3<int> _contextBlockCoords = Point3<int>.Zero;
     [ObservableProperty] private PointZ<int> _contextChunkCoords = PointZ<int>.Zero;
@@ -181,6 +184,9 @@ public partial class ViewportViewModel : IViewportViewModel
         LowHeightLimit = 0;
         HighHeightLimit = 0;
         HeightLevel = 0;
+
+        Selection1 = PointZ<int>.Zero;
+        Selection2 = PointZ<int>.Zero;
 
         IsChunkGridVisible = false;
         IsInfoPanelVisible = false;

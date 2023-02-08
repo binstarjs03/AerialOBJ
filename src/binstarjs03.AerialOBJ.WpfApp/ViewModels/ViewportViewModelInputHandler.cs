@@ -4,6 +4,8 @@ using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.WpfApp.Services.Input;
 
+using Microsoft.VisualBasic.Devices;
+
 namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public class ViewportViewModelInputHandler
 {
@@ -51,12 +53,7 @@ public class ViewportViewModelInputHandler
             {
                 if (Viewport is null)
                     return;
-                // convert mouse screen position to world position
-                PointZ<int> worldPos = PointSpaceConversion.ConvertScreenPosToWorldPos(
-                    mouse.MousePos.ToFloat(),
-                    Viewport.CameraPos,
-                    Viewport.UnitMultiplier,
-                    Viewport.ScreenSize.ToFloat()).Floor();
+                PointZ<int> worldPos = ConvertMousePosToWorldPos(Viewport, mouse);
                 Viewport.UpdateContextWorldInformation(worldPos);
             },
             condition: _ => true,
@@ -71,6 +68,27 @@ public class ViewportViewModelInputHandler
             },
             condition: _ => true,
             MouseHandlerWhen.MouseWheel);
+
+        // selection 1
+        MouseHandler.RegisterHandler(
+            mouse =>
+            {
+                if (Viewport is null)
+                    return;
+                PointZ<int> worldPos = ConvertMousePosToWorldPos(Viewport, mouse);
+                Viewport.Selection1 = worldPos;
+            },
+            condition: mouse => mouse.IsMouseRight,
+            MouseHandlerWhen.MouseDown);
+    }
+
+    private PointZ<int> ConvertMousePosToWorldPos(IViewportViewModel viewport, IMouseHandler mouse)
+    {
+        return PointSpaceConversion.ConvertScreenPosToWorldPos(
+            mouse.MousePos.ToFloat(),
+            viewport.CameraPos,
+            viewport.UnitMultiplier,
+            viewport.ScreenSize.ToFloat()).Floor();
     }
 
     private void TranslateCameraWithKey(PointZ<float> direction)

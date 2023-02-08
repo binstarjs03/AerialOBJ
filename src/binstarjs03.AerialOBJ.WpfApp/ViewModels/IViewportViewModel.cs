@@ -7,6 +7,8 @@ public interface IViewportViewModel
 {
     PointZ<float> CameraPos { get; }
     Size<int> ScreenSize { get; }
+    PointZ<int> Selection1 { get; set; }
+    PointZ<int> Selection2 { get; set; }
 
     // Actually, zoom and unit multipier ARE interchangeable.
     // The former is being used when manipulating zoom-related routine, while

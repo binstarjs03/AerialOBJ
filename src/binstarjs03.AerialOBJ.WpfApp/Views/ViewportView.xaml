@@ -232,18 +232,23 @@
 
                     <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                    <TextBlock Text="Visible Region Range:"/>
+                    <components:PropertyValuePair PropertyText="Selection 1 : " ValueText="{Binding Selection1}"/>
+                    <components:PropertyValuePair PropertyText="Selection 2 : " ValueText="{Binding Selection2}"/>
+
+                    <Separator Style="{StaticResource SubtleSeparator}"/>
+
+                    <TextBlock Text="Visible Region Range : "/>
                     <components:PropertyValuePair PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.XRange}"/>
                     <components:PropertyValuePair PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.ZRange}"/>
-                    <components:PropertyValuePair PropertyText="Visible Region Count: " ValueText="{Binding ChunkRegionManager.VisibleRegionsCount}"/>
-                    <components:PropertyValuePair PropertyText="Loaded Region Count: " ValueText="{Binding ChunkRegionManager.LoadedRegionsCount}"/>
-                    <components:PropertyValuePair PropertyText="Cached Region Count: " ValueText="{Binding ChunkRegionManager.CachedRegionsCount}"/>
+                    <components:PropertyValuePair PropertyText="Visible Region Count : " ValueText="{Binding ChunkRegionManager.VisibleRegionsCount}"/>
+                    <components:PropertyValuePair PropertyText="Loaded Region Count : " ValueText="{Binding ChunkRegionManager.LoadedRegionsCount}"/>
+                    <components:PropertyValuePair PropertyText="Cached Region Count : " ValueText="{Binding ChunkRegionManager.CachedRegionsCount}"/>
                     <components:PropertyValuePair PropertyText="Pending Region Count : " ValueText="{Binding ChunkRegionManager.PendingRegionsCount}"/>
                     <components:PropertyValuePair PropertyText="Worked Region : " ValueText="{Binding ChunkRegionManager.WorkedRegion}"/>
 
                     <Separator Style="{StaticResource SubtleSeparator}"/>
 
-                    <TextBlock Text="Visible Chunk Range:"/>
+                    <TextBlock Text="Visible Chunk Range : "/>
                     <components:PropertyValuePair PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.XRange}"/>
                     <components:PropertyValuePair PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.ZRange}"/>
                     <components:PropertyValuePair PropertyText="Visible Chunk Count : " ValueText="{Binding ChunkRegionManager.VisibleChunksCount}"/>
