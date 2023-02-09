@@ -13,10 +13,10 @@ public class WorldToScreenCoordConverter : IMultiValueConverter
     {
         try
         {
-            float worldPos = (float)values[0];
-            float cameraPos = (float)values[1];
-            float unitMultiplier = (float)values[2];
-            int screenSize = (int)values[3];
+            float worldPos = System.Convert.ToSingle(values[0]);
+            float cameraPos = System.Convert.ToSingle(values[1]);
+            float unitMultiplier = System.Convert.ToSingle(values[2]);
+            int screenSize = System.Convert.ToInt32(values[3]);
             float result = PointSpaceConversion.ConvertWorldPosToScreenPos(worldPos, cameraPos, unitMultiplier, screenSize);
             return (double)result.Floor();
         }
