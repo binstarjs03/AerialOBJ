@@ -34,6 +34,11 @@ public static class MathUtils
         return (int)MathF.Floor(num);
     }
 
+    public static int Ceiling(this float num)
+    {
+        return (int)MathF.Ceiling(num);
+    }
+
     public static float Round(this float num)
     {
         return (float)Math.Round(num, 2);
