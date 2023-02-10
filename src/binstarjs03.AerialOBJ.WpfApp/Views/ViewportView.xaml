@@ -133,7 +133,7 @@
                 </ItemsControl.ItemContainerStyle>
             </ItemsControl>
 
-            <!--  Draw Line Guides  -->
+            <!--  Draw Cartesian Grids  -->
             <Grid RenderOptions.BitmapScalingMode="NearestNeighbor"
                   RenderOptions.EdgeMode="Aliased"
                   Visibility="{Binding IsChunkGridVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
@@ -182,6 +182,30 @@
                     </Line.X1>
                 </Line>
             </Grid>
+
+            <Canvas>
+                <Rectangle Width="{Binding SelectionSize.Width}"
+                           Height="{Binding SelectionSize.Height}"
+                           Fill="#55FFBB00"
+                           Stroke="White">
+                    <Canvas.Left>
+                        <MultiBinding Converter="{StaticResource WorldToScreen}">
+                            <Binding Path="SelectionStart.X"/>
+                            <Binding Path="CameraPos.X"/>
+                            <Binding Path="UnitMultiplier"/>
+                            <Binding Path="ScreenSize.Width"/>
+                        </MultiBinding>
+                    </Canvas.Left>
+                    <Canvas.Top>
+                        <MultiBinding Converter="{StaticResource WorldToScreen}">
+                            <Binding Path="SelectionStart.Z"/>
+                            <Binding Path="CameraPos.Z"/>
+                            <Binding Path="UnitMultiplier"/>
+                            <Binding Path="ScreenSize.Height"/>
+                        </MultiBinding>
+                    </Canvas.Top>
+                </Rectangle>
+            </Canvas>
 
             <!--  Camera Position Guide (Center Dot)  -->
             <Grid>

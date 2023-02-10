@@ -69,17 +69,31 @@ public class ViewportViewModelInputHandler
             condition: _ => true,
             MouseHandlerWhen.MouseWheel);
 
-        // selection 1
+        // selection 1 and 2 reset position when right clicked
         MouseHandler.RegisterHandler(
             mouse =>
             {
                 if (Viewport is null)
                     return;
                 PointZ<int> worldPos = ConvertMousePosToWorldPos(Viewport, mouse);
-                Viewport.Selection1 = worldPos;
+                Viewport.Selection1 = Viewport.Selection2 = worldPos;
             },
             condition: mouse => mouse.IsMouseRight,
             MouseHandlerWhen.MouseDown);
+
+        //selection 2 continuous update when mouse moved
+        MouseHandler.RegisterHandler(
+            mouse =>
+            {
+                if (Viewport is null)
+                    return;
+                PointZ<int> worldPos = ConvertMousePosToWorldPos(Viewport, mouse);
+                worldPos.X += 1;
+                worldPos.Z += 1;
+                Viewport.Selection2 = worldPos;
+            },
+            condition: mouse => mouse.IsMouseRight && mouse.MouseDelta != PointY<int>.Zero,
+            MouseHandlerWhen.MouseMove);
     }
 
     private PointZ<int> ConvertMousePosToWorldPos(IViewportViewModel viewport, IMouseHandler mouse)

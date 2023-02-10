@@ -39,14 +39,22 @@ public partial class ViewportViewModel : IViewportViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UnitMultiplier))]
     [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))]
+    [NotifyPropertyChangedFor(nameof(SelectionSize))]
     private float _zoomMultiplier = 1f;
 
     [ObservableProperty] private int _heightLevel = 0;
     [ObservableProperty] private int _lowHeightLimit = 0;
     [ObservableProperty] private int _highHeightLimit = 0;
 
-    [ObservableProperty] private PointZ<int> _selection1;
-    [ObservableProperty] private PointZ<int> _selection2;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectionStart))]
+    [NotifyPropertyChangedFor(nameof(SelectionSize))]
+    private PointZ<int> _selection1;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectionStart))]
+    [NotifyPropertyChangedFor(nameof(SelectionSize))]
+    private PointZ<int> _selection2;
 
     // context world states
     [ObservableProperty] private Point3<int> _contextBlockCoords = Point3<int>.Zero;
@@ -95,6 +103,8 @@ public partial class ViewportViewModel : IViewportViewModel
 
     public float UnitMultiplier => ZoomMultiplier;
     public bool IsRegionTextVisible => ZoomMultiplier <= 1f && IsChunkGridVisible;
+    public PointZ<int> SelectionStart => new(Math.Min(Selection1.X, Selection2.X), Math.Min(Selection1.Z, Selection2.Z));
+    public Size<int> SelectionSize => new((Math.Abs(Selection2.X - Selection1.X) * ZoomMultiplier).Ceiling(), (Math.Abs(Selection2.Z - Selection1.Z) * ZoomMultiplier).Ceiling());
 
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
     partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
