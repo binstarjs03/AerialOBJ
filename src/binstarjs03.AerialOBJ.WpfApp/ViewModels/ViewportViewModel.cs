@@ -32,6 +32,7 @@ public partial class ViewportViewModel : IViewportViewModel
     [NotifyPropertyChangedFor(nameof(IsRegionTextVisible))]
     private bool _isChunkGridVisible = false;
     [ObservableProperty] private bool _isInfoPanelVisible = false;
+    [ObservableProperty] private bool _isCameraPositionVisible = false;
 
     // viewport states
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
@@ -200,6 +201,7 @@ public partial class ViewportViewModel : IViewportViewModel
 
         IsChunkGridVisible = false;
         IsInfoPanelVisible = false;
+        IsCameraPositionVisible = false;
     }
 
     private void UpdateChunkRegionManager()

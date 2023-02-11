@@ -1,4 +1,4 @@
-﻿<Window x:Class="binstarjs03.AerialOBJ.WpfApp.Views.MainView"
+<Window x:Class="binstarjs03.AerialOBJ.WpfApp.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -49,6 +49,10 @@
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
                               IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsInfoPanelVisible, Mode=TwoWay}"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                    <MenuItem Header="Camera Position"
+                              IsCheckable="True"
+                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsCameraPositionVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Debug Log"
                               IsCheckable="True"

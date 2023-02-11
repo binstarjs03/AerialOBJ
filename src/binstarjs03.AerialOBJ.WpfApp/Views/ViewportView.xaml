@@ -208,7 +208,7 @@
             </Canvas>
 
             <!--  Camera Position Guide (Center Dot)  -->
-            <Grid>
+            <Grid Visibility="{Binding IsCameraPositionVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
