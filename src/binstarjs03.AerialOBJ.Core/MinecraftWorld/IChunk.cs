@@ -50,6 +50,13 @@ public interface IChunk : IDisposable
     int LowestBlockHeight { get; }
 
     /// <summary>
+    /// Highest obtainable block height of this chunk, determined by highest section. 
+    /// Note that this does not mean the chunk highest block height is this high,
+    /// as it depends on the actual Minecraft chunk implementation itself.
+    /// </summary>
+    int HighestBlockHeight { get; }
+
+    /// <summary>
     /// Get highest block of this chunk, starting from <paramref name="heightLimit"/>
     /// and scans it to the lowest block of lowest section of this chunk.
     /// </summary>

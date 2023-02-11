@@ -23,6 +23,7 @@ public class Chunk2860 : IChunk, IDisposable
         Array.Sort(_sectionsY);
 
         LowestBlockHeight = _sectionsY[0] * IChunk.BlockCount;
+        HighestBlockHeight = _sectionsY[^1] * IChunk.BlockCount + IChunk.BlockCount;
 
         static PointZ<int> getChunkCoordsAbs(NbtCompound chunkNbt)
         {
@@ -59,6 +60,7 @@ public class Chunk2860 : IChunk, IDisposable
     public int DataVersion => 2860;
     public string MinecraftVersion => "1.18";
     public int LowestBlockHeight { get; }
+    public int HighestBlockHeight { get; }
 
     public void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] highestBlockBuffer, int heightLimit)
     {
