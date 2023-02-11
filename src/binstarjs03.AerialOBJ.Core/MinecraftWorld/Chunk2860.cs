@@ -161,49 +161,43 @@ public class Chunk2860 : IChunk, IDisposable
 
         private int[,,]? ReadNbtLongData(NbtLongArray dataNbt, int paletteLength)
         {
-            // bit-length required for single block
-            // (minimum of 4) based from palette length.
-            int blockBitLength = Math.Max((paletteLength - 1).Bitlength(), 4);
-            int bitsInByte = 8;
-            int longBitLength = sizeof(long) * bitsInByte;
-
-            // maximum count of blocks that can fit within single 'long' value
-            int blockCount = longBitLength / blockBitLength;
-
             // 3D table, order is XZY
-            int[,,] paletteIndexTable3D = s_blockPaletteIndexTablePooler.Rent();
+            int[,,] paletteIndexTable = s_blockPaletteIndexTablePooler.Rent();
+            fillPaletteIndexTable(dataNbt, paletteIndexTable, paletteLength);
+            return paletteIndexTable;
 
-            // filling position to which index is to fill
-            Point3<int> fillPos = Point3<int>.Zero;
-
-            Span<int> buffer = stackalloc int[blockCount];
-
-            bool filledCompletely = false;
-            foreach (long longValue in dataNbt.Values)
+            static void fillPaletteIndexTable(NbtLongArray dataNbt, int[,,] paletteIndexTable, int paletteLength)
             {
-                if (filledCompletely)
-                    break;
-                BinaryUtils.UnpackBitNoCheck(longValue, buffer, blockBitLength);
-                foreach (int value in buffer)
+                // bit-length required for single block
+                // (minimum of 4) based from palette length.
+                int blockBitLength = Math.Max((paletteLength - 1).Bitlength(), 4);
+                int bitsInByte = 8;
+                int longBitLength = sizeof(long) * bitsInByte;
+
+                // maximum count of blocks that can fit within single 'long' value
+                int blockCount = longBitLength / blockBitLength;
+
+                Span<int> buffer = stackalloc int[blockCount];
+                Point3<int> fillPos = Point3<int>.Zero;
+
+                foreach (long packed in dataNbt.Values)
                 {
-                    if (filledCompletely)
-                        break;
-
-                    /* we want to layout our index table in such way so it is
-                     * optimized for getting highest block, where block is
-                     * scanned from top to bottom, which in this case, Y is
-                     * the rapidly-changing-index, and we want to minimize
-                     * CPU cache miss so we put Y at the innermost order
-                     */
-
-                    paletteIndexTable3D[fillPos.Z, fillPos.X, fillPos.Y] = value;
-                    filledCompletely = moveFillingPosition(ref fillPos);
+                    BinaryUtils.UnpackBitNoCheck(packed, buffer, blockBitLength);
+                    for (int i = 0; i < blockCount; i++)
+                    {
+                        /* we want to layout our index table in such way so it is
+                         * optimized for getting highest block, where block is
+                         * scanned from top to bottom, which in this case, Y is
+                         * the rapidly-changing-index, and we want to minimize
+                         * CPU cache miss so we put Y at the innermost order
+                         */
+                        paletteIndexTable[fillPos.Z, fillPos.X, fillPos.Y] = buffer[i];
+                        if (moveFillingPosition(ref fillPos))
+                            return;
+                    }
                 }
             }
-            return paletteIndexTable3D;
 
-            // returns true when filled completely
-            // if Y reached 15 and want to increment, it means filling is finished
             static bool moveFillingPosition(ref Point3<int> fillPos)
             {
                 if (fillPos.X++ < 15)
