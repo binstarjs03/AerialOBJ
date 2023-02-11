@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.NbtFormat;
@@ -62,6 +63,7 @@ public class Chunk2860 : IChunk, IDisposable
     public int LowestBlockHeight { get; }
     public int HighestBlockHeight { get; }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void GetHighestBlockSlim(ViewportDefinition vd, BlockSlim[,] highestBlockBuffer, int heightLimit)
     {
         for (int z = 0; z < IChunk.BlockCount; z++)
@@ -69,6 +71,7 @@ public class Chunk2860 : IChunk, IDisposable
                 highestBlockBuffer[x, z] = GetHighestBlockSlimSingleNoCheck(vd, new PointZ<int>(x, z), heightLimit, null);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public BlockSlim GetHighestBlockSlimSingleNoCheck(ViewportDefinition vd, PointZ<int> blockCoordsRel, int heightLimit, string? exclusion = null)
     {
         // scan block from top to bottom section
@@ -119,8 +122,8 @@ public class Chunk2860 : IChunk, IDisposable
     private class Section : IDisposable
     {
         // TODO inject an instance of arraypool instead as static, this makes purging pool instances difficult if it is static!!!
-        private static readonly ArrayPool3<int> s_blockPaletteIndexTablePooler = new(IChunk.BlockCount, IChunk.BlockCount, IChunk.BlockCount);
-        private readonly int[,,]? _blockPaletteIndexTable;
+        private static readonly ArrayPool1<int> s_blockPaletteIndexTablePooler = new(IChunk.BlockCount * IChunk.BlockCount * IChunk.BlockCount);
+        private readonly int[]? _blockPaletteIndexTable;
         private readonly Block[]? _blockPalette;
         private bool _disposedValue;
 
@@ -150,6 +153,7 @@ public class Chunk2860 : IChunk, IDisposable
 
         // whether section is completely filled with excluded block,
         // an optimization for finding highest, non-excluded block in chunk
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsExcluded(ViewportDefinition vd)
         {
             if (_blockPalette is null)
@@ -159,14 +163,14 @@ public class Chunk2860 : IChunk, IDisposable
             return false;
         }
 
-        private int[,,]? ReadNbtLongData(NbtLongArray dataNbt, int paletteLength)
+        private int[]? ReadNbtLongData(NbtLongArray dataNbt, int paletteLength)
         {
             // 3D table, order is XZY
-            int[,,] paletteIndexTable = s_blockPaletteIndexTablePooler.Rent();
+            int[] paletteIndexTable = s_blockPaletteIndexTablePooler.Rent();
             fillPaletteIndexTable(dataNbt, paletteIndexTable, paletteLength);
             return paletteIndexTable;
 
-            static void fillPaletteIndexTable(NbtLongArray dataNbt, int[,,] paletteIndexTable, int paletteLength)
+            static void fillPaletteIndexTable(NbtLongArray dataNbt, int[] paletteIndexTable, int paletteLength)
             {
                 // bit-length required for single block
                 // (minimum of 4) based from palette length.
@@ -183,7 +187,7 @@ public class Chunk2860 : IChunk, IDisposable
                 foreach (long packed in dataNbt.Values)
                 {
                     BinaryUtils.UnpackBitNoCheck(packed, buffer, blockBitLength);
-                    for (int i = 0; i < blockCount; i++)
+                    foreach (int value in buffer)
                     {
                         /* we want to layout our index table in such way so it is
                          * optimized for getting highest block, where block is
@@ -191,13 +195,15 @@ public class Chunk2860 : IChunk, IDisposable
                          * the rapidly-changing-index, and we want to minimize
                          * CPU cache miss so we put Y at the innermost order
                          */
-                        paletteIndexTable[fillPos.Z, fillPos.X, fillPos.Y] = buffer[i];
+                        int index = fillPos.Y + fillPos.X * IChunk.BlockCount + fillPos.Z * IChunk.BlockCount * IChunk.BlockCount;
+                        paletteIndexTable[index] = value;
                         if (moveFillingPosition(ref fillPos))
                             return;
                     }
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
             static bool moveFillingPosition(ref Point3<int> fillPos)
             {
                 if (fillPos.X++ < 15)
@@ -212,6 +218,7 @@ public class Chunk2860 : IChunk, IDisposable
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Block? GetPaletteBlock(Point3<int> blockCoordsRel)
         {
             // if block palette is null, most likely the entire section is air
@@ -222,10 +229,8 @@ public class Chunk2860 : IChunk, IDisposable
             // is filled with whatever block is in palette (most likely there is only one block)
             if (_blockPaletteIndexTable is null)
                 return _blockPalette[0];
-
-            int paletteIndex = _blockPaletteIndexTable[blockCoordsRel.Z,
-                                                       blockCoordsRel.X,
-                                                       blockCoordsRel.Y];
+            int index = blockCoordsRel.Y + blockCoordsRel.X * IChunk.BlockCount + blockCoordsRel.Z * IChunk.BlockCount * IChunk.BlockCount;
+            int paletteIndex = _blockPaletteIndexTable[index];
             return _blockPalette[paletteIndex];
         }
 

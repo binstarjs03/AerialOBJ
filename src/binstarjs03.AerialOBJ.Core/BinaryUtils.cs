@@ -22,11 +22,13 @@ SOFTWARE.
 */
 
 using System;
+using System.Runtime.CompilerServices;
 
 namespace binstarjs03.AerialOBJ.Core;
 
 public static class BinaryUtils
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static int Bitlength(this int num)
     {
         int bitLength = 0;
@@ -35,6 +37,7 @@ public static class BinaryUtils
         return bitLength;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void UnpackBitNoCheck(this long packed, Span<int> buffer, int bitLength)
     {
         int totalElementCount = 64 / bitLength;
