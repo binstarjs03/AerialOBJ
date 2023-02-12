@@ -18,6 +18,13 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NbtFormat\Nbt.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NbtFormat\Nbt.h" />
+    <ClInclude Include="NbtFormat\NbtType.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -130,13 +137,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="Nbt.h" />
-    <ClInclude Include="NbtType.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Nbt.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
