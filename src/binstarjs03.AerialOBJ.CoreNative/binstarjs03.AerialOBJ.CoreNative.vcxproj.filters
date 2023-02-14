@@ -8,6 +8,9 @@
     <ClCompile Include="NbtFormat\Nbt.cpp">
       <Filter>NbtFormat</Filter>
     </ClCompile>
+    <ClCompile Include="NbtFormat\NbtReader.cpp">
+      <Filter>NbtFormat</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IO\BinaryReader.h">
@@ -20,6 +23,9 @@
       <Filter>NbtFormat</Filter>
     </ClInclude>
     <ClInclude Include="NbtFormat\NbtType.h">
+      <Filter>NbtFormat</Filter>
+    </ClInclude>
+    <ClInclude Include="NbtFormat\NbtReader.h">
       <Filter>NbtFormat</Filter>
     </ClInclude>
   </ItemGroup>

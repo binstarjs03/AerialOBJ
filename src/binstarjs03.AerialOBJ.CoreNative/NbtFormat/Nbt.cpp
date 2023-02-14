@@ -3,6 +3,10 @@
 
 // Nbt Abstract
 
+Nbt::Nbt(std::string name) {
+    this->Name = name;
+}
+
 NbtType Nbt::GetType() {
     return NbtType::NbtTypeEnd;
 }
@@ -11,7 +15,7 @@ NbtType Nbt::GetType() {
 
 // Nbt Byte
 
-NbtByte::NbtByte(std::string name) {
+NbtByte::NbtByte(std::string name) : Nbt(name) {
     this->Value = 0;
 }
 
@@ -23,7 +27,7 @@ NbtType NbtByte::GetType() {
 
 // Nbt Short
 
-NbtShort::NbtShort(std::string name) {
+NbtShort::NbtShort(std::string name) : Nbt(name) {
     this->Value = 0;
 }
 
@@ -35,7 +39,7 @@ NbtType NbtShort::GetType() {
 
 // Nbt Int
 
-NbtInt::NbtInt(std::string name) {
+NbtInt::NbtInt(std::string name) : Nbt(name) {
     this->Value = 0;
 }
 
@@ -47,7 +51,7 @@ NbtType NbtInt::GetType() {
 
 // Nbt Long
 
-NbtLong::NbtLong(std::string name) {
+NbtLong::NbtLong(std::string name) : Nbt(name) {
     this->Value = 0;
 }
 
@@ -59,7 +63,7 @@ NbtType NbtLong::GetType() {
 
 // Nbt Float
 
-NbtFloat::NbtFloat(std::string name) {
+NbtFloat::NbtFloat(std::string name) : Nbt(name) {
     this->Value = 0;
 }
 
@@ -71,7 +75,7 @@ NbtType NbtFloat::GetType() {
 
 // Nbt Double
 
-NbtDouble::NbtDouble(std::string name) {
+NbtDouble::NbtDouble(std::string name) : Nbt(name) {
     this->Value = 0;
 }
 
@@ -83,7 +87,7 @@ NbtType NbtDouble::GetType() {
 
 // Nbt String
 
-NbtString::NbtString(std::string name) {
+NbtString::NbtString(std::string name) : Nbt(name) {
     this->Value = "";
 }
 
@@ -95,7 +99,7 @@ NbtType NbtString::GetType() {
 
 // Nbt Byte Array
 
-NbtByteArray::NbtByteArray(std::string name) {
+NbtByteArray::NbtByteArray(std::string name) : Nbt(name) {
     this->Values = std::vector<int8_t>();
 }
 
@@ -107,7 +111,7 @@ NbtType NbtByteArray::GetType() {
 
 // Nbt Int Array
 
-NbtIntArray::NbtIntArray(std::string name) {
+NbtIntArray::NbtIntArray(std::string name) : Nbt(name) {
     this->Values = std::vector<int32_t>();
 }
 
@@ -119,7 +123,7 @@ NbtType NbtIntArray::GetType() {
 
 // Nbt Long Array
 
-NbtLongArray::NbtLongArray(std::string name) {
+NbtLongArray::NbtLongArray(std::string name) : Nbt(name) {
     this->Values = std::vector<int64_t>();
 }
 
@@ -131,7 +135,7 @@ NbtType NbtLongArray::GetType() {
 
 // Nbt Compound
 
-NbtCompound::NbtCompound(std::string name) {
+NbtCompound::NbtCompound(std::string name) : Nbt(name) {
     this->Nbts = std::map<std::string, Nbt>();
 }
 
@@ -143,7 +147,7 @@ NbtType NbtCompound::GetType() {
 
 // Nbt List
 
-NbtList::NbtList(std::string name) {
+NbtList::NbtList(std::string name) : Nbt(name) {
     this->Nbts = std::vector<Nbt>();
 }
 

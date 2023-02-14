@@ -7,6 +7,7 @@
 class Nbt
 {
 public:
+    Nbt(std::string name);
     virtual NbtType GetType();
     std::string Name;
 };

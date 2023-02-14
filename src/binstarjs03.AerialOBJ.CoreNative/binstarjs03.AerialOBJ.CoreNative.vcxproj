@@ -22,11 +22,13 @@
     <ClCompile Include="CLRInterface.cpp" />
     <ClCompile Include="IO\BinaryReader.cpp" />
     <ClCompile Include="NbtFormat\Nbt.cpp" />
+    <ClCompile Include="NbtFormat\NbtReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IO\BinaryReader.h" />
     <ClInclude Include="IO\Endianness.h" />
     <ClInclude Include="NbtFormat\Nbt.h" />
+    <ClInclude Include="NbtFormat\NbtReader.h" />
     <ClInclude Include="NbtFormat\NbtType.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
