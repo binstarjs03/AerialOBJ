@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "binstarjs03.AerialOBJ.CLI": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
