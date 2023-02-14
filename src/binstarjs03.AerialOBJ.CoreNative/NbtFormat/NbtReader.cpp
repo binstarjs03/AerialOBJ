@@ -1,15 +1,7 @@
 #include "../IO/BinaryReader.h"
 #include "Nbt.h"
 
-Nbt Deserialize(uint8_t* data, uint32_t length, Endianness endian) {
-    BinaryReader reader(data, length);
-    return Parse(reader, endian);
-}
-
-Nbt Parse(BinaryReader& reader, Endianness endian) {
-    NbtType type = ReadNbtType(reader);
-    return ReadNbtSwitch(reader, endian, type, false);
-}
+Nbt ReadNbtSwitch(BinaryReader& reader, Endianness endian, NbtType type, bool insideList);
 
 NbtType ReadNbtType(BinaryReader& reader) {
     int8_t type = reader.ReadInt8();
@@ -19,50 +11,6 @@ NbtType ReadNbtType(BinaryReader& reader) {
         std::string errmsg = "Unknown Nbt type ";
         errmsg.push_back((char)type);
         throw errmsg;
-    }
-}
-
-Nbt ReadNbtSwitch(BinaryReader& reader, Endianness endian, NbtType type, bool insideList) {
-    std::string name;
-    if (insideList)
-        name = "";
-    else {
-        uint16_t length = reader.ReadUInt16(endian);
-        name = reader.ReadStringUTF8(length);
-    }
-
-    switch (type)
-    {
-        case NbtTypeEnd:
-            throw "Invalid state, trying to instantiate NbtEnd";
-            break;
-        case NbtTypeByte:
-            return ReadNbtByte(reader, name);
-        case NbtTypeShort:
-            return ReadNbtShort(reader, name, endian);
-        case NbtTypeInt:
-            return ReadNbtInt(reader, name, endian);
-        case NbtTypeLong:
-            return ReadNbtLong(reader, name, endian);
-        case NbtTypeFloat:
-            return ReadNbtFloat(reader, name, endian);
-        case NbtTypeDouble:
-            return ReadNbtDouble(reader, name, endian);
-        case NbtTypeByteArray:
-            return ReadNbtByteArray(reader, name, endian);
-        case NbtTypeString:
-            return ReadNbtString(reader, name, endian);
-        case NbtTypeList:
-            return ReadNbtList(reader, name, endian);
-        case NbtTypeCompound:
-            return ReadNbtCompound(reader, name, endian);
-        case NbtTypeIntArray:
-            return ReadNbtIntArray(reader, name, endian);
-        case NbtTypeLongArray:
-            return ReadNbtLongArray(reader, name, endian);
-        default:
-            throw "Invalid state, unknown type";
-            break;
     }
 }
 
@@ -140,6 +88,7 @@ NbtCompound ReadNbtCompound(BinaryReader& reader, std::string name, Endianness e
     {
         Nbt nbt = ReadNbtSwitch(reader, endian, type, false);
         result.Nbts.insert(std::make_pair(nbt.Name, nbt));
+        type = ReadNbtType(reader);
     }
     return result;
 }
@@ -154,4 +103,58 @@ NbtList ReadNbtList(BinaryReader& reader, std::string name, Endianness endian) {
         result.Nbts.push_back(nbt);
     }
     return result;
+}
+
+Nbt ReadNbtSwitch(BinaryReader& reader, Endianness endian, NbtType type, bool insideList) {
+    std::string name;
+    if (insideList)
+        name = "";
+    else {
+        uint16_t length = reader.ReadUInt16(endian);
+        name = reader.ReadStringUTF8(length);
+    }
+
+    switch (type)
+    {
+        case NbtTypeEnd:
+            throw "Invalid state, trying to instantiate NbtEnd";
+            break;
+        case NbtTypeByte:
+            return ReadNbtByte(reader, name);
+        case NbtTypeShort:
+            return ReadNbtShort(reader, name, endian);
+        case NbtTypeInt:
+            return ReadNbtInt(reader, name, endian);
+        case NbtTypeLong:
+            return ReadNbtLong(reader, name, endian);
+        case NbtTypeFloat:
+            return ReadNbtFloat(reader, name, endian);
+        case NbtTypeDouble:
+            return ReadNbtDouble(reader, name, endian);
+        case NbtTypeByteArray:
+            return ReadNbtByteArray(reader, name, endian);
+        case NbtTypeString:
+            return ReadNbtString(reader, name, endian);
+        case NbtTypeList:
+            return ReadNbtList(reader, name, endian);
+        case NbtTypeCompound:
+            return ReadNbtCompound(reader, name, endian);
+        case NbtTypeIntArray:
+            return ReadNbtIntArray(reader, name, endian);
+        case NbtTypeLongArray:
+            return ReadNbtLongArray(reader, name, endian);
+        default:
+            throw "Invalid state, unknown type";
+            break;
+    }
+}
+
+Nbt Parse(BinaryReader& reader, Endianness endian) {
+    NbtType type = ReadNbtType(reader);
+    return ReadNbtSwitch(reader, endian, type, false);
+}
+
+Nbt Deserialize(uint8_t* data, uint32_t length, Endianness endian) {
+    BinaryReader reader(data, length);
+    return Parse(reader, endian);
 }
