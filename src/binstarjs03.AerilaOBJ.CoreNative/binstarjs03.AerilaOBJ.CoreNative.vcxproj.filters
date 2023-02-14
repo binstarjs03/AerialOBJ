@@ -7,6 +7,9 @@
     <ClInclude Include="NbtFormat\NbtType.h">
       <Filter>NbtFormat</Filter>
     </ClInclude>
+    <ClInclude Include="NbtReader.h">
+      <Filter>NbtFormat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="NbtFormat">
@@ -15,6 +18,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NbtFormat\Nbt.cpp">
+      <Filter>NbtFormat</Filter>
+    </ClCompile>
+    <ClCompile Include="NbtReader.cpp">
       <Filter>NbtFormat</Filter>
     </ClCompile>
   </ItemGroup>

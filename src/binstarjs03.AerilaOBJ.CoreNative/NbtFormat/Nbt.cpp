@@ -2,53 +2,53 @@
 #include "NbtType.h"
 
 NbtType Nbt::GetType() {
-	return NbtType::NbtEnd;
+    return NbtType::NbtEnd;
 }
 
 NbtType NbtByte::GetType() {
-	return NbtType::NbtByte;
+    return NbtType::NbtByte;
 }
 
 NbtType NbtShort::GetType() {
-	return NbtType::NbtShort;
+    return NbtType::NbtShort;
 }
 
 NbtType NbtInt::GetType() {
-	return NbtType::NbtInt;
+    return NbtType::NbtInt;
 }
 
 NbtType NbtLong::GetType() {
-	return NbtType::NbtLong;
+    return NbtType::NbtLong;
 }
 
 NbtType NbtFloat::GetType() {
-	return NbtType::NbtFloat;
+    return NbtType::NbtFloat;
 }
 
 NbtType NbtDouble::GetType() {
-	return NbtType::NbtDouble;
+    return NbtType::NbtDouble;
 }
 
 NbtType NbtString::GetType() {
-	return NbtType::NbtString;
+    return NbtType::NbtString;
 }
 
 NbtType NbtByteArray::GetType() {
-	return NbtType::NbtByteArray;
+    return NbtType::NbtByteArray;
 }
 
 NbtType NbtLongArray::GetType() {
-	return NbtType::NbtLongArray;
+    return NbtType::NbtLongArray;
 }
 
 NbtType NbtIntArray::GetType() {
-	return NbtType::NbtIntArray;
+    return NbtType::NbtIntArray;
 }
 
 NbtType NbtCompound::GetType() {
-	return NbtType::NbtCompound;
+    return NbtType::NbtCompound;
 }
 
 NbtType NbtList::GetType() {
-	return NbtType::NbtList;
+    return NbtType::NbtList;
 }

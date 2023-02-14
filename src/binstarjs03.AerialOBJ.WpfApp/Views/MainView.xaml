@@ -1,4 +1,4 @@
-<Window x:Class="binstarjs03.AerialOBJ.WpfApp.Views.MainView"
+﻿<Window x:Class="binstarjs03.AerialOBJ.WpfApp.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -36,6 +36,10 @@
                     <MenuItem Header="Close"
                               Command="{Binding CloseSavegameCommand}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                    <Separator/>
+                    <MenuItem Header="Export World Map"/>
+                    <MenuItem Header="Export 3D Model"/>
+                    <Separator/>
                     <MenuItem Header="Exit"
                               Command="{Binding CloseCommand}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
