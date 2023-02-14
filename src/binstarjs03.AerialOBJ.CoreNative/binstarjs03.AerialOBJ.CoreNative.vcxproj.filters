@@ -1,10 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Nbt.cpp" />
+    <ClCompile Include="CLRInterface.cpp" />
+    <ClCompile Include="IO\BinaryReader.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="NbtFormat\Nbt.cpp">
+      <Filter>NbtFormat</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Nbt.h" />
-    <ClInclude Include="NbtType.h" />
+    <ClInclude Include="IO\BinaryReader.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\Endianness.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="NbtFormat\Nbt.h">
+      <Filter>NbtFormat</Filter>
+    </ClInclude>
+    <ClInclude Include="NbtFormat\NbtType.h">
+      <Filter>NbtFormat</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="IO">
+      <UniqueIdentifier>{06151c1f-98b0-4f3c-80f8-a40998fbeceb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NbtFormat">
+      <UniqueIdentifier>{e4356798-185f-4460-9a54-6b4fa7ec9522}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
