@@ -129,3 +129,12 @@ double BinaryReader::ReadFloatDouble(Endianness endian) {
     pos += length;
     return result;
 }
+
+std::string BinaryReader::ReadStringUTF8(uint16_t length) {
+    uint8_t* start = data + pos; // start string
+    
+    const char* begin = reinterpret_cast<const char*>(start);
+    const char* end = reinterpret_cast<const char*>(start + length);
+
+    return std::string(begin, end);
+}

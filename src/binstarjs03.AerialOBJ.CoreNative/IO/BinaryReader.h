@@ -17,7 +17,7 @@ public:
     uint64_t ReadUInt64(Endianness endian);
     float ReadFloatSingle(Endianness endian);
     double ReadFloatDouble(Endianness endian);
-    /*std::string ReadStringLengthPrefixed(Endianness endian);*/
+    std::string ReadStringUTF8(uint16_t length);
 private:
     uint8_t* data;
     uint32_t length;
