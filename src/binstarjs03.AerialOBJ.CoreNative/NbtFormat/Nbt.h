@@ -7,91 +7,90 @@
 class Nbt
 {
 public:
-    std::string Name;
     virtual NbtType GetType();
-protected:
+    std::string Name;
 };
 
 class NbtByte : public Nbt {
 public:
-    NbtByte();
-    std::int8_t Value;
+    NbtByte(std::string name);
     NbtType GetType() override;
+    std::int8_t Value;
 };
 
 class NbtShort : public Nbt {
 public:
-    NbtShort();
-    std::int16_t Value;
+    NbtShort(std::string name);
     NbtType GetType() override;
+    std::int16_t Value;
 };
 
 class NbtInt : public Nbt {
 public:
-    NbtInt();
-    std::int32_t Value;
+    NbtInt(std::string name);
     NbtType GetType() override;
+    std::int32_t Value;
 };
 
 class NbtLong : public Nbt {
 public:
-    NbtLong();
-    std::int64_t Value;
+    NbtLong(std::string name);
     NbtType GetType() override;
+    std::int64_t Value;
 };
 
 class NbtFloat : public Nbt {
 public:
-    NbtFloat();
-    float Value;
+    NbtFloat(std::string name);
     NbtType GetType() override;
+    float Value;
 };
 
 class NbtDouble : public Nbt {
 public:
-    NbtDouble();
-    double Value;
+    NbtDouble(std::string name);
     NbtType GetType() override;
+    double Value;
 };
 
 class NbtString : public Nbt {
 public:
-    NbtString();
-    std::string Value;
+    NbtString(std::string name);
     NbtType GetType() override;
+    std::string Value;
 };
 
 class NbtByteArray : public Nbt {
 public:
-    NbtByteArray();
-    std::vector<int8_t> Values;
+    NbtByteArray(std::string name);
     NbtType GetType() override;
+    std::vector<int8_t> Values;
 };
 
 class NbtIntArray : public Nbt {
 public:
-    NbtIntArray();
-    std::vector<int32_t> Values;
+    NbtIntArray(std::string name);
     NbtType GetType() override;
+    std::vector<int32_t> Values;
 };
 
 class NbtLongArray : public Nbt {
 public:
-    NbtLongArray();
-    std::vector<int64_t> Values;
+    NbtLongArray(std::string name);
     NbtType GetType() override;
+    std::vector<int64_t> Values;
 };
 
 class NbtCompound : public Nbt {
 public:
-    NbtCompound();
-    std::map<std::string, Nbt> Nbts;
+    NbtCompound(std::string name);
     NbtType GetType() override;
+    std::map<std::string, Nbt> Nbts;
 };
 
 class NbtList : public Nbt {
 public:
-    NbtList();
-    std::vector<Nbt> Nbts;
+    NbtList(std::string name);
     NbtType GetType() override;
+    std::vector<Nbt> Nbts;
 };
