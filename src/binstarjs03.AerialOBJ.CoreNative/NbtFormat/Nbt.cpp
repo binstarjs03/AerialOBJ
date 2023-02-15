@@ -136,7 +136,7 @@ NbtType NbtLongArray::GetType() {
 // Nbt Compound
 
 NbtCompound::NbtCompound(std::string name) : Nbt(name) {
-    this->Nbts = std::map<std::string, Nbt>();
+    this->Nbts = std::map<std::string, Nbt*>();
 }
 
 NbtType NbtCompound::GetType() {
@@ -148,7 +148,7 @@ NbtType NbtCompound::GetType() {
 // Nbt List
 
 NbtList::NbtList(std::string name) : Nbt(name) {
-    this->Nbts = std::vector<Nbt>();
+    this->Nbts = std::vector<Nbt*>();
 }
 
 NbtType NbtList::GetType() {

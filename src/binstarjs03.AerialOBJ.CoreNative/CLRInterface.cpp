@@ -15,5 +15,5 @@ extern "C" __declspec(dllexport) void PrintString(uint8_t * data, uint32_t lengt
 }
 
 extern "C" __declspec(dllexport) void ParseNbt(uint8_t * data, uint32_t length) {
-    Nbt nbt = Deserialize(data, length, BigEndian);
+    Nbt* nbt = Deserialize(data, length, BigEndian);
 }
