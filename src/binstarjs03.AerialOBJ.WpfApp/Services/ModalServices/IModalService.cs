@@ -9,6 +9,7 @@ public interface IModalService
     void ShowAboutView();
     void ShowDefinitionManagerView();
     void ShowSettingView();
+    void ShowGotoView();
     FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg);
     FileDialogResult ShowOpenFileDialog(FileDialogArg dialogArg);
     FolderDialogResult ShowFolderBrowserDialog();

@@ -55,9 +55,8 @@ public class NbtReader : BinaryReaderEndian
             nbtType = (NbtType)type;
             return nbtType;
         }
-        else
-            throw new NbtIllegalTypeException(
-                $"Illegal nbt type '{type}' at stream position {BaseStream.Position}");
+        throw new NbtIllegalTypeException(
+            $"Illegal nbt type '{type}' at stream position {BaseStream.Position}");
     }
 
     private NbtByte ReadNbtByte(string name)

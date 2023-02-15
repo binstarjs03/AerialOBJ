@@ -12,7 +12,9 @@
              LostFocus="OnLostFocus">
     <Grid>
         <StackPanel>
-            <TextBox Name="UnderlyingTextBox">
+            <TextBox Name="UnderlyingTextBox"
+                     Foreground="{Binding ElementName=Root, Path=Foreground}"
+                     Background="{Binding ElementName=Root, Path=Background}">
                 <TextBox.Text>
                     <Binding ElementName="Root"
                              Path="IntValue"

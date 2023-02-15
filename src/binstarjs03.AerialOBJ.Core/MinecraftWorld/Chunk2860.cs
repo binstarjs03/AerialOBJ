@@ -137,7 +137,7 @@ public class Chunk2860 : IChunk, IDisposable
                 return;
 
             _blockPalette = new Block[paletteNbt.Count];
-            for (int i = 0; i < paletteNbt.Count; i++)
+            for (int i = 0; i < _blockPalette.Length; i++)
             {
                 string blockName = paletteNbt[i].Get<NbtString>("Name").Value;
                 _blockPalette[i] = new Block() { Name = blockName };

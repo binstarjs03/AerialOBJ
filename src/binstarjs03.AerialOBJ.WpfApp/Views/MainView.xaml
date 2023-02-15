@@ -40,6 +40,9 @@
                               Command="{Binding CloseCommand}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
                 </MenuItem>
+                <MenuItem Header="Navigation">
+                    <MenuItem Header="Goto.." Command="{Binding ShowGotoModalCommand}"/>
+                </MenuItem>
                 <MenuItem Header="View">
                     <MenuItem Header="Chunk Grid"
                               IsCheckable="True"

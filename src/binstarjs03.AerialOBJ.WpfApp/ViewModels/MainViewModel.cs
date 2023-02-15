@@ -140,4 +140,7 @@ public partial class MainViewModel
 
     [RelayCommand]
     private void ShowSettingModal() => _modalService.ShowSettingView();
+
+    [RelayCommand]
+    private void ShowGotoModal() => _modalService.ShowGotoView();
 }

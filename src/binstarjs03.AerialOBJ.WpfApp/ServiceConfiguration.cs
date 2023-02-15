@@ -82,8 +82,9 @@ internal static class ServiceConfiguration
 
         services.AddTransient<AboutView>();
         services.AddTransient<NewDefinitionManagerView>();
-        services.AddTransient<ViewportView>();
+        services.AddSingleton<ViewportView>();
         services.AddTransient<SettingView>();
+        services.AddTransient<GotoView>();
     }
 
     internal static void ConfigureViewModels(this IServiceCollection services)
@@ -92,10 +93,11 @@ internal static class ServiceConfiguration
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<DebugLogViewModel>();
 
-        services.AddTransient<ViewportViewModel>();
-        services.AddTransient<ViewportViewModelInputHandler>();
+        services.AddSingleton<ViewportViewModel>();
+        services.AddSingleton<ViewportViewModelInputHandler>();
         services.AddTransient<DefinitionManagerViewModel>();
         services.AddTransient<SettingViewModel>();
+        services.AddTransient<GotoViewModel>();
     }
 
     internal static void ConfigureServices(this IServiceCollection services)
@@ -106,7 +108,8 @@ internal static class ServiceConfiguration
             IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
             IDialogView definitionManagerViewFactory() => x.GetRequiredService<NewDefinitionManagerView>();
             IDialogView settingViewFactory() => x.GetRequiredService<SettingView>();
-            return new ModalService(aboutViewFactory, definitionManagerViewFactory, settingViewFactory);
+            IDialogView gotoViewFactory() => x.GetRequiredService<GotoView>();
+            return new ModalService(aboutViewFactory, definitionManagerViewFactory, settingViewFactory, gotoViewFactory);
         });
         services.AddSingleton<IDefinitionRepository, DefinitionRepository>();
         services.AddSingleton<ILogService, LogService>();
