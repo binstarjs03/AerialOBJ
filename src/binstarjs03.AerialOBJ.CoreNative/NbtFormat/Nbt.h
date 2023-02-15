@@ -86,12 +86,12 @@ class NbtCompound : public Nbt {
 public:
     NbtCompound(std::string name);
     NbtType GetType() override;
-    std::map<std::string, Nbt*> Nbts;
+    std::map<std::string, Nbt> Nbts;
 };
 
 class NbtList : public Nbt {
 public:
     NbtList(std::string name);
     NbtType GetType() override;
-    std::vector<Nbt*> Nbts;
+    std::vector<Nbt> Nbts;
 };

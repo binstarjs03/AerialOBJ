@@ -27,28 +27,29 @@ internal class Program
     static void ReadNBT()
     {
         // replace path with actual path where your level.dat is
-        string path = @"C:\Users\...\AppData\Roaming\.minecraft\saves\...\level.dat";
+        string path = @"C:\Users\Bin\AppData\Roaming\.minecraft\saves\Terralith 2\level.dat";
+
         Stream stream = File.OpenRead(path);
         MemoryStream ms = NbtCompression.DecompressStream(stream);
         byte[] data = ms.ToArray();
 
         Console.WriteLine($"Reading NBT Native...");
-        var start = DateTime.Now;
         ReadNBTNative(data);
-        var duration = DateTime.Now - start;
-        Console.WriteLine($"Finished reading nbt native. Duration: {duration.TotalMilliseconds} ms");
 
         // jitting
+        _ = DateTime.Now;
+        _ = DateTime.Now;
         ReadNBTManaged(data);
         ReadNBTManaged(data);
         ReadNBTManaged(data);
+        GC.Collect();
         // finished jitting
 
         Console.WriteLine($"Reading NBT Managed...");
-        start = DateTime.Now;
+        var start = DateTime.Now;
         ReadNBTManaged(data);
-        duration = DateTime.Now - start;
-        Console.WriteLine($"Finished reading nbt managed. Duration: {duration.TotalMilliseconds} ms");
+        var duration = DateTime.Now - start;
+        Console.WriteLine($"Finished reading nbt managed. Duration: {duration.TotalMicroseconds} us");
     }
 
     static void ReadNBTNative(byte[] data)

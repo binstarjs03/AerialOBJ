@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include "IO/Endianness.h"
 #include "IO/BinaryReader.h"
 #include "NbtFormat/NbtReader.h"
@@ -15,5 +16,15 @@ extern "C" __declspec(dllexport) void PrintString(uint8_t * data, uint32_t lengt
 }
 
 extern "C" __declspec(dllexport) void ParseNbt(uint8_t * data, uint32_t length) {
-    Nbt* nbt = Deserialize(data, length, BigEndian);
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    // this is the code we want to measure
+    Nbt nbt = Deserialize(data, length, BigEndian);
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+
+
+    std::cout << "Finished reading nbt managed. Duration: " << elapsed_time.count() << " us" << std::endl;
+
 }
