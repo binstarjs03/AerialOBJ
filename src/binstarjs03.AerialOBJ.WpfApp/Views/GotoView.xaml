@@ -76,10 +76,10 @@
                                IntValue="{Binding BlockCoordsX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <components:IntBox Grid.Row="1"
                                Grid.Column="2"
-                               IntValue="{Binding BlockCoords.Y}"/>
+                               IntValue="{Binding BlockCoordsY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <components:IntBox Grid.Row="1"
                                Grid.Column="3"
-                               IntValue="{Binding BlockCoords.Z}"/>
+                               IntValue="{Binding BlockCoordsZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Grid.Row="2"
                        Grid.Column="0"
@@ -87,23 +87,23 @@
                        Style="{StaticResource Right}"/>
             <components:IntBox Grid.Row="2"
                                Grid.Column="1"
-                               IntValue="{Binding ChunkCoordsX, Mode=TwoWay}"/>
+                               IntValue="{Binding ChunkCoordsX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <components:IntBox Grid.Row="2"
                                Grid.Column="2"
-                               IntValue="{Binding ChunkCoords.Y}"/>
+                               IntValue="{Binding ChunkCoordsY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <components:IntBox Grid.Row="2"
                                Grid.Column="3"
-                               IntValue="{Binding ChunkCoords.Z}"/>
+                               IntValue="{Binding ChunkCoordsZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock Grid.Row="3"
                        Grid.Column="0"
                        Text="Region"
                        Style="{StaticResource Right}"/>
             <components:IntBox Grid.Row="3"
                                Grid.Column="1"
-                               IntValue="{Binding RegionCoordsX, Mode=TwoWay}"/>
+                               IntValue="{Binding RegionCoordsX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <components:IntBox Grid.Row="3"
                                Grid.Column="3"
-                               IntValue="{Binding RegionCoords.Z}"/>
+                               IntValue="{Binding RegionCoordsZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

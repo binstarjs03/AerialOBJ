@@ -9,10 +9,6 @@ namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 [ObservableObject]
 public partial class GotoViewModel
 {
-    private Point3<int> _blockCoords = Point3<int>.Zero;
-    private Point3<int> _chunkCoords = Point3<int>.Zero;
-    private PointZ<int> _regionCoords = PointZ<int>.Zero;
-
     [ObservableProperty] private int _blockCoordsX = 0;
     [ObservableProperty] private int _blockCoordsY = 0;
     [ObservableProperty] private int _blockCoordsZ = 0;
@@ -36,6 +32,29 @@ public partial class GotoViewModel
         OnPropertyChanged(nameof(RegionCoordsX));
     }
 
+    partial void OnBlockCoordsYChanged(int value)
+    {
+        int chunkCoords = MathUtils.DivFloor(value, IChunk.BlockCount);
+
+        _chunkCoordsY = chunkCoords;
+
+        OnPropertyChanged(nameof(ChunkCoordsY));
+    }
+
+
+    partial void OnBlockCoordsZChanged(int value)
+    {
+        int chunkCoords = MathUtils.DivFloor(value, IChunk.BlockCount);
+        int regionCoords = MathUtils.DivFloor(chunkCoords, IRegion.ChunkCount);
+
+        _chunkCoordsZ = chunkCoords;
+        _regionCoordsZ = regionCoords;
+
+        OnPropertyChanged(nameof(ChunkCoordsZ));
+        OnPropertyChanged(nameof(RegionCoordsZ));
+    }
+
+
     partial void OnChunkCoordsXChanged(int value)
     {
         int blockCoordsMod = MathUtils.Mod(_blockCoordsX, IChunk.BlockCount);
@@ -47,6 +66,29 @@ public partial class GotoViewModel
 
         OnPropertyChanged(nameof(BlockCoordsX));
         OnPropertyChanged(nameof(RegionCoordsX));
+    }
+
+    partial void OnChunkCoordsYChanged(int value)
+    {
+        int blockCoordsMod = MathUtils.Mod(_blockCoordsY, IChunk.BlockCount);
+        int blockCoords = value * IChunk.BlockCount + blockCoordsMod;
+
+        _blockCoordsY = blockCoords;
+
+        OnPropertyChanged(nameof(BlockCoordsY));
+    }
+
+    partial void OnChunkCoordsZChanged(int value)
+    {
+        int blockCoordsMod = MathUtils.Mod(_blockCoordsZ, IChunk.BlockCount);
+        int blockCoords = value * IChunk.BlockCount + blockCoordsMod;
+        int regionCoords = MathUtils.DivFloor(value, IRegion.ChunkCount);
+
+        _blockCoordsZ = blockCoords;
+        _regionCoordsZ = regionCoords;
+
+        OnPropertyChanged(nameof(BlockCoordsZ));
+        OnPropertyChanged(nameof(RegionCoordsZ));
     }
 
     partial void OnRegionCoordsXChanged(int value)
@@ -63,41 +105,17 @@ public partial class GotoViewModel
         OnPropertyChanged(nameof(ChunkCoordsX));
     }
 
+    partial void OnRegionCoordsZChanged(int value)
+    {
+        int blockCoordsMod = MathUtils.Mod(_blockCoordsZ, IRegion.BlockCount);
+        int blockCoords = value * IRegion.BlockCount + blockCoordsMod;
+        int chunkCoordsMod = MathUtils.Mod(_chunkCoordsZ, IRegion.ChunkCount);
+        int chunkCoords = value * IRegion.ChunkCount + chunkCoordsMod;
 
-    public Point3<int> BlockCoords
-    {
-        get => _blockCoords;
-        set
-        {
-            if (value == _blockCoords)
-                return;
-            _blockCoords = value;
-            var chunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(value);
-            _chunkCoords = chunkCoords;
-            _regionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(chunkCoords);
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(ChunkCoords));
-            OnPropertyChanged(nameof(RegionCoords));
-        }
-    }
-    public Point3<int> ChunkCoords
-    {
-        get => _chunkCoords;
-        set
-        {
-            if (value == _chunkCoords)
-                return;
-            _chunkCoords = value;
-        }
-    }
-    public PointZ<int> RegionCoords
-    {
-        get => _regionCoords;
-        set
-        {
-            if (value == _regionCoords)
-                return;
-            _regionCoords = value;
-        }
+        _blockCoordsZ = blockCoords;
+        _chunkCoordsZ = chunkCoords;
+
+        OnPropertyChanged(nameof(BlockCoordsZ));
+        OnPropertyChanged(nameof(ChunkCoordsZ));
     }
 }
