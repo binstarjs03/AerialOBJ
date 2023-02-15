@@ -30,6 +30,7 @@
                     <converters:UnitMultiplierConverter x:Key="UnitMultiplier"/>
                     <converters:ViewportGridConverter x:Key="ViewportGrid"/>
                     <converters:ViewportGridRectConverter x:Key="ViewportGridRect"/>
+                    <converters:IntConverter x:Key="IntConverter"/>
                 </ResourceDictionary>
 
                 <!--  Styles  -->
