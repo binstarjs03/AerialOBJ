@@ -52,7 +52,9 @@
                     <MenuItem Header="Camera Position"
                               IsCheckable="True"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
-                    <MenuItem Header="Debug Log" IsCheckable="True"/>
+                    <MenuItem Header="Debug Log"
+                              IsCheckable="True"
+                              IsChecked="{Binding SharedViewModelState.IsDebugLogViewVisible, Mode=TwoWay}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="Manage Definitions.." Command="{Binding ShowDefinitionManagerWindowCommand}"/>

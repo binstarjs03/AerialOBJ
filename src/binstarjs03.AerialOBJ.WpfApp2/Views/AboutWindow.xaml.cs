@@ -1,8 +1,6 @@
 ﻿using System.Windows;
-
-using binstarjs03.AerialOBJ.MVVM.Services.ViewServices;
 using binstarjs03.AerialOBJ.MVVM.ViewModels;
-
+using binstarjs03.AerialOBJ.MVVM.ViewTraits;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Views;

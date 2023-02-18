@@ -1,18 +1,28 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
-using binstarjs03.AerialOBJ.MVVM.Services.ViewServices;
 using binstarjs03.AerialOBJ.MVVM.ViewModels;
+using binstarjs03.AerialOBJ.MVVM.ViewTraits;
 
 using Microsoft.Extensions.DependencyInjection;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Views;
 public partial class MainWindow : Window, IClosable
 {
+    private ISettablePosition? _settablePosition;
+
     public MainWindow()
     {
         InitializeComponent();
+        _settablePosition = App.Current.ServiceProvider.GetService<ISettablePosition>();
         var viewmodel = App.Current.ServiceProvider.GetRequiredService<MainViewModel>();
         viewmodel.Closable = this;
         DataContext = viewmodel;
     }
+
+    protected override void OnLocationChanged(EventArgs e) => SyncSettablePosition();
+
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) => SyncSettablePosition();
+
+    private void SyncSettablePosition() => _settablePosition?.SetTopLeft((int)Top, (int)(Left + ActualWidth));
 }

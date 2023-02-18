@@ -12,6 +12,7 @@ using binstarjs03.AerialOBJ.MVVM.Services.IOService;
 using binstarjs03.AerialOBJ.MVVM.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.MVVM.Services.ModalServices;
 using binstarjs03.AerialOBJ.MVVM.ViewModels;
+using binstarjs03.AerialOBJ.MVVM.ViewTraits;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
@@ -70,6 +71,7 @@ public static class ServiceConfiguration
     {
         services.AddSingleton<MainWindow>();
         services.AddSingleton<DebugLogWindow>();
+        services.AddSingleton<ISettablePosition>(x => x.GetRequiredService<DebugLogWindow>());
         services.AddTransient<GotoWindow>();
         services.AddTransient<SettingWindow>();
         services.AddTransient<AboutWindow>();

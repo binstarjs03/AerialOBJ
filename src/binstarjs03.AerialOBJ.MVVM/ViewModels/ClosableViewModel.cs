@@ -1,5 +1,4 @@
-﻿using binstarjs03.AerialOBJ.MVVM.Services.ViewServices;
-
+﻿using binstarjs03.AerialOBJ.MVVM.ViewTraits;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 

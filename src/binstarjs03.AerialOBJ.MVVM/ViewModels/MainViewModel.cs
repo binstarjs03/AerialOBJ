@@ -6,8 +6,8 @@ using binstarjs03.AerialOBJ.MVVM.Services;
 using binstarjs03.AerialOBJ.MVVM.Services.Diagnostics;
 using binstarjs03.AerialOBJ.MVVM.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.MVVM.Services.ModalServices;
-using binstarjs03.AerialOBJ.MVVM.Services.ViewServices;
-
+using binstarjs03.AerialOBJ.MVVM.ViewModels.Viewport;
+using binstarjs03.AerialOBJ.MVVM.ViewTraits;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -15,9 +15,11 @@ namespace binstarjs03.AerialOBJ.MVVM.ViewModels;
 
 public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecipient
 {
+    private readonly AppInfo _appInfo;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
     private readonly ISavegameLoader _savegameLoaderService;
+    private readonly IMemoryInfo _memoryInfo;
 
     [ObservableProperty]
     private string _title;
@@ -31,40 +33,40 @@ public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecip
                          ISavegameLoader savegameLoaderService,
                          IMemoryInfo memoryInfo)
     {
-        AppInfo = appInfo;
+        _appInfo = appInfo;
         GlobalState = globalState;
         SharedViewModelState = sharedViewModelState;
         _modalService = modalService;
         _logService = logService;
         _savegameLoaderService = savegameLoaderService;
-        MemoryInfo = memoryInfo;
-        _title = AppInfo.AppName;
+        _memoryInfo = memoryInfo;
+        _title = _appInfo.AppName;
 
         GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadChanged;
-        MemoryInfo.MemoryInfoUpdated += OnMemoryInfoUpdated;
+        _memoryInfo.MemoryInfoUpdated += OnMemoryInfoUpdated;
+        //ViewportViewModel = viewportViewModel;
     }
 
     public IClosable? Closable { get; set; }
 
-    public AppInfo AppInfo { get; }
     public GlobalState GlobalState { get; }
     public SharedViewModelState SharedViewModelState { get; }
-    public IMemoryInfo MemoryInfo { get; }
+    //public ViewportViewModel ViewportViewModel { get; }
 
-    public string UsedMemory => MathUtils.DataUnitToString(MemoryInfo.MemoryUsedSize);
-    public string AllocatedMemory => MathUtils.DataUnitToString(MemoryInfo.MemoryAllocatedSize);
+    public string UsedMemory => MathUtils.DataUnitToString(_memoryInfo.MemoryUsedSize);
+    public string AllocatedMemory => MathUtils.DataUnitToString(_memoryInfo.MemoryAllocatedSize);
 
     private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
     {
         if (state == SavegameLoadState.Opened)
-            MemoryInfo.StartMonitorMemory();
+            _memoryInfo.StartMonitorMemory();
         else
-            MemoryInfo.StopMonitorMemory();
+            _memoryInfo.StopMonitorMemory();
 
         Title = state switch
         {
-            SavegameLoadState.Opened => $"{AppInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
-            SavegameLoadState.Closed => AppInfo.AppName,
+            SavegameLoadState.Opened => $"{_appInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
+            SavegameLoadState.Closed => _appInfo.AppName,
             _ => throw new NotImplementedException(),
         };
     }
