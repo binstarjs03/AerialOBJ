@@ -10,7 +10,7 @@
         xmlns:settings="clr-namespace:binstarjs03.AerialOBJ.MVVM.Models.Settings;assembly=binstarjs03.AerialOBJ.MVVM"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:SettingViewModel}}"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Title="SettingView"
         SizeToContent="Height"

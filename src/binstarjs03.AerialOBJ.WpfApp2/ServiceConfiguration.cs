@@ -79,7 +79,13 @@ public static class ServiceConfiguration
     {
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<DebugLogViewModel>();
-        services.AddTransient<GotoViewModel>();
+        services.AddTransient<GotoViewModel>(x =>
+        {
+            var viewmodel = new GotoViewModel();
+            var mainWindowViewModel = x.GetRequiredService<MainViewModel>();
+            viewmodel.ClosedRecipient = mainWindowViewModel;
+            return viewmodel;
+        });
         services.AddTransient<SettingViewModel>();
         services.AddTransient<ClosableViewModel>();
     }
