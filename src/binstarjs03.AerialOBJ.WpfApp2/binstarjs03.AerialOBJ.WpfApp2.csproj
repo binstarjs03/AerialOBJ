@@ -6,6 +6,21 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <RootNamespace>binstarjs03.AerialOBJ.WpfApp</RootNamespace>
+    <AssemblyName>binstarjs03.AerialOBJ.WpfApp</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
+    <ProjectReference Include="..\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj" />
+    <ProjectReference Include="..\binstarjs03.AerialOBJ.MVVM\binstarjs03.AerialOBJ.MVVM.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Components\IntBox.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 
 </Project>

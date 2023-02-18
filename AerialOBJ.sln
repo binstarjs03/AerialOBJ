@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.ObjEx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Imaging", "src\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj", "{FAD4D83C-4A8A-49A7-BC87-66439C6DD237}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "binstarjs03.AerialOBJ.MVVM", "src\binstarjs03.AerialOBJ.MVVM\binstarjs03.AerialOBJ.MVVM.csproj", "{1ED35B7C-8728-45B7-B36D-F403C9DD0AF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.MVVM", "src\binstarjs03.AerialOBJ.MVVM\binstarjs03.AerialOBJ.MVVM.csproj", "{1ED35B7C-8728-45B7-B36D-F403C9DD0AF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "binstarjs03.AerialOBJ.WpfApp2", "src\binstarjs03.AerialOBJ.WpfApp2\binstarjs03.AerialOBJ.WpfApp2.csproj", "{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{1ED35B7C-8728-45B7-B36D-F403C9DD0AF7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1ED35B7C-8728-45B7-B36D-F403C9DD0AF7}.Release|x64.ActiveCfg = Release|x64
 		{1ED35B7C-8728-45B7-B36D-F403C9DD0AF7}.Release|x64.Build.0 = Release|x64
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Debug|x64.ActiveCfg = Debug|x64
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Debug|x64.Build.0 = Debug|x64
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Release|x64.ActiveCfg = Release|x64
+		{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
