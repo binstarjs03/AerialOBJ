@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
-using binstarjs03.AerialOBJ.MVVM.Models.Settings.Sections;
+using binstarjs03.AerialOBJ.MVVM.Models.Settings;
 
 namespace binstarjs03.AerialOBJ.MVVM.Repositories;
 public interface IDefinitionRepository

@@ -4,7 +4,7 @@ using binstarjs03.AerialOBJ.Core.Definitions;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace binstarjs03.AerialOBJ.MVVM.Models.Settings.Sections;
+namespace binstarjs03.AerialOBJ.MVVM.Models.Settings;
 public partial class DefinitionSetting : ObservableObject
 {
     [ObservableProperty] private ViewportDefinition _currentViewportDefinition;

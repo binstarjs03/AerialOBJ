@@ -19,9 +19,7 @@ public partial class App : Application
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         ServiceProvider = ServiceConfiguration.Configure(e.Args);
-        var viewstate = ServiceProvider.GetRequiredService<SharedViewModelState>();
-        viewstate.IsDebugLogViewVisible = true;
-        MainWindow = ServiceProvider.GetRequiredService<DebugLogWindow>();
+        MainWindow = ServiceProvider.GetRequiredService<SettingWindow>();
         MainWindow.Show();
     }
 }

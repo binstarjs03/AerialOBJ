@@ -6,7 +6,6 @@ using System.Text.Json;
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.JsonFormat;
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
-using binstarjs03.AerialOBJ.MVVM.Models.Settings.Sections;
 using binstarjs03.AerialOBJ.MVVM.Services.ChunkLoadingPatterns;
 using binstarjs03.AerialOBJ.MVVM.Repositories;
 
