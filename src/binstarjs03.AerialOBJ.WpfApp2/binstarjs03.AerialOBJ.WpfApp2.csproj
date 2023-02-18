@@ -12,6 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
     <ProjectReference Include="..\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj" />
     <ProjectReference Include="..\binstarjs03.AerialOBJ.MVVM\binstarjs03.AerialOBJ.MVVM.csproj" />

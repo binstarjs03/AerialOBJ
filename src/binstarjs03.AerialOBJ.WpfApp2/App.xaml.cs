@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Windows;
 
+using binstarjs03.AerialOBJ.MVVM.ViewModels;
+using binstarjs03.AerialOBJ.WpfApp.Views;
+
+using Microsoft.Extensions.DependencyInjection;
+
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
 {
@@ -13,6 +18,10 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
-        ServiceProvider = ServiceConfiguration.Configure();
+        ServiceProvider = ServiceConfiguration.Configure(e.Args);
+        var viewstate = ServiceProvider.GetRequiredService<SharedViewModelState>();
+        viewstate.IsDebugLogViewVisible = true;
+        MainWindow = ServiceProvider.GetRequiredService<DebugLogWindow>();
+        MainWindow.Show();
     }
 }

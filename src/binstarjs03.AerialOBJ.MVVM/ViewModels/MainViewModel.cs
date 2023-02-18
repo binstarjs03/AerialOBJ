@@ -13,7 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.MVVM.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecipient
 {
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
@@ -21,6 +21,7 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _title;
+    private bool _isGotoWindowShown;
 
     public MainViewModel(AppInfo appInfo,
                          GlobalState globalState,
@@ -131,14 +132,25 @@ public partial class MainViewModel : ObservableObject
     private void OnClosing() => CloseSavegame();
 
     [RelayCommand]
-    private void ShowAboutModal() => _modalService.ShowAboutView();
+    private void ShowAboutWindow() => _modalService.ShowAboutWindow();
 
     [RelayCommand]
-    private void ShowDefinitionManagerModal() => _modalService.ShowDefinitionManagerView();
+    private void ShowDefinitionManagerWindow() => _modalService.ShowDefinitionManagerWindow();
 
     [RelayCommand]
-    private void ShowSettingModal() => _modalService.ShowSettingView();
+    private void ShowSettingWindow() => _modalService.ShowSettingWindow();
 
     [RelayCommand]
-    private void ShowGotoModal() => _modalService.ShowGotoView();
+    private void ShowGotoWindow()
+    {
+        if (_isGotoWindowShown)
+            return;
+        _isGotoWindowShown = true;
+        _modalService.ShowGotoWindow();
+    }
+
+    void IGotoViewModelClosedRecipient.Notify()
+    {
+        _isGotoWindowShown = false;
+    }
 }

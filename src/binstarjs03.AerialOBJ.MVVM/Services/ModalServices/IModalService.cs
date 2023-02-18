@@ -6,10 +6,10 @@ public interface IModalService
     void ShowWarningMessageBox(MessageBoxArg dialogArg);
     bool ShowConfirmationBox(MessageBoxArg dialogArg);
     bool ShowWarningConfirmationBox(MessageBoxArg dialogArg);
-    void ShowAboutView();
-    void ShowDefinitionManagerView();
-    void ShowSettingView();
-    void ShowGotoView();
+    void ShowAboutWindow();
+    void ShowDefinitionManagerWindow();
+    void ShowSettingWindow();
+    void ShowGotoWindow();
     FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg);
     FileDialogResult ShowOpenFileDialog(FileDialogArg dialogArg);
     FolderDialogResult ShowFolderBrowserDialog();
