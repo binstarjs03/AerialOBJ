@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using binstarjs03.AerialOBJ.MVVM.Primitives;
+using binstarjs03.AerialOBJ.MVVM.Services.Dispatcher;
 
 namespace binstarjs03.AerialOBJ.MVVM.Services.Diagnostics;
 
@@ -11,9 +12,9 @@ public class MemoryInfo : IMemoryInfo
     private readonly ReferenceWrap<bool> _isRunning = new() { Value = false };
     private Task _memoryInfoTask = Task.CompletedTask;
     private CancellationTokenSource _cts = new();
-    private Action<Action> _dispatcher;
+    private IDispatcher _dispatcher;
 
-    public MemoryInfo(Action<Action> dispatcher)
+    public MemoryInfo(IDispatcher dispatcher)
     {
         _dispatcher = dispatcher;
     }
@@ -56,7 +57,7 @@ public class MemoryInfo : IMemoryInfo
                 MemoryAllocatedSize = memoryInfo.TotalCommittedBytes;
                 try
                 {
-                    _dispatcher(() => MemoryInfoUpdated?.Invoke());
+                    _dispatcher.Invoke(() => MemoryInfoUpdated?.Invoke(), DispatcherPriority.Background, _cts.Token);
                     Task.Delay(1000, _cts.Token).Wait(_cts.Token);
                 }
                 catch (TaskCanceledException) { return; }

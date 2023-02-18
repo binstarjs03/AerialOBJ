@@ -8,12 +8,14 @@ using binstarjs03.AerialOBJ.MVVM.Repositories;
 using binstarjs03.AerialOBJ.MVVM.Services;
 using binstarjs03.AerialOBJ.MVVM.Services.ChunkLoadingPatterns;
 using binstarjs03.AerialOBJ.MVVM.Services.Diagnostics;
+using binstarjs03.AerialOBJ.MVVM.Services.Dispatcher;
 using binstarjs03.AerialOBJ.MVVM.Services.IOService;
 using binstarjs03.AerialOBJ.MVVM.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.MVVM.Services.ModalServices;
 using binstarjs03.AerialOBJ.MVVM.ViewModels;
 using binstarjs03.AerialOBJ.MVVM.ViewTraits;
 using binstarjs03.AerialOBJ.WpfApp.Services;
+using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -94,16 +96,18 @@ public static class ServiceConfiguration
 
     private static void ConfigureServices(this IServiceCollection services)
     {
+        services.AddSingleton<IDispatcher, WpfDispatcher>(x=> new WpfDispatcher(App.Current.Dispatcher));
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
         services.AddSingleton<ISavegameLoader, SavegameLoader>();
-        services.AddSingleton<IMemoryInfo, MemoryInfo>(x 
-            => new MemoryInfo(callback => App.Current.Dispatcher.Invoke(callback)));
+        services.AddSingleton<IMemoryInfo, MemoryInfo>();
+        services.AddSingleton<IDefinitionIO, DefinitionIO>();
     }
 
     private static void ConfigureRepositories(this IServiceCollection services)
     {
+        services.AddSingleton<IDefinitionRepository, DefinitionRepository>();
         services.AddSingleton<IRepository<IChunkShader>, AbstractRepository<IChunkShader>>(x =>
         {
             var flat = new FlatChunkShader();
