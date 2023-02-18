@@ -19,7 +19,7 @@ public partial class App : Application
     {
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         ServiceProvider = ServiceConfiguration.Configure(e.Args);
-        MainWindow = ServiceProvider.GetRequiredService<SettingWindow>();
+        MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
         MainWindow.Show();
     }
 }

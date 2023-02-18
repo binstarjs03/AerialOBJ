@@ -7,7 +7,9 @@ using binstarjs03.AerialOBJ.MVVM.Models.Settings;
 using binstarjs03.AerialOBJ.MVVM.Repositories;
 using binstarjs03.AerialOBJ.MVVM.Services;
 using binstarjs03.AerialOBJ.MVVM.Services.ChunkLoadingPatterns;
+using binstarjs03.AerialOBJ.MVVM.Services.Diagnostics;
 using binstarjs03.AerialOBJ.MVVM.Services.IOService;
+using binstarjs03.AerialOBJ.MVVM.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.MVVM.Services.ModalServices;
 using binstarjs03.AerialOBJ.MVVM.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Services;
@@ -66,18 +68,20 @@ public static class ServiceConfiguration
 
     private static void ConfigureViews(this IServiceCollection services)
     {
-        services.AddTransient<AboutWindow>();
+        services.AddSingleton<MainWindow>();
         services.AddSingleton<DebugLogWindow>();
-        services.AddSingleton<GotoWindow>();
-        services.AddSingleton<SettingWindow>();
+        services.AddTransient<GotoWindow>();
+        services.AddTransient<SettingWindow>();
+        services.AddTransient<AboutWindow>();
     }
 
     private static void ConfigureViewModels(this IServiceCollection services)
     {
-        services.AddTransient<ClosableViewModel>();
+        services.AddSingleton<MainViewModel>();
         services.AddSingleton<DebugLogViewModel>();
-        services.AddSingleton<GotoViewModel>();
-        services.AddSingleton<SettingViewModel>();
+        services.AddTransient<GotoViewModel>();
+        services.AddTransient<SettingViewModel>();
+        services.AddTransient<ClosableViewModel>();
     }
 
     private static void ConfigureServices(this IServiceCollection services)
@@ -85,6 +89,9 @@ public static class ServiceConfiguration
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
+        services.AddSingleton<ISavegameLoader, SavegameLoader>();
+        services.AddSingleton<IMemoryInfo, MemoryInfo>(x 
+            => new MemoryInfo(callback => App.Current.Dispatcher.Invoke(callback)));
     }
 
     private static void ConfigureRepositories(this IServiceCollection services)

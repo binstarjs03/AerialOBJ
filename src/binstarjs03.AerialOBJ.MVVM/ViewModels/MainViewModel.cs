@@ -116,20 +116,17 @@ public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecip
     }
 
     [RelayCommand]
-    private void CloseSavegame()
-    {
-        GlobalState.SavegameLoadInfo = null;
-    }
+    private void CloseSavegame() => GlobalState.SavegameLoadInfo = null;
 
     [RelayCommand]
-    private void Close()
+    private void CloseWindow()
     {
-        OnClosing();
+        OnWindowClosing();
         Closable?.Close();
     }
 
     [RelayCommand]
-    private void OnClosing() => CloseSavegame();
+    private void OnWindowClosing() => CloseSavegame();
 
     [RelayCommand]
     private void ShowAboutWindow() => _modalService.ShowAboutWindow();
@@ -149,8 +146,5 @@ public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecip
         _modalService.ShowGotoWindow();
     }
 
-    void IGotoViewModelClosedRecipient.Notify()
-    {
-        _isGotoWindowShown = false;
-    }
+    void IGotoViewModelClosedRecipient.Notify() => _isGotoWindowShown = false;
 }
