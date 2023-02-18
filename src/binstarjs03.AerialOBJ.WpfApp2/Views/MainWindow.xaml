@@ -25,20 +25,33 @@
     </i:Interaction.Triggers>
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-            <Menu>
+            <Menu x:Name="MainMenu">
                 <MenuItem Header="File">
                     <MenuItem Header="Open.." Command="{Binding OpenSavegameCommand}"/>
-                    <MenuItem Header="Close" Command="{Binding CloseSavegameCommand}"/>
+                    <MenuItem Header="Close"
+                              Command="{Binding CloseSavegameCommand}"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Exit" Command="{Binding CloseWindowCommand}"/>
                 </MenuItem>
                 <MenuItem Header="Navigation">
-                    <MenuItem Header="Goto" Command="{Binding ShowGotoWindowCommand}"/>
+                    <MenuItem Header="Goto"
+                              Command="{Binding ShowGotoWindowCommand}"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                 </MenuItem>
                 <MenuItem Header="View">
-                    <MenuItem Header="Chunk Grid" IsCheckable="True"/>
-                    <MenuItem Header="Region Grid" IsCheckable="True"/>
+                    <MenuItem Header="Chunk Grid"
+                              IsCheckable="True"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                    <MenuItem Header="Region Grid"
+                              IsCheckable="True"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <Separator/>
-                    <MenuItem Header="Viewport Info" IsCheckable="True"/>
+                    <MenuItem Header="Viewport Info"
+                              IsCheckable="True"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                    <MenuItem Header="Camera Position"
+                              IsCheckable="True"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <MenuItem Header="Debug Log" IsCheckable="True"/>
                 </MenuItem>
                 <MenuItem Header="Help">
@@ -48,7 +61,34 @@
                 </MenuItem>
             </Menu>
             <Rectangle Height="1" Fill="LightGray"/>
-            <Grid/>
+
+            <!--  Height slider  -->
+            <Grid Background="{Binding ElementName=MainMenu, Path=Background}" IsEnabled="{Binding GlobalState.HasSavegameLoaded}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0"
+                            Margin="10,5"
+                            Orientation="Vertical"
+                            HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Text="Height"/>
+                    <TextBlock Text="{Binding ElementName=HeightSlider, Path=Value}"/>
+                </StackPanel>
+                <Slider x:Name="HeightSlider"
+                        Focusable="False"
+                        Grid.Column="1"
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        SmallChange="1"
+                        IsSnapToTickEnabled="True"/>
+            </Grid>
         </StackPanel>
         <Grid DockPanel.Dock="Bottom">
             <StatusBar>
