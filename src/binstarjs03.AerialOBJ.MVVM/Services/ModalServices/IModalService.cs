@@ -1,0 +1,17 @@
+﻿namespace binstarjs03.AerialOBJ.MVVM.Services.ModalServices;
+public interface IModalService
+{
+    void ShowMessageBox(MessageBoxArg dialogArg);
+    void ShowErrorMessageBox(MessageBoxArg dialogArg);
+    void ShowWarningMessageBox(MessageBoxArg dialogArg);
+    bool ShowConfirmationBox(MessageBoxArg dialogArg);
+    bool ShowWarningConfirmationBox(MessageBoxArg dialogArg);
+    void ShowAboutView();
+    void ShowDefinitionManagerView();
+    void ShowSettingView();
+    void ShowGotoView();
+    FileDialogResult ShowSaveFileDialog(FileDialogArg dialogArg);
+    FileDialogResult ShowOpenFileDialog(FileDialogArg dialogArg);
+    FolderDialogResult ShowFolderBrowserDialog();
+}
+
