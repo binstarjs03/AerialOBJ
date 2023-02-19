@@ -92,8 +92,13 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Import Definition..."/>
-            <Button Grid.Column="1" Content="Delete Definition..."/>
+            <Button Grid.Column="0"
+                    Content="Import Definition..."
+                    Command="{Binding ImportDefinitionCommand}"/>
+            <Button Grid.Column="1"
+                    Content="Delete Definition..."
+                    DataContext="{Binding DataContext}"
+                    Command="{Binding DeleteDefinitionCommand}"/>
         </Grid>
     </Grid>
 </Window>
