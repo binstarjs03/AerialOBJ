@@ -61,7 +61,7 @@
             <TextBlock Grid.Column="1"
                        Grid.Row="1"
                        DataContext="{Binding DataContext}"
-                       Text="{Binding SelectedDefinition.Name}"/>
+                       Text="{Binding SelectedDefinition.DisplayName}"/>
         </Grid>
         <DataGrid Grid.Row="1"
                   Margin="0,5,0,10"
@@ -74,7 +74,7 @@
                   ItemsSource="{Binding Repository}"
                   SelectedValue="{Binding SelectedDefinition}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding DisplayName}"/>
                 <DataGridTextColumn Header="Format Version" Binding="{Binding FormatVersion}"/>
                 <DataGridTextColumn Header="Minecraft Version" Binding="{Binding MinecraftVersion}"/>
                 <DataGridTextColumn Header="Filename" Binding="{Binding OriginalFilename}"/>

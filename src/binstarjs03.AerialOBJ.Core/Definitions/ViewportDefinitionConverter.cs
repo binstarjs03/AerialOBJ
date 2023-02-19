@@ -13,7 +13,7 @@ public class ViewportDefinitionConverter : JsonConverter<ViewportDefinition>
         using JsonDocument doc = JsonDocument.ParseValue(ref reader);
         JsonElement root = doc.RootElement;
 
-        string name = root.GetProperty(nameof(ViewportDefinition.Name)).GetString()!;
+        string displayName = root.GetProperty(nameof(ViewportDefinition.DisplayName)).GetString()!;
         int formatVersion = root.GetProperty(nameof(ViewportDefinition.FormatVersion)).GetInt32();
         string mcVersion = root.GetProperty(nameof(ViewportDefinition.MinecraftVersion)).GetString()!;
         string airBlockName = root.GetProperty(nameof(ViewportDefinition.AirBlockName)).GetString()!;
@@ -26,7 +26,7 @@ public class ViewportDefinitionConverter : JsonConverter<ViewportDefinition>
 
         return new ViewportDefinition()
         {
-            Name = name,
+            DisplayName = displayName,
             FormatVersion = formatVersion,
             MinecraftVersion = mcVersion,
             AirBlockName = airBlockName,
@@ -41,7 +41,7 @@ public class ViewportDefinitionConverter : JsonConverter<ViewportDefinition>
 
             return new ViewportBlockDefinition
             {
-                Name = "",
+                Name = string.Empty,
                 Color = Color.Parse(hexColor, alpha: byte.MaxValue),
                 DisplayName = displayName,
                 IsSolid = true,

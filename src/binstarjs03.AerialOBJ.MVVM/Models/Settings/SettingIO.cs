@@ -34,14 +34,14 @@ public static class SettingIO
             // if we don't do this, current viewport definition setting will be set to default
             if (JsonHelper.TryGetString(definitionSettingSection, nameof(ViewportDefinition), out string vdName))
             {
-                var vd = definitionRepo.ViewportDefinitions.Where(vd => vd.Name == vdName).FirstOrDefault();
+                var vd = definitionRepo.ViewportDefinitions.Where(vd => vd.OriginalFilename == vdName).FirstOrDefault();
                 if (vd is not null)
                     definitionSetting.CurrentViewportDefinition = vd;
             }
 
             if (JsonHelper.TryGetString(definitionSettingSection, nameof(ModelDefinition), out string mdName))
             {
-                var md = definitionRepo.ModelDefinitions.Where(md => md.Name == mdName).FirstOrDefault();
+                var md = definitionRepo.ModelDefinitions.Where(md => md.OriginalFilename == mdName).FirstOrDefault();
                 if (md is not null)
                     definitionSetting.CurrentModelDefinition = md;
             }
@@ -99,7 +99,7 @@ public static class SettingIO
                 if (definition.IsDefault)
                     writer.WriteNull(typeName);
                 else
-                    writer.WriteString(typeName, definition.Name);
+                    writer.WriteString(typeName, definition.OriginalFilename);
             }
         }
 

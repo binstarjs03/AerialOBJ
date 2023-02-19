@@ -122,7 +122,7 @@ public partial class DefinitionManagerViewModel : ObservableObject
 
         public void LoadDefinition(T definition)
         {
-            if (!Repository.All(definition => definition.Name != definition.Name))
+            if (!Repository.All(definition => definition.DisplayName != definition.DisplayName))
                 throw new ArgumentException("Definition with same name exist");
             Repository.Add(definition);
         }
@@ -133,7 +133,7 @@ public partial class DefinitionManagerViewModel : ObservableObject
             bool result = _modalService.ShowWarningConfirmationBox(new MessageBoxArg
             {
                 Caption = "Confirm Deleting Definition",
-                Message = $"Are you sure to delete definition \"{SelectedDefinition.Name}\"?\n" +
+                Message = $"Are you sure to delete definition \"{SelectedDefinition.DisplayName}\"?\n" +
                        "This cannot be undone"
             });
             if (result)

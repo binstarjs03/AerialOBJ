@@ -13,7 +13,7 @@ public class ViewportDefinition : IRootDefinition
 
     public static ViewportDefinition DefaultDefinition { get; }
 
-    public required string Name { get; set; }
+    public required string DisplayName { get; set; }
     public required int FormatVersion { get; set; }
     public required string MinecraftVersion { get; set; }
     public string? OriginalFilename { get; set; }
@@ -27,10 +27,10 @@ public class ViewportDefinition : IRootDefinition
 
     private static ViewportDefinition GetDefaultDefinition()
     {
-        string input = $$"""
+        string input = """
         {
-            "Name": "Default Viewport Definition",
-            "Kind": "{{DefinitionKinds.Viewport}}",
+            "DisplayName": "Default Viewport Definition",
+            "Kind": "Viewport",
             "FormatVersion": 1,
             "MinecraftVersion": "1.18",
             "AirBlockName": "minecraft:air",

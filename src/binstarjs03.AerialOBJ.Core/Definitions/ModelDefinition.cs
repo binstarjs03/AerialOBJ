@@ -8,7 +8,7 @@ public class ModelDefinition : IRootDefinition
 
     public static ModelDefinition DefaultDefinition { get; }
 
-    public required string Name { get; set; }
+    public required string DisplayName { get; set; }
     public required int FormatVersion { get; set; }
     public required string MinecraftVersion { get; set; }
     public string? OriginalFilename { get; set; }
@@ -16,10 +16,10 @@ public class ModelDefinition : IRootDefinition
 
     private static ModelDefinition GetDefaultDefinition()
     {
-        string input = $$"""
+        string input = """
         {
-            "Name": "Default Model Definition",
-            "Kind": "{{DefinitionKinds.Model}}",
+            "DisplayName": "Default Model Definition",
+            "Kind": "Model",
             "FormatVersion": 1,
             "MinecraftVersion": "1.18"
         }
