@@ -58,7 +58,10 @@
                       Grid.Row="0"
                       ItemsSource="{Binding Source={StaticResource DefinitionKinds}}"
                       SelectedItem="{Binding Context}"/>
-            <TextBlock Grid.Column="1" Grid.Row="1"/>
+            <TextBlock Grid.Column="1"
+                       Grid.Row="1"
+                       DataContext="{Binding DataContext}"
+                       Text="{Binding SelectedDefinition.Name}"/>
         </Grid>
         <DataGrid Grid.Row="1"
                   Margin="0,5,0,10"
@@ -67,7 +70,9 @@
                   CanUserDeleteRows="False"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
-                  ItemsSource="{Binding ContextRepository}">
+                  DataContext="{Binding DataContext}"
+                  ItemsSource="{Binding Repository}"
+                  SelectedValue="{Binding SelectedDefinition}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
                 <DataGridTextColumn Header="Format Version" Binding="{Binding FormatVersion}"/>
@@ -75,6 +80,7 @@
                 <DataGridTextColumn Header="Filename" Binding="{Binding OriginalFilename}"/>
             </DataGrid.Columns>
         </DataGrid>
+
         <Grid Grid.Row="2">
             <Grid.Resources>
                 <Style TargetType="Button">

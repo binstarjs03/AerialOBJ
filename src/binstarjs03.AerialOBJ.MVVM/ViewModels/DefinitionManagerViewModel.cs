@@ -1,4 +1,6 @@
-﻿using binstarjs03.AerialOBJ.Core.Definitions;
+﻿using System.Collections.ObjectModel;
+
+using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.MVVM.Models.Settings;
 using binstarjs03.AerialOBJ.MVVM.Repositories;
 using binstarjs03.AerialOBJ.MVVM.Services;
@@ -11,38 +13,46 @@ namespace binstarjs03.AerialOBJ.MVVM.ViewModels;
 
 public partial class DefinitionManagerViewModel : ObservableObject
 {
-    private readonly DefinitionSetting _definitionSetting;
-    private readonly IDefinitionRepository _definitionRepo;
-    private readonly IDefinitionIO _definitionIO;
-    private readonly IModalService _modalService;
-    private readonly ILogService _logService;
+    //private readonly DefinitionSetting _definitionSetting;
+    //private readonly IDefinitionRepository _definitionRepo;
+    //private readonly IDefinitionIO _definitionIO;
+    //private readonly IModalService _modalService;
+    //private readonly ILogService _logService;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ContextRepository))]
+    [NotifyPropertyChangedFor(nameof(DataContext))]
     private DefinitionKinds _context;
 
-    private ViewportDefinition _selectedViewportDefinition;
+    private readonly ContextViewModel<ViewportDefinition> _viewportDataContext;
+    private readonly ContextViewModel<ModelDefinition> _modelDataContext;
 
-    public DefinitionManagerViewModel(Setting setting,
-                                      IDefinitionRepository definitionRepo,
-                                      IDefinitionIO definitionIO,
-                                      IModalService modalService,
-                                      ILogService logService)
+    public DefinitionManagerViewModel(Setting setting, IDefinitionRepository definitionRepo)
     {
-        _definitionSetting = setting.DefinitionSetting;
-        _definitionRepo = definitionRepo;
-        _definitionIO = definitionIO;
-        _modalService = modalService;
-        _logService = logService;
-
+        var definitionSetting = setting.DefinitionSetting;
         _context = DefinitionKinds.Viewport;
-        _selectedViewportDefinition = setting.DefinitionSetting.CurrentViewportDefinition;
+        _viewportDataContext = new(definitionRepo.ViewportDefinitions,
+                                   definitionSetting.CurrentViewportDefinition);
+        _modelDataContext = new(definitionRepo.ModelDefinitions,
+                                definitionSetting.CurrentModelDefinition);
     }
 
-    public object ContextRepository => Context switch
+    public object DataContext => Context switch
     {
-        DefinitionKinds.Viewport => _definitionRepo.ViewportDefinitions,
-        DefinitionKinds.Model => _definitionRepo.ModelDefinitions,
+        DefinitionKinds.Viewport => _viewportDataContext,
+        DefinitionKinds.Model => _modelDataContext,
         _ => throw new System.NotImplementedException(),
     };
+
+    public partial class ContextViewModel<T> : ObservableObject where T : class, IRootDefinition
+    {
+        [ObservableProperty] private T _selectedDefinition;
+
+        public ContextViewModel(ObservableCollection<T> repository, T selectedDefinition)
+        {
+            Repository = repository;
+            _selectedDefinition = selectedDefinition;
+        }
+
+        public ObservableCollection<T> Repository { get; }
+    }
 }
