@@ -76,6 +76,7 @@ public static class ServiceConfiguration
         services.AddSingleton<ISettablePosition>(x => x.GetRequiredService<DebugLogWindow>());
         services.AddTransient<GotoWindow>();
         services.AddTransient<SettingWindow>();
+        services.AddTransient<DefinitionManagerWindow>();
         services.AddTransient<AboutWindow>();
     }
 
@@ -91,6 +92,7 @@ public static class ServiceConfiguration
             return viewmodel;
         });
         services.AddTransient<SettingViewModel>();
+        services.AddTransient<DefinitionManagerViewModel>();
         services.AddTransient<ClosableViewModel>();
     }
 

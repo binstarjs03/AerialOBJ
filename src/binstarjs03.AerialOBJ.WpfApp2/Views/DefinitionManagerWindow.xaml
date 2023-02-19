@@ -3,14 +3,27 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MVVM.ViewModels;assembly=binstarjs03.AerialOBJ.MVVM"
+        xmlns:definitions="clr-namespace:binstarjs03.AerialOBJ.Core.Definitions;assembly=binstarjs03.AerialOBJ.Core"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:DefinitionManagerViewModel}}"
         Title="Definition Manager"
         Width="400"
         Height="300"
         MinWidth="400"
         MinHeight="300">
+    <Window.Resources>
+        <ObjectDataProvider ObjectType="{x:Type sys:Enum}"
+                            MethodName="GetValues"
+                            x:Key="DefinitionKinds">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="definitions:DefinitionKinds"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -43,6 +56,7 @@
                        Style="{StaticResource Right}"/>
             <ComboBox Grid.Column="1"
                       Grid.Row="0"
+                      ItemsSource="{Binding Source={StaticResource DefinitionKinds}}"
                       SelectedItem="{Binding Context}"/>
             <TextBlock Grid.Column="1" Grid.Row="1"/>
         </Grid>
@@ -52,12 +66,13 @@
                   CanUserAddRows="False"
                   CanUserDeleteRows="False"
                   AutoGenerateColumns="False"
-                  IsReadOnly="True">
+                  IsReadOnly="True"
+                  ItemsSource="{Binding ContextRepository}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name"/>
-                <DataGridTextColumn Header="Format Version"/>
-                <DataGridTextColumn Header="Minecraft Version"/>
-                <DataGridTextColumn Header="Filename"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Format Version" Binding="{Binding FormatVersion}"/>
+                <DataGridTextColumn Header="Minecraft Version" Binding="{Binding MinecraftVersion}"/>
+                <DataGridTextColumn Header="Filename" Binding="{Binding OriginalFilename}"/>
             </DataGrid.Columns>
         </DataGrid>
         <Grid Grid.Row="2">

@@ -44,9 +44,3 @@ public static class DefinitionDeserializer
             throw new InvalidCastException();
     }
 }
-
-public enum DefinitionKinds
-{
-    Viewport,
-    Model,
-}

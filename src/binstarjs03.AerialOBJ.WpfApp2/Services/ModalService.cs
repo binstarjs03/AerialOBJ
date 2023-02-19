@@ -47,8 +47,10 @@ public class ModalService : IModalService
 
     public void ShowDefinitionManagerWindow()
     {
-        return;
-        //throw new System.NotImplementedException();
+        var mainWindow = App.Current.MainWindow;
+        var definitionManagerWindow = App.Current.ServiceProvider.GetRequiredService<DefinitionManagerWindow>();
+        definitionManagerWindow.Owner = mainWindow;
+        definitionManagerWindow.ShowDialog();
     }
 
     public void ShowGotoWindow()
