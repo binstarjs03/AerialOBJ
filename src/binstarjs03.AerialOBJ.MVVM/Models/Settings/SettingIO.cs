@@ -12,100 +12,107 @@ using binstarjs03.AerialOBJ.MVVM.Repositories;
 namespace binstarjs03.AerialOBJ.MVVM.Models.Settings;
 public static class SettingIO
 {
-    public static void LoadSetting(
-        Setting setting,
-        string settingPath,
-        IDefinitionRepository definitionManager,
-        IRepository<IChunkShader> shaderRepo,
-        IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo)
+    public static void LoadSetting(Setting setting,
+                                   string settingPath,
+                                   IDefinitionRepository definitionManager,
+                                   IRepository<IChunkShader> shaderRepo,
+                                   IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo)
     {
         string settingJson = File.ReadAllText(settingPath);
         JsonElement root = JsonDocument.Parse(settingJson).RootElement;
 
-        readDefinitionSetting();
-        readViewportSetting();
-        readPerformanceSetting();
+        if (root.TryGetProperty(nameof(DefinitionSetting), out JsonElement definitionSettingSection))
+            readDefinitionSetting(definitionSettingSection, setting.DefinitionSetting, definitionManager);
+        if (root.TryGetProperty(nameof(ViewportSetting), out JsonElement viewportSettingSection))
+            readViewportSetting(viewportSettingSection, setting.ViewportSetting, shaderRepo, chunkLoadingPatternRepo);
+        if (root.TryGetProperty(nameof(PerformanceSetting), out JsonElement performanceSettingSection))
+            readPerformanceSetting(performanceSettingSection, setting.PerformanceSetting);
 
-        void readDefinitionSetting()
+        static void readDefinitionSetting(JsonElement definitionSettingSection, DefinitionSetting definitionSetting, IDefinitionRepository definitionRepo)
         {
-            if (!root.TryGetProperty(nameof(DefinitionSetting), out JsonElement definitionSettingSection))
-                return;
-            if (!JsonHelper.TryGetString(definitionSettingSection, nameof(ViewportDefinition), out string vdName))
-                return;
-            foreach (ViewportDefinition vd in definitionManager.LoadedViewportDefinitions
-                                                                .Where(vd => vd.Name == vdName))
+            // set current definition setting to what is being set on the json definition name,
+            // if we don't do this, current viewport definition setting will be set to default
+            if (JsonHelper.TryGetString(definitionSettingSection, nameof(ViewportDefinition), out string vdName))
             {
-                setting.DefinitionSetting.CurrentViewportDefinition = vd;
-                break;
+                var vd = definitionRepo.ViewportDefinitions.Where(vd => vd.Name == vdName).FirstOrDefault();
+                if (vd is not null)
+                    definitionSetting.CurrentViewportDefinition = vd;
+            }
+
+            if (JsonHelper.TryGetString(definitionSettingSection, nameof(ModelDefinition), out string mdName))
+            {
+                var md = definitionRepo.ModelDefinitions.Where(md => md.Name == mdName).FirstOrDefault();
+                if (md is not null)
+                    definitionSetting.CurrentModelDefinition = md;
             }
         }
 
-        void readViewportSetting()
+        static void readViewportSetting(JsonElement viewportSettingSection, ViewportSetting viewportSetting, IRepository<IChunkShader> shaderRepo, IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo)
         {
-            if (!root.TryGetProperty(nameof(ViewportSetting), out JsonElement viewportSettingSection))
-                return;
             if (JsonHelper.TryGetString(viewportSettingSection, nameof(ViewportSetting.ChunkShader), out string chunkShader))
                 if (shaderRepo.TryGet(chunkShader, out IChunkShader? shader))
-                    setting.ViewportSetting.ChunkShader = shader;
+                    viewportSetting.ChunkShader = shader;
             if (JsonHelper.TryGetString(viewportSettingSection, nameof(ViewportSetting.ChunkLoadingPattern), out string chunkLoadingPattern))
                 if (chunkLoadingPatternRepo.TryGet(chunkLoadingPattern, out IChunkLoadingPattern? pattern))
-                    setting.ViewportSetting.ChunkLoadingPattern = pattern;
+                    viewportSetting.ChunkLoadingPattern = pattern;
         }
 
-        void readPerformanceSetting()
+        static void readPerformanceSetting(JsonElement performanceSettingSection, PerformanceSetting performanceSetting)
         {
-            if (!root.TryGetProperty(nameof(PerformanceSetting), out JsonElement performanceSettingSection))
-                return;
             if (JsonHelper.TryGetInt(performanceSettingSection, nameof(PerformanceSetting.ViewportChunkThreads), out int viewportChunkThreads))
-                setting.PerformanceSetting.ViewportChunkThreads = Math.Clamp(viewportChunkThreads, 1, Environment.ProcessorCount);
+                performanceSetting.ViewportChunkThreads = Math.Clamp(viewportChunkThreads, 1, Environment.ProcessorCount);
             if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ViewportChunkLoading), out PerformancePreference viewportChunkLoading))
-                setting.PerformanceSetting.ViewportChunkLoading = viewportChunkLoading;
+                performanceSetting.ViewportChunkLoading = viewportChunkLoading;
             if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ImageExporting), out PerformancePreference imageExporting))
-                setting.PerformanceSetting.ImageExporting = imageExporting;
+                performanceSetting.ImageExporting = imageExporting;
             if (JsonHelper.TryGetEnumFromString(performanceSettingSection, nameof(PerformanceSetting.ModelExporting), out PerformancePreference modelExporting))
-                setting.PerformanceSetting.ModelExporting = modelExporting;
+                performanceSetting.ModelExporting = modelExporting;
         }
     }
 
     public static void SaveSetting(string settingPath, Setting setting)
     {
-        JsonWriterOptions options = new() { Indented = true, };
-        using Stream stream = File.Open(settingPath, FileMode.Create, FileAccess.Write, FileShare.None);
-        using Utf8JsonWriter writer = new(stream, options);
+        var options = new JsonWriterOptions { Indented = true, };
+        using var stream = File.Open(settingPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        using var writer = new Utf8JsonWriter(stream, options);
 
         writer.WriteStartObject();
         writer.WriteNumber("FormatDefinition", 1);
-        writeDefinitionSetting();
-        writeViewportSetting();
-        writePerformanceSetting();
+        writeDefinitionSetting(writer, setting.DefinitionSetting);
+        writeViewportSetting(writer, setting.ViewportSetting);
+        writePerformanceSetting(writer, setting.PerformanceSetting);
         writer.WriteEndObject();
 
         writer.Flush();
         stream.Flush();
 
-        void writeDefinitionSetting()
+        static void writeDefinitionSetting(Utf8JsonWriter writer, DefinitionSetting definitionSetting)
         {
-            DefinitionSetting definitionSetting = setting.DefinitionSetting;
             writer.WriteStartObject(nameof(DefinitionSetting));
-            if (definitionSetting.CurrentViewportDefinition.IsDefault)
-                writer.WriteNull(nameof(ViewportDefinition));
-            else
-                writer.WriteString(nameof(ViewportDefinition), definitionSetting.CurrentViewportDefinition.Name);
+            writeDefinitionNameOrNull(writer, definitionSetting.CurrentViewportDefinition);
+            writeDefinitionNameOrNull(writer, definitionSetting.CurrentModelDefinition);
             writer.WriteEndObject();
+
+            static void writeDefinitionNameOrNull(Utf8JsonWriter writer, IRootDefinition definition)
+            {
+                var typeName = definition.GetType().Name;
+                if (definition.IsDefault)
+                    writer.WriteNull(typeName);
+                else
+                    writer.WriteString(typeName, definition.Name);
+            }
         }
 
-        void writeViewportSetting()
+        static void writeViewportSetting(Utf8JsonWriter writer, ViewportSetting viewportSetting)
         {
-            ViewportSetting viewportSetting = setting.ViewportSetting;
             writer.WriteStartObject(nameof(ViewportSetting));
             writer.WriteString(nameof(ViewportSetting.ChunkShader), viewportSetting.ChunkShader.ShaderName);
             writer.WriteString(nameof(ViewportSetting.ChunkLoadingPattern), viewportSetting.ChunkLoadingPattern.PatternName);
             writer.WriteEndObject();
         }
 
-        void writePerformanceSetting()
+        static void writePerformanceSetting(Utf8JsonWriter writer, PerformanceSetting performanceSetting)
         {
-            PerformanceSetting performanceSetting = setting.PerformanceSetting;
             writer.WriteStartObject(nameof(PerformanceSetting));
             writer.WriteNumber(nameof(PerformanceSetting.ViewportChunkThreads), performanceSetting.ViewportChunkThreads);
             writer.WriteString(nameof(PerformanceSetting.ViewportChunkLoading), performanceSetting.ViewportChunkLoading.ToString());

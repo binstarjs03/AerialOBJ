@@ -47,7 +47,8 @@ public class ModalService : IModalService
 
     public void ShowDefinitionManagerWindow()
     {
-        throw new System.NotImplementedException();
+        return;
+        //throw new System.NotImplementedException();
     }
 
     public void ShowGotoWindow()

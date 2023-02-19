@@ -6,29 +6,31 @@ namespace binstarjs03.AerialOBJ.Core.Definitions;
 [JsonConverter(typeof(ViewportDefinitionConverter))]
 public class ViewportDefinition : IRootDefinition
 {
+    static ViewportDefinition()
+    {
+        DefaultDefinition = GetDefaultDefinition();
+    }
+
+    public static ViewportDefinition DefaultDefinition { get; }
+
     public required string Name { get; set; }
     public required int FormatVersion { get; set; }
     public required string MinecraftVersion { get; set; }
+    public string? OriginalFilename { get; set; }
+    public bool IsDefault { get; private set; }
+
     public required string AirBlockName { get; set; }
     public required ViewportBlockDefinition MissingBlockDefinition { get; set; }
 
     [JsonConverter(typeof(ViewportBlockDefinitionsConverter))]
     public required Dictionary<string, ViewportBlockDefinition> BlockDefinitions { get; set; }
 
-    public string? OriginalFilename { get; set; }
-    public bool IsDefault { get; private set; }
-
-    public override string ToString()
+    private static ViewportDefinition GetDefaultDefinition()
     {
-        return $"{Name}, Format Version: {FormatVersion}, Minecraft Version: {MinecraftVersion}";
-    }
-
-    public static ViewportDefinition GetDefaultDefinition()
-    {
-        string input =  /*lang=json*/ """
+        string input = $$"""
         {
             "Name": "Default Viewport Definition",
-            "Kind": "Viewport Definition",
+            "Kind": "{{DefinitionKinds.Viewport}}",
             "FormatVersion": 1,
             "MinecraftVersion": "1.18",
             "AirBlockName": "minecraft:air",
@@ -2706,7 +2708,6 @@ public class ViewportDefinition : IRootDefinition
             ]
         }
         """;
-
         ViewportDefinition result = DefinitionDeserializer.Deserialize<ViewportDefinition>(input);
         result.IsDefault = true;
         return result;

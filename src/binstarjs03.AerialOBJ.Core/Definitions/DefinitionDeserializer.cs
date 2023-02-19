@@ -25,7 +25,6 @@ public static class DefinitionDeserializer
         // select the data type according to "kind" value
         JsonSerializerOptions options = new()
         {
-            PropertyNamingPolicy= JsonNamingPolicy.CamelCase,
             Converters = {
                 new ViewportDefinitionConverter(),
                 new ViewportBlockDefinitionsConverter() 
@@ -34,7 +33,8 @@ public static class DefinitionDeserializer
 
         definition = kind switch
         {
-            DefinitionKinds.Viewport => JsonSerializer.Deserialize<ViewportDefinition>(input, options),
+            nameof(DefinitionKinds.Viewport) => JsonSerializer.Deserialize<ViewportDefinition>(input, options),
+            nameof(DefinitionKinds.Model) => JsonSerializer.Deserialize<ModelDefinition>(input, options),
             _ => throw new UnrecognizedDefinitionKindException($"\"{kind}\" is unrecognized definition kind")
         };
 
@@ -45,7 +45,8 @@ public static class DefinitionDeserializer
     }
 }
 
-public static class DefinitionKinds
+public enum DefinitionKinds
 {
-    public const string Viewport = "Viewport Definition";
+    Viewport,
+    Model,
 }

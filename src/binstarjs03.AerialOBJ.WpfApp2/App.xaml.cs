@@ -70,7 +70,14 @@ public partial class App : Application
 
         List<IRootDefinition> definitions = definitionIO.LoadDefinitionFolder(exceptionHandler);
         foreach (IRootDefinition definition in definitions)
-            definitionRepo.LoadDefinition(definition);
+        {
+            if (definition is ViewportDefinition viewportDefinition)
+                definitionRepo.ViewportDefinitions.Add(viewportDefinition);
+            else if (definition is ModelDefinition modelDefinition)
+                definitionRepo.ModelDefinitions.Add(modelDefinition);
+            else
+                throw new NotImplementedException();
+        }
 
         void exceptionHandler(Exception e, string definitionFilename)
         {
