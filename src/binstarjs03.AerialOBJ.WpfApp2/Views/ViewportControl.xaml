@@ -13,6 +13,11 @@
              d:DesignHeight="550"
              Background="{StaticResource Background}"
              ClipToBounds="True">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="SizeChanged">
+            <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.Resources>
             <Style TargetType="components:PropertyValuePair">

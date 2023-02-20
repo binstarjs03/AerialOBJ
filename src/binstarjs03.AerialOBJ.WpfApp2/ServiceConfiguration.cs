@@ -113,6 +113,7 @@ public static class ServiceConfiguration
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>();
+        services.AddSingleton<ISizeConverter, SizeConverter>();
     }
 
     private static void ConfigureFactories(this IServiceCollection services)

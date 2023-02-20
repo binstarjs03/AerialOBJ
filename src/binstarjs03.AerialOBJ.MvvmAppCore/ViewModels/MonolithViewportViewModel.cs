@@ -8,6 +8,7 @@ using binstarjs03.AerialOBJ.MvvmAppCore.Services;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 public partial class MonolithViewportViewModel : ObservableObject
@@ -16,6 +17,7 @@ public partial class MonolithViewportViewModel : ObservableObject
     private readonly IChunkRegionManager _chunkRegionManager;
     private readonly ILogService _logService;
     private readonly IModalService _modalService;
+    private readonly ISizeConverter _sizeConverter;
 
     private readonly float[] _zoomTable = new float[] {
         1, 2, 3, 5, 8, 13, 21, 34 // fib. sequence
@@ -35,12 +37,14 @@ public partial class MonolithViewportViewModel : ObservableObject
                                      Setting setting,
                                      IChunkRegionManager chunkRegionManager,
                                      ILogService logService,
-                                     IModalService modalService)
+                                     IModalService modalService,
+                                     ISizeConverter sizeConverter)
     {
         _globalState = globalState;
         _chunkRegionManager = chunkRegionManager;
         _logService = logService;
         _modalService = modalService;
+        _sizeConverter = sizeConverter;
 
         globalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
 
@@ -114,5 +118,9 @@ public partial class MonolithViewportViewModel : ObservableObject
         InvokeIfSavegameLoaded(() => _chunkRegionManager.Update(CameraPos, ScreenSize, ZoomMultiplier));
     }
 
-    //private void OnScreenSizeChanged()
+    [RelayCommand]
+    private void OnScreenSizeChanged(object e)
+    {
+        ScreenSize = _sizeConverter.Convert(e);
+    }
 }
