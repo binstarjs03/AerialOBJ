@@ -118,9 +118,16 @@ public partial class MonolithViewportViewModel : ObservableObject
         InvokeIfSavegameLoaded(() => _chunkRegionManager.Update(CameraPos, ScreenSize, ZoomMultiplier));
     }
 
-    [RelayCommand]
-    private void OnScreenSizeChanged(object e)
+    private void UpdateChunkRegionManagerHeight()
     {
-        ScreenSize = _sizeConverter.Convert(e);
+        InvokeIfSavegameLoaded(()=> _chunkRegionManager.UpdateHeightLevel(HeightLevel));
     }
+
+    [RelayCommand]
+    private void OnScreenSizeChanged(object e) => ScreenSize = _sizeConverter.Convert(e);
+
+    partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
+    partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
+    partial void OnZoomMultiplierChanged(float value) => UpdateChunkRegionManager();
+    partial void OnHeightLevelChanged(int value) => UpdateChunkRegionManagerHeight();
 }
