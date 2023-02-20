@@ -132,7 +132,7 @@ public partial class DefinitionManagerViewModel
         bool result = _modalService.ShowWarningConfirmationBox(new MessageBoxArg()
         {
             Caption = "Confirm Deleting Definition",
-            Message = $"Are you sure to delete definition \"{ContextDefinition.Name}\"?\n" +
+            Message = $"Are you sure to delete definition \"{ContextDefinition.DisplayName}\"?\n" +
                        "This cannot be undone"
         });
         if (result)

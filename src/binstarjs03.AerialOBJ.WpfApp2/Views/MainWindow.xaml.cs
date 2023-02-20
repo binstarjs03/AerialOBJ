@@ -14,6 +14,8 @@ public partial class MainWindow : Window, IClosable
     public MainWindow()
     {
         InitializeComponent();
+        if (App.Current is null)
+            return;
         _settablePosition = App.Current.ServiceProvider.GetService<ISettablePosition>();
         var viewmodel = App.Current.ServiceProvider.GetRequiredService<MainViewModel>();
         viewmodel.Closable = this;

@@ -3,6 +3,7 @@ using System.IO;
 
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
 using binstarjs03.AerialOBJ.MvvmAppCore;
+using binstarjs03.AerialOBJ.MvvmAppCore.Factories;
 using binstarjs03.AerialOBJ.MvvmAppCore.Models.Settings;
 using binstarjs03.AerialOBJ.MvvmAppCore.Repositories;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services;
@@ -14,6 +15,7 @@ using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
 using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;
+using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Views;
@@ -31,6 +33,7 @@ public static class ServiceConfiguration
         services.ConfigureViews();
         services.ConfigureViewModels();
         services.ConfigureServices();
+        services.ConfigureFactories();
         services.ConfigureRepositories();
         return services.BuildServiceProvider();
     }
@@ -74,6 +77,7 @@ public static class ServiceConfiguration
         services.AddSingleton<MainWindow>();
         services.AddSingleton<DebugLogWindow>();
         services.AddSingleton<ISettablePosition>(x => x.GetRequiredService<DebugLogWindow>());
+        services.AddSingleton<ViewportControl>();
         services.AddTransient<GotoWindow>();
         services.AddTransient<SettingWindow>();
         services.AddTransient<DefinitionManagerWindow>();
@@ -84,6 +88,7 @@ public static class ServiceConfiguration
     {
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<DebugLogViewModel>();
+        services.AddSingleton<MonolithViewportViewModel>();
         services.AddTransient<GotoViewModel>(x =>
         {
             var viewmodel = new GotoViewModel();
@@ -105,6 +110,14 @@ public static class ServiceConfiguration
         services.AddSingleton<ISavegameLoader, SavegameLoader>();
         services.AddSingleton<IMemoryInfo, MemoryInfo>();
         services.AddSingleton<IDefinitionIO, DefinitionIO>();
+        services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
+        services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
+        services.AddSingleton<IChunkRenderer, ChunkRenderer>();
+    }
+
+    private static void ConfigureFactories(this IServiceCollection services)
+    {
+        services.AddSingleton<IRegionDataImageModelFactory, RegionDataImageModelFactory>();
     }
 
     private static void ConfigureRepositories(this IServiceCollection services)

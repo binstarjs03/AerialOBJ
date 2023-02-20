@@ -37,6 +37,24 @@ public class WpfDispatcher : IDispatcher
         catch (TaskCanceledException) { return default; }
     }
 
+    public Task InvokeAsync(Action callback, DispatcherPriority priority, CancellationToken token)
+    {
+        try
+        {
+            return _wpfDispatcher.InvokeAsync(callback, TranslatePriority(priority), token).Task;
+        }
+        catch (TaskCanceledException) { return Task.CompletedTask; }
+    }
+
+    public Task<T>? InvokeAsync<T>(Func<T> callback, DispatcherPriority priority, CancellationToken token)
+    {
+        try
+        {
+            return _wpfDispatcher.InvokeAsync(callback, TranslatePriority(priority), token).Task;
+        }
+        catch (TaskCanceledException) { return null; }
+    }
+
     private static WpfDispatcherPriority TranslatePriority(DispatcherPriority priority)
     {
         return priority switch

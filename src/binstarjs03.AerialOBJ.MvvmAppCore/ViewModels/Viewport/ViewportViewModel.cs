@@ -23,10 +23,13 @@ public partial class ViewportViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(SelectionSize))]
     private PointZ<int> _selection2;
 
-    public ViewportViewModel(IViewportInfo viewportInfo, ViewportRegionImageViewModel regionImageViewModel)
+    public ViewportViewModel(IViewportInfo viewportInfo,
+                             ViewportRegionImageViewModel regionImageViewModel,
+                             ViewportOverlayViewModel viewportOverlayViewModel)
     {
         ViewportInfo = viewportInfo;
         RegionImageViewModel = regionImageViewModel;
+        ViewportOverlayViewModel = viewportOverlayViewModel;
     }
 
     public PointZ<int> SelectionStart => new(Math.Min(Selection1.X, Selection2.X), 
@@ -37,4 +40,5 @@ public partial class ViewportViewModel : ObservableObject
 
     public IViewportInfo ViewportInfo { get; }
     public ViewportRegionImageViewModel RegionImageViewModel { get; }
+    public ViewportOverlayViewModel ViewportOverlayViewModel { get; }
 }
