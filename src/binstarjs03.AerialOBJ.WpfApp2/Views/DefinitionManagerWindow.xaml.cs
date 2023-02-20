@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-using binstarjs03.AerialOBJ.MVVM.ViewModels;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 
 using Microsoft.Extensions.DependencyInjection;
 

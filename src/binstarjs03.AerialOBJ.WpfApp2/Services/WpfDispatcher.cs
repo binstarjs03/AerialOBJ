@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using binstarjs03.AerialOBJ.MVVM.Services.Dispatcher;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.Dispatcher;
 
 using WpfDispatcherPriority = System.Windows.Threading.DispatcherPriority;
 

@@ -1,6 +1,6 @@
 ﻿using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.MVVM.Components;
+using binstarjs03.AerialOBJ.MvvmAppCore.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Components;
 public class RegionImage : MutableImage, IRegionImage

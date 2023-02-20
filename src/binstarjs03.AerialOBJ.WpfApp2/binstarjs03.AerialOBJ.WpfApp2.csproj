@@ -26,7 +26,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj" />
-		<ProjectReference Include="..\binstarjs03.AerialOBJ.MVVM\binstarjs03.AerialOBJ.MVVM.csproj" />
+		<ProjectReference Include="..\binstarjs03.AerialOBJ.MvvmAppCore\binstarjs03.AerialOBJ.MvvmAppCore.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

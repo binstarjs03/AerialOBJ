@@ -9,7 +9,7 @@ namespace binstarjs03.AerialOBJ.WpfApp.Components;
 using System;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.MVVM.Components;
+using binstarjs03.AerialOBJ.MvvmAppCore.Components;
 
 public class MutableImage : Image, IMutableImage
 {

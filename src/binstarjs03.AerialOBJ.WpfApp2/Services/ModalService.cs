@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-using binstarjs03.AerialOBJ.MVVM.Services.ModalServices;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;

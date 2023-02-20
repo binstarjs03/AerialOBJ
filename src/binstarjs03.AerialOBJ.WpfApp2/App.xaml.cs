@@ -6,14 +6,14 @@ using System.Windows;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
-using binstarjs03.AerialOBJ.MVVM;
-using binstarjs03.AerialOBJ.MVVM.Models.Settings;
-using binstarjs03.AerialOBJ.MVVM.Repositories;
-using binstarjs03.AerialOBJ.MVVM.Services;
-using binstarjs03.AerialOBJ.MVVM.Services.ChunkLoadingPatterns;
-using binstarjs03.AerialOBJ.MVVM.Services.IOService;
-using binstarjs03.AerialOBJ.MVVM.Services.ModalServices;
-using binstarjs03.AerialOBJ.MVVM.ViewModels;
+using binstarjs03.AerialOBJ.MvvmAppCore;
+using binstarjs03.AerialOBJ.MvvmAppCore.Models.Settings;
+using binstarjs03.AerialOBJ.MvvmAppCore.Repositories;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.ChunkLoadingPatterns;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;

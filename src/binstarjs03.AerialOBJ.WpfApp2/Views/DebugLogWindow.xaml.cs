@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 
-using binstarjs03.AerialOBJ.MVVM.ViewModels;
-using binstarjs03.AerialOBJ.MVVM.ViewTraits;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;
 
 using Microsoft.Extensions.DependencyInjection;
 
