@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using binstarjs03.AerialOBJ.MVVM.Primitives;
+using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.MVVM.Services.Dispatcher;
 
 namespace binstarjs03.AerialOBJ.MVVM.Services.Diagnostics;

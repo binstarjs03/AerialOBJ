@@ -1,4 +1,4 @@
-﻿namespace binstarjs03.AerialOBJ.MVVM.Primitives;
+﻿namespace binstarjs03.AerialOBJ.Core.Primitives;
 
 /// <summary>
 /// A class that does exactly nothing but wraps value type around reference type
