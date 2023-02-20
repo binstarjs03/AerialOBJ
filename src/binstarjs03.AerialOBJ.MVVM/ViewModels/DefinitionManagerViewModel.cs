@@ -16,6 +16,8 @@ namespace binstarjs03.AerialOBJ.MVVM.ViewModels;
 
 public partial class DefinitionManagerViewModel : ObservableObject
 {
+    private readonly Setting _setting;
+    private readonly ConstantPath _path;
     private readonly IDefinitionIO _definitionIO;
     private readonly IModalService _modalService;
     private readonly ILogService _logService;
@@ -27,8 +29,15 @@ public partial class DefinitionManagerViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(DataContext))]
     private DefinitionKinds _context;
 
-    public DefinitionManagerViewModel(Setting setting, IDefinitionRepository definitionRepo, IModalService modalService, ILogService logService, IDefinitionIO definitionIO)
+    public DefinitionManagerViewModel(Setting setting,
+                                      ConstantPath path,
+                                      IDefinitionRepository definitionRepo,
+                                      IModalService modalService,
+                                      ILogService logService,
+                                      IDefinitionIO definitionIO)
     {
+        _setting = setting;
+        _path = path;
         _modalService = modalService;
         _logService = logService;
         _definitionIO = definitionIO;
@@ -45,6 +54,7 @@ public partial class DefinitionManagerViewModel : ObservableObject
                                 definitionIO);
 
         _context = DefinitionKinds.Viewport;
+        _path = path;
     }
 
     public object DataContext => Context switch
@@ -94,7 +104,13 @@ public partial class DefinitionManagerViewModel : ObservableObject
         }
     }
 
-
+    [RelayCommand]
+    private void OnClosing()
+    {
+        _setting.DefinitionSetting.CurrentModelDefinition = _modelDataContext.SelectedDefinition;
+        _setting.DefinitionSetting.CurrentViewportDefinition = _viewportDataContext.SelectedDefinition;
+        SettingIO.SaveSetting(_path.SettingPath, _setting);
+    }
 
     public partial class ContextViewModel<T> : ObservableObject where T : class, IRootDefinition
     {
@@ -122,8 +138,6 @@ public partial class DefinitionManagerViewModel : ObservableObject
 
         public void LoadDefinition(T definition)
         {
-            if (!Repository.All(definition => definition.DisplayName != definition.DisplayName))
-                throw new ArgumentException("Definition with same name exist");
             Repository.Add(definition);
         }
 

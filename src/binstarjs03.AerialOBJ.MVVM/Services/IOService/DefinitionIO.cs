@@ -40,7 +40,7 @@ public class DefinitionIO : IDefinitionIO
     {
         string? originalFilename = definition.OriginalFilename;
         if (originalFilename is null)
-            throw new InvalidOperationException();
+            throw new ArgumentException("Definition does not have filename", nameof(definition));
         string deletePath = Path.Combine(_path.DefinitionsPath, originalFilename);
         File.Delete(deletePath);
     }
