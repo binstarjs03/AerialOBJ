@@ -14,7 +14,7 @@ public partial class ViewportControl : UserControl
         InitializeComponent();
         if (App.Current is null)
             return;
-        var viewmodel = App.Current.ServiceProvider.GetRequiredService<MonolithViewportViewModel>();
+        var viewmodel = App.Current.ServiceProvider.GetRequiredService<ViewportViewModel>();
         viewmodel.ViewportSizeProvider = GetViewportSize;
         DataContext = viewmodel;
     }

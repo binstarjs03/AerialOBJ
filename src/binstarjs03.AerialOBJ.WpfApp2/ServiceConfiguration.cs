@@ -10,6 +10,7 @@ using binstarjs03.AerialOBJ.MvvmAppCore.Services;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.ChunkLoadingPatterns;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.Diagnostics;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.Dispatcher;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.Input;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
@@ -18,6 +19,7 @@ using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
+using binstarjs03.AerialOBJ.WpfApp.Services.Input;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +46,7 @@ public static class ServiceConfiguration
         {
             AppName = "AerialOBJ",
             Arguments = args,
-            LaunchTime= DateTime.Now,
+            LaunchTime = DateTime.Now,
             Version = "...",
         });
         services.AddSingleton<ConstantPath>(x =>
@@ -88,7 +90,19 @@ public static class ServiceConfiguration
     {
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<DebugLogViewModel>();
-        services.AddSingleton<MonolithViewportViewModel>();
+        services.AddSingleton<ViewportViewModel>(x =>
+        {
+            var globalState = x.GetRequiredService<GlobalState>();
+            var setting = x.GetRequiredService<Setting>();
+            var chunkRegionManager = x.GetRequiredService<IChunkRegionManager>();
+            var logService = x.GetRequiredService<ILogService>();
+            var modalService = x.GetRequiredService<IModalService>();
+            var sizeConverter = x.GetRequiredService<ISizeConverter>();
+            var mouse = x.GetRequiredService<IMouse>();
+            var viewModel = new ViewportViewModel(globalState, setting, chunkRegionManager, logService, modalService, sizeConverter, mouse);
+            ViewportInputHandlingConfiguration.ConfigureMouseHandler(viewModel, mouse);
+            return viewModel;
+        });
         services.AddTransient<GotoViewModel>(x =>
         {
             var viewmodel = new GotoViewModel();
@@ -103,7 +117,7 @@ public static class ServiceConfiguration
 
     private static void ConfigureServices(this IServiceCollection services)
     {
-        services.AddSingleton<IDispatcher, WpfDispatcher>(x=> new WpfDispatcher(App.Current.Dispatcher));
+        services.AddSingleton<IDispatcher, WpfDispatcher>(x => new WpfDispatcher(App.Current.Dispatcher));
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
@@ -114,6 +128,7 @@ public static class ServiceConfiguration
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>();
         services.AddSingleton<ISizeConverter, SizeConverter>();
+        services.AddTransient<IMouse, Mouse>();
     }
 
     private static void ConfigureFactories(this IServiceCollection services)

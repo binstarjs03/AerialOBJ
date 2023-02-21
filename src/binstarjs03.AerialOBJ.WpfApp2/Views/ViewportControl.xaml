@@ -8,7 +8,7 @@
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MonolithViewportViewModel}}"
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
              d:DesignWidth="500"
              d:DesignHeight="550"
              Background="{StaticResource Background}"
@@ -16,6 +16,24 @@
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="SizeChanged">
             <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseMove">
+            <i:InvokeCommandAction Command="{Binding Mouse.MouseMoveCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseWheel">
+            <i:InvokeCommandAction Command="{Binding Mouse.MouseWheelCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseUp">
+            <i:InvokeCommandAction Command="{Binding Mouse.MouseUpCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseDown">
+            <i:InvokeCommandAction Command="{Binding Mouse.MouseDownCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseEnter">
+            <i:InvokeCommandAction Command="{Binding Mouse.MouseEnterCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="MouseLeave">
+            <i:InvokeCommandAction Command="{Binding Mouse.MouseLeaveCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
