@@ -5,13 +5,14 @@ using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.MvvmAppCore.Models;
 using binstarjs03.AerialOBJ.MvvmAppCore.Models.Settings;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.Input;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
-public partial class MonolithViewportViewModel : ObservableObject
+public partial class ViewportViewModel : ObservableObject
 {
     private readonly GlobalState _globalState;
     private readonly IChunkRegionManager _chunkRegionManager;
@@ -21,31 +22,32 @@ public partial class MonolithViewportViewModel : ObservableObject
 
     private readonly float[] _zoomTable = new float[] {
         1, 2, 3, 5, 8, 13, 21, 34 // fib. sequence
-    }; 
-    //private const float s_zoomLowLimit = 1f;
-    //private const float s_zoomHighLimit = 32f;
+    };
+    private const float s_zoomLowLimit = 1f;
+    private const float s_zoomHighLimit = 32f;
 
     [ObservableProperty] private PointZ<float> _cameraPos = PointZ<float>.Zero;
-    [ObservableProperty] private Size<int> _screenSize = new(0,0);
+    [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private float _zoomMultiplier = 1f;
 
     [ObservableProperty] private int _heightLevel = 0;
     [ObservableProperty] private int _lowHeightLimit = 0;
     [ObservableProperty] private int _highHeightLimit = 0;
 
-    public MonolithViewportViewModel(GlobalState globalState,
+    public ViewportViewModel(GlobalState globalState,
                                      Setting setting,
                                      IChunkRegionManager chunkRegionManager,
                                      ILogService logService,
                                      IModalService modalService,
-                                     ISizeConverter sizeConverter)
+                                     ISizeConverter sizeConverter,
+                                     IMouse mouse)
     {
         _globalState = globalState;
         _chunkRegionManager = chunkRegionManager;
         _logService = logService;
         _modalService = modalService;
         _sizeConverter = sizeConverter;
-
+        Mouse = mouse;
         globalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
 
         setting.DefinitionSetting.ViewportDefinitionChanged += () => InvokeIfSavegameLoaded(chunkRegionManager.ReloadRenderedChunks);
@@ -59,7 +61,37 @@ public partial class MonolithViewportViewModel : ObservableObject
     }
 
     public Func<Size<int>>? ViewportSizeProvider { get; set; }
+    public IMouse Mouse { get; }
     public ObservableCollection<RegionDataImageModel> RegionDataImageModels { get; } = new();
+
+    public void Zoom(ZoomDirection direction)
+    {
+        int nearestIndex = 0;
+
+        // snaps current zoom multiplier to nearest table value
+        for (int i = 0; i < _zoomTable.Length; i++)
+        {
+            if (_zoomTable[i] <= ZoomMultiplier)
+                nearestIndex = i;
+            else
+                break;
+        }
+
+        // modify the index based on zooming direction. out direction handling is a bit
+        // different, we are already zooming out from snapping, zoom out if equal to snap
+        if (direction == ZoomDirection.In)
+            nearestIndex++;
+        else if (direction == ZoomDirection.Out)
+            if (ZoomMultiplier == _zoomTable[nearestIndex])
+                nearestIndex--;
+
+        // clamp index over/underflow from modifying
+        nearestIndex = int.Clamp(nearestIndex, 0, _zoomTable.Length - 1);
+        float newZoomMultiplier = float.Clamp(_zoomTable[nearestIndex], s_zoomLowLimit, s_zoomHighLimit);
+        ZoomMultiplier = newZoomMultiplier;
+    }
+
+    public void TranslateCamera(PointZ<float> displacement) => CameraPos += displacement;
 
     private void OnSavegameLoadInfoChanged(SavegameLoadState state)
     {
@@ -106,11 +138,11 @@ public partial class MonolithViewportViewModel : ObservableObject
 
         CameraPos = PointZ<float>.Zero;
         ZoomMultiplier = _zoomTable[0];
-        ScreenSize = new Size<int>(0,0);
+        ScreenSize = new Size<int>(0, 0);
 
         LowHeightLimit = 0;
         HighHeightLimit = 0;
-        HeightLevel= 0;
+        HeightLevel = 0;
     }
 
     private void UpdateChunkRegionManager()
@@ -120,7 +152,7 @@ public partial class MonolithViewportViewModel : ObservableObject
 
     private void UpdateChunkRegionManagerHeight()
     {
-        InvokeIfSavegameLoaded(()=> _chunkRegionManager.UpdateHeightLevel(HeightLevel));
+        InvokeIfSavegameLoaded(() => _chunkRegionManager.UpdateHeightLevel(HeightLevel));
     }
 
     [RelayCommand]
