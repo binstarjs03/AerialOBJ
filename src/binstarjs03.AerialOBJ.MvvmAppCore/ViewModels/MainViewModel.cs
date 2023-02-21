@@ -6,7 +6,6 @@ using binstarjs03.AerialOBJ.MvvmAppCore.Services;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.Diagnostics;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService.SavegameLoader;
 using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
-using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels.Viewport;
 using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
