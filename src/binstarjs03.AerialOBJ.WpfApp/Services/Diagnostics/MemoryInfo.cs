@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
-using binstarjs03.AerialOBJ.WpfApp.Primitives;
+using binstarjs03.AerialOBJ.Core.Primitives;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Services.Diagnostics;
 

@@ -33,7 +33,7 @@ public static class SettingIO
             if (!JsonHelper.TryGetString(definitionSettingSection, nameof(ViewportDefinition), out string vdName))
                 return;
             foreach (ViewportDefinition vd in definitionManager.LoadedViewportDefinitions
-                                                                .Where(vd => vd.Name == vdName))
+                                                                .Where(vd => vd.DisplayName == vdName))
             {
                 setting.DefinitionSetting.CurrentViewportDefinition = vd;
                 break;
@@ -90,7 +90,7 @@ public static class SettingIO
             if (definitionSetting.CurrentViewportDefinition.IsDefault)
                 writer.WriteNull(nameof(ViewportDefinition));
             else
-                writer.WriteString(nameof(ViewportDefinition), definitionSetting.CurrentViewportDefinition.Name);
+                writer.WriteString(nameof(ViewportDefinition), definitionSetting.CurrentViewportDefinition.DisplayName);
             writer.WriteEndObject();
         }
 

@@ -16,7 +16,7 @@ public partial class DefinitionSetting
         _currentViewportDefinition = currentViewportDefinition;
     }
 
-    public static ViewportDefinition DefaultViewportDefinition { get; } = ViewportDefinition.GetDefaultDefinition();
+    public static ViewportDefinition DefaultViewportDefinition { get; } = ViewportDefinition.DefaultDefinition;
 
     public event Action? ViewportDefinitionChanged;
 
