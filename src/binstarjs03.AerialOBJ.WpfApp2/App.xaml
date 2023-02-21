@@ -43,6 +43,7 @@
                     <converters:ViewportGridConverter x:Key="ViewportGrid"/>
                     <converters:ViewportGridRectConverter x:Key="ViewportGridRect"/>
                     <converters:IntConverter x:Key="IntConverter"/>
+                    <converters:SizeChangedEventArgsToSizeInt x:Key="SizeChangedEventArgsToSizeInt"/>
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>

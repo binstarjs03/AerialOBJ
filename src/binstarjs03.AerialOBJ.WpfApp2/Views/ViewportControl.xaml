@@ -15,7 +15,9 @@
              ClipToBounds="True">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="SizeChanged">
-            <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}" PassEventArgsToCommand="True"/>
+            <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
+                                   PassEventArgsToCommand="True"
+                                   EventArgsConverter="{StaticResource SizeChangedEventArgsToSizeInt}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="MouseMove">
             <i:InvokeCommandAction Command="{Binding Mouse.MouseMoveCommand}" PassEventArgsToCommand="True"/>

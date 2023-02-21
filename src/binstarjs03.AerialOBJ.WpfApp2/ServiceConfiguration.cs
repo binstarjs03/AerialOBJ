@@ -97,9 +97,8 @@ public static class ServiceConfiguration
             var chunkRegionManager = x.GetRequiredService<IChunkRegionManager>();
             var logService = x.GetRequiredService<ILogService>();
             var modalService = x.GetRequiredService<IModalService>();
-            var sizeConverter = x.GetRequiredService<ISizeConverter>();
             var mouse = x.GetRequiredService<IMouse>();
-            var viewModel = new ViewportViewModel(globalState, setting, chunkRegionManager, logService, modalService, sizeConverter, mouse);
+            var viewModel = new ViewportViewModel(globalState, setting, chunkRegionManager, logService, modalService, mouse);
             ViewportInputHandlingConfiguration.ConfigureMouseHandler(viewModel, mouse);
             return viewModel;
         });
@@ -127,7 +126,6 @@ public static class ServiceConfiguration
         services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>();
-        services.AddSingleton<ISizeConverter, SizeConverter>();
         services.AddTransient<IMouse, Mouse>();
     }
 

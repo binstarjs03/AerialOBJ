@@ -18,7 +18,6 @@ public partial class ViewportViewModel : ObservableObject
     private readonly IChunkRegionManager _chunkRegionManager;
     private readonly ILogService _logService;
     private readonly IModalService _modalService;
-    private readonly ISizeConverter _sizeConverter;
 
     private readonly float[] _zoomTable = new float[] {
         1, 2, 3, 5, 8, 13, 21, 34 // fib. sequence
@@ -39,14 +38,12 @@ public partial class ViewportViewModel : ObservableObject
                                      IChunkRegionManager chunkRegionManager,
                                      ILogService logService,
                                      IModalService modalService,
-                                     ISizeConverter sizeConverter,
                                      IMouse mouse)
     {
         _globalState = globalState;
         _chunkRegionManager = chunkRegionManager;
         _logService = logService;
         _modalService = modalService;
-        _sizeConverter = sizeConverter;
         Mouse = mouse;
         globalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
 
@@ -156,7 +153,7 @@ public partial class ViewportViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OnScreenSizeChanged(object e) => ScreenSize = _sizeConverter.Convert(e);
+    private void ScreenSizeChanged(Size<int> e) => ScreenSize = e;
 
     partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
     partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
