@@ -5,7 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
              xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
-             mc:Ignorable="d">
+             xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}">
     <UserControl.Resources>
         <Style TargetType="components:PropertyValuePair">
             <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
@@ -23,13 +25,13 @@
                     Margin="5">
             <components:PropertyValuePair PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
             <components:PropertyValuePair PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
-            <components:PropertyValuePairView PropertyText="Zoom Level : " ValueText="{Binding ZoomLevel}"/>
+            <components:PropertyValuePair PropertyText="Zoom Multiplier : " ValueText="{Binding ZoomMultiplier}"/>
             <components:PropertyValuePair PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
 
             <Separator Style="{StaticResource SubtleSeparator}"/>
 
-            <components:PropertyValuePair PropertyText="Selection 1 : " ValueText="{Binding Selection1}"/>
-            <components:PropertyValuePair PropertyText="Selection 2 : " ValueText="{Binding Selection2}"/>
+            <components:PropertyValuePair PropertyText="Selection 1 : " ValueText="..."/>
+            <components:PropertyValuePair PropertyText="Selection 2 : " ValueText="..."/>
 
             <Separator Style="{StaticResource SubtleSeparator}"/>
 

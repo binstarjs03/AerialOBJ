@@ -15,7 +15,6 @@ namespace binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 public partial class ViewportViewModel : ObservableObject
 {
     private readonly GlobalState _globalState;
-    private readonly IChunkRegionManager _chunkRegionManager;
     private readonly ILogService _logService;
     private readonly IModalService _modalService;
 
@@ -41,7 +40,7 @@ public partial class ViewportViewModel : ObservableObject
                                      IMouse mouse)
     {
         _globalState = globalState;
-        _chunkRegionManager = chunkRegionManager;
+        ChunkRegionManager = chunkRegionManager;
         _logService = logService;
         _modalService = modalService;
         Mouse = mouse;
@@ -49,7 +48,7 @@ public partial class ViewportViewModel : ObservableObject
 
         setting.DefinitionSetting.ViewportDefinitionChanged += () => InvokeIfSavegameLoaded(chunkRegionManager.ReloadRenderedChunks);
         setting.ViewportSetting.ChunkShaderChanged += () => InvokeIfSavegameLoaded(chunkRegionManager.ReloadRenderedChunks);
-        setting.PerformanceSetting.ViewportChunkThreadsChanged += () => InvokeIfSavegameLoaded(_chunkRegionManager.StartBackgroundThread);
+        setting.PerformanceSetting.ViewportChunkThreadsChanged += () => InvokeIfSavegameLoaded(chunkRegionManager.StartBackgroundThread);
 
         chunkRegionManager.RegionLoaded += r => InvokeIfSavegameLoaded(() => RegionDataImageModels.Add(r));
         chunkRegionManager.RegionUnloaded += r => RegionDataImageModels.Remove(r);
@@ -60,6 +59,8 @@ public partial class ViewportViewModel : ObservableObject
     public Func<Size<int>>? ViewportSizeProvider { get; set; }
     public IMouse Mouse { get; }
     public ObservableCollection<RegionDataImageModel> RegionDataImageModels { get; } = new();
+
+    public IChunkRegionManager ChunkRegionManager { get; }
 
     public void Zoom(ZoomDirection direction)
     {
@@ -124,14 +125,14 @@ public partial class ViewportViewModel : ObservableObject
         if (ViewportSizeProvider is not null)
             ScreenSize = ViewportSizeProvider.Invoke();
 
-        _chunkRegionManager.StartBackgroundThread();
-        _chunkRegionManager.UpdateHeightLevel(HeightLevel);
+        ChunkRegionManager.StartBackgroundThread();
+        ChunkRegionManager.UpdateHeightLevel(HeightLevel);
         UpdateChunkRegionManager();
     }
 
     private void CleanupOnSavegameClosed()
     {
-        _chunkRegionManager.Reinitialize();
+        ChunkRegionManager.Reinitialize();
 
         CameraPos = PointZ<float>.Zero;
         ZoomMultiplier = _zoomTable[0];
@@ -144,12 +145,12 @@ public partial class ViewportViewModel : ObservableObject
 
     private void UpdateChunkRegionManager()
     {
-        InvokeIfSavegameLoaded(() => _chunkRegionManager.Update(CameraPos, ScreenSize, ZoomMultiplier));
+        InvokeIfSavegameLoaded(() => ChunkRegionManager.Update(CameraPos, ScreenSize, ZoomMultiplier));
     }
 
     private void UpdateChunkRegionManagerHeight()
     {
-        InvokeIfSavegameLoaded(() => _chunkRegionManager.UpdateHeightLevel(HeightLevel));
+        InvokeIfSavegameLoaded(() => ChunkRegionManager.UpdateHeightLevel(HeightLevel));
     }
 
     [RelayCommand]

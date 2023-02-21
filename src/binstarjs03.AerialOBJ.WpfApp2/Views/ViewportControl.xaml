@@ -103,5 +103,8 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
+        <local:ViewportInfoControl HorizontalAlignment="Left"
+                                   VerticalAlignment="Top"
+                                   Margin="10"/>
     </Grid>
 </UserControl>
