@@ -7,9 +7,8 @@
              xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
              mc:Ignorable="d"
              d:DesignHeight="450"
-             d:DesignWidth="800"
-             x:Name="Root">
-    <ItemsControl ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}, Path=RegionDataImageModelSource}" Focusable="False">
+             d:DesignWidth="800">
+    <ItemsControl ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=RegionDataImageModelSource}" Focusable="False">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <Canvas ClipToBounds="True"/>
@@ -30,7 +29,7 @@
                         <ContentControl.Width>
                             <MultiBinding Converter="{StaticResource UnitMultiplier}">
                                 <Binding Path="Image.Size.Width"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}" Path="ZoomMultiplier"/>
+                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
                             </MultiBinding>
                         </ContentControl.Width>
                     </ContentControl>
@@ -43,9 +42,9 @@
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource WorldToScreen}">
                             <Binding Path="Image.ImagePosition.X"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}" Path="CameraPos.X"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}" Path="ZoomMultiplier"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}" Path="ScreenSize.Width"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.CameraPos).X"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ScreenSize).Width"/>
                         </MultiBinding>
                     </Setter.Value>
                 </Setter>
@@ -53,9 +52,9 @@
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource WorldToScreen}">
                             <Binding Path="Image.ImagePosition.Y"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}" Path="CameraPos.Z"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}" Path="ZoomMultiplier"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ViewportRegionImagePresenter}" Path="ScreenSize.Height"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.CameraPos).Z"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ScreenSize).Height"/>
                         </MultiBinding>
                     </Setter.Value>
                 </Setter>

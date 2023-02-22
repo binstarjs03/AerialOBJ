@@ -8,7 +8,6 @@
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MainViewModel}}"
-        x:Name="Root"
         Title="{Binding Title}"
         d:Title="AerialOBJ"
         d:Width="500"
