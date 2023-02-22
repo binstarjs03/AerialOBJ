@@ -10,6 +10,8 @@ public partial class ViewportRegionImagePresenter : UserControl
     public ViewportRegionImagePresenter()
     {
         InitializeComponent();
+        if (App.Current is null)
+            return;
         DataContext = App.Current.ServiceProvider.GetRequiredService<ViewportViewModel>();
     }
 }

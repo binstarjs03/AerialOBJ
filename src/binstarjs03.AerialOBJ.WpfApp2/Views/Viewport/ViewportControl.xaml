@@ -13,6 +13,9 @@
              d:DesignHeight="550"
              Background="{StaticResource Background}"
              ClipToBounds="True">
+    <UserControl.Resources>
+        <Style x:Key="GridStyle1" TargetType="{x:Type Grid}"/>
+    </UserControl.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="SizeChanged">
             <i:InvokeCommandAction Command="{Binding ScreenSizeChangedCommand}"
@@ -41,6 +44,33 @@
     <Grid>
         <local:ViewportRegionImagePresenter/>
         <local:ViewportGridDrawer/>
+        <!--  Camera Position Guide (Center Dot)  -->
+        <Grid Visibility="{Binding IsCameraPositionVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="2"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="2"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Rectangle Grid.Column="1"
+                           Grid.RowSpan="3"
+                           Fill="DimGray"
+                           Height="15"/>
+                <Rectangle Grid.Row="1"
+                           Grid.ColumnSpan="3"
+                           Fill="DimGray"
+                           Width="15"/>
+            </Grid>
+            <Ellipse Width="3"
+                     Height="3"
+                     Fill="White"/>
+        </Grid>
         <local:ViewportInfoControl HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
                                    Margin="10"/>
