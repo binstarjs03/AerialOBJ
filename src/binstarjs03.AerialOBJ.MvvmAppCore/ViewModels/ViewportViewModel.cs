@@ -24,8 +24,14 @@ public partial class ViewportViewModel : ObservableObject
     private const float s_zoomLowLimit = 1f;
     private const float s_zoomHighLimit = 32f;
 
-    [ObservableProperty] private bool _isChunkGridVisible = false;
-    [ObservableProperty] private bool _isRegionGridVisible = false;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOriginLineVisible))] 
+    private bool _isChunkGridVisible = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOriginLineVisible))] 
+    private bool _isRegionGridVisible = false;
+
     [ObservableProperty] private bool _isInfoPanelVisible = false;
     [ObservableProperty] private bool _isCameraPositionVisible = false;
     [ObservableProperty] private bool _isCoordinateVisible = false;
@@ -65,6 +71,7 @@ public partial class ViewportViewModel : ObservableObject
     public Func<Size<int>>? ViewportSizeProvider { get; set; }
     public IMouse Mouse { get; }
     public ObservableCollection<RegionDataImageModel> RegionDataImageModels { get; } = new();
+    public bool IsOriginLineVisible => IsChunkGridVisible || IsRegionGridVisible;
 
     public IChunkRegionManager ChunkRegionManager { get; }
 

@@ -5,10 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
              xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
+             xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
              mc:Ignorable="d"
-             d:DesignHeight="450"
-             d:DesignWidth="800">
-    <ItemsControl ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=RegionDataImageModelSource}" Focusable="False">
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}">
+    <ItemsControl ItemsSource="{Binding RegionDataImageModels}" Focusable="False">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <Canvas ClipToBounds="True"/>
@@ -29,7 +29,7 @@
                         <ContentControl.Width>
                             <MultiBinding Converter="{StaticResource UnitMultiplier}">
                                 <Binding Path="Image.Size.Width"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
+                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ZoomMultiplier"/>
                             </MultiBinding>
                         </ContentControl.Width>
                     </ContentControl>
@@ -42,9 +42,9 @@
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource WorldToScreen}">
                             <Binding Path="Image.ImagePosition.X"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.CameraPos).X"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ScreenSize).Width"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.X"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ZoomMultiplier"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Width"/>
                         </MultiBinding>
                     </Setter.Value>
                 </Setter>
@@ -52,9 +52,9 @@
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource WorldToScreen}">
                             <Binding Path="Image.ImagePosition.Y"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.CameraPos).Z"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ScreenSize).Height"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.Z"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ZoomMultiplier"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Height"/>
                         </MultiBinding>
                     </Setter.Value>
                 </Setter>

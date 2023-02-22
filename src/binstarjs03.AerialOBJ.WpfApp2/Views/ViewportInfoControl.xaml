@@ -7,7 +7,8 @@
              xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
              xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}">
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
+             Visibility="{Binding IsInfoPanelVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
     <UserControl.Resources>
         <Style TargetType="components:PropertyValuePair">
             <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>

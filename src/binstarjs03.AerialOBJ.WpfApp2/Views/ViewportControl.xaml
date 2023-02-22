@@ -39,25 +39,10 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
-        <Grid.Resources>
-            <Style TargetType="components:PropertyValuePair">
-                <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
-                <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
-            </Style>
-            <Style TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
-            </Style>
-        </Grid.Resources>
-        <local:ViewportRegionImagePresenter components:ViewportInfo.CameraPos="{Binding CameraPos}"
-                                            components:ViewportInfo.ScreenSize="{Binding ScreenSize}"
-                                            components:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"
-                                            RegionDataImageModelSource="{Binding RegionDataImageModels}"/>
-        <local:ViewportGridDrawer components:ViewportInfo.CameraPos="{Binding CameraPos}"
-                                  components:ViewportInfo.ScreenSize="{Binding ScreenSize}"
-                                  components:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"/>
+        <local:ViewportRegionImagePresenter/>
+        <local:ViewportGridDrawer/>
         <local:ViewportInfoControl HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
-                                   Margin="10"
-                                   Visibility="{Binding IsInfoPanelVisible}"/>
+                                   Margin="10"/>
     </Grid>
 </UserControl>
