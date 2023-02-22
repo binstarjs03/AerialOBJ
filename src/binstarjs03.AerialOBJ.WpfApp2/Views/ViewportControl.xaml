@@ -48,63 +48,13 @@
                 <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
             </Style>
         </Grid.Resources>
-
-        <ItemsControl ItemsSource="{Binding RegionDataImageModels}" Focusable="False">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas ClipToBounds="True"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <components:CheckerboardDrawer Opacity="0.1"
-                                                       Color1="White"
-                                                       Color2="Black"
-                                                       TileWidth="16"
-                                                       TileHeight="16"/>
-                        <!--  Region Image  -->
-                        <ContentControl Content="{Binding Image}"
-                                        Focusable="False"
-                                        RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                        RenderOptions.EdgeMode="Aliased">
-                            <ContentControl.Width>
-                                <MultiBinding Converter="{StaticResource UnitMultiplier}">
-                                    <Binding Path="Image.Size.Width"/>
-                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ZoomMultiplier"/>
-                                </MultiBinding>
-                            </ContentControl.Width>
-                        </ContentControl>
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemContainerStyle>
-                <Style TargetType="ContentPresenter">
-                    <Setter Property="Canvas.Left">
-                        <Setter.Value>
-                            <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                <Binding Path="Image.ImagePosition.X"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.X"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ZoomMultiplier"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Width"/>
-                            </MultiBinding>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Canvas.Top">
-                        <Setter.Value>
-                            <MultiBinding Converter="{StaticResource WorldToScreen}">
-                                <Binding Path="Image.ImagePosition.Y"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.CameraPos.Z"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ZoomMultiplier"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="DataContext.ScreenSize.Height"/>
-                            </MultiBinding>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ItemsControl.ItemContainerStyle>
-        </ItemsControl>
+        <local:ViewportRegionImagePresenter CameraPos="{Binding CameraPos}"
+                                            ScreenSize="{Binding ScreenSize}"
+                                            ZoomMultiplier="{Binding ZoomMultiplier}"
+                                            RegionDataImageModelSource="{Binding RegionDataImageModels}"/>
         <local:ViewportInfoControl HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
-                                   Margin="10"/>
+                                   Margin="10"
+                                   Visibility="{Binding IsInfoPanelVisible}"/>
     </Grid>
 </UserControl>
