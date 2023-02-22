@@ -48,13 +48,13 @@
                 <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
             </Style>
         </Grid.Resources>
-        <local:ViewportRegionImagePresenter local:ViewportInfo.CameraPos="{Binding CameraPos}"
-                                            local:ViewportInfo.ScreenSize="{Binding ScreenSize}"
-                                            local:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"
+        <local:ViewportRegionImagePresenter components:ViewportInfo.CameraPos="{Binding CameraPos}"
+                                            components:ViewportInfo.ScreenSize="{Binding ScreenSize}"
+                                            components:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"
                                             RegionDataImageModelSource="{Binding RegionDataImageModels}"/>
-        <local:ViewportGridDrawer local:ViewportInfo.CameraPos="{Binding CameraPos}"
-                                  local:ViewportInfo.ScreenSize="{Binding ScreenSize}"
-                                  local:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"/>
+        <local:ViewportGridDrawer components:ViewportInfo.CameraPos="{Binding CameraPos}"
+                                  components:ViewportInfo.ScreenSize="{Binding ScreenSize}"
+                                  components:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"/>
         <local:ViewportInfoControl HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
                                    Margin="10"

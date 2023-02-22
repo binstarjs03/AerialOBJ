@@ -13,28 +13,28 @@
         <components:GridDrawer GridSize="16"
                                GridThickness="1"
                                GridColor="#20FFFFFF"
-                               local:ViewportInfo.CameraPos="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(local:ViewportInfo.CameraPos)}"
-                               local:ViewportInfo.ScreenSize="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(local:ViewportInfo.ScreenSize)}"
-                               local:ViewportInfo.ZoomMultiplier="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(local:ViewportInfo.ZoomMultiplier)}"/>
+                               components:ViewportInfo.CameraPos="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(components:ViewportInfo.CameraPos)}"
+                               components:ViewportInfo.ScreenSize="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(components:ViewportInfo.ScreenSize)}"
+                               components:ViewportInfo.ZoomMultiplier="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(components:ViewportInfo.ZoomMultiplier)}"/>
         <!--  Region Grid  -->
         <components:GridDrawer GridSize="512"
                                GridThickness="1"
                                GridColor="#60FFFFFF"
-                               local:ViewportInfo.CameraPos="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(local:ViewportInfo.CameraPos)}"
-                               local:ViewportInfo.ScreenSize="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(local:ViewportInfo.ScreenSize)}"
-                               local:ViewportInfo.ZoomMultiplier="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(local:ViewportInfo.ZoomMultiplier)}"/>
+                               components:ViewportInfo.CameraPos="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(components:ViewportInfo.CameraPos)}"
+                               components:ViewportInfo.ScreenSize="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(components:ViewportInfo.ScreenSize)}"
+                               components:ViewportInfo.ZoomMultiplier="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=(components:ViewportInfo.ZoomMultiplier)}"/>
         <!--  Horizontal Line  -->
         <Line Stroke="White"
               StrokeThickness="1"
               X1="0"
-              X2="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ViewportGridDrawer}}, Path=(local:ViewportInfo.ScreenSize).Width}"
+              X2="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ViewportGridDrawer}}, Path=(components:ViewportInfo.ScreenSize).Width}"
               Y2="{Binding RelativeSource={RelativeSource Self}, Path=Y1}">
             <Line.Y1>
                 <MultiBinding Converter="{StaticResource WorldToScreen}">
                     <Binding Source="{StaticResource Zero}"/>
-                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.CameraPos).Z"/>
-                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
-                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ScreenSize).Height"/>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.CameraPos).Z"/>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ScreenSize).Height"/>
                 </MultiBinding>
             </Line.Y1>
         </Line>
@@ -42,14 +42,14 @@
         <Line Stroke="White"
               StrokeThickness="1"
               Y1="0"
-              Y2="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ViewportGridDrawer}}, Path=(local:ViewportInfo.ScreenSize).Height}"
+              Y2="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ViewportGridDrawer}}, Path=(components:ViewportInfo.ScreenSize).Height}"
               X2="{Binding RelativeSource={RelativeSource Self}, Path=X1}">
             <Line.X1>
                 <MultiBinding Converter="{StaticResource WorldToScreen}">
                     <Binding Source="{StaticResource Zero}"/>
-                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.CameraPos).X"/>
-                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
-                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ScreenSize).Width"/>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.CameraPos).X"/>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ScreenSize).Width"/>
                 </MultiBinding>
             </Line.X1>
         </Line>

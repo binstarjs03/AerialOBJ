@@ -2,7 +2,7 @@
 
 using binstarjs03.AerialOBJ.Core.Primitives;
 
-namespace binstarjs03.AerialOBJ.WpfApp.Views;
+namespace binstarjs03.AerialOBJ.WpfApp.Components;
 
 public class ViewportInfo : DependencyObject
 {

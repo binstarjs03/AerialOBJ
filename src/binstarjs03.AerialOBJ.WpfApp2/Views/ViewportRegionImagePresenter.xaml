@@ -29,7 +29,7 @@
                         <ContentControl.Width>
                             <MultiBinding Converter="{StaticResource UnitMultiplier}">
                                 <Binding Path="Image.Size.Width"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
+                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
                             </MultiBinding>
                         </ContentControl.Width>
                     </ContentControl>
@@ -42,9 +42,9 @@
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource WorldToScreen}">
                             <Binding Path="Image.ImagePosition.X"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.CameraPos).X"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ScreenSize).Width"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.CameraPos).X"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ScreenSize).Width"/>
                         </MultiBinding>
                     </Setter.Value>
                 </Setter>
@@ -52,9 +52,9 @@
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource WorldToScreen}">
                             <Binding Path="Image.ImagePosition.Y"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.CameraPos).Z"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ScreenSize).Height"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.CameraPos).Z"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ZoomMultiplier)"/>
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(components:ViewportInfo.ScreenSize).Height"/>
                         </MultiBinding>
                     </Setter.Value>
                 </Setter>
