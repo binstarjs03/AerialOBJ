@@ -24,6 +24,12 @@ public partial class ViewportViewModel : ObservableObject
     private const float s_zoomLowLimit = 1f;
     private const float s_zoomHighLimit = 32f;
 
+    [ObservableProperty] private bool _isChunkGridVisible = false;
+    [ObservableProperty] private bool _isRegionGridVisible = false;
+    [ObservableProperty] private bool _isInfoPanelVisible = false;
+    [ObservableProperty] private bool _isCameraPositionVisible = false;
+    [ObservableProperty] private bool _isCoordinateVisible = false;
+
     [ObservableProperty] private PointZ<float> _cameraPos = PointZ<float>.Zero;
     [ObservableProperty] private Size<int> _screenSize = new(0, 0);
     [ObservableProperty] private float _zoomMultiplier = 1f;
@@ -33,11 +39,11 @@ public partial class ViewportViewModel : ObservableObject
     [ObservableProperty] private int _highHeightLimit = 0;
 
     public ViewportViewModel(GlobalState globalState,
-                                     Setting setting,
-                                     IChunkRegionManager chunkRegionManager,
-                                     ILogService logService,
-                                     IModalService modalService,
-                                     IMouse mouse)
+                             Setting setting,
+                             IChunkRegionManager chunkRegionManager,
+                             ILogService logService,
+                             IModalService modalService,
+                             IMouse mouse)
     {
         _globalState = globalState;
         ChunkRegionManager = chunkRegionManager;
