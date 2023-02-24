@@ -44,6 +44,7 @@
     <Grid>
         <local:ViewportRegionImagePresenter/>
         <local:ViewportGridDrawer/>
+        <local:ViewportCoordinatePresenter/>
         <!--  Camera Position Guide (Center Dot)  -->
         <Grid Visibility="{Binding IsCameraPositionVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
             <Grid>

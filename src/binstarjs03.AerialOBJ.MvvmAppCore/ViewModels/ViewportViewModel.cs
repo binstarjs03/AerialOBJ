@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 
+using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.MvvmAppCore.Models;
 using binstarjs03.AerialOBJ.MvvmAppCore.Models.Settings;
@@ -25,11 +26,11 @@ public partial class ViewportViewModel : ObservableObject
     private const float s_zoomHighLimit = 32f;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsOriginLineVisible))] 
+    [NotifyPropertyChangedFor(nameof(IsOriginLineVisible))]
     private bool _isChunkGridVisible = false;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsOriginLineVisible))] 
+    [NotifyPropertyChangedFor(nameof(IsOriginLineVisible))]
     private bool _isRegionGridVisible = false;
 
     [ObservableProperty] private bool _isInfoPanelVisible = false;
@@ -56,6 +57,7 @@ public partial class ViewportViewModel : ObservableObject
         _logService = logService;
         _modalService = modalService;
         Mouse = mouse;
+        ViewportCoordsManager = new ViewportCoordsManager();
         globalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
 
         setting.DefinitionSetting.ViewportDefinitionChanged += () => InvokeIfSavegameLoaded(chunkRegionManager.ReloadRenderedChunks);
@@ -70,6 +72,7 @@ public partial class ViewportViewModel : ObservableObject
 
     public Func<Size<int>>? ViewportSizeProvider { get; set; }
     public IMouse Mouse { get; }
+    public ViewportCoordsManager ViewportCoordsManager { get; }
     public ObservableCollection<RegionDataImageModel> RegionDataImageModels { get; } = new();
     public bool IsOriginLineVisible => IsChunkGridVisible || IsRegionGridVisible;
 
@@ -141,11 +144,13 @@ public partial class ViewportViewModel : ObservableObject
         ChunkRegionManager.StartBackgroundThread();
         ChunkRegionManager.UpdateHeightLevel(HeightLevel);
         UpdateChunkRegionManager();
+        UpdateViewportCoordsManager();
     }
 
     private void CleanupOnSavegameClosed()
     {
         ChunkRegionManager.Reinitialize();
+        ViewportCoordsManager.Reinitialize();
 
         CameraPos = PointZ<float>.Zero;
         ZoomMultiplier = _zoomTable[0];
@@ -161,6 +166,11 @@ public partial class ViewportViewModel : ObservableObject
         InvokeIfSavegameLoaded(() => ChunkRegionManager.Update(CameraPos, ScreenSize, ZoomMultiplier));
     }
 
+    private void UpdateViewportCoordsManager()
+    {
+        InvokeIfSavegameLoaded(() => ViewportCoordsManager.Update(IRegion.BlockCount / 2, CameraPos, ScreenSize, ZoomMultiplier));
+    }
+
     private void UpdateChunkRegionManagerHeight()
     {
         InvokeIfSavegameLoaded(() => ChunkRegionManager.UpdateHeightLevel(HeightLevel));
@@ -169,8 +179,23 @@ public partial class ViewportViewModel : ObservableObject
     [RelayCommand]
     private void ScreenSizeChanged(Size<int> e) => ScreenSize = e;
 
-    partial void OnCameraPosChanged(PointZ<float> value) => UpdateChunkRegionManager();
-    partial void OnScreenSizeChanged(Size<int> value) => UpdateChunkRegionManager();
-    partial void OnZoomMultiplierChanged(float value) => UpdateChunkRegionManager();
+    partial void OnCameraPosChanged(PointZ<float> value)
+    {
+        UpdateChunkRegionManager();
+        UpdateViewportCoordsManager();
+    }
+
+    partial void OnScreenSizeChanged(Size<int> value)
+    {
+        UpdateChunkRegionManager();
+        UpdateViewportCoordsManager();
+    }
+
+    partial void OnZoomMultiplierChanged(float value)
+    {
+        ViewportCoordsManager.Reinitialize();
+        UpdateChunkRegionManager();
+        UpdateViewportCoordsManager();
+    }
     partial void OnHeightLevelChanged(int value) => UpdateChunkRegionManagerHeight();
 }
