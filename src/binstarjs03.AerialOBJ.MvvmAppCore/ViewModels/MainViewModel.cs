@@ -55,18 +55,17 @@ public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecip
     public string UsedMemory => MathUtils.DataUnitToString(_memoryInfo.MemoryUsedSize);
     public string AllocatedMemory => MathUtils.DataUnitToString(_memoryInfo.MemoryAllocatedSize);
 
-    private void OnGlobalState_SavegameLoadChanged(SavegameLoadState state)
+    private void OnGlobalState_SavegameLoadChanged(SavegameLoadInfo? info)
     {
-        if (state == SavegameLoadState.Opened)
+        if (info is not null)
             _memoryInfo.StartMonitorMemory();
         else
             _memoryInfo.StopMonitorMemory();
 
-        Title = state switch
+        Title = info switch
         {
-            SavegameLoadState.Opened => $"{_appInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
-            SavegameLoadState.Closed => _appInfo.AppName,
-            _ => throw new NotImplementedException(),
+            not null => $"{_appInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
+            null => _appInfo.AppName,
         };
     }
 

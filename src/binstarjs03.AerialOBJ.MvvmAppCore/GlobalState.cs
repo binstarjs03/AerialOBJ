@@ -14,18 +14,12 @@ public partial class GlobalState : ObservableObject
 
     public bool HasSavegameLoaded => SavegameLoadInfo is not null;
 
-    public event Action<SavegameLoadState>? SavegameLoadInfoChanged;
+    public event Action<SavegameLoadInfo?>? SavegameLoadInfoChanged;
 
     partial void OnSavegameLoadInfoChanged(SavegameLoadInfo? value)
     {
-        SavegameLoadState state;
         if (value is null)
-        {
-            state = SavegameLoadState.Closed;
             GC.Collect();
-        }
-        else
-            state = SavegameLoadState.Opened;
-        SavegameLoadInfoChanged?.Invoke(state);
+        SavegameLoadInfoChanged?.Invoke(value);
     }
 }

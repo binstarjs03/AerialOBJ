@@ -107,11 +107,11 @@ public partial class ViewportViewModel : ObservableObject
 
     public void TranslateCamera(PointZ<float> displacement) => CameraPos += displacement;
 
-    private void OnSavegameLoadInfoChanged(SavegameLoadState state)
+    private void OnSavegameLoadInfoChanged(SavegameLoadInfo? info)
     {
-        if (state == SavegameLoadState.Opened)
+        if (info is not null)
             InitializeOnSavegameOpened();
-        else if (state == SavegameLoadState.Closed)
+        else
             CleanupOnSavegameClosed();
     }
 
