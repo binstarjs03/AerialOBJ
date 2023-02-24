@@ -159,6 +159,13 @@ public partial class ViewportViewModel : ObservableObject
         LowHeightLimit = 0;
         HighHeightLimit = 0;
         HeightLevel = 0;
+
+        IsChunkGridVisible = false;
+        IsRegionGridVisible = false;
+
+        IsInfoPanelVisible = false;
+        IsCameraPositionVisible = false;
+        IsCoordinateVisible = false;
     }
 
     private void UpdateChunkRegionManager()
@@ -168,7 +175,11 @@ public partial class ViewportViewModel : ObservableObject
 
     private void UpdateViewportCoordsManager()
     {
-        InvokeIfSavegameLoaded(() => ViewportCoordsManager.Update(IRegion.BlockCount / 2, CameraPos, ScreenSize, ZoomMultiplier));
+        InvokeIfSavegameLoaded(() =>
+        {
+            if (IsCoordinateVisible)
+                ViewportCoordsManager.Update(IRegion.BlockCount / 2, CameraPos, ScreenSize, ZoomMultiplier);
+        });
     }
 
     private void UpdateChunkRegionManagerHeight()
@@ -198,4 +209,12 @@ public partial class ViewportViewModel : ObservableObject
         UpdateViewportCoordsManager();
     }
     partial void OnHeightLevelChanged(int value) => UpdateChunkRegionManagerHeight();
+
+    partial void OnIsCoordinateVisibleChanged(bool value)
+    {
+        if (!value)
+            ViewportCoordsManager.Reinitialize();
+        else
+            UpdateViewportCoordsManager();
+    }
 }

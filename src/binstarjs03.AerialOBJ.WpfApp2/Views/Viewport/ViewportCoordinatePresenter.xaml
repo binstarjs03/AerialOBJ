@@ -24,7 +24,6 @@
                     </Grid.Resources>
                     <Border HorizontalAlignment="Left"
                             VerticalAlignment="Top"
-                            Margin="5"
                             Padding="2.5"
                             BorderThickness="1"
                             BorderBrush="{StaticResource TextNormal}"

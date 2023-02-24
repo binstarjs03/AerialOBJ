@@ -50,6 +50,10 @@
                               IsCheckable="True"
                               IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsCameraPositionVisible, Mode=TwoWay}"
                               IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
+                    <MenuItem Header="Coordinates"
+                              IsCheckable="True"
+                              IsChecked="{Binding ElementName=Viewport, Path=DataContext.IsCoordinateVisible, Mode=TwoWay}"
+                              IsEnabled="{Binding GlobalState.HasSavegameLoaded}"/>
                     <Separator/>
                     <MenuItem Header="Viewport Info"
                               IsCheckable="True"
