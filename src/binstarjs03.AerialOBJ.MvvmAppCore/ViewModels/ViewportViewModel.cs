@@ -143,6 +143,14 @@ public partial class ViewportViewModel : ObservableObject
         }
     }
 
+    public void MoveHeightLevel(HeightLevelDirection direction, int distance)
+    {
+        int difference = direction == HeightLevelDirection.Up? 1 : -1;
+        int newHeightLevel = HeightLevel + distance * difference;
+        newHeightLevel = Math.Clamp(newHeightLevel, MinHeightLimit, MaxHeightLimit);
+        HeightLevel = newHeightLevel;
+    }
+
     private void OnSavegameLoadInfoChanged(SavegameLoadInfo? info)
     {
         if (info is not null)

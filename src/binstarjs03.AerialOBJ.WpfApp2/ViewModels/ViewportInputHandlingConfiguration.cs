@@ -35,6 +35,14 @@ public static class ViewportInputHandlingConfiguration
         keyboard.RegisterKeyDownHandler(Key.Up, () => TranslateCameraWithKey(viewmodel, PointZ<float>.Front));
         keyboard.RegisterKeyDownHandler(Key.Right, () => TranslateCameraWithKey(viewmodel, PointZ<float>.Right));
         keyboard.RegisterKeyDownHandler(Key.Down, () => TranslateCameraWithKey(viewmodel, PointZ<float>.Back));
+
+        // zoom key
+        keyboard.RegisterKeyDownHandler(Key.OemPlus, () => viewmodel.Zoom(ZoomDirection.In));
+        keyboard.RegisterKeyDownHandler(Key.OemMinus, () => viewmodel.Zoom(ZoomDirection.Out));
+
+        // height level key
+        keyboard.RegisterKeyDownHandler(Key.OemPeriod, () => viewmodel.MoveHeightLevel(HeightLevelDirection.Up, 1));
+        keyboard.RegisterKeyDownHandler(Key.OemComma, () => viewmodel.MoveHeightLevel(HeightLevelDirection.Down, 1));
     }
 
     private static void TranslateCameraWithMouse(ViewportViewModel viewmodel, PointY<int> mouseDelta)
