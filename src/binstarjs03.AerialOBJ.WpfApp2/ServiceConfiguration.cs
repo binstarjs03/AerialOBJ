@@ -20,6 +20,7 @@ using binstarjs03.AerialOBJ.WpfApp.Factories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.Input;
+using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -98,8 +99,10 @@ public static class ServiceConfiguration
             var logService = x.GetRequiredService<ILogService>();
             var modalService = x.GetRequiredService<IModalService>();
             var mouse = x.GetRequiredService<IMouse>();
-            var viewModel = new ViewportViewModel(globalState, setting, chunkRegionManager, logService, modalService, mouse);
+            var keyboard = x.GetRequiredService<IKeyboard>();
+            var viewModel = new ViewportViewModel(globalState, setting, chunkRegionManager, logService, modalService, mouse, keyboard);
             ViewportInputHandlingConfiguration.ConfigureMouseHandler(viewModel, mouse);
+            ViewportInputHandlingConfiguration.ConfigureKeyboardHandler(viewModel, keyboard);
             return viewModel;
         });
         services.AddTransient<GotoViewModel>(x =>
@@ -127,6 +130,7 @@ public static class ServiceConfiguration
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
         services.AddSingleton<IChunkRenderer, ChunkRenderer>();
         services.AddTransient<IMouse, Mouse>();
+        services.AddTransient<IKeyboard, Keyboard>();
     }
 
     private static void ConfigureFactories(this IServiceCollection services)

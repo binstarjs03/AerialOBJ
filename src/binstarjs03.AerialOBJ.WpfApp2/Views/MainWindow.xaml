@@ -22,6 +22,9 @@
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding WindowClosingCommand}"/>
         </i:EventTrigger>
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding ElementName=Viewport, Path=DataContext.Keyboard.KeyDownCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
     </i:Interaction.Triggers>
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">

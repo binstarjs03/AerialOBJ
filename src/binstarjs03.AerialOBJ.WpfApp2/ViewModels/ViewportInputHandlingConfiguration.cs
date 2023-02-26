@@ -1,7 +1,10 @@
-﻿using binstarjs03.AerialOBJ.Core.Primitives;
-using binstarjs03.AerialOBJ.MvvmAppCore.Services.Input;
+﻿using System.Windows.Input;
 
-namespace binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
+using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.Input;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
+
+namespace binstarjs03.AerialOBJ.WpfApp.ViewModels;
 public static class ViewportInputHandlingConfiguration
 {
     public static void ConfigureMouseHandler(ViewportViewModel viewmodel, IMouse mouse)
@@ -25,10 +28,24 @@ public static class ViewportInputHandlingConfiguration
             MouseWhen.MouseMove);
     }
 
+    public static void ConfigureKeyboardHandler(ViewportViewModel viewmodel, IKeyboard keyboard)
+    {
+        // directional key, translate camera
+        keyboard.RegisterKeyDownHandler(Key.Left, () => TranslateCameraWithKey(viewmodel, PointZ<float>.Left));
+        keyboard.RegisterKeyDownHandler(Key.Up, () => TranslateCameraWithKey(viewmodel, PointZ<float>.Front));
+        keyboard.RegisterKeyDownHandler(Key.Right, () => TranslateCameraWithKey(viewmodel, PointZ<float>.Right));
+        keyboard.RegisterKeyDownHandler(Key.Down, () => TranslateCameraWithKey(viewmodel, PointZ<float>.Back));
+    }
+
     private static void TranslateCameraWithMouse(ViewportViewModel viewmodel, PointY<int> mouseDelta)
     {
         PointZ<float> cameraDelta = -(mouseDelta.ToFloat() / viewmodel.ZoomMultiplier);
         viewmodel.TranslateCamera(cameraDelta);
+    }
+
+    private static void TranslateCameraWithKey(ViewportViewModel viewModel, PointZ<float> direction)
+    {
+        viewModel.TranslateCamera(direction * 50 / viewModel.ZoomMultiplier);
     }
 
     private static void ZoomWithMouse(ViewportViewModel viewmodel, int scrollDelta)

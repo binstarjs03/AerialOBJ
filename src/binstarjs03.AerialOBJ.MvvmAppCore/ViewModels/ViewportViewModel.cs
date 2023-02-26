@@ -59,7 +59,8 @@ public partial class ViewportViewModel : ObservableObject
                              IChunkRegionManager chunkRegionManager,
                              ILogService logService,
                              IModalService modalService,
-                             IMouse mouse)
+                             IMouse mouse,
+                             IKeyboard keyboard)
     {
         _globalState = globalState;
         _definitionSetting = setting.DefinitionSetting;
@@ -67,7 +68,9 @@ public partial class ViewportViewModel : ObservableObject
         _logService = logService;
         _modalService = modalService;
         Mouse = mouse;
+        Keyboard = keyboard;
         ViewportCoordsManager = new ViewportCoordsManager();
+
         globalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
 
         setting.DefinitionSetting.ViewportDefinitionChanged += () => InvokeIfSavegameLoaded(chunkRegionManager.ReloadRenderedChunks);
@@ -82,6 +85,7 @@ public partial class ViewportViewModel : ObservableObject
 
     public Func<Size<int>>? ViewportSizeProvider { get; set; }
     public IMouse Mouse { get; }
+    public IKeyboard Keyboard { get; }
     public ViewportCoordsManager ViewportCoordsManager { get; }
     public ObservableCollection<RegionDataImageModel> RegionDataImageModels { get; } = new();
     public bool IsOriginLineVisible => IsChunkGridVisible || IsRegionGridVisible;
