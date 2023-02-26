@@ -42,8 +42,8 @@ public partial class ViewportViewModel : ObservableObject
     [ObservableProperty] private float _zoomMultiplier = 1f;
 
     [ObservableProperty] private int _heightLevel = 0;
-    [ObservableProperty] private int _lowHeightLimit = 0;
-    [ObservableProperty] private int _highHeightLimit = 0;
+    [ObservableProperty] private int _minHeightLimit = 0;
+    [ObservableProperty] private int _maxHeightLimit = 0;
 
     public ViewportViewModel(GlobalState globalState,
                              Setting setting,
@@ -134,9 +134,9 @@ public partial class ViewportViewModel : ObservableObject
 
     private void InitializeOnSavegameOpened()
     {
-        LowHeightLimit = _globalState.SavegameLoadInfo!.LowHeightLimit;
-        HighHeightLimit = _globalState.SavegameLoadInfo!.HighHeightLimit;
-        HeightLevel = HighHeightLimit;
+        MinHeightLimit = _globalState.SavegameLoadInfo!.LowHeightLimit;
+        MaxHeightLimit = _globalState.SavegameLoadInfo!.HighHeightLimit;
+        HeightLevel = MaxHeightLimit;
 
         if (ViewportSizeProvider is not null)
             ScreenSize = ViewportSizeProvider.Invoke();
@@ -156,8 +156,8 @@ public partial class ViewportViewModel : ObservableObject
         ZoomMultiplier = _zoomTable[0];
         ScreenSize = new Size<int>(0, 0);
 
-        LowHeightLimit = 0;
-        HighHeightLimit = 0;
+        MinHeightLimit = 0;
+        MaxHeightLimit = 0;
         HeightLevel = 0;
 
         IsChunkGridVisible = false;
@@ -208,6 +208,7 @@ public partial class ViewportViewModel : ObservableObject
         UpdateChunkRegionManager();
         UpdateViewportCoordsManager();
     }
+
     partial void OnHeightLevelChanged(int value) => UpdateChunkRegionManagerHeight();
 
     partial void OnIsCoordinateVisibleChanged(bool value)

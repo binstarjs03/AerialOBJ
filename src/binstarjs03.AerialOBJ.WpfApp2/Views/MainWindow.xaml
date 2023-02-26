@@ -96,7 +96,10 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         SmallChange="1"
-                        IsSnapToTickEnabled="True"/>
+                        IsSnapToTickEnabled="True"
+                        Value="{Binding ElementName=Viewport, Path=DataContext.HeightLevel}"
+                        Minimum="{Binding ElementName=Viewport, Path=DataContext.MinHeightLimit}"
+                        Maximum="{Binding ElementName=Viewport, Path=DataContext.MaxHeightLimit}"/>
             </Grid>
         </StackPanel>
         <Grid DockPanel.Dock="Bottom">
