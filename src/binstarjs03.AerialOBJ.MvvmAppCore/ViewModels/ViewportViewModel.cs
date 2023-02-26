@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 
+using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.MvvmAppCore.Models;
@@ -18,6 +19,7 @@ public partial class ViewportViewModel : ObservableObject
     private readonly GlobalState _globalState;
     private readonly ILogService _logService;
     private readonly IModalService _modalService;
+    private readonly DefinitionSetting _definitionSetting;
 
     private readonly float[] _zoomTable = new float[] {
         1, 2, 3, 5, 8, 13, 21, 34 // fib. sequence
@@ -45,6 +47,13 @@ public partial class ViewportViewModel : ObservableObject
     [ObservableProperty] private int _minHeightLimit = 0;
     [ObservableProperty] private int _maxHeightLimit = 0;
 
+    // context world states
+    [ObservableProperty] private Point3<int> _contextBlockCoords = Point3<int>.Zero;
+    [ObservableProperty] private PointZ<int> _contextChunkCoords = PointZ<int>.Zero;
+    [ObservableProperty] private PointZ<int> _contextRegionCoords = PointZ<int>.Zero;
+    [ObservableProperty] private string _contextBlockName = "";
+    [ObservableProperty] private string _contextBlockDisplayName = "";
+
     public ViewportViewModel(GlobalState globalState,
                              Setting setting,
                              IChunkRegionManager chunkRegionManager,
@@ -53,6 +62,7 @@ public partial class ViewportViewModel : ObservableObject
                              IMouse mouse)
     {
         _globalState = globalState;
+        _definitionSetting = setting.DefinitionSetting;
         ChunkRegionManager = chunkRegionManager;
         _logService = logService;
         _modalService = modalService;
@@ -106,6 +116,28 @@ public partial class ViewportViewModel : ObservableObject
     }
 
     public void TranslateCamera(PointZ<float> displacement) => CameraPos += displacement;
+
+    public void UpdateContextWorldInformation(PointZ<int> worldPos)
+    {
+        ContextChunkCoords = MinecraftWorldMathUtils.GetChunkCoordsAbsFromBlockCoordsAbs(worldPos);
+        ContextRegionCoords = MinecraftWorldMathUtils.GetRegionCoordsFromChunkCoordsAbs(ContextChunkCoords);
+        BlockSlim? block = ChunkRegionManager.GetHighestBlockAt(worldPos);
+        if (block is not null)
+        {
+            ContextBlockCoords = new Point3<int>(worldPos.X, block.Value.Height, worldPos.Z);
+            ContextBlockName = block.Value.Name;
+            if (_definitionSetting.CurrentViewportDefinition.BlockDefinitions.TryGetValue(block.Value.Name, out ViewportBlockDefinition? bd))
+                ContextBlockDisplayName = bd.DisplayName;
+            else
+                ContextBlockDisplayName = _definitionSetting.CurrentViewportDefinition.MissingBlockDefinition.DisplayName;
+        }
+        else
+        {
+            ContextBlockCoords = new Point3<int>(worldPos.X, 0, worldPos.Z);
+            ContextBlockName = "";
+            ContextBlockDisplayName = "Unknown (Unloaded Chunk)";
+        }
+    }
 
     private void OnSavegameLoadInfoChanged(SavegameLoadInfo? info)
     {

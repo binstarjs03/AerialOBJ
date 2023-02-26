@@ -6,6 +6,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
         xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
+        xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type viewmodels:MainViewModel}}"
         Title="{Binding Title}"
@@ -103,8 +104,79 @@
             </Grid>
         </StackPanel>
         <Grid DockPanel.Dock="Bottom">
-            <StatusBar>
+            <StatusBar Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Collapsed|Visible}" d:Visibility="Collapsed">
                 <StatusBarItem Content="Ready"/>
+            </StatusBar>
+
+            <StatusBar Visibility="{Binding GlobalState.HasSavegameLoaded, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}" d:Visibility="Visible">
+                <StatusBar.Resources>
+                    <Style TargetType="components:PropertyValuePair">
+                        <Setter Property="PropertyColor" Value="Black"/>
+                        <Setter Property="ValueColor" Value="Black"/>
+                    </Style>
+                </StatusBar.Resources>
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+
+                <StatusBarItem Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <components:PropertyValuePair PropertyText="X: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.X}"/>
+                        <TextBlock Text=" "/>
+                        <components:PropertyValuePair PropertyText="Y: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Y}"/>
+                        <TextBlock Text=" "/>
+                        <components:PropertyValuePair PropertyText="Z: " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextBlockCoords.Z}"/>
+                    </StackPanel>
+                </StatusBarItem>
+
+                <Separator Grid.Column="1"/>
+
+                <StatusBarItem Grid.Column="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockDisplayName}"/>
+                        <TextBlock Text=" - "/>
+                        <TextBlock Text="{Binding ElementName=Viewport, Path=Content.DataContext.ContextBlockName}"/>
+                    </StackPanel>
+                </StatusBarItem>
+
+                <Separator Grid.Column="3"/>
+
+                <StatusBarItem Grid.Column="4">
+                    <StackPanel Orientation="Horizontal">
+                        <components:PropertyValuePair PropertyText="Region " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextRegionCoords}"/>
+                        <TextBlock Text=" "/>
+                        <components:PropertyValuePair PropertyText="Chunk " ValueText="{Binding ElementName=Viewport, Path=DataContext.ContextChunkCoords}"/>
+                    </StackPanel>
+                </StatusBarItem>
+
+                <Separator Grid.Column="5"/>
+
+                <StatusBarItem Grid.Column="7">
+                    <components:PropertyValuePair Grid.Column="0"
+                                                  PropertyText="Used: "
+                                                  ValueText="{Binding UsedMemory}"/>
+                </StatusBarItem>
+
+                <StatusBarItem Grid.Column="8">
+                    <components:PropertyValuePair Grid.Column="1"
+                                                  PropertyText="Allocated: "
+                                                  ValueText="{Binding AllocatedMemory}"/>
+                </StatusBarItem>
+
             </StatusBar>
         </Grid>
         <Border BorderThickness="0,1" BorderBrush="LightGray">
