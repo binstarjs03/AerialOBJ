@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.Imagi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.MvvmAppCore", "src\binstarjs03.AerialOBJ.MvvmAppCore\binstarjs03.AerialOBJ.MvvmAppCore.csproj", "{1ED35B7C-8728-45B7-B36D-F403C9DD0AF7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.WpfApp2", "src\binstarjs03.AerialOBJ.WpfApp2\binstarjs03.AerialOBJ.WpfApp2.csproj", "{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "binstarjs03.AerialOBJ.WpfApp", "src\binstarjs03.AerialOBJ.WpfApp\binstarjs03.AerialOBJ.WpfApp.csproj", "{477C6DC2-E265-446F-BD16-44BB5EBD4AB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,10 +3,9 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net7.0-windows</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
-		<RootNamespace>binstarjs03.AerialOBJ.WpfApp</RootNamespace>
-		<AssemblyName>binstarjs03.AerialOBJ.WpfApp</AssemblyName>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
 		<RetainVMGarbageCollection>true</RetainVMGarbageCollection>
@@ -27,12 +26,6 @@
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj" />
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.MvvmAppCore\binstarjs03.AerialOBJ.MvvmAppCore.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Update="Components\IntBox.xaml.cs">
-			<SubType>Code</SubType>
-		</Compile>
 	</ItemGroup>
 
 </Project>
