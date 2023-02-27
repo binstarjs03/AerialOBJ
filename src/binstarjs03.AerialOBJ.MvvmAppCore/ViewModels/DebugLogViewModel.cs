@@ -35,12 +35,6 @@ public partial class DebugLogViewModel : ObservableObject
     public SharedViewModelState SharedViewModelState { get; }
     public string LogContent => _logService.LogContent;
 
-    private void OnLogServiceLogging()
-    {
-        OnPropertyChanged(nameof(LogContent));
-        Scrollable?.ScrollToEnd();
-    }
-
     [RelayCommand]
     private void ClearLog()
     {
@@ -86,4 +80,10 @@ public partial class DebugLogViewModel : ObservableObject
 
     [RelayCommand]
     private void Close() => Closable?.Close();
+
+    private void OnLogServiceLogging()
+    {
+        OnPropertyChanged(nameof(LogContent));
+        Scrollable?.ScrollToEnd();
+    }
 }

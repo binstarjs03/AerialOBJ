@@ -42,6 +42,15 @@ public partial class GotoViewModel : ObservableObject
     public IGotoViewModelClosedRecipient? ClosedRecipient { get; set; }
     public IClosable? Closable { get; set; }
 
+    [RelayCommand]
+    private void OnClosing()
+    {
+        _globalState.SavegameLoadInfoChanged -= OnSavegameLoadInfoChanged;
+        _viewportViewModel.CameraPosChanged -= OnViewportCameraPosChanged;
+        _viewportViewModel.HeightLevelChanged -= OnViewportHeightLevelChanged;
+        ClosedRecipient?.Notify();
+    }
+
     private void OnSavegameLoadInfoChanged(Models.SavegameLoadInfo? loadInfo)
     {
         if (loadInfo is null)
@@ -60,15 +69,6 @@ public partial class GotoViewModel : ObservableObject
     {
         var heightLevel = _viewportViewModel.HeightLevel;
         BlockCoordsY = heightLevel;
-    }
-
-    [RelayCommand]
-    private void OnClosing()
-    {
-        _globalState.SavegameLoadInfoChanged -= OnSavegameLoadInfoChanged;
-        _viewportViewModel.CameraPosChanged -= OnViewportCameraPosChanged;
-        _viewportViewModel.HeightLevelChanged -= OnViewportHeightLevelChanged;
-        ClosedRecipient?.Notify();
     }
 
     partial void OnBlockCoordsXChanged(int value)

@@ -154,29 +154,13 @@ public partial class ViewportViewModel : ObservableObject, IViewportViewModel
         HeightLevel = newHeightLevel;
     }
 
-    private void OnSavegameLoadInfoChanged(SavegameLoadInfo? info)
-    {
-        if (info is not null)
-            InitializeOnSavegameOpened();
-        else
-            CleanupOnSavegameClosed();
-    }
+    [RelayCommand]
+    private void ScreenSizeChanged(Size<int> e) => ScreenSize = e;
 
     private void InvokeIfSavegameLoaded(Action callback)
     {
         if (_globalState.HasSavegameLoaded)
             callback.Invoke();
-    }
-
-    private void OnLoadingException(PointZ<int> coords, Exception e, string loadWhat)
-    {
-        _logService.LogException($"Cannot load {loadWhat} {coords}", e);
-        _modalService.ShowErrorMessageBox(new MessageBoxArg
-        {
-            Caption = $"Error Loading {loadWhat}",
-            Message = $"An exception occured while loading {loadWhat} {coords}. "
-                    + "See debug log window for exception detail"
-        });
     }
 
     private void InitializeOnSavegameOpened()
@@ -234,8 +218,24 @@ public partial class ViewportViewModel : ObservableObject, IViewportViewModel
         InvokeIfSavegameLoaded(() => ChunkRegionManager.UpdateHeightLevel(HeightLevel));
     }
 
-    [RelayCommand]
-    private void ScreenSizeChanged(Size<int> e) => ScreenSize = e;
+    private void OnSavegameLoadInfoChanged(SavegameLoadInfo? loadInfo)
+    {
+        if (loadInfo is not null)
+            InitializeOnSavegameOpened();
+        else
+            CleanupOnSavegameClosed();
+    }
+
+    private void OnLoadingException(PointZ<int> coords, Exception e, string loadWhat)
+    {
+        _logService.LogException($"Cannot load {loadWhat} {coords}", e);
+        _modalService.ShowErrorMessageBox(new MessageBoxArg
+        {
+            Caption = $"Error Loading {loadWhat}",
+            Message = $"An exception occured while loading {loadWhat} {coords}. "
+                    + "See debug log window for exception detail"
+        });
+    }
 
     partial void OnCameraPosChanged(PointZ<float> value)
     {

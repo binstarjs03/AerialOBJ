@@ -41,7 +41,7 @@ public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecip
         _memoryInfo = memoryInfo;
         _title = _appInfo.AppName;
 
-        GlobalState.SavegameLoadInfoChanged += OnGlobalState_SavegameLoadChanged;
+        GlobalState.SavegameLoadInfoChanged += OnSavegameLoadChanged;
         _memoryInfo.MemoryInfoUpdated += OnMemoryInfoUpdated;
         //ViewportViewModel = viewportViewModel;
     }
@@ -50,30 +50,9 @@ public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecip
 
     public GlobalState GlobalState { get; }
     public SharedViewModelState SharedViewModelState { get; }
-    //public ViewportViewModel ViewportViewModel { get; }
 
     public string UsedMemory => MathUtils.DataUnitToString(_memoryInfo.MemoryUsedSize);
     public string AllocatedMemory => MathUtils.DataUnitToString(_memoryInfo.MemoryAllocatedSize);
-
-    private void OnGlobalState_SavegameLoadChanged(SavegameLoadInfo? info)
-    {
-        if (info is not null)
-            _memoryInfo.StartMonitorMemory();
-        else
-            _memoryInfo.StopMonitorMemory();
-
-        Title = info switch
-        {
-            not null => $"{_appInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
-            null => _appInfo.AppName,
-        };
-    }
-
-    private void OnMemoryInfoUpdated()
-    {
-        OnPropertyChanged(nameof(UsedMemory));
-        OnPropertyChanged(nameof(AllocatedMemory));
-    }
 
     [RelayCommand]
     private void OpenSavegame(string? path)
@@ -144,6 +123,26 @@ public partial class MainViewModel : ObservableObject, IGotoViewModelClosedRecip
             return;
         _isGotoWindowShown = true;
         _modalService.ShowGotoWindow();
+    }
+
+    private void OnSavegameLoadChanged(SavegameLoadInfo? loadInfo)
+    {
+        if (loadInfo is not null)
+            _memoryInfo.StartMonitorMemory();
+        else
+            _memoryInfo.StopMonitorMemory();
+
+        Title = loadInfo switch
+        {
+            not null => $"{_appInfo.AppName} - {GlobalState.SavegameLoadInfo!.WorldName}",
+            null => _appInfo.AppName,
+        };
+    }
+
+    private void OnMemoryInfoUpdated()
+    {
+        OnPropertyChanged(nameof(UsedMemory));
+        OnPropertyChanged(nameof(AllocatedMemory));
     }
 
     void IGotoViewModelClosedRecipient.Notify() => _isGotoWindowShown = false;
