@@ -107,8 +107,9 @@ public static class ServiceConfiguration
         });
         services.AddTransient<GotoViewModel>(x =>
         {
+            var globalstate = x.GetRequiredService<GlobalState>();
             var viewport = x.GetRequiredService<ViewportViewModel>();
-            var viewmodel = new GotoViewModel(viewport);
+            var viewmodel = new GotoViewModel(globalstate, viewport);
             var mainWindowViewModel = x.GetRequiredService<MainViewModel>();
             viewmodel.ClosedRecipient = mainWindowViewModel;
             return viewmodel;

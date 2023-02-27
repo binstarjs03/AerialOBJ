@@ -3,6 +3,7 @@
 using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 public partial class GotoViewModel : ObservableObject
 {
+    private readonly GlobalState _globalState;
     private readonly IViewportViewModel _viewportViewModel;
 
     [ObservableProperty] private int _blockCoordsX = 0;
@@ -23,10 +25,12 @@ public partial class GotoViewModel : ObservableObject
     [ObservableProperty] private int _regionCoordsX = 0;
     [ObservableProperty] private int _regionCoordsZ = 0;
 
-    public GotoViewModel(IViewportViewModel viewportViewModel)
+    public GotoViewModel(GlobalState globalState, IViewportViewModel viewportViewModel)
     {
+        _globalState = globalState;
         _viewportViewModel = viewportViewModel;
 
+        globalState.SavegameLoadInfoChanged += OnSavegameLoadInfoChanged;
         viewportViewModel.CameraPosChanged += OnViewportCameraPosChanged;
         viewportViewModel.HeightLevelChanged += OnViewportHeightLevelChanged;
 
@@ -36,6 +40,13 @@ public partial class GotoViewModel : ObservableObject
     }
 
     public IGotoViewModelClosedRecipient? ClosedRecipient { get; set; }
+    public IClosable? Closable { get; set; }
+
+    private void OnSavegameLoadInfoChanged(Models.SavegameLoadInfo? loadInfo)
+    {
+        if (loadInfo is null)
+            Closable?.Close();
+    }
 
     private void OnViewportCameraPosChanged()
     {
@@ -54,6 +65,7 @@ public partial class GotoViewModel : ObservableObject
     [RelayCommand]
     private void OnClosing()
     {
+        _globalState.SavegameLoadInfoChanged -= OnSavegameLoadInfoChanged;
         _viewportViewModel.CameraPosChanged -= OnViewportCameraPosChanged;
         _viewportViewModel.HeightLevelChanged -= OnViewportHeightLevelChanged;
         ClosedRecipient?.Notify();
