@@ -11,4 +11,12 @@ Currently AerialOBJ is using WPF technology and it support Windows only.
 Compatibility with Mac and Linux is planned to be implemented.
 
 ## Contributing
-Create a new issue to contribute with this repository and tell us your proposal
+Create a new issue to contribute with this repository and let us know your proposal
+
+## Roadmap
+- [ ] 3D Model exporting
+- [ ] Aerial view of image map exporting
+- [ ] Definition editor
+- [x] Support for Windows
+- [ ] Support for Mac
+- [ ] Support for Linux
