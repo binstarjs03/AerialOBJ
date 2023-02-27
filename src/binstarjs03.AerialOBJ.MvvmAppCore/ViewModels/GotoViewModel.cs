@@ -1,6 +1,4 @@
-﻿using System;
-
-using binstarjs03.AerialOBJ.Core;
+﻿using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
 using binstarjs03.AerialOBJ.Core.Primitives;
 using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;
@@ -13,6 +11,8 @@ public partial class GotoViewModel : ObservableObject
 {
     private readonly GlobalState _globalState;
     private readonly IViewportViewModel _viewportViewModel;
+
+    private bool _isActive = false;
 
     [ObservableProperty] private int _blockCoordsX = 0;
     [ObservableProperty] private int _blockCoordsY = 0;
@@ -51,6 +51,12 @@ public partial class GotoViewModel : ObservableObject
         ClosedRecipient?.Notify();
     }
 
+    [RelayCommand]
+    private void OnActivated() => _isActive = true;
+
+    [RelayCommand]
+    private void OnDeactivated() => _isActive = false;
+
     private void OnSavegameLoadInfoChanged(Models.SavegameLoadInfo? loadInfo)
     {
         if (loadInfo is null)
@@ -81,7 +87,9 @@ public partial class GotoViewModel : ObservableObject
 
         var cameraPos = _viewportViewModel.CameraPos;
         cameraPos.X = value;
-        _viewportViewModel.CameraPos = cameraPos;
+
+        if (_isActive)
+            _viewportViewModel.CameraPos = cameraPos;
     }
 
     partial void OnBlockCoordsYChanged(int value)
@@ -89,7 +97,8 @@ public partial class GotoViewModel : ObservableObject
         int chunkCoords = MathUtils.DivFloor(value, IChunk.BlockCount);
         ChunkCoordsY = chunkCoords;
 
-        _viewportViewModel.HeightLevel = value;
+        if (_isActive)
+            _viewportViewModel.HeightLevel = value;
     }
 
     partial void OnBlockCoordsZChanged(int value)
@@ -102,7 +111,9 @@ public partial class GotoViewModel : ObservableObject
 
         var cameraPos = _viewportViewModel.CameraPos;
         cameraPos.Z = value;
-        _viewportViewModel.CameraPos = cameraPos;
+
+        if (_isActive)
+            _viewportViewModel.CameraPos = cameraPos;
     }
 
 

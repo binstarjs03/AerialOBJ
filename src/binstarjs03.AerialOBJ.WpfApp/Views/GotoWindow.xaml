@@ -17,6 +17,12 @@
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
         </i:EventTrigger>
+        <i:EventTrigger EventName="Activated">
+            <i:InvokeCommandAction Command="{Binding ActivatedCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Deactivated">
+            <i:InvokeCommandAction Command="{Binding DeactivatedCommand}"/>
+        </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid Margin="10">
         <Grid.Resources>

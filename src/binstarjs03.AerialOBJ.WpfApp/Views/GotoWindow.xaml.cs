@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 
 using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;

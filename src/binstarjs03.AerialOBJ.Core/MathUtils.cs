@@ -41,7 +41,7 @@ public static class MathUtils
 
     public static float Round(this float num)
     {
-        return (float)Math.Round(num, 2);
+        return MathF.Round(num, 2);
     }
 
     public static string DataUnitToString(long bytes)
