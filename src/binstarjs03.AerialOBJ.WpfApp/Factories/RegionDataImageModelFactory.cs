@@ -1,24 +1,23 @@
 ﻿using System.Threading;
+using System.Windows.Threading;
 
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
-using binstarjs03.AerialOBJ.WpfApp.Models;
+using binstarjs03.AerialOBJ.MvvmAppCore.Factories;
+using binstarjs03.AerialOBJ.MvvmAppCore.Models;
+using binstarjs03.AerialOBJ.WpfApp.Components;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Factories;
-public class RegionDataImageModelFactory
+
+public class RegionDataImageModelFactory : IRegionDataImageModelFactory
 {
-    private readonly IRegionImageFactory _regionImageFactory;
-
-    public RegionDataImageModelFactory(IRegionImageFactory regionImageFactory)
-    {
-        _regionImageFactory = regionImageFactory;
-    }
-
     public RegionDataImageModel Create(IRegion regionData, CancellationToken cancellationToken)
     {
-        return new RegionDataImageModel()
+        RegionImage image = App.Current.Dispatcher.Invoke(() => new RegionImage(regionData.Coords), DispatcherPriority.Background, cancellationToken);
+
+        return new RegionDataImageModel
         {
             Data = regionData,
-            Image = _regionImageFactory.Create(regionData.Coords, cancellationToken),
+            Image = image
         };
     }
 }

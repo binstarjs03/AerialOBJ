@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
@@ -12,9 +13,9 @@
                 <DrawingBrush.Viewport>
                     <MultiBinding Converter="{StaticResource ViewportGrid}">
                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="GridSize"/>
-                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="CameraPos"/>
-                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="UnitMultiplier"/>
-                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="ScreenSize"/>
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.CameraPos)"/>
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ScreenSize)"/>
                     </MultiBinding>
                 </DrawingBrush.Viewport>
                 <DrawingBrush.Drawing>
@@ -24,7 +25,7 @@
                                 <RectangleGeometry.Rect>
                                     <MultiBinding Converter="{StaticResource ViewportGridRect}">
                                         <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="GridSize"/>
-                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="UnitMultiplier"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=UserControl}" Path="(local:ViewportInfo.ZoomMultiplier)"/>
                                     </MultiBinding>
                                 </RectangleGeometry.Rect>
                             </RectangleGeometry>

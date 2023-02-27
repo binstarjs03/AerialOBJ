@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 
 namespace binstarjs03.AerialOBJ.WpfApp.Converters;
-internal class IntConverter : IValueConverter
+public class IntConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

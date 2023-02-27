@@ -6,12 +6,14 @@ using System.Windows;
 
 using binstarjs03.AerialOBJ.Core.Definitions;
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
-using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
-using binstarjs03.AerialOBJ.WpfApp.Repositories;
-using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
-using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
-using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
+using binstarjs03.AerialOBJ.MvvmAppCore;
+using binstarjs03.AerialOBJ.MvvmAppCore.Models.Settings;
+using binstarjs03.AerialOBJ.MvvmAppCore.Repositories;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.ChunkLoadingPatterns;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +21,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace binstarjs03.AerialOBJ.WpfApp;
 public partial class App : Application
 {
-#pragma warning disable CS8618 // nullable warning
     public static new App Current => (Application.Current as App)!;
+
+#pragma warning disable CS8618 // nullable warning
     public IServiceProvider ServiceProvider { get; private set; }
 #pragma warning restore CS8618
 
@@ -34,59 +37,55 @@ public partial class App : Application
         LoadSettings();
         InitializeViewState();
 
-        MainWindow = GetMainWindow();
+        MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
         MainWindow.Show();
-        ConfigureDebugLogWindow((MainWindow as MainView)!);
-    }
-
-    private MainView GetMainWindow() => ServiceProvider.GetRequiredService<MainView>();
-
-    private void ConfigureDebugLogWindow(MainView mainView)
-    {
-        DebugLogView debugLogView = ServiceProvider.GetRequiredService<DebugLogView>();
-        debugLogView.Owner = mainView;
-        mainView.RequestSetDebugViewPosition += debugLogView.SetTopLeft;
-        mainView.SyncDebugViewPosition();
     }
 
     private void InitializeLogService()
     {
-        ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
+        var logService = ServiceProvider.GetRequiredService<ILogService>();
         logService.LogRuntimeInfo();
     }
 
     private void InitializeViewState()
     {
         // immediately set debug log window to visible if debug enabled
-        AppInfo appInfo = ServiceProvider.GetRequiredService<AppInfo>();
+        var appInfo = ServiceProvider.GetRequiredService<AppInfo>();
         if (appInfo.IsDebugEnabled)
         {
-            ViewState viewState = ServiceProvider.GetRequiredService<ViewState>();
-            viewState.IsDebugLogViewVisible = true;
+            var state = ServiceProvider.GetRequiredService<SharedViewModelState>();
+            state.IsDebugLogViewVisible = true;
         }
     }
 
     private void LoadDefinitions()
     {
-        IDefinitionRepository definitionManager = ServiceProvider.GetRequiredService<IDefinitionRepository>();
+        var definitionRepo = ServiceProvider.GetRequiredService<IDefinitionRepository>();
         IDefinitionIO definitionIO = ServiceProvider.GetRequiredService<IDefinitionIO>();
 
-        ILogService logService = ServiceProvider.GetRequiredService<ILogService>();
-        IModalService modalService = ServiceProvider.GetRequiredService<IModalService>();
+        var logService = ServiceProvider.GetRequiredService<ILogService>();
+        var modalService = ServiceProvider.GetRequiredService<IModalService>();
 
         bool hasErrorMessageBoxShown = false;
 
         List<IRootDefinition> definitions = definitionIO.LoadDefinitionFolder(exceptionHandler);
         foreach (IRootDefinition definition in definitions)
-            definitionManager.LoadDefinition(definition);
+        {
+            if (definition is ViewportDefinition viewportDefinition)
+                definitionRepo.ViewportDefinitions.Add(viewportDefinition);
+            else if (definition is ModelDefinition modelDefinition)
+                definitionRepo.ModelDefinitions.Add(modelDefinition);
+            else
+                throw new NotImplementedException();
+        }
 
         void exceptionHandler(Exception e, string definitionFilename)
         {
             string caption = "Cannot load definition";
-            logService.LogException($"{caption} {definitionFilename}", e);
+            logService!.LogException($"{caption} {definitionFilename}", e);
             if (hasErrorMessageBoxShown)
                 return;
-            modalService.ShowErrorMessageBox(new MessageBoxArg()
+            modalService!.ShowErrorMessageBox(new MessageBoxArg()
             {
                 Caption = caption,
                 Message = $"An exception occured during loading definition {definitionFilename}.\n" +

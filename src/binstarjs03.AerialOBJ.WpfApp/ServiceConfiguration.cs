@@ -1,48 +1,54 @@
-using System;
+﻿using System;
 using System.IO;
 
 using binstarjs03.AerialOBJ.Imaging.ChunkRendering;
+using binstarjs03.AerialOBJ.MvvmAppCore;
+using binstarjs03.AerialOBJ.MvvmAppCore.Factories;
+using binstarjs03.AerialOBJ.MvvmAppCore.Models.Settings;
+using binstarjs03.AerialOBJ.MvvmAppCore.Repositories;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.ChunkLoadingPatterns;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.Diagnostics;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.Dispatcher;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.Input;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.IOService.SavegameLoader;
+using binstarjs03.AerialOBJ.MvvmAppCore.Services.ModalServices;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
+using binstarjs03.AerialOBJ.MvvmAppCore.ViewTraits;
 using binstarjs03.AerialOBJ.WpfApp.Factories;
-using binstarjs03.AerialOBJ.WpfApp.Models.Settings;
-using binstarjs03.AerialOBJ.WpfApp.Repositories;
 using binstarjs03.AerialOBJ.WpfApp.Services;
-using binstarjs03.AerialOBJ.WpfApp.Services.ChunkLoadingPatterns;
-using binstarjs03.AerialOBJ.WpfApp.Services.Diagnostics;
 using binstarjs03.AerialOBJ.WpfApp.Services.Dispatcher;
 using binstarjs03.AerialOBJ.WpfApp.Services.Input;
-using binstarjs03.AerialOBJ.WpfApp.Services.IOService;
-using binstarjs03.AerialOBJ.WpfApp.Services.IOService.SavegameLoader;
-using binstarjs03.AerialOBJ.WpfApp.Services.ModalServices;
 using binstarjs03.AerialOBJ.WpfApp.ViewModels;
 using binstarjs03.AerialOBJ.WpfApp.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 
 namespace binstarjs03.AerialOBJ.WpfApp;
-internal static class ServiceConfiguration
+
+public static class ServiceConfiguration
 {
-    // For clarity, do not remove explicit type parameter for adding service!
-    internal static IServiceProvider Configure(string[] args)
+    public static IServiceProvider Configure(string[] args)
     {
         IServiceCollection services = new ServiceCollection();
-
-        services.ConfigureApplicationWideSingleton(args);
-        services.ConfigureFactories();
+        ConfigureCommonSingletons(services, args);
         services.ConfigureViews();
         services.ConfigureViewModels();
         services.ConfigureServices();
-
+        services.ConfigureFactories();
+        services.ConfigureRepositories();
         return services.BuildServiceProvider();
     }
 
-    internal static void ConfigureApplicationWideSingleton(this IServiceCollection services, string[] args)
+    private static void ConfigureCommonSingletons(this IServiceCollection services, string[] args)
     {
         services.AddSingleton<AppInfo>(x => new AppInfo
         {
             AppName = "AerialOBJ",
-            Version = "1.0.0",
-            LaunchTime = DateTime.Now,
             Arguments = args,
+            LaunchTime = DateTime.Now,
+            Version = "...",
         });
         services.AddSingleton<ConstantPath>(x =>
         {
@@ -55,10 +61,11 @@ internal static class ServiceConfiguration
             };
         });
         services.AddSingleton<GlobalState>();
+        services.AddSingleton<SharedViewModelState>();
         services.AddSingleton<Setting>(x =>
         {
-            IRepository<IChunkShader> shaderRepo = x.GetRequiredService<IRepository<IChunkShader>>();
-            IRepository<IChunkLoadingPattern> chunkLoadingPatternRepo = x.GetRequiredService<IRepository<IChunkLoadingPattern>>();
+            var shaderRepo = x.GetRequiredService<IRepository<IChunkShader>>();
+            var chunkLoadingPatternRepo = x.GetRequiredService<IRepository<IChunkLoadingPattern>>();
             return new Setting
             {
                 DefinitionSetting = DefinitionSetting.GetDefaultSetting(),
@@ -66,86 +73,93 @@ internal static class ServiceConfiguration
                 ViewportSetting = ViewportSetting.GetDefaultSetting(shaderRepo, chunkLoadingPatternRepo),
             };
         });
-        services.AddSingleton<ViewState>();
     }
 
-    internal static void ConfigureFactories(this IServiceCollection services)
+    private static void ConfigureViews(this IServiceCollection services)
     {
-        services.AddSingleton<RegionDataImageModelFactory>();
-        services.AddSingleton<IRegionImageFactory, RegionImageFactory>();
+        services.AddSingleton<MainWindow>();
+        services.AddSingleton<DebugLogWindow>();
+        services.AddSingleton<ISettablePosition>(x => x.GetRequiredService<DebugLogWindow>());
+        services.AddSingleton<ViewportControl>();
+        services.AddTransient<GotoWindow>();
+        services.AddTransient<SettingWindow>();
+        services.AddTransient<DefinitionManagerWindow>();
+        services.AddTransient<AboutWindow>();
     }
 
-    internal static void ConfigureViews(this IServiceCollection services)
+    private static void ConfigureViewModels(this IServiceCollection services)
     {
-        services.AddSingleton<MainView>();
-        services.AddSingleton<DebugLogView>();
-
-        services.AddTransient<AboutView>();
-        services.AddTransient<NewDefinitionManagerView>();
-        services.AddSingleton<ViewportView>();
-        services.AddTransient<SettingView>();
-        services.AddTransient<GotoView>();
-    }
-
-    internal static void ConfigureViewModels(this IServiceCollection services)
-    {
-        services.AddSingleton<AbstractViewModel>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<DebugLogViewModel>();
-
-        services.AddSingleton<ViewportViewModel>();
-        services.AddSingleton<ViewportViewModelInputHandler>();
-        services.AddTransient<DefinitionManagerViewModel>();
+        services.AddSingleton<ViewportViewModel>(x =>
+        {
+            var globalState = x.GetRequiredService<GlobalState>();
+            var setting = x.GetRequiredService<Setting>();
+            var chunkRegionManager = x.GetRequiredService<IChunkRegionManager>();
+            var logService = x.GetRequiredService<ILogService>();
+            var modalService = x.GetRequiredService<IModalService>();
+            var mouse = x.GetRequiredService<IMouse>();
+            var keyboard = x.GetRequiredService<IKeyboard>();
+            var viewModel = new ViewportViewModel(globalState, setting, chunkRegionManager, logService, modalService, mouse, keyboard);
+            ViewportInputHandlingConfiguration.ConfigureMouseHandler(viewModel, mouse);
+            ViewportInputHandlingConfiguration.ConfigureKeyboardHandler(viewModel, keyboard);
+            return viewModel;
+        });
+        services.AddTransient<GotoViewModel>(x =>
+        {
+            var globalstate = x.GetRequiredService<GlobalState>();
+            var viewport = x.GetRequiredService<ViewportViewModel>();
+            var viewmodel = new GotoViewModel(globalstate, viewport);
+            var mainWindowViewModel = x.GetRequiredService<MainViewModel>();
+            viewmodel.ClosedRecipient = mainWindowViewModel;
+            return viewmodel;
+        });
         services.AddTransient<SettingViewModel>();
-        services.AddTransient<GotoViewModel>();
+        services.AddTransient<DefinitionManagerViewModel>();
+        services.AddTransient<ClosableViewModel>();
     }
 
-    internal static void ConfigureServices(this IServiceCollection services)
+    private static void ConfigureServices(this IServiceCollection services)
     {
         services.AddSingleton<IDispatcher, WpfDispatcher>(x => new WpfDispatcher(App.Current.Dispatcher));
-        services.AddSingleton<IModalService, ModalService>(x =>
-        {
-            IDialogView aboutViewFactory() => x.GetRequiredService<AboutView>();
-            IDialogView definitionManagerViewFactory() => x.GetRequiredService<NewDefinitionManagerView>();
-            IDialogView settingViewFactory() => x.GetRequiredService<SettingView>();
-            IDialogView gotoViewFactory() => x.GetRequiredService<GotoView>();
-            return new ModalService(aboutViewFactory, definitionManagerViewFactory, settingViewFactory, gotoViewFactory);
-        });
-        services.AddSingleton<IDefinitionRepository, DefinitionRepository>();
         services.AddSingleton<ILogService, LogService>();
+        services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<IAbstractIO, AbstractIO>();
-        services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddSingleton<ISavegameLoader, SavegameLoader>();
+        services.AddSingleton<IMemoryInfo, MemoryInfo>();
         services.AddSingleton<IDefinitionIO, DefinitionIO>();
-
+        services.AddSingleton<IRegionDiskLoader, RegionDiskLoader>();
         services.AddTransient<IChunkRegionManager, ChunkRegionManager>();
-        services.AddTransient<IChunkLoadingPattern, RandomChunkLoadingPattern>();
-        services.AddSingleton<IChunkRenderer, ChunkRenderer>(x =>
-        {
-            Setting setting = x.GetRequiredService<Setting>();
-            return new ChunkRenderer(setting.DefinitionSetting, setting.ViewportSetting);
-        });
-        services.AddTransient<IKeyHandler, KeyHandler>();
-        services.AddTransient<IMouseHandler, MouseHandler>();
+        services.AddSingleton<IChunkRenderer, ChunkRenderer>();
+        services.AddTransient<IMouse, Mouse>();
+        services.AddTransient<IKeyboard, Keyboard>();
+    }
+
+    private static void ConfigureFactories(this IServiceCollection services)
+    {
+        services.AddSingleton<IRegionDataImageModelFactory, RegionDataImageModelFactory>();
+    }
+
+    private static void ConfigureRepositories(this IServiceCollection services)
+    {
+        services.AddSingleton<IDefinitionRepository, DefinitionRepository>();
         services.AddSingleton<IRepository<IChunkShader>, AbstractRepository<IChunkShader>>(x =>
         {
-            IChunkShader flat = new FlatChunkShader();
-            IChunkShader standard = new StandardChunkShader();
-            //IChunkShader slopeDifferential = new SlopeDifferentialChunkShader();
+            var flat = new FlatChunkShader();
+            var standard = new StandardChunkShader();
             AbstractRepository<IChunkShader> ret = new(standard);
             ret.Register(flat.ShaderName, flat);
             ret.Register(standard.ShaderName, standard);
-            //ret.Register(slopeDifferential.ShaderName, slopeDifferential);
             return ret;
         });
         services.AddSingleton<IRepository<IChunkLoadingPattern>, AbstractRepository<IChunkLoadingPattern>>(x =>
         {
-            IChunkLoadingPattern alternateCheckerboard = new AlternateCheckerboardChunkLoadingPattern();
-            IChunkLoadingPattern checkerboard = new CheckerboardChunkLoadingPattern();
-            IChunkLoadingPattern invertedLinear = new InvertedLinearChunkLoadingPattern();
-            IChunkLoadingPattern linear = new LinearChunkLoadingPattern();
-            IChunkLoadingPattern random = new RandomChunkLoadingPattern();
-            IChunkLoadingPattern split = new SplitChunkLoadingPattern();
+            var alternateCheckerboard = new AlternateCheckerboardChunkLoadingPattern();
+            var checkerboard = new CheckerboardChunkLoadingPattern();
+            var invertedLinear = new InvertedLinearChunkLoadingPattern();
+            var linear = new LinearChunkLoadingPattern();
+            var random = new RandomChunkLoadingPattern();
+            var split = new SplitChunkLoadingPattern();
             AbstractRepository<IChunkLoadingPattern> ret = new(random);
             ret.Register(alternateCheckerboard.PatternName, alternateCheckerboard);
             ret.Register(checkerboard.PatternName, checkerboard);
@@ -155,6 +169,5 @@ internal static class ServiceConfiguration
             ret.Register(split.PatternName, split);
             return ret;
         });
-        services.AddTransient<IMemoryInfo, MemoryInfo>();
     }
 }

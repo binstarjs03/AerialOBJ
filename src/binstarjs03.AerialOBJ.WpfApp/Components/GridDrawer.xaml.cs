@@ -21,33 +21,6 @@ public partial class GridDrawer : UserControl
     public static readonly DependencyProperty GridSizeProperty =
         DependencyProperty.Register(nameof(GridSize), typeof(float), typeof(GridDrawer), new PropertyMetadata(0f));
 
-    public PointZ<float> CameraPos
-    {
-        get { return (PointZ<float>)GetValue(CameraPosProperty); }
-        set { SetValue(CameraPosProperty, value); }
-    }
-
-    public static readonly DependencyProperty CameraPosProperty =
-        DependencyProperty.Register(nameof(CameraPos), typeof(PointZ<float>), typeof(GridDrawer), new PropertyMetadata(new PointZ<float>(0, 0)));
-
-    public float UnitMultiplier
-    {
-        get { return (float)GetValue(UnitMultiplierProperty); }
-        set { SetValue(UnitMultiplierProperty, value); }
-    }
-
-    public static readonly DependencyProperty UnitMultiplierProperty =
-        DependencyProperty.Register(nameof(UnitMultiplier), typeof(float), typeof(GridDrawer), new PropertyMetadata(0f));
-
-    public Size<int> ScreenSize
-    {
-        get { return (Size<int>)GetValue(ScreenSizeProperty); }
-        set { SetValue(ScreenSizeProperty, value); }
-    }
-
-    public static readonly DependencyProperty ScreenSizeProperty =
-        DependencyProperty.Register(nameof(ScreenSize), typeof(Size<int>), typeof(GridDrawer), new PropertyMetadata(new Size<int>(1, 1)));
-
     public SolidColorBrush GridColor
     {
         get { return (SolidColorBrush)GetValue(GridColorProperty); }

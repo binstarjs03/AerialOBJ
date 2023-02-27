@@ -3,10 +3,10 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net7.0-windows</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<BaseOutputPath></BaseOutputPath>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
 		<RetainVMGarbageCollection>true</RetainVMGarbageCollection>
 		<Platforms>AnyCPU;x64</Platforms>
@@ -17,10 +17,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 	</ItemGroup>
@@ -28,15 +25,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Core\binstarjs03.AerialOBJ.Core.csproj" />
 		<ProjectReference Include="..\binstarjs03.AerialOBJ.Imaging\binstarjs03.AerialOBJ.Imaging.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="settings.json">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
-		<None Update="testDefinition.json">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
+		<ProjectReference Include="..\binstarjs03.AerialOBJ.MvvmAppCore\binstarjs03.AerialOBJ.MvvmAppCore.csproj" />
 	</ItemGroup>
 
 </Project>

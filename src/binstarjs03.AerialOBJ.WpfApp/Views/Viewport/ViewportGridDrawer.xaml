@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="binstarjs03.AerialOBJ.WpfApp.Views.ViewportGridDrawer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
+             xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
+             xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}">
+    <Grid>
+        <!--  Chunk Grid  -->
+        <components:GridDrawer GridSize="16"
+                               GridThickness="1"
+                               GridColor="#20FFFFFF"
+                               Visibility="{Binding IsChunkGridVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}"
+                               components:ViewportInfo.CameraPos="{Binding CameraPos}"
+                               components:ViewportInfo.ScreenSize="{Binding ScreenSize}"
+                               components:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"/>
+        <!--  Region Grid  -->
+        <components:GridDrawer GridSize="512"
+                               GridThickness="1"
+                               GridColor="#60FFFFFF"
+                               Visibility="{Binding IsRegionGridVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}"
+                               components:ViewportInfo.CameraPos="{Binding CameraPos}"
+                               components:ViewportInfo.ScreenSize="{Binding ScreenSize}"
+                               components:ViewportInfo.ZoomMultiplier="{Binding ZoomMultiplier}"/>
+        <!--  Origin Line  -->
+        <Grid Visibility="{Binding IsOriginLineVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+            <!--  Horizontal Line  -->
+            <Line Stroke="White"
+                  StrokeThickness="1"
+                  X1="0"
+                  X2="{Binding ScreenSize.Width}"
+                  Y2="{Binding RelativeSource={RelativeSource Self}, Path=Y1}">
+                <Line.Y1>
+                    <MultiBinding Converter="{StaticResource WorldToScreen}">
+                        <Binding Source="{StaticResource Zero}"/>
+                        <Binding Path="CameraPos.Z"/>
+                        <Binding Path="ZoomMultiplier"/>
+                        <Binding Path="ScreenSize.Height"/>
+                    </MultiBinding>
+                </Line.Y1>
+            </Line>
+            <!--  Vertial Line  -->
+            <Line Stroke="White"
+                  StrokeThickness="1"
+                  Y1="0"
+                  Y2="{Binding ScreenSize.Height}"
+                  X2="{Binding RelativeSource={RelativeSource Self}, Path=X1}">
+                <Line.X1>
+                    <MultiBinding Converter="{StaticResource WorldToScreen}">
+                        <Binding Source="{StaticResource Zero}"/>
+                        <Binding Path="CameraPos.X"/>
+                        <Binding Path="ZoomMultiplier"/>
+                        <Binding Path="ScreenSize.Width"/>
+                    </MultiBinding>
+                </Line.X1>
+            </Line>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -9,9 +9,8 @@ namespace binstarjs03.AerialOBJ.WpfApp.Components;
 using System;
 
 using binstarjs03.AerialOBJ.Core.Primitives;
+using binstarjs03.AerialOBJ.MvvmAppCore.Components;
 
-// extend from Wpf image while implement the interface so we can display it directly to
-// wpf container controls (canvas, grid, stackpanel, etc)
 public class MutableImage : Image, IMutableImage
 {
     private readonly PixelFormat _pixelFormat = PixelFormats.Bgra32;

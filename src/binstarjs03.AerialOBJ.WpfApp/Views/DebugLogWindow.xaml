@@ -1,0 +1,45 @@
+﻿<Window x:Class="binstarjs03.AerialOBJ.WpfApp.Views.DebugLogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type viewmodels:DebugLogViewModel}}"
+        Title="Debug Log"
+        Width="600"
+        Height="400"
+        d:Width="400"
+        d:Height="300"
+        MinWidth="300"
+        MinHeight="300"
+        Visibility="{Binding SharedViewModelState.IsDebugLogViewVisible, Mode=TwoWay, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}"
+        d:Visibility="Visible"
+        Background="{StaticResource Background}">
+    <Grid>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="Log">
+                    <MenuItem Header="Save" Command="{Binding SaveLogCommand}"/>
+                    <MenuItem Header="Clear" Command="{Binding ClearLogCommand}"/>
+                    <MenuItem Header="Close"
+                              Command="{Binding CloseCommand}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </MenuItem>
+            </Menu>
+            <TextBox x:Name="LogTextBox"
+                     Text="{Binding LogContent, Mode=OneWay}"
+                     d:Text="Some initial text to preview"
+                     BorderThickness="0"
+                     Margin="2,3"
+                     Background="{StaticResource Background}"
+                     Foreground="{StaticResource TextNormal}"
+                     IsReadOnly="True"
+                     Focusable="False"
+                     TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto"
+                     FontFamily="Lucida Console"
+                     FontSize="12"/>
+        </DockPanel>
+    </Grid>
+</Window>

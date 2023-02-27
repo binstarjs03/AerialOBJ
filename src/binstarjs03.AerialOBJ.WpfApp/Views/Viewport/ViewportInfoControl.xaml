@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="binstarjs03.AerialOBJ.WpfApp.Views.ViewportInfoControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Views"
+             xmlns:components="clr-namespace:binstarjs03.AerialOBJ.WpfApp.Components"
+             xmlns:viewmodels="clr-namespace:binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;assembly=binstarjs03.AerialOBJ.MvvmAppCore"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodels:ViewportViewModel}}"
+             Visibility="{Binding IsInfoPanelVisible, Converter={StaticResource FlexibleBoolToVisibility}, ConverterParameter=Visible|Collapsed}">
+    <UserControl.Resources>
+        <Style TargetType="components:PropertyValuePair">
+            <Setter Property="PropertyColor" Value="{StaticResource TextNormal}"/>
+            <Setter Property="ValueColor" Value="{StaticResource TextHighlighted}"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
+        </Style>
+    </UserControl.Resources>
+    <Border BorderThickness="1"
+            BorderBrush="{StaticResource TextNormal}"
+            Background="#88000000">
+        <StackPanel HorizontalAlignment="Left"
+                    MinWidth="150"
+                    Margin="5">
+            <components:PropertyValuePair PropertyText="Screen Size : " ValueText="{Binding ScreenSize}"/>
+            <components:PropertyValuePair PropertyText="Camera Pos : " ValueText="{Binding CameraPos, Converter={StaticResource FormattedFloat}}"/>
+            <components:PropertyValuePair PropertyText="Zoom Multiplier : " ValueText="{Binding ZoomMultiplier}"/>
+            <components:PropertyValuePair PropertyText="Height Limit : " ValueText="{Binding HeightLevel}"/>
+
+            <Separator Style="{StaticResource SubtleSeparator}"/>
+
+            <components:PropertyValuePair PropertyText="Selection 1 : " ValueText="..."/>
+            <components:PropertyValuePair PropertyText="Selection 2 : " ValueText="..."/>
+
+            <Separator Style="{StaticResource SubtleSeparator}"/>
+
+            <TextBlock Text="Visible Region Range : "/>
+            <components:PropertyValuePair PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.XRange}"/>
+            <components:PropertyValuePair PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleRegionRange.ZRange}"/>
+            <components:PropertyValuePair PropertyText="Visible Region Count : " ValueText="{Binding ChunkRegionManager.VisibleRegionsCount}"/>
+            <components:PropertyValuePair PropertyText="Loaded Region Count : " ValueText="{Binding ChunkRegionManager.LoadedRegionsCount}"/>
+            <components:PropertyValuePair PropertyText="Cached Region Count : " ValueText="{Binding ChunkRegionManager.CachedRegionsCount}"/>
+            <components:PropertyValuePair PropertyText="Pending Region Count : " ValueText="{Binding ChunkRegionManager.PendingRegionsCount}"/>
+            <components:PropertyValuePair PropertyText="Worked Region : " ValueText="{Binding ChunkRegionManager.WorkedRegion}"/>
+
+            <Separator Style="{StaticResource SubtleSeparator}"/>
+
+            <TextBlock Text="Visible Chunk Range : "/>
+            <components:PropertyValuePair PropertyText=" - X Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.XRange}"/>
+            <components:PropertyValuePair PropertyText=" - Z Range " ValueText="{Binding ChunkRegionManager.VisibleChunkRange.ZRange}"/>
+            <components:PropertyValuePair PropertyText="Visible Chunk Count : " ValueText="{Binding ChunkRegionManager.VisibleChunksCount}"/>
+            <components:PropertyValuePair PropertyText="Loaded Chunk Count : " ValueText="{Binding ChunkRegionManager.LoadedChunksCount}"/>
+            <components:PropertyValuePair PropertyText="Pending Chunk Count : " ValueText="{Binding ChunkRegionManager.PendingChunksCount}"/>
+            <components:PropertyValuePair PropertyText="Worked Chunk Count : " ValueText="{Binding ChunkRegionManager.WorkedChunksCount}"/>
+        </StackPanel>
+    </Border>
+</UserControl>
