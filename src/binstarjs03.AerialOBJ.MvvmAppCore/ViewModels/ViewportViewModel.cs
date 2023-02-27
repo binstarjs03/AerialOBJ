@@ -14,7 +14,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
-public partial class ViewportViewModel : ObservableObject
+public partial class ViewportViewModel : ObservableObject, IViewportViewModel
 {
     private readonly GlobalState _globalState;
     private readonly ILogService _logService;
@@ -92,6 +92,9 @@ public partial class ViewportViewModel : ObservableObject
 
     public IChunkRegionManager ChunkRegionManager { get; }
 
+    public event Action? CameraPosChanged;
+    public event Action? HeightLevelChanged;
+
     public void Zoom(ZoomDirection direction)
     {
         int nearestIndex = 0;
@@ -145,7 +148,7 @@ public partial class ViewportViewModel : ObservableObject
 
     public void MoveHeightLevel(HeightLevelDirection direction, int distance)
     {
-        int difference = direction == HeightLevelDirection.Up? 1 : -1;
+        int difference = direction == HeightLevelDirection.Up ? 1 : -1;
         int newHeightLevel = HeightLevel + distance * difference;
         newHeightLevel = Math.Clamp(newHeightLevel, MinHeightLimit, MaxHeightLimit);
         HeightLevel = newHeightLevel;
@@ -238,6 +241,7 @@ public partial class ViewportViewModel : ObservableObject
     {
         UpdateChunkRegionManager();
         UpdateViewportCoordsManager();
+        CameraPosChanged?.Invoke();
     }
 
     partial void OnScreenSizeChanged(Size<int> value)
@@ -253,7 +257,17 @@ public partial class ViewportViewModel : ObservableObject
         UpdateViewportCoordsManager();
     }
 
-    partial void OnHeightLevelChanged(int value) => UpdateChunkRegionManagerHeight();
+    partial void OnHeightLevelChanged(int value)
+    {
+        int clamped = Math.Clamp(value, MinHeightLimit, MaxHeightLimit);
+        if (value != clamped)
+        {
+            HeightLevel = clamped;
+            return;
+        }
+        UpdateChunkRegionManagerHeight();
+        HeightLevelChanged?.Invoke();
+    }
 
     partial void OnIsCoordinateVisibleChanged(bool value)
     {

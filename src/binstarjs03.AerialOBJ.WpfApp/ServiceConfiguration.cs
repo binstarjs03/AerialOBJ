@@ -107,7 +107,8 @@ public static class ServiceConfiguration
         });
         services.AddTransient<GotoViewModel>(x =>
         {
-            var viewmodel = new GotoViewModel();
+            var viewport = x.GetRequiredService<ViewportViewModel>();
+            var viewmodel = new GotoViewModel(viewport);
             var mainWindowViewModel = x.GetRequiredService<MainViewModel>();
             viewmodel.ClosedRecipient = mainWindowViewModel;
             return viewmodel;

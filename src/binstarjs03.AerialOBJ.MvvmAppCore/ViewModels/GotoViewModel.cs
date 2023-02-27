@@ -1,5 +1,8 @@
-﻿using binstarjs03.AerialOBJ.Core;
+﻿using System;
+
+using binstarjs03.AerialOBJ.Core;
 using binstarjs03.AerialOBJ.Core.MinecraftWorld;
+using binstarjs03.AerialOBJ.Core.Primitives;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,6 +10,8 @@ using CommunityToolkit.Mvvm.Input;
 namespace binstarjs03.AerialOBJ.MvvmAppCore.ViewModels;
 public partial class GotoViewModel : ObservableObject
 {
+    private readonly IViewportViewModel _viewportViewModel;
+
     [ObservableProperty] private int _blockCoordsX = 0;
     [ObservableProperty] private int _blockCoordsY = 0;
     [ObservableProperty] private int _blockCoordsZ = 0;
@@ -18,7 +23,41 @@ public partial class GotoViewModel : ObservableObject
     [ObservableProperty] private int _regionCoordsX = 0;
     [ObservableProperty] private int _regionCoordsZ = 0;
 
+    public GotoViewModel(IViewportViewModel viewportViewModel)
+    {
+        _viewportViewModel = viewportViewModel;
+
+        viewportViewModel.CameraPosChanged += OnViewportCameraPosChanged;
+        viewportViewModel.HeightLevelChanged += OnViewportHeightLevelChanged;
+
+        BlockCoordsX = viewportViewModel.CameraPos.X.Floor();
+        BlockCoordsY = viewportViewModel.HeightLevel;
+        BlockCoordsZ = viewportViewModel.CameraPos.Z.Floor();
+    }
+
     public IGotoViewModelClosedRecipient? ClosedRecipient { get; set; }
+
+    private void OnViewportCameraPosChanged()
+    {
+        var cameraPos = _viewportViewModel.CameraPos;
+
+        BlockCoordsX = cameraPos.X.Floor();
+        BlockCoordsZ = cameraPos.Z.Floor();
+    }
+
+    private void OnViewportHeightLevelChanged()
+    {
+        var heightLevel = _viewportViewModel.HeightLevel;
+        BlockCoordsY = heightLevel;
+    }
+
+    [RelayCommand]
+    private void OnClosing()
+    {
+        _viewportViewModel.CameraPosChanged -= OnViewportCameraPosChanged;
+        _viewportViewModel.HeightLevelChanged -= OnViewportHeightLevelChanged;
+        ClosedRecipient?.Notify();
+    }
 
     partial void OnBlockCoordsXChanged(int value)
     {
@@ -27,12 +66,18 @@ public partial class GotoViewModel : ObservableObject
 
         int regionCoords = MathUtils.DivFloor(chunkCoords, IRegion.ChunkCount);
         RegionCoordsX = regionCoords;
+
+        var cameraPos = _viewportViewModel.CameraPos;
+        cameraPos.X = value;
+        _viewportViewModel.CameraPos = cameraPos;
     }
 
     partial void OnBlockCoordsYChanged(int value)
     {
         int chunkCoords = MathUtils.DivFloor(value, IChunk.BlockCount);
         ChunkCoordsY = chunkCoords;
+
+        _viewportViewModel.HeightLevel = value;
     }
 
     partial void OnBlockCoordsZChanged(int value)
@@ -42,6 +87,10 @@ public partial class GotoViewModel : ObservableObject
 
         int regionCoords = MathUtils.DivFloor(chunkCoords, IRegion.ChunkCount);
         RegionCoordsZ = regionCoords;
+
+        var cameraPos = _viewportViewModel.CameraPos;
+        cameraPos.Z = value;
+        _viewportViewModel.CameraPos = cameraPos;
     }
 
 
@@ -93,7 +142,4 @@ public partial class GotoViewModel : ObservableObject
         int chunkCoords = value * IRegion.ChunkCount + chunkCoordsMod;
         ChunkCoordsZ = chunkCoords;
     }
-
-    [RelayCommand]
-    void OnClosing() => ClosedRecipient?.Notify();
 }

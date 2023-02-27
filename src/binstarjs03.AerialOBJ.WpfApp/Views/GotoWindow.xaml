@@ -42,7 +42,6 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
-            <RowDefinition/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0"
                    Foreground="{StaticResource TextNormal}"
@@ -111,13 +110,13 @@
                                Grid.Column="3"
                                IntValue="{Binding RegionCoordsZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
-        <Grid Grid.Row="2">
+        <!--Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Content="Current Position"/>
             <Button Grid.Column="1" Content="Jump"/>
-        </Grid>
+        </Grid-->
     </Grid>
 </Window>
